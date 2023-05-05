@@ -1,0 +1,31 @@
+version: '3'
+services:
+  php:
+    build:
+      context: ./.docker/php/
+      dockerfile: Dockerfile
+    ports:
+      - 1506:80
+    volumes:
+     - ./:/var/www
+    command: php -S 0.0.0.0:80 -t /var/www/
+    # command: php /var/www/bin/makeMigration.php
+
+  database:
+    image: postgres
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: esgi
+      POSTGRES_USER: esgi
+      POSTGRES_PASSWORD: Test1234
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  pgdata:
