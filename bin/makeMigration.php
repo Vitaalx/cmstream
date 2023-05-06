@@ -1,17 +1,9 @@
 <?php
 
-require "../Core/AutoLoader.php";
-require "../Core/Entity.php";
+require __DIR__ . "/../Core/AutoLoader.php";
+require __DIR__ . "/scan.php";
 
 use Core\Entity;
-
-function scan($path, $function){
-    foreach(scandir($path) as $file){
-        if(str_starts_with($file, "."))continue;
-        else if(is_dir($path . "/" . $file))scan($path . "/" . $file, $function);
-        else $function($path . "/" . $file);
-    }
-}
 
 $sqlFiles = [];
 
@@ -64,7 +56,9 @@ scan(
         $entityName = str_replace(".php", "", $entityName);
         $entityName = strtolower($entityName);
 
-        array_push($entitysName, $entityName);
+        $prefixedEntityName = "_" . $entityName;
+
+        array_push($entitysName, $prefixedEntityName);
 
         $class = str_replace(__DIR__ . "/../", "", $path);
         $class = str_replace(".php", "", $class);
@@ -73,7 +67,7 @@ scan(
         $propsName = [];
 
         try{
-            $result = Entity::getDb()->prepare(replace("tableExist", ["tableName" => $entityName]));
+            $result = Entity::getDb()->prepare(replace("tableExist", ["tableName" => $prefixedEntityName]));
             $result->execute();
             $result->fetch();
             $exist = true;
@@ -99,6 +93,9 @@ scan(
                         isset($groups[1][0]) && 
                         $groups[1][0] === "type"
                     ){
+                        if($prop->getName() === "id"){
+                            $groups[2][0] = "SERIAL PRIMARY KEY";
+                        }
                         array_push($propsName, $prop->getName() . " " . $groups[2][0]);
                     }
                 }
@@ -110,7 +107,7 @@ scan(
             $migrationSql .= replace(
                 "createTable", 
                 [
-                    "tableName" => $entityName,
+                    "tableName" => $prefixedEntityName,
                     "tableProps" => implode(
                         ", ",
                         $propsName,
@@ -151,29 +148,35 @@ scan(
                     replace(
                         "columnExist", 
                         [
-                            "tableName" => $entityName,
+                            "tableName" => $prefixedEntityName,
                             "columnName" => $columnName
                         ]
                     )
                 ); 
                 $result->execute();
                 $result = $result->fetchAll(\PDO::FETCH_ASSOC);
-            
+
                 if(isset($result[0]) === false){
+                    if($columnName === "id"){
+                        $columnType = "SERIAL PRIMARY KEY";
+                    }
                     $migrationSql .= replace(
                         "createColumn", 
                         [
-                            "tableName" => $entityName,
+                            "tableName" => $prefixedEntityName,
                             "columnName" => $columnName,
                             "columnType" => $columnType
                         ]
                     ) . "\n";
                 }
                 else if(strToLower($result[0]["data_type"]) !== strToLower($columnType)){
+                    if($columnName === "id"){
+                        $columnType = "SERIAL PRIMARY KEY";
+                    }
                     $migrationSql .= replace(
                         "alterColumn", 
                         [
-                            "tableName" => $entityName,
+                            "tableName" => $prefixedEntityName,
                             "columnName" => $columnName,
                             "columnType" => $columnType
                         ]
@@ -188,7 +191,7 @@ scan(
                 replace(
                     "showColumns", 
                     [
-                        "tableName" => $entityName
+                        "tableName" => $prefixedEntityName
                     ]
                 )
             ); 
@@ -234,6 +237,6 @@ foreach($result as $tableName){
     }
 }
 
-$migrationFile = fopen("../migration.sql", "w");
+$migrationFile = fopen(__DIR__ . "/../migration.sql", "w");
 fwrite($migrationFile, $migrationSql);
 fclose($migrationFile);

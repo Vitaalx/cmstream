@@ -4,7 +4,7 @@ namespace Entity;
 use Core\Entity;
 
 class User extends Entity{
-    /** @type{SERIAL PRIMARY KEY} */
+    /** @type{int} */
     private int $id;
 
     /** @type{VARCHAR(60)} */
@@ -16,7 +16,7 @@ class User extends Entity{
     /** @type{VARCHAR(2)} */
     private string $country;
 
-    /** @join{Entity\Post} */
+    /** @join{Entity\Post,author} */
     private array $posts;
 
     /**

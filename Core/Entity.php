@@ -8,7 +8,7 @@ abstract class Entity{
 
     }
 
-    static public function findOne($id): static
+    static public function find(QueryBuilder $queryBuilder): static
     {
         $currentEntity = explode("\\", static::class);
         $currentEntity = array_pop($currentEntity);

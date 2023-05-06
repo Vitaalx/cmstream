@@ -1,3 +1,3 @@
-CREATE TABLE [if not exists] {tableName} (
+CREATE TABLE {tableName} (
     {tableProps}
 );

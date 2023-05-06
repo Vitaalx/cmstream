@@ -4,10 +4,12 @@ namespace Entity;
 use Core\Entity;
 
 class Post extends Entity{
-    /** @type{SERIAL PRIMARY KEY} */
+    /** @type{int} */
     private int $id;
     /** @type{VARCHAR(120)} */
     private string $title;
+    /** @type{VARCHAR(240)} */
+    private string $subTitle;
     private User $author;
 
     /**
@@ -78,6 +80,30 @@ class Post extends Entity{
     public function setAuthor(User $author): self
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of subTitle
+     *
+     * @return string
+     */
+    public function getSubTitle(): string
+    {
+        return $this->subTitle;
+    }
+
+    /**
+     * Set the value of subTitle
+     *
+     * @param string $subTitle
+     *
+     * @return self
+     */
+    public function setSubTitle(string $subTitle): self
+    {
+        $this->subTitle = $subTitle;
 
         return $this;
     }

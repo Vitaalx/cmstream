@@ -1,2 +1,2 @@
 ALTER TABLE {tableName}
-ALTER COLUMN {columnName} [SET DATA] TYPE {columnType};
+ALTER COLUMN {columnName} TYPE {columnType};

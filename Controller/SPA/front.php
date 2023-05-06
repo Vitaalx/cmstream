@@ -2,9 +2,9 @@
 namespace controller\SPA\front;
 
 use Core\Controller;
+use Core\QueryBuilder;
 use Core\Request;
 use Core\Response;
-use Entity\User ;
 
 class index extends Controller{
     public function checkers(Request $request): array
@@ -14,10 +14,14 @@ class index extends Controller{
 
     public function handler(Request $request, Response $response): void
     {
-        $user = User::findOne(1);
-        // $post = $user->post->joinOne(2);
-        // $userLike = $post->userLike->joinArray();
-        $response->send();
-        // $response->render("front@index", ["id" => "33"]);
+        $query = new QueryBuilder("user");
+        $query->select()
+        ->column("id");
+
+        $query->where()
+        ->equal("id", 2)->or()
+        ->equal("id", 5);
+
+        $response->render("front@index", ["id" => "33"]);
     }
 }
