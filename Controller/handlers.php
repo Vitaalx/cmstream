@@ -16,3 +16,20 @@ class notfound extends Controller{
         $response->code(404)->info("notfound")->send();
     }
 }
+
+class assets extends Controller{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["file/checkPath", $request->getPath()],
+            ["file/exist", fn() => $this->floor->pickup("path")]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $response->sendFile(
+            $this->floor->pickup("path")
+        );
+    }
+}

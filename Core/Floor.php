@@ -11,6 +11,6 @@ class Floor{
 
     public function pickup(string $key)
     {
-        return $this->state[$key];
+        return $this->state[$key] ?? null;
     }
 }

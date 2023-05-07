@@ -48,6 +48,13 @@ class Response{
         echo $content;
         exit;
     }
+    public function sendFile(string $path): void
+    {
+        $this->autoSetHeaders($content);
+
+        readfile($path);
+        exit;
+    }
 
     public function render(string $options, array $params): void
     {
@@ -58,13 +65,13 @@ class Response{
         }
 
         $template = $options[0];
-        $template = "./Template/" . $template . ".php";
+        $template = __DIR__ . "/../Template/" . $template . ".php";
         if(file_exists($template) === false)
         {
             die("Template '" . $template . "' not exist.");
         }
         $view = $options[1];
-        $view = "./View/" . $view . ".php";
+        $view = __DIR__ . "/../View/" . $view . ".php";
         if(file_exists($view) === false)
         {
             die("View '" . $view . "' not exist.");

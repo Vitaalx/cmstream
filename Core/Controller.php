@@ -23,6 +23,9 @@ abstract class Controller {
         try{
             foreach($checkers as $checker){
                 $function = self::autoLoad($checker[0]);
+                if(is_callable($checker[1])){
+                    $checker[1] = $checker[1]();
+                }
                 $value = $function($checker[1], $floor, $response);
                 $floor->droped($checker[0], $value);
             }
@@ -49,7 +52,7 @@ abstract class Controller {
         if(function_exists($function) === false){
             $path = explode("/", rtrim($checker, "/"));
             array_pop($path);
-            $path = "./Checker/" . implode("/", $path) . ".php";
+            $path = __DIR__ ."/../Checker/" . implode("/", $path) . ".php";
             
             if(file_exists($path) === false)
             {

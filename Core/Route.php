@@ -4,11 +4,11 @@ namespace Core;
 use Core\Request;
 use Core\Response;
 
-require "Request.php";
-require "Controller.php";
-require "Floor.php";
-require "Response.php";
-require "AutoLoader.php";
+require __DIR__ . "/Request.php";
+require __DIR__ . "/Controller.php";
+require __DIR__ . "/Floor.php";
+require __DIR__ . "/Response.php";
+require __DIR__ . "/AutoLoader.php";
 
 class Route{
     static private string $requestPath;
@@ -83,7 +83,7 @@ class Route{
     {
         $path = explode("/", rtrim($controller, "/"));
         array_pop($path);
-        $path = "./Controller/" . implode("/", $path) . ".php";
+        $path = __DIR__ . "/../Controller/" . implode("/", $path) . ".php";
 
         if(file_exists($path) === false)
         {

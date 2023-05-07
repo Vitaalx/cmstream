@@ -1,7 +1,7 @@
 <?php
 use Core\Route;
 
-require "./Core/Route.php";
+require "../Core/Route.php";
 
 Route::match([
     "method" => "GET",
@@ -13,6 +13,12 @@ Route::match([
     "method" => "GET",
     "path" => "/",
     "controller" => "SPA/front/index",
+]);
+
+Route::match([
+    "method" => "*",
+    "path" => "/public/.*",
+    "controller" => "handlers/assets",
 ]);
 
 Route::match([
