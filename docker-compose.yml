@@ -4,12 +4,17 @@ services:
     build:
       context: ./.docker/php/
       dockerfile: Dockerfile
+    volumes:
+     - ./:/var/www
+
+  nginx:
+    build:
+      context: ./.docker/nginx/
+      dockerfile: Dockerfile
     ports:
       - 1506:80
     volumes:
      - ./:/var/www
-    command: php -S 0.0.0.0:80 -t /var/www/html
-    # command: php /var/www/bin/makeMigration.php
 
   database:
     image: postgres
