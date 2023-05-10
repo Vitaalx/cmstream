@@ -6,10 +6,23 @@ use Core\Entity;
 class Post extends Entity{
     /** @type{int} */
     private int $id;
-    /** @type{VARCHAR(120)} */
+
+    /** 
+     * @type{VARCHAR(120)} 
+     * @notnullable{}
+     * @unique{}
+    */
     private string $title;
-    /** @type{VARCHAR(240)} */
+
+    /** 
+     * @type{VARCHAR(240)} 
+     * 
+    */
     private string $subTitle;
+
+    /**
+     * @notnullable{}
+     */
     private User $author;
 
     /**

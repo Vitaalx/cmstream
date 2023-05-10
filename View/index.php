@@ -1,1 +1,2 @@
-<h1>index <?= $id ?></h1>
+<h1>index</h1>
+<p><?= $id ?> <?= $firstName ?></p>

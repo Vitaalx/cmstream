@@ -7,13 +7,24 @@ class User extends Entity{
     /** @type{int} */
     private int $id;
 
-    /** @type{VARCHAR(60)} */
+    /** 
+     * @type{VARCHAR(60)} 
+     * @notnullable{}
+     * @unique{}
+    */
     private string $firstname;
 
-    /** @type{VARCHAR(120)} */
+    /** 
+     * @type{VARCHAR(120)} 
+     * @notnullable{}
+     * @unique{}
+    */
     private string $lastname;
 
-    /** @type{VARCHAR(2)} */
+    /** 
+     * @type{VARCHAR(2)} 
+     * @notnullable{}
+    */
     private string $country;
 
     /** @join{Entity\Post,author} */

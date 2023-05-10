@@ -2,6 +2,7 @@
 namespace Core;
 
 class Request{
+    static private Request $currentRequest;
     private string $uri;
     private string $requestPath;
     private string $requestMethod;
@@ -13,6 +14,8 @@ class Request{
 
     public function __construct(string $path, array $info, string $regexPath)
     {
+        self::$currentRequest = $this;
+        
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->requestMethod = $_SERVER["REQUEST_METHOD"];
 
@@ -99,5 +102,15 @@ class Request{
                 if($args[0] !== "" && ($args[1] ?? null))$this->requestQuery[$args[0]] = $args[1];
             }
         }
+    }
+
+    /**
+     * Get the value of currentRequest
+     *
+     * @return Request
+     */
+    public static function getCurrentRequest(): Request
+    {
+        return self::$currentRequest;
     }
 }

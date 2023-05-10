@@ -22,7 +22,7 @@ abstract class Controller {
     {
         try{
             foreach($checkers as $checker){
-                $function = self::autoLoad($checker[0]);
+                $function = self::autoLoadChecker($checker[0]);
                 if(is_callable($checker[1])){
                     $checker[1] = $checker[1]();
                 }
@@ -42,7 +42,7 @@ abstract class Controller {
         }
     }
 
-    static private function autoLoad(string $checker): string
+    static function autoLoadChecker(string $checker): string
     {
         $function = "checker/{$checker}";
         $function = str_replace("/", "\\", $function);
@@ -69,4 +69,10 @@ abstract class Controller {
 
         return $function;
     }
+}
+
+function callChecker(string $checker, mixed $value){
+    $checkerFunction = Controller::autoLoadChecker($checker);
+    $floor = new Floor();
+    return $checkerFunction($value, $floor, Response::getCurrentResponse());
 }

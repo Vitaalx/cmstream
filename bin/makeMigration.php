@@ -43,6 +43,21 @@ scan(
 $migrationSql = "";
 $entitysName = [];
 
+// test
+// $result = Entity::getDb()
+// ->prepare(
+//     replace(
+//         "columnExist", 
+//         [
+//             "tableName" => "_test",
+//             "columnName" => "subtitle",
+//         ]
+//     )
+// ); 
+// $result->execute();
+// $result = $result->fetchAll(\PDO::FETCH_ASSOC);
+// print_r($result);
+
 scan(
     __DIR__ . "/../Entity",
     function($path){
@@ -77,27 +92,45 @@ scan(
         }
 
         if($exist === false){
-            $rp = new \ReflectionObject(new $class());
+            //create entity
+            $rp = new \ReflectionObject(new $class([]));
+            //get all props
             foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
+                //type is entity
                 if(str_starts_with($prop->getType()->getName(), "Entity\\")){
-                    $propEntity = explode("\\", $prop->getType()->getName());
-                    $propEntity = array_pop($propEntity);
+                    preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
+                    $type = "";
 
-                    array_push($propsName, $prop->getName() . "_id INT");
+                    foreach ($groups[1] ?? [] as $key => $value) {
+                        if($value === "notnullable"){
+                            $type .= "NOT NULL ";
+                        }
+                        else if($value === "unique"){
+                            $type .= "UNIQUE ";
+                        }
+                    }
+
+                    array_push($propsName, $prop->getName() . "_id INT" . $type);
                 }
+                //type is defined in comment
                 else if($prop->getDocComment() !== false){
                     preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
-                    if(
-                        isset($groups) &&
-                        isset($groups[1]) &&
-                        isset($groups[1][0]) && 
-                        $groups[1][0] === "type"
-                    ){
-                        if($prop->getName() === "id"){
-                            $groups[2][0] = "SERIAL PRIMARY KEY";
+                    $type = "";
+                    //auto define type of prop id
+                    if($prop->getName() === "id") $type = "SERIAL PRIMARY KEY";
+                    //get parameter and type
+                    else foreach ($groups[1] ?? [] as $key => $value) {
+                        if($value === "type"){
+                            $type .= $groups[2][$key] . " ";
                         }
-                        array_push($propsName, $prop->getName() . " " . $groups[2][0]);
+                        else if($value === "notnullable"){
+                            $type .= "NOT NULL ";
+                        }
+                        else if($value === "unique"){
+                            $type .= "UNIQUE ";
+                        }
                     }
+                    array_push($propsName, $prop->getName() . " " . $type);
                 }
                 else if($prop->getType()->getName() !== "array"){
                     die("The props '{$prop->getName()}' of Entity '{$entityName}' ah not @type.");
@@ -116,28 +149,48 @@ scan(
             ) . "\n";
         }
         else {
-            $rp = new \ReflectionObject(new $class());
+            //edit entity
+            $rp = new \ReflectionObject(new $class([]));
+            //get all props
             foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
 
                 $columnName = strToLower($prop->getName());
                 $columnType = "";
+                $isNotNullable = false;
+                $isUnique = false;
 
                 if($prop->getType()->getName() === "array") continue;
+                //type is entity
                 else if(str_starts_with($prop->getType()->getName(), "Entity\\")){
-                    $propEntity = explode("\\", $prop->getType()->getName());
-                    $propEntity = array_pop($propEntity);
-
                     $columnName .= "_id";
                     $columnType = "INT";
+
+                    preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
+                    $type = "";
+
+                    foreach ($groups[1] ?? [] as $key => $value) {
+                        if($value === "notnullable"){
+                            $isNotNullable = true;
+                        }
+                        else if($value === "unique"){
+                            $isUnique = true;
+                        }
+                    }
+
                 }
                 else if($prop->getDocComment() !== false){
                     preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
-                    if(
-                        isset($groups) &&
-                        isset($groups[1]) &&
-                        isset($groups[1][0]) && 
-                        $groups[1][0] === "type"
-                    )$columnType = $groups[2][0];
+                    foreach ($groups[1] ?? [] as $key => $value) {
+                        if($value === "type"){
+                            $columnType = $groups[2][$key];
+                        }
+                        else if($value === "notnullable"){
+                            $isNotNullable = true;
+                        }
+                        else if($value === "unique"){
+                            $isUnique = true;
+                        }
+                    }
                 }
 
                 if(isset($columnType) === false) 
@@ -165,22 +218,68 @@ scan(
                         [
                             "tableName" => $prefixedEntityName,
                             "columnName" => $columnName,
-                            "columnType" => $columnType
+                            "columnType" => $columnType 
+                                . ($isNotNullable === true? " NOT NULL" : "") 
+                                . ($isUnique === true? " UNIQUE" : "")
                         ]
                     ) . "\n";
                 }
-                else if(strToLower($result[0]["data_type"]) !== strToLower($columnType)){
-                    if($columnName === "id"){
-                        $columnType = "SERIAL PRIMARY KEY";
+                else {
+                    if(strToLower($result[0]["data_type"]) !== strToLower($columnType)){
+                        if($columnName === "id"){
+                            $columnType = "SERIAL PRIMARY KEY";
+                        }
+                        $migrationSql .= replace(
+                            "alterColumn", 
+                            [
+                                "tableName" => $prefixedEntityName,
+                                "columnName" => $columnName,
+                                "columnType" => $columnType
+                            ]
+                        ) . "\n";
                     }
-                    $migrationSql .= replace(
-                        "alterColumn", 
-                        [
-                            "tableName" => $prefixedEntityName,
-                            "columnName" => $columnName,
-                            "columnType" => $columnType
-                        ]
-                    ) . "\n";
+                    if($result[0]["is_not_nullable"] !== $isNotNullable && $columnName !== "id"){
+                        if($isNotNullable === true){
+                            $migrationSql .= replace(
+                                "alterColumnNotNull",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        else {
+                            $migrationSql .= replace(
+                                "alterColumnDropNotNull",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        
+                    }
+                    if($result[0]["is_unique"] !== $isUnique && $columnName !== "id"){
+                        if($isUnique === true){
+                            $migrationSql .= replace(
+                                "alterColumnUnique", 
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        else {
+                            $migrationSql .= replace(
+                                "alterColumnDropUnique", 
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        
+                    }
                 }
 
                 array_push($propsName, $columnName);

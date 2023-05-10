@@ -1,0 +1,2 @@
+ALTER TABLE {tableName}
+ALTER COLUMN {columnName} DROP NOT NULL;

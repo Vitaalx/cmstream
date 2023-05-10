@@ -26,7 +26,7 @@ class Route{
                 $info["method"] === "*"
             )
         ){
-            $class = self::autoLoad($info["controller"]);
+            $class = self::autoLoadController($info["controller"]);
 
             $request = new Request(self::$requestPath, $info, $regexPath);
             $response = new Response();
@@ -79,29 +79,31 @@ class Route{
         }
     }
 
-    static function autoLoad(string $controller)
+    static function autoLoadController(string $controller)
     {
-        $path = explode("/", rtrim($controller, "/"));
-        array_pop($path);
-        $path = __DIR__ . "/../Controller/" . implode("/", $path) . ".php";
-
-        if(file_exists($path) === false)
-        {
-            die("File '" . $path . "' not exist.");
-        }
-
-        include $path;
-
         $class = "controller/{$controller}";
         $class = str_replace("/", "\\", $class);
         $class = str_replace("\\\\", "\\", $class);
         $class = rtrim($class, "\\");
 
-        if(class_exists($class) === false)
-        {
-            die("Class '" . $class . "' not exist.");
+        if(class_exists($class) === false){
+            $path = explode("/", rtrim($controller, "/"));
+            array_pop($path);
+            $path = __DIR__ . "/../Controller/" . implode("/", $path) . ".php";
+
+            if(file_exists($path) === false)
+            {
+                die("File '" . $path . "' not exist.");
+            }
+
+            include $path;
+
+            if(class_exists($class) === false)
+            {
+                die("Class '" . $class . "' not exist.");
+            }
         }
-        
+
         return $class;
     }
 
@@ -113,3 +115,8 @@ class Route{
 }
 
 Route::initRoute();
+
+function callController(string $controller){
+    $controllerClass = Route::autoLoadController($controller);
+    return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
+}

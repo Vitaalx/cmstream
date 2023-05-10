@@ -4,12 +4,13 @@ namespace Core;
 use Core\Route;
 
 class Response{
+    static private Response $currentResponse;
     private int $code = 200;
     private string $info;
     private array $headers = [];
 
     public function __construct(){
-        
+        self::$currentResponse = $this;
     }
 
     public function code(int $code): Response
@@ -105,5 +106,15 @@ class Response{
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");
         }
+    }
+
+    /**
+     * Get the value of currentResponse
+     *
+     * @return Response
+     */
+    static public function getCurrentResponse(): Response
+    {
+        return self::$currentResponse;
     }
 }
