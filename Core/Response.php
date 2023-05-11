@@ -89,7 +89,7 @@ class Response{
         http_response_code($this->code);
         
         if(isset($this->headers["Content-Type"]) === false){
-            if(gettype($content) === "array"){
+            if(gettype($content) === "array" || gettype($content) === "object"){
                 $this->headers["Content-Type"] = "application/json";
                 $content = json_encode($content);
             }

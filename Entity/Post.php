@@ -18,7 +18,7 @@ class Post extends Entity{
      * @type{VARCHAR(240)} 
      * 
     */
-    private string $subTitle;
+    private ?string $subtitle;
 
     /**
      * @notnullable{}
@@ -32,21 +32,7 @@ class Post extends Entity{
      */
     public function getId(): int
     {
-        return $this->id;
-    }
-
-    /**
-     * Set the value of id
-     *
-     * @param int $id
-     *
-     * @return self
-     */
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-
-        return $this;
+        return parent::getId();
     }
 
     /**
@@ -90,7 +76,7 @@ class Post extends Entity{
      *
      * @return self
      */
-    public function setAuthor(User $author): self
+    protected function setAuthor(User $author): self
     {
         $this->author = $author;
 
@@ -102,9 +88,9 @@ class Post extends Entity{
      *
      * @return string
      */
-    public function getSubTitle(): string
+    public function getSubTitle(): ?string
     {
-        return $this->subTitle;
+        return $this->subtitle;
     }
 
     /**
@@ -114,9 +100,9 @@ class Post extends Entity{
      *
      * @return self
      */
-    public function setSubTitle(string $subTitle): self
+    public function setSubtitle(?string $subTitle): self
     {
-        $this->subTitle = $subTitle;
+        $this->subtitle = $subTitle;
 
         return $this;
     }

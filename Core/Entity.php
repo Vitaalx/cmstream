@@ -2,12 +2,17 @@
 namespace Core;
 
 #[\AllowDynamicProperties]
-abstract class Entity {
+abstract class Entity implements \JsonSerializable{
     static private \PDO $db;
-    private int $id;
+    private ?int $id = null;
     private array $otherProps = [];
 
     public function __construct(array $array){
+        if(isset($array["id"]) === true){
+            $this->id = $array["id"];
+            unset($array["id"]); 
+        }
+
         foreach ($array as $key => $value) {
             if(property_exists($this, $key) === false){
                 $this->otherProps[$key] = $value;
@@ -19,24 +24,62 @@ abstract class Entity {
         }
     }
 
+    public function __serialize(){
+        return $this->toArray();
+    }
+
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize(){
+        return $this->toArray();
+    }
+
     public function join(string $props): bool
     {
         $prop = new \ReflectionProperty(static::class, $props);
-        $propName = $prop->getName() . "_id";
-        if(isset($this->otherProps[$propName]) === false) return false;
-        $propValue = $this->otherProps[$propName];
-        $entity = explode("\\", $prop->getType()->getName());
-        $entity = array_pop($entity);
-        $class = $prop->getType()->getName();
 
-        $sqlRequest = QueryBuilder::createSelectRequest("_" . $entity, ["*"], ["id" => $propValue]) . " LIMIT 1";
-        $result = Entity::getDb()->prepare($sqlRequest);
-        $result->execute();
-        $result = $result->fetchAll(\PDO::FETCH_ASSOC)[0];
+        if($prop->getType()->getName() === "array"){
 
-        $setter = "set" . ucfirst($prop->getName());
-        $this->$setter(new $class($result));
-        return true;
+            preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
+            $targetEntity = null;
+            $targetProp = null;
+
+            foreach ($groups[1] ?? [] as $key => $value) {
+                if($value === "many"){
+                    $info = explode(",", $groups[2][$key]);
+                    $targetEntity = $info[0] ?? null;
+                    $targetProp = $info[1] ?? null;
+                }
+            }
+
+            if($targetEntity === null || $targetProp === null) return false;
+
+            $result = $targetEntity::findMany(["{$targetProp}_id" => $this->id]);
+
+            $setter = "set" . ucfirst($prop->getName());
+            $this->$setter($result);
+            return true;
+        }
+        else {
+            $propName = $prop->getName() . "_id";
+
+            if(
+                isset($this->otherProps[$propName]) === false ||
+                str_starts_with($prop->getType()->getName(), "Entity\\") === false
+            ) return false;
+            
+            $propValue = $this->otherProps[$propName];
+            $entityName = explode("\\", $prop->getType()->getName());
+            $entityName = "_" . array_pop($entityName);
+            $targetEntity = $prop->getType()->getName();
+
+            $result = $targetEntity::findFirst(["id" => $propValue]);
+
+            if($result === null) return false;
+
+            $setter = "set" . ucfirst($prop->getName());
+            $this->$setter($result);
+            return true;
+        }
     }
 
     public function toArray(): array
@@ -80,13 +123,40 @@ abstract class Entity {
         }
 
         if(isset($this->id) === false){
-            $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props);
+            $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props) . " RETURNING id";
+            $result = self::$db->prepare($sqlRequest);
+            $result->execute();
+            $result = $result->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $this->id = $result["id"];
+        }
+        else {
+            $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->id]);
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
         }
     }
 
-    static public function findOne(array $where): ?static
+    public function delete(){
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->id]);
+        $result = self::$db->prepare($sqlRequest);
+        try {
+            $result->execute();
+        } catch (\Throwable $th) {
+            return false;
+        }
+
+        $this->id = null;
+        return true;
+    }
+
+    public function getId(){
+        return $this->id;
+    }
+
+    static public function findFirst(array $where = []): ?static
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
@@ -103,7 +173,24 @@ abstract class Entity {
         return $instance;
     }
 
-    static public function insert(array $default): ?static
+    static public function findMany(array $where = []): array
+    {
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where);
+        $result = self::$db->prepare($sqlRequest);
+        $result->execute();
+        $result = $result->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key => $value) {
+            $result[$key] = new static($value);
+        }
+        
+        return $result;
+    }
+
+    static public function insertOne(array $default): ?static
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
@@ -112,6 +199,21 @@ abstract class Entity {
         $instance->save();
 
         return $instance;
+    }
+
+    static public function deleteMany(array $where = []){
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, $where);
+        $result = self::$db->prepare($sqlRequest);
+        try {
+            $result->execute();
+        } catch (\Throwable $th) {
+            return false;
+        }
+
+        return true;
     }
 
     static public function getDb(){

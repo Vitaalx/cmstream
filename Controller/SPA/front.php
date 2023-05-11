@@ -17,12 +17,23 @@ class index extends Controller{
     public function handler(Request $request, Response $response): void
     {
         
-        // $user = User::insert(["firstname" => "mathieu", "lastname" => "campani", "country" => "FR"]);
-        // $user = User::findOne(["id" => 1]);
-        // $post = Post::insert(["title" => "test", "author_id" => 1]);
-        $post = Post::findOne(["title" => "test"]);
+        // $user = User::insertOne(["firstname" => "mathieu", "lastname" => "campani", "country" => "FR"]);
+        // $user = User::findFirst(["id" => 1]);
+        // $post = Post::insertOne(["title" => "Mon Super Post", "author_id" => 1]);
+        // $posts = Post::findMany([]);
+        $post = Post::findFirst([]);
         $post->join("author");
-        $user = $post->getAuthor();
-        $response->render("front@index", ["id" => $user->getId(), "firstName" => $user->getFirstname()]);
+        // $post->delete();
+        // $post->setSubtitle("test");
+        // $post->save();
+        // $post->join("author");
+        // $user = $post->getAuthor();
+        // $user = User::findFirst();
+        // $user->join("posts");
+
+        // $response->send($user);
+        // $response->send($posts);
+        $response->send($post);
+        // $response->render("front@index", ["id" => $post->getId()]);
     }
 }

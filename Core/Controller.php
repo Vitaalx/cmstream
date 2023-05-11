@@ -74,5 +74,17 @@ abstract class Controller {
 function callChecker(string $checker, mixed $value){
     $checkerFunction = Controller::autoLoadChecker($checker);
     $floor = new Floor();
-    return $checkerFunction($value, $floor, Response::getCurrentResponse());
+    try{
+        return $checkerFunction($value, $floor, Response::getCurrentResponse());
+    }
+    catch(\TypeError $th){
+        $data = [
+            "info" => "Checker type error.",
+            "message" => $th->getMessage(),
+            "file" => $th->getFile(),
+            "line" => $th->getLine(),
+        ];
+        
+        Response::getCurrentResponse()->code(400)->info("ERROR.BAD_TYPE")->send($data);
+    }
 }

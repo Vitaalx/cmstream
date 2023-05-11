@@ -27,7 +27,7 @@ class User extends Entity{
     */
     private string $country;
 
-    /** @join{Entity\Post,author} */
+    /** @many{Entity\Post,author} */
     private array $posts;
 
     /**
@@ -37,21 +37,7 @@ class User extends Entity{
      */
     public function getId(): int
     {
-        return $this->id;
-    }
-
-    /**
-     * Set the value of id
-     *
-     * @param int $id
-     *
-     * @return self
-     */
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-
-        return $this;
+        return parent::getId();
     }
 
     /**
