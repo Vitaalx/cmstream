@@ -6,7 +6,6 @@ use Exception;
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable{
     static private \PDO $db;
-    private ?int $id = null;
     private array $props = [];
 
     public function __construct(array $array){
@@ -22,10 +21,8 @@ abstract class Entity implements \JsonSerializable{
         return $this->toArray();
     }
 
-    public function join(string $prop): bool
+    private function join(\ReflectionProperty $prop): bool
     {
-        $prop = new \ReflectionProperty(static::class, $prop);
-
         if($prop->getType()->getName() === "array"){
 
             preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
@@ -100,7 +97,7 @@ abstract class Entity implements \JsonSerializable{
         $rp = new \ReflectionObject($this);
         foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
             $propName = $prop->getName();
-            if($propName === "id") continue;
+            if($propName === "id" || $prop->getType()->getName() === "array") continue;
             else if(str_starts_with($prop->getType()->getName(), "Entity\\") === true) $props[$propName . "_id"] = $this->props[$propName . "_id"];
             else if(array_key_exists($propName, $this->props))$props[$propName] = $this->props[$propName];
             else $this->props[$propName] = null;
@@ -140,11 +137,16 @@ abstract class Entity implements \JsonSerializable{
     protected function set(string $prop, mixed $value){
         $prop = new \ReflectionProperty(static::class, $prop);
 
-        $this->props[$prop->getName()] = $value;
+        if(str_starts_with($prop->getType()->getName(), "Entity\\") === true){
+            $this->props[$prop->getName() . "_id"] = $value->getId();
+        }
+        else $this->props[$prop->getName()] = $value;
     }
 
     protected function get(string $prop){
         $prop = new \ReflectionProperty(static::class, $prop);
+
+        if(str_starts_with($prop->getType()->getName(), "Entity\\") === true || $prop->getType()->getName() === "array") $this->join($prop);
 
         return $this->props[$prop->getName()];
     }

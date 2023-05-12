@@ -76,7 +76,7 @@ class Post extends Entity{
      *
      * @return self
      */
-    protected function setAuthor(User $author): self
+    public function setAuthor(User $author): self
     {
         parent::set("author", $author);
 

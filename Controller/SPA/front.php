@@ -17,23 +17,24 @@ class index extends Controller{
     public function handler(Request $request, Response $response): void
     {
         
-        // $user = User::insertOne(["firstname" => "mathieu", "lastname" => "campani", "country" => "FR"]);
-        // $user = User::findFirst(["id" => 1]);
-        // $post = Post::insertOne(["title" => "Mon Super Post", "author_id" => 1, "subtitle" => null]);
-        $posts = Post::findMany([]);
-        // $post = Post::findFirst(["id" => 22]);
-        // $post->join("author");
-        // $post->delete();
-        // $post->setSubtitle("testttt");
-        // $post->save();
-        // $post->join("author");
-        // $user = $post->getAuthor();
-        // $user = User::findFirst();
-        // $user->join("posts");
-
+        // $user = User::insertOne(["firstname" => "mathieu2", "lastname" => "campani", "country" => "FR"]);
         // $response->send($user);
-        $response->send($posts);
-        // $response->send($post);
+
+        // $user = User::findFirst(["id" => 1]);
+        // $response->send($user);
+        
+        // $posts = Post::findMany([]);
+        // $response->send($posts);
+
+
+        // $post = Post::findFirst(["id" => 22]);
+        // $user = User::findFirst(["id" => 6]);
+        // $post->setAuthor($user);
+        // $post->save();
+        // $user->getPosts();
+        // $response->send($user);
+
+        $response->send();
         // $response->render("front@index", ["id" => $post->getId()]);
     }
 }

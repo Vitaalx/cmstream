@@ -17,7 +17,6 @@ class User extends Entity{
     /** 
      * @type{VARCHAR(120)} 
      * @notnullable{}
-     * @unique{}
     */
     private string $lastname;
 
@@ -37,7 +36,7 @@ class User extends Entity{
      */
     public function getId(): int
     {
-        return parent::getId();
+        return parent::get("id");
     }
 
     /**
@@ -47,7 +46,7 @@ class User extends Entity{
      */
     public function getFirstname(): string
     {
-        return $this->firstname;
+        return parent::get("firstname");
     }
 
     /**
@@ -59,7 +58,7 @@ class User extends Entity{
      */
     public function setFirstname(string $firstname): self
     {
-        $this->firstname = $firstname;
+        parent::set("firstname", $firstname);
 
         return $this;
     }
@@ -71,7 +70,7 @@ class User extends Entity{
      */
     public function getLastname(): string
     {
-        return $this->lastname;
+        return parent::get("lastname");
     }
 
     /**
@@ -83,7 +82,7 @@ class User extends Entity{
      */
     public function setLastname(string $lastname): self
     {
-        $this->lastname = $lastname;
+        parent::set("lastname", $lastname);
 
         return $this;
     }
@@ -95,7 +94,7 @@ class User extends Entity{
      */
     public function getCountry(): string
     {
-        return $this->country;
+        return parent::get("country");
     }
 
     /**
@@ -107,7 +106,7 @@ class User extends Entity{
      */
     public function setCountry(string $country): self
     {
-        $this->country = $country;
+        parent::set("country", $country);
 
         return $this;
     }
@@ -119,20 +118,6 @@ class User extends Entity{
      */
     public function getPosts(): array
     {
-        return $this->posts;
-    }
-
-    /**
-     * Set the value of posts
-     *
-     * @param array $posts
-     *
-     * @return self
-     */
-    public function setPosts(array $posts): self
-    {
-        $this->posts = $posts;
-
-        return $this;
+        return parent::get("posts");
     }
 }
