@@ -21,6 +21,9 @@ class QueryBuilder {
             if(gettype($value) === "string"){
                 $value = "'" . $value . "'";
             }
+            else if(gettype($value) === "NULL"){
+                $value = "NULL";
+            }
             array_push($values, $value);
         }
         return "INSERT INTO  " . $to . " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $values) . " )"; 

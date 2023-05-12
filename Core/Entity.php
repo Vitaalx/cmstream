@@ -1,27 +1,16 @@
 <?php
 namespace Core;
 
+use Exception;
+
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable{
     static private \PDO $db;
     private ?int $id = null;
-    private array $otherProps = [];
+    private array $props = [];
 
     public function __construct(array $array){
-        if(isset($array["id"]) === true){
-            $this->id = $array["id"];
-            unset($array["id"]); 
-        }
-
-        foreach ($array as $key => $value) {
-            if(property_exists($this, $key) === false){
-                $this->otherProps[$key] = $value;
-            }
-            else {
-                $setter = "set" . ucfirst($key);
-                $this->$setter($value);
-            }
-        }
+        $this->props = $array;
     }
 
     public function __serialize(){
@@ -33,9 +22,9 @@ abstract class Entity implements \JsonSerializable{
         return $this->toArray();
     }
 
-    public function join(string $props): bool
+    public function join(string $prop): bool
     {
-        $prop = new \ReflectionProperty(static::class, $props);
+        $prop = new \ReflectionProperty(static::class, $prop);
 
         if($prop->getType()->getName() === "array"){
 
@@ -53,21 +42,20 @@ abstract class Entity implements \JsonSerializable{
 
             if($targetEntity === null || $targetProp === null) return false;
 
-            $result = $targetEntity::findMany(["{$targetProp}_id" => $this->id]);
-
-            $setter = "set" . ucfirst($prop->getName());
-            $this->$setter($result);
+            $result = $targetEntity::findMany(["{$targetProp}_id" => $this->props["id"]]);
+            
+            $this->props[$prop->getName()] = $result;
             return true;
         }
         else {
             $propName = $prop->getName() . "_id";
 
             if(
-                isset($this->otherProps[$propName]) === false ||
+                isset($this->props[$propName]) === false ||
                 str_starts_with($prop->getType()->getName(), "Entity\\") === false
             ) return false;
             
-            $propValue = $this->otherProps[$propName];
+            $propValue = $this->props[$propName];
             $entityName = explode("\\", $prop->getType()->getName());
             $entityName = "_" . array_pop($entityName);
             $targetEntity = $prop->getType()->getName();
@@ -76,8 +64,7 @@ abstract class Entity implements \JsonSerializable{
 
             if($result === null) return false;
 
-            $setter = "set" . ucfirst($prop->getName());
-            $this->$setter($result);
+            $this->props[$prop->getName()] = $result;
             return true;
         }
     }
@@ -89,10 +76,11 @@ abstract class Entity implements \JsonSerializable{
         $rp = new \ReflectionObject($this);
         foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
             $propName = $prop->getName();
-            $getter = "get" . ucfirst($propName);
+            if(array_key_exists($propName, $this->props) === false) continue;
+
             try{
-                if(str_starts_with($prop->getType()->getName(), "Entity\\") === true)$array[$propName] = $this->$getter()->toArray();
-                else $array[$propName] = $this->$getter();
+                if(str_starts_with($prop->getType()->getName(), "Entity\\") === true)$array[$propName] = $this->props[$propName]->toArray();
+                else $array[$propName] = $this->props[$propName];
             }
             catch(\Throwable $th){
                 continue;
@@ -112,25 +100,22 @@ abstract class Entity implements \JsonSerializable{
         $rp = new \ReflectionObject($this);
         foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
             $propName = $prop->getName();
-            $getter = "get" . ucfirst($propName);
-            try{
-                if(str_starts_with($prop->getType()->getName(), "Entity\\") === true) $props[$propName . "_id"] = $this->otherProps[$propName . "_id"];
-                else $props[$propName] = $this->$getter();
-            }
-            catch(\Throwable $th){
-                continue;
-            }
-        }
+            if($propName === "id") continue;
+            else if(str_starts_with($prop->getType()->getName(), "Entity\\") === true) $props[$propName . "_id"] = $this->props[$propName . "_id"];
+            else if(array_key_exists($propName, $this->props))$props[$propName] = $this->props[$propName];
+            else $this->props[$propName] = null;
 
-        if(isset($this->id) === false){
+        }
+        
+        if(array_key_exists("id", $this->props) === false){
             $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props) . " RETURNING id";
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
             $result = $result->fetchAll(\PDO::FETCH_ASSOC)[0];
-            $this->id = $result["id"];
+            $this->props["id"] = $result["id"];
         }
         else {
-            $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->id]);
+            $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
         }
@@ -140,7 +125,7 @@ abstract class Entity implements \JsonSerializable{
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->id]);
+        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->props["id"]]);
         $result = self::$db->prepare($sqlRequest);
         try {
             $result->execute();
@@ -148,12 +133,20 @@ abstract class Entity implements \JsonSerializable{
             return false;
         }
 
-        $this->id = null;
+        unset($this->props["id"]);
         return true;
     }
 
-    public function getId(){
-        return $this->id;
+    protected function set(string $prop, mixed $value){
+        $prop = new \ReflectionProperty(static::class, $prop);
+
+        $this->props[$prop->getName()] = $value;
+    }
+
+    protected function get(string $prop){
+        $prop = new \ReflectionProperty(static::class, $prop);
+
+        return $this->props[$prop->getName()];
     }
 
     static public function findFirst(array $where = []): ?static

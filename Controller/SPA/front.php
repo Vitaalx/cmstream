@@ -19,12 +19,12 @@ class index extends Controller{
         
         // $user = User::insertOne(["firstname" => "mathieu", "lastname" => "campani", "country" => "FR"]);
         // $user = User::findFirst(["id" => 1]);
-        // $post = Post::insertOne(["title" => "Mon Super Post", "author_id" => 1]);
-        // $posts = Post::findMany([]);
-        $post = Post::findFirst([]);
-        $post->join("author");
+        // $post = Post::insertOne(["title" => "Mon Super Post", "author_id" => 1, "subtitle" => null]);
+        $posts = Post::findMany([]);
+        // $post = Post::findFirst(["id" => 22]);
+        // $post->join("author");
         // $post->delete();
-        // $post->setSubtitle("test");
+        // $post->setSubtitle("testttt");
         // $post->save();
         // $post->join("author");
         // $user = $post->getAuthor();
@@ -32,8 +32,8 @@ class index extends Controller{
         // $user->join("posts");
 
         // $response->send($user);
-        // $response->send($posts);
-        $response->send($post);
+        $response->send($posts);
+        // $response->send($post);
         // $response->render("front@index", ["id" => $post->getId()]);
     }
 }

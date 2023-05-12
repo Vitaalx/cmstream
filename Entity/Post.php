@@ -32,7 +32,7 @@ class Post extends Entity{
      */
     public function getId(): int
     {
-        return parent::getId();
+        return parent::get("id");
     }
 
     /**
@@ -42,7 +42,7 @@ class Post extends Entity{
      */
     public function getTitle(): string
     {
-        return $this->title;
+        return parent::get("title");
     }
 
     /**
@@ -54,7 +54,7 @@ class Post extends Entity{
      */
     public function setTitle(string $title): self
     {
-        $this->title = $title;
+        parent::set("title", $title);
 
         return $this;
     }
@@ -66,7 +66,7 @@ class Post extends Entity{
      */
     public function getAuthor(): User
     {
-        return $this->author;
+        return parent::get("author");
     }
 
     /**
@@ -78,7 +78,7 @@ class Post extends Entity{
      */
     protected function setAuthor(User $author): self
     {
-        $this->author = $author;
+        parent::set("author", $author);
 
         return $this;
     }
@@ -88,9 +88,9 @@ class Post extends Entity{
      *
      * @return string
      */
-    public function getSubTitle(): ?string
+    public function getSubtitle(): ?string
     {
-        return $this->subtitle;
+        return parent::get("subtitle");
     }
 
     /**
@@ -102,7 +102,7 @@ class Post extends Entity{
      */
     public function setSubtitle(?string $subTitle): self
     {
-        $this->subtitle = $subTitle;
+        parent::set("subtitle", $subTitle);
 
         return $this;
     }
