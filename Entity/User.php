@@ -26,7 +26,10 @@ class User extends Entity{
     */
     private string $country;
 
-    /** @many{Entity\Post,author} */
+    /** 
+     * @many{Entity\Post,author}
+     * @groups{posts}
+     */
     private array $posts;
 
     /**

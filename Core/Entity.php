@@ -7,6 +7,7 @@ use Exception;
 abstract class Entity implements \JsonSerializable{
     static private \PDO $db;
     private array $props = [];
+    private array $groups = [];
 
     public function __construct(array $array){
         $this->props = $array;
@@ -73,6 +74,22 @@ abstract class Entity implements \JsonSerializable{
         $rp = new \ReflectionObject($this);
         foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
             $propName = $prop->getName();
+            $propType = $prop->getType()->getName();
+            if(str_starts_with($propType, "Entity\\") === true || $propType === "array"){
+                unset($this->props[$propName]);
+                preg_match("/@groups{(.*)}/", $prop->getDocComment(), $groups);
+
+                if(isset($groups[1]) === false) continue;
+
+                $groups = explode(",", $groups[1]);
+                foreach($groups as $group){
+                    if(in_array($group, $this->groups) === true){
+                        $this->join($prop);
+                        break;
+                    }
+                }
+            }
+
             if(array_key_exists($propName, $this->props) === false) continue;
 
             try{
@@ -85,6 +102,11 @@ abstract class Entity implements \JsonSerializable{
         }
 
         return $array;
+    }
+
+    public function groups(string ...$groups): void
+    {
+        $this->groups = $groups;
     }
 
     public function save(): void

@@ -28,13 +28,13 @@ class index extends Controller{
 
 
         // $post = Post::findFirst(["id" => 22]);
-        // $user = User::findFirst(["id" => 6]);
+        $user = User::findFirst(["id" => 6]);
         // $post->setAuthor($user);
         // $post->save();
         // $user->getPosts();
         // $response->send($user);
-
-        $response->send();
+        $user->groups("posts");
+        $response->send($user);
         // $response->render("front@index", ["id" => $post->getId()]);
     }
 }
