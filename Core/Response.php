@@ -47,6 +47,7 @@ class Response{
         $this->autoSetHeaders($content);
 
         echo $content;
+        
         exit;
     }
     public function sendFile(string $path): void
@@ -54,24 +55,19 @@ class Response{
         $this->autoSetHeaders($content);
 
         readfile($path);
+
         exit;
     }
 
-    public function render(string $options, array $params): void
+    public function render(string $view, string $template, array $params): void
     {
-        $options = explode("@", $options);
 
-        if(isset($options[1]) === false){
-            die("Options '" . implode("@", $options) . "' is invalide.");
-        }
-
-        $template = $options[0];
         $template = __DIR__ . "/../Template/" . $template . ".php";
         if(file_exists($template) === false)
         {
             die("Template '" . $template . "' not exist.");
         }
-        $view = $options[1];
+
         $view = __DIR__ . "/../View/" . $view . ".php";
         if(file_exists($view) === false)
         {
@@ -81,6 +77,7 @@ class Response{
         $this->autoSetHeaders();
 
         extract($params);
+
         include $template;
         exit;
     }
