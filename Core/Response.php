@@ -8,6 +8,7 @@ class Response{
     private int $code = 200;
     private string $info;
     private array $headers = [];
+    private array $expose = [];
 
     public function __construct(){
         self::$currentResponse = $this;
@@ -24,6 +25,10 @@ class Response{
         $this->headers[$key] = $content;
         return $this;
     }
+    public function getHeader(string $key): array
+    {
+        return $this->headers[$key];
+    }
 
     public function setHeaders(array $content): Response
     {
@@ -34,6 +39,11 @@ class Response{
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    public function addExpose(mixed $value): void
+    {
+        array_push($this->expose, $value);
     }
     
     public function info(string $info): Response
@@ -61,6 +71,10 @@ class Response{
 
     public function render(string $view, string $template, array $params): void
     {
+        $this->setHeader("template", $template);
+        $this->addExpose("template");
+        $this->setHeader("view", $view);
+        $this->addExpose("view");
 
         $template = __DIR__ . "/../Template/" . $template . ".php";
         if(file_exists($template) === false)
@@ -75,6 +89,7 @@ class Response{
         }
 
         $this->autoSetHeaders();
+
 
         extract($params);
 
@@ -97,8 +112,10 @@ class Response{
 
         if(isset($this->info) === true){
             $this->setHeader("info", $this->info);
-            $this->setHeader("access-control-expose-headers", "info");
+            $this->addExpose("info");
         }
+
+        $this->setHeader("access-control-expose-headers", implode(", ", $this->expose));
 
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");

@@ -36,6 +36,6 @@ class index extends Controller{
         // $user->groups("posts");
         // $response->send($user);
         
-        $response->render("index", "front", []);
+        $response->info("test")->render("index", "front", []);
     }
 }
