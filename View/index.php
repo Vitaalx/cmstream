@@ -17,18 +17,19 @@
 id="app"
 class="test" 
 :name="data.name"
-cv-class="{'bg': data.test === true}"
+cv-class="{'bg tt': data.test === true}"
 >
     ramdom text
 
-    <test cv-for="value of data.arr" :title="data.name + ' ' + data.value">
-        {{data.value}}
+    <test cv-for="value of Object.entries(data.arr)" :title="data.name + ' ' + data.value">
+        {{ data.value[1] + ":" + data.value[0]}}
         <div cv-if="data.value === 2">te</div>
     </test>
 
-    <form 
+    <form
+    cv-ref="form"
     >
-        <div cv-for="value of data.arr" @click="data.arr = []">
+        <div cv-ref="for" cv-for="value of data.arr" @click="data.arr = []">
             <p :name="data.name">mon super titre {{data.value}}</p>
             <p cv-for="val of data.arr">{{data.val}}</p>
         </div>
@@ -49,10 +50,13 @@ cv-class="{'bg': data.test === true}"
         methods: {
             clicked(){
                 this.name = "test";
-                this.arr = [1, 2, 3];
+                this.arr = ["un", "deux", "trois"];
             },
             test1(){
                 this.test = !this.test;
+                this.arr[0] = "quatre";
+                console.log(this.$refs);
+                this.$update();
             }
         },
         watch: {
