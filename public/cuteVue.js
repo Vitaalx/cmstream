@@ -46,6 +46,7 @@ class CuteVue {
                 this.#el = newEl;
             },
             $refs: {},
+            instance: this,
         };
 
         Object.keys(properties).forEach(key => {
@@ -167,6 +168,9 @@ class CuteVue {
             el = instance.getEl();
             el.$unmounted = () => instance.proxy.unmounted();
         }
+
+        el.$template = template;
+        el.$proxy = proxy;
 
         Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
 
@@ -399,5 +403,23 @@ class CuteVue {
     static component(name, properties){
         properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {});
         CuteVue.components[name.toUpperCase()] = properties;
+    }
+
+    static mounted(name, el, properties = {}){
+        name = name.toUpperCase()
+        el = typeof el === "string" ? document.querySelector(el) : el;
+        if(el.$template === undefined){
+            let cv = new CuteVue({...CuteVue.components[name], props: {...CuteVue.components[name].props, ...props}});
+            el.replaceWith(cv.getEl());
+        }
+        else{
+            el.$template.type = () => new CuteVue({
+                ...CuteVue.components[name],
+                ...properties,
+                props: {...CuteVue.components[name].props, ...(properties.props || {})}
+            });
+
+            el.$proxy.$update();
+        }
     }
 }

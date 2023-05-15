@@ -37,6 +37,8 @@ cv-class="{'bg tt': data.test === true}"
         <button type="button" cv-if="data.test === true" @click="clicked">subscrit</button>
         <button type="button" @click="test1">subscrit2</button>
     </form>
+
+    <div cv-ref="view" :title="data.name"></div>
 </div>
 
 <script>
@@ -64,6 +66,9 @@ cv-class="{'bg tt': data.test === true}"
                 
             }
         },
+        mounted(){
+            CuteVue.mounted("test", this.$refs.view);
+        }
     });
 </script>
 
