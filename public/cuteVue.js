@@ -47,6 +47,7 @@ class CuteVue {
             },
             $refs: {},
             $instance: this,
+            $emit: (name, arg) => this.#el.$functionAttributes[name](arg)
         };
 
         Object.keys(properties).forEach(key => {
@@ -97,6 +98,7 @@ class CuteVue {
                 el.nodeName,
             attributes: {},
             objectAttributes: {},
+            functionAttributes: {},
             events: {},
             if: undefined,
             for: undefined,
@@ -130,6 +132,18 @@ class CuteVue {
                     `);
                 }
                 else obj.events[attr] = attrValue;
+            }
+            else if(attrName.startsWith("#")){
+                let attr = attrName.slice(1);
+                let attrValue = el.getAttribute(attrName);
+                if(proxy[attrValue] === undefined){
+                    obj.functionAttributes[attr] = eval(/* js */`
+                        ($event, data) => {
+                            ${attrValue}
+                        }
+                    `);
+                }
+                else obj.functionAttributes[attr] = attrValue;
             } 
             else if(attrName === "cv-if"){
                 let attrValue = el.getAttribute(attrName);
@@ -225,6 +239,13 @@ class CuteVue {
                     proxy[value].bind(proxy) : 
                     (e) => value(e, proxy)
             );
+        });
+
+        el.$functionAttributes = {};
+        Object.entries(template.functionAttributes).forEach(([key, value]) => {
+            el.$functionAttributes[key] = typeof value === "string"?
+                proxy[value].bind(proxy): 
+                (e) => value(e, proxy);
         });
 
         if(template.ref !== undefined && !(proxy.$refs[template.ref] instanceof Array)){

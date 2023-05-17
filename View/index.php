@@ -1,13 +1,16 @@
 <h1>index</h1>
 
 <div style="display: none;">
-<h1 id="title"><slot></slot> titre : {{data.title}}</h1>
+<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{data.title}}</h1>
 
 <script>
     CuteVue.component("test", {
         el: "#title",
         props: {
             title: "mon super titre"
+        },
+        mounted(){
+
         }
     });
 </script>
@@ -19,7 +22,7 @@ class="test"
 >
     ramdom text
 
-    <test cv-for="value of Object.entries(data.arr)" :title="data.name + ' ' + data.value">
+    <test #title-click="clicked" cv-for="value of Object.entries(data.arr)" :title="data.name + ' ' + data.value">
         {{ data.value[1] + ":" + data.value[0]}}
         <div cv-if="data.value === 2">te</div>
     </test>
