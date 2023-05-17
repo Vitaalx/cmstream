@@ -46,7 +46,7 @@ class CuteVue {
                 this.#el = newEl;
             },
             $refs: {},
-            instance: this,
+            $instance: this,
         };
 
         Object.keys(properties).forEach(key => {
@@ -86,12 +86,14 @@ class CuteVue {
 
         let obj = {
             type: CuteVue.components[el.nodeName] ? 
-                (props) => new CuteVue(
-                    {
-                        ...CuteVue.components[el.nodeName], 
-                        props: {...CuteVue.components[el.nodeName].props, ...props}
-                    }
-                ) : 
+                eval(/* js */`
+                    (props) => new CuteVue(
+                        {
+                            ...CuteVue.components.${el.nodeName}, 
+                            props: {...CuteVue.components.${el.nodeName}.props, ...props}
+                        }
+                    )
+                `) : 
                 el.nodeName,
             attributes: {},
             objectAttributes: {},
@@ -99,6 +101,8 @@ class CuteVue {
             if: undefined,
             for: undefined,
             class: undefined,
+            show: undefined,
+            ref: undefined,
             children: [...el.childNodes].map(child => {
                 if(child.nodeName === "#text"){
                     return child.textContent.replace(/\n/g, "");
@@ -107,7 +111,6 @@ class CuteVue {
                     return this.makeTemplate(child, proxy);
                 }
             }),
-            ref: undefined,
         };
 
         el.getAttributeNames().forEach(attrName => {
@@ -143,6 +146,10 @@ class CuteVue {
             else if(attrName === "cv-ref"){
                 let attrValue = el.getAttribute(attrName);
                 obj.ref = attrValue;
+            }
+            else if(attrName === "cv-show"){
+                let attrValue = el.getAttribute(attrName);
+                obj.show = attrValue;
             } 
             else {
                 obj.attributes[attrName] = el.getAttribute(attrName);
@@ -223,6 +230,26 @@ class CuteVue {
         if(template.ref !== undefined && !(proxy.$refs[template.ref] instanceof Array)){
             proxy.$refs[template.ref] = el;
             el.$ref = template.ref;
+        }
+
+        if(template.show !== undefined){
+            for(let [match, group] of template.show.matchAll(/data(?:[ ]|^$)*.([A-Za-z0-9 ]*)/g)){
+                group = group.trim();
+                let cdn = eval(/* js */`
+                    ((data) => {
+                        return ${template.show}
+                    })
+                `);
+
+                let subscriber = () => {
+                    let result = cdn(proxy);
+                    if(result) el.style.display = "";
+                    else el.style.display = "none";
+                };
+    
+                if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                subscriber();
+            }
         }
 
         template.children.forEach(templateChild => {
@@ -401,6 +428,7 @@ class CuteVue {
     static components = {};
 
     static component(name, properties){
+        CuteVue.components[name.toUpperCase()] = true;
         properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {});
         CuteVue.components[name.toUpperCase()] = properties;
     }

@@ -16,8 +16,6 @@
 <div 
 id="app"
 class="test" 
-:name="data.name"
-cv-class="{'bg tt': data.test === true}"
 >
     ramdom text
 
@@ -28,13 +26,15 @@ cv-class="{'bg tt': data.test === true}"
 
     <form
     cv-ref="form"
+    :name="data.name"
+    cv-class="{'bg tt': data.test === true}"
     >
         <div cv-ref="for" cv-for="value of data.arr" @click="data.arr = []">
             <p :name="data.name">mon super titre {{data.value}}</p>
             <p cv-for="val of data.arr">{{data.val}}</p>
         </div>
         {{data.name}}
-        <button type="button" cv-if="data.test === true" @click="clicked">subscrit</button>
+        <button type="button" cv-show="data.test === true" @click="clicked">subscrit</button>
         <button type="button" @click="test1">subscrit2</button>
     </form>
 
@@ -56,9 +56,9 @@ cv-class="{'bg tt': data.test === true}"
             },
             test1(){
                 this.test = !this.test;
-                this.arr[0] = "quatre";
-                console.log(this.$refs);
-                this.$update();
+                // this.arr[0] = "quatre";
+                // console.log(this.$refs);
+                // this.$update();
             }
         },
         watch: {
@@ -68,6 +68,7 @@ cv-class="{'bg tt': data.test === true}"
         },
         mounted(){
             CuteVue.mounted("test", this.$refs.view);
+            console.log(this.$instance.getEl());
         }
     });
 </script>
