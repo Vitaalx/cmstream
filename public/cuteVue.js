@@ -40,10 +40,15 @@ class CuteVue {
             ...props, 
             mounted: properties.mounted?.bind(proxy) || function(){},
             unmounted: properties.unmounted?.bind(proxy) || function(){},
-            $update: () => {
-                let newEl = this.render(this.#template, proxy);
-                this.#el.replaceWith(newEl);
-                this.#el = newEl;
+            $update: (arg) => {
+                if(!arg){
+                    let newEl = this.render(this.#template, proxy);
+                    this.#el.replaceWith(newEl);
+                    this.#el = newEl;
+                }
+                else{
+                    this.#launchSubscriber(arg, proxy[arg], proxy[arg]);
+                }
             },
             $refs: {},
             $instance: this,

@@ -59,9 +59,9 @@ class="test"
             },
             test1(){
                 this.test = !this.test;
-                // this.arr[0] = "quatre";
-                // console.log(this.$refs);
-                // this.$update();
+                this.arr[0] = "quatre";
+                console.log(this.$refs);
+                this.$update("arr");
             }
         },
         watch: {
