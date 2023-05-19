@@ -27,7 +27,7 @@ class="test"
         <div cv-if="data.value === 2">te</div>
     </test>
 
-    <test #title-click="clicked" :title="data.name">
+    <test #title-click="data.$destroy()" :title="data.name">
         
     </test>
 

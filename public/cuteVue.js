@@ -53,7 +53,8 @@ class CuteVue {
             },
             $refs: {},
             $instance: this,
-            $emit: (name, arg) => this.#el.$functionAttributes[name](arg)
+            $emit: (name, arg) => this.#el.$functionAttributes[name](arg),
+            $destroy: () => this.#el.$destroy(),
         };
 
         Object.keys(properties).forEach(key => {
@@ -446,6 +447,10 @@ class CuteVue {
         })
 
         return el;
+    }
+
+    destroy(){
+        this.#el.$destroy();
     }
 
     /**
