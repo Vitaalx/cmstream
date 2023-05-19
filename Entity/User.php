@@ -1,9 +1,11 @@
 <?php
+
 namespace Entity;
 
 use Core\Entity;
 
-class User extends Entity{
+class User extends Entity
+{
     /** @type{int} */
     private int $id;
 
@@ -11,19 +13,19 @@ class User extends Entity{
      * @type{VARCHAR(60)} 
      * @notnullable{}
      * @unique{}
-    */
+     */
     private string $firstname;
 
     /** 
      * @type{VARCHAR(120)} 
      * @notnullable{}
-    */
+     */
     private string $lastname;
 
     /** 
      * @type{VARCHAR(2)} 
      * @notnullable{}
-    */
+     */
     private string $country;
 
     /** 
@@ -31,6 +33,18 @@ class User extends Entity{
      * @groups{posts}
      */
     private array $posts;
+
+    /**
+     * @type{VARCHAR(100)}
+     * @notnullable{}
+     */
+    private string $email;
+
+    /**
+     * @type{VARCHAR(255)}
+     * @notnullable{}
+     */
+    private string $password;
 
     /**
      * Get the value of id
@@ -89,6 +103,56 @@ class User extends Entity{
 
         return $this;
     }
+
+    /**
+     * Get the value of email
+     *
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return parent::get("email");
+    }
+
+    /**
+     * Set the value of email
+     *
+     * @param string
+     *
+     * @return self
+     */
+    public function setEmail(string $email): self
+    {
+        parent::set("email", $email);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password
+     *
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return parent::get("password");
+    }
+
+    /**
+     * Set the value of password
+     *
+     * @param string
+     *
+     * @return self
+     */
+    public function setPassword(string $email): self
+    {
+        parent::set("password", $email);
+
+        return $this;
+    }
+
+
 
     /**
      * Get the value of country
