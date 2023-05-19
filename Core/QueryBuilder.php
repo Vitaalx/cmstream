@@ -56,7 +56,7 @@ class QueryBuilder {
                 array_push($wheres, "(" . implode(" OR ", $or) . ")");
             }
             else if($key === "\$BETWEEN"){
-                array_push($wheres, $value[0] . " BETWEEN " . $value[1] . " AND " . $value[2]);
+                array_push($wheres, $value[0] . ($operator === "!=" ? " NOT" : "") . " BETWEEN " . $value[1] . " AND " . $value[2]);
             }
             else if($key === "\$NOT"){
                 $not = self::arrayToArrayWhere($value, "!=");
