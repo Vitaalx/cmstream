@@ -50,7 +50,7 @@ $entitysName = [];
 //         "columnExist", 
 //         [
 //             "tableName" => "_test",
-//             "columnName" => "subtitle",
+//             "columnName" => "tt",
 //         ]
 //     )
 // ); 
