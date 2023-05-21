@@ -7,8 +7,6 @@ use Entity\User;
 
 interface AuthService
 {
-    public function __construct(Auth $auth);
-
     public function login(string $email, string $password): string;
 
     public function logout(): void;
