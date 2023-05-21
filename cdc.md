@@ -47,7 +47,7 @@ Participants:
 - [ ] Fonctionnalités de lecture automatique pour la continuité de visionnage
 - [ ] Support client et assistance utilisateur (report de bug exemple film down)
 - [ ] Personnalisation de l'interface utilisateur (thèmes, paramètres d'affichage, etc.)
-- [ ] Section d'administration pour la gestion des contenus, des [VipersS, Click, Clm4 membres.url](..%2F..%2F..%2FAppData%2FLocal%2FTemp%2FVipersS%2C%20Click%2C%20Clm4%A0membres.url)utilisateurs et des statistiques.
+- [ ] Section d'administration pour la gestion des contenus, des utilisateurs et des statistiques.
 
 - [ ] Gestion des abonnements et des paiements (à voir)
 - [ ] Fonctionnalités de streaming en direct (live streaming) (à voir)
