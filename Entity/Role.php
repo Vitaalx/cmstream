@@ -31,12 +31,14 @@ class Role extends Entity
     /**
      * @type{Date}
      * @notnullable{}
+     * @default{CURRENT_TIMESTAMP}
      */
     private string $created_at;
 
     /**
      * @type{Date}
      * @notnullable{}
+     * @default{CURRENT_TIMESTAMP}
      */
     private string $updated_at;
 

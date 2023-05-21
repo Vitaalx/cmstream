@@ -261,9 +261,6 @@ scan(
                         ) && 
                         $columnName !== "id"
                     ){
-                        echo "\nColumn $columnName:\n";
-                        var_dump($result[0]["column_default"]);
-                        var_dump($default);
                         if($default === null){
                             $migrationSql .= replace(
                                 "alterColumnDropDefault",
