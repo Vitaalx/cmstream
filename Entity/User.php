@@ -22,18 +22,6 @@ class User extends Entity
      */
     private string $lastname;
 
-    /** 
-     * @type{VARCHAR(2)} 
-     * @notnullable{}
-     */
-    private string $country;
-
-    /** 
-     * @many{Entity\Post,author}
-     * @groups{posts}
-     */
-    private array $posts;
-
     /**
      * @type{VARCHAR(100)}
      * @notnullable{}
@@ -46,6 +34,24 @@ class User extends Entity
      * @notnullable{}
      */
     private string $password;
+
+    /**
+     * @type{VARCHAR(20)}
+     * @notnullable{}
+     */
+    private String $role;
+
+    /**
+     * @type{Date}
+     * @notnullable{}
+     */
+    private string $created_at;
+
+    /**
+     * @type{Date}
+     * @notnullable{}
+     */
+    private string $updated_at;
 
     /**
      * Get the value of id
@@ -153,39 +159,51 @@ class User extends Entity
         return $this;
     }
 
-
-
     /**
-     * Get the value of country
+     * Get the value of role
      *
      * @return string
      */
-    public function getCountry(): string
+    public function getRole(): string   
     {
-        return parent::get("country");
+        return parent::get("role");
     }
 
     /**
-     * Set the value of country
+     * Set the value of role
      *
-     * @param string $country
+     * @param string
      *
      * @return self
      */
-    public function setCountry(string $country): self
+    public function setRole(string $role): self
     {
-        parent::set("country", $country);
+        parent::set("role", $role);
 
         return $this;
     }
 
     /**
-     * Get the value of posts
+     * Get the value of created_at
      *
-     * @return array
+     * @return string
      */
-    public function getPosts(): array
+    public function getCreatedAt(): string
     {
-        return parent::get("posts");
+        return parent::get("created_at");
+    }
+
+    /**
+     * Set the value of created_at
+     *
+     * @param string
+     *
+     * @return self
+     */
+    public function setCreatedAt(string $created_at): self
+    {
+        parent::set("created_at", $created_at);
+
+        return $this;
     }
 }
