@@ -44,6 +44,7 @@ class CuteVue {
                 if(!arg){
                     let newEl = this.render(this.#template, proxy);
                     this.#el.replaceWith(newEl);
+                    this.#el.$destroy();
                     this.#el = newEl;
                 }
                 else{
@@ -52,7 +53,8 @@ class CuteVue {
             },
             $refs: {},
             $instance: this,
-            $emit: (name, arg) => this.#el.$functionAttributes[name](arg)
+            $emit: (name, arg) => this.#el.$functionAttributes[name](arg),
+            $destroy: () => this.#el.$destroy(),
         };
 
         Object.keys(properties).forEach(key => {
@@ -188,6 +190,10 @@ class CuteVue {
          */
         let el;
         let instance;
+        let subscribers = Object.keys(this.#subscriber).reduce((p, c) => {
+            p[c] = [];
+            return p;
+        }, {});
         if(typeof template.type === "string") el = document.createElement(template.type);
         else if(typeof template.type === "function"){
             instance = template.type({...template.attributes, ...template.objectAttributes});
@@ -197,6 +203,17 @@ class CuteVue {
 
         el.$template = template;
         el.$proxy = proxy;
+        
+        let $destroy = el.$destroy || (() => false);
+        el.$destroy = () => {
+            Object.entries(subscribers).forEach(([key, value]) => {
+                value.forEach(fnc => {
+                    this.#subscriber[key] = this.#subscriber[key].filter(v => v !== fnc);
+                })
+            })
+            el.childNodes.forEach(childNode => childNode.$destroy?.());
+            if($destroy() === false)el.remove();
+        }
 
         Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
 
@@ -215,7 +232,10 @@ class CuteVue {
                         if(instance !== undefined)instance.proxy[key] = attrRender(proxy);
                     };
 
-                    if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                    if(this.#subscriber[group] !== undefined){
+                        subscribers[group].push(subscriber);
+                        this.#subscriber[group].push(subscriber);
+                    }
                     subscriber();
                 }
                 
@@ -232,7 +252,10 @@ class CuteVue {
                     });
                 };
 
-                if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                if(this.#subscriber[group] !== undefined){
+                    subscribers[group].push(subscriber);
+                    this.#subscriber[group].push(subscriber);
+                }
                 subscriber();
             }
         }
@@ -273,7 +296,10 @@ class CuteVue {
                     else el.style.display = "none";
                 };
     
-                if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                if(this.#subscriber[group] !== undefined){
+                    subscribers[group].push(subscriber);
+                    this.#subscriber[group].push(subscriber);
+                }
                 subscriber();
             }
         }
@@ -297,7 +323,10 @@ class CuteVue {
                             textNode = newTextNode;
                         };
 
-                        if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                        if(this.#subscriber[group] !== undefined){
+                            subscribers[group].push(subscriber);
+                            this.#subscriber[group].push(subscriber);
+                        }
                         subscriber();
                     }
                 }
@@ -335,10 +364,14 @@ class CuteVue {
                                 elementNode.replaceWith(newCommentNode);
                                 if(elementNode.$unmounted !== undefined)elementNode.$unmounted();
                                 if(elementNode.$ref !== undefined) delete proxy.$refs[elementNode.$ref];
+                                elementNode.$destroy?.();
                                 elementNode = newCommentNode;
                             }
                         };
-                        if(this.#subscriber[group] !== undefined)this.#subscriber[group].push(subscriber);
+                        if(this.#subscriber[group] !== undefined){
+                            subscribers[group].push(subscriber);
+                            this.#subscriber[group].push(subscriber);
+                        }
                         subscriber();
                     }
 
@@ -386,7 +419,7 @@ class CuteVue {
 
                         currentForElement.forEach(e => {
                             if(e.$unmounted !== undefined)e.$unmounted();
-                            e.remove();
+                            e.$destroy?.();
                         });
                         currentForElement = children;
                         currentForElement.forEach(e => {
@@ -394,8 +427,11 @@ class CuteVue {
                             el.insertBefore(e, elementNode);
                         });
                     }`);
-
-                    this.#subscriber[forArr].push(subscriber);
+                    
+                    if(this.#subscriber[forArr] !== undefined){
+                        subscribers[forArr].push(subscriber);
+                        this.#subscriber[forArr].push(subscriber);
+                    }
 
                     if(instance === undefined)el.appendChild(elementNode);
                     else if(instance.getSlot())instance.getSlot().parentNode.insertBefore(elementNode, instance.getSlot());
@@ -411,6 +447,10 @@ class CuteVue {
         })
 
         return el;
+    }
+
+    destroy(){
+        this.#el.$destroy();
     }
 
     /**
@@ -472,7 +512,7 @@ class CuteVue {
                 ...properties,
                 props: {...CuteVue.components[name].props, ...(properties.props || {})}
             });
-
+            el.$destroy?.();
             el.$proxy.$update();
         }
     }

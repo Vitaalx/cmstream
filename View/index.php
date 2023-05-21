@@ -1,7 +1,7 @@
 <h1>index</h1>
 
 <div style="display: none;">
-<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{data.title}}</h1>
+<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{ data.title }}</h1>
 
 <script>
     CuteVue.component("test", {
@@ -27,13 +27,17 @@ class="test"
         <div cv-if="data.value === 2">te</div>
     </test>
 
+    <test #title-click="data.$destroy()" :title="data.name">
+        
+    </test>
+
     <form
     cv-ref="form"
     :name="data.name"
     cv-class="{'bg tt': data.test === true}"
     >
         <div cv-ref="for" cv-for="value of data.arr" @click="data.arr = []">
-            <p :name="data.name">mon super titre {{data.value}}</p>
+            <p :name="data.name">mon super titre {{data.value + " " + data.name}}</p>
             <p cv-for="val of data.arr">{{data.val}}</p>
         </div>
         {{data.name}}
@@ -70,7 +74,7 @@ class="test"
             }
         },
         mounted(){
-            CuteVue.mounted("test", this.$refs.view);
+            // CuteVue.mounted("test", this.$refs.view);
             console.log(this.$instance.getEl());
         }
     });

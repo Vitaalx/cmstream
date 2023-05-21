@@ -21,10 +21,10 @@ class Get extends Controller {
     public function handler(Request $request, Response $response): void
     {
         $response->send([
-            $this->floor->pickup("/user/id"),
-            $this->floor->pickup("/user/name"),
-            $this->floor->pickup("/user/lastname"),
-            $this->floor->pickup("/user/email")
+            $this->floor->pickup("user/id"),
+            $this->floor->pickup("user/name"),
+            $this->floor->pickup("user/lastname"),
+            $this->floor->pickup("user/email")
         ]);
     }
 }
