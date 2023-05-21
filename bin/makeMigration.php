@@ -131,6 +131,9 @@ scan(
                         else if($value === "unique"){
                             $type .= "UNIQUE ";
                         }
+                        else if($value === "default"){
+                            $type .= "DEFAULT " . $groups[2][$key] . " ";
+                        }
                     }
                     array_push($propsName, $prop->getName() . " " . $type);
                 }
@@ -160,6 +163,7 @@ scan(
                 $columnType = "";
                 $isNotNullable = false;
                 $isUnique = false;
+                $default = null;
 
                 if($prop->getType()->getName() === "array") continue;
                 //type is entity
@@ -192,6 +196,9 @@ scan(
                         else if($value === "unique"){
                             $isUnique = true;
                         }
+                        else if($value === "default"){
+                            $default = $groups[2][$key];
+                        }
                     }
                 }
 
@@ -223,6 +230,7 @@ scan(
                             "columnType" => $columnType 
                                 . ($isNotNullable === true? " NOT NULL" : "") 
                                 . ($isUnique === true? " UNIQUE" : "")
+                                . ($default !== null ? " DEFAULT " . $default : "")
                         ]
                     ) . "\n";
                 }
@@ -239,6 +247,42 @@ scan(
                                 "columnType" => $columnType
                             ]
                         ) . "\n";
+                    }
+                    if(
+                        (
+                            (
+                                $result[0]["column_default"] === null && 
+                                $result[0]["column_default"] !== $default
+                            ) ||
+                            (
+                                gettype($result[0]["column_default"]) === "string" &&
+                                explode("::", $result[0]["column_default"])[0] !== $default
+                            )
+                        ) && 
+                        $columnName !== "id"
+                    ){
+                        echo "\nColumn $columnName:\n";
+                        var_dump($result[0]["column_default"]);
+                        var_dump($default);
+                        if($default === null){
+                            $migrationSql .= replace(
+                                "alterColumnDropDefault",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        else{
+                            $migrationSql .= replace(
+                                "alterColumnDefault",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName,
+                                    "defaultValue" => $default
+                                ]
+                            ) . "\n";
+                        }   
                     }
                     if($result[0]["is_not_nullable"] !== $isNotNullable && $columnName !== "id"){
                         if($isNotNullable === true){
@@ -280,7 +324,6 @@ scan(
                                 ]
                             ) . "\n";
                         }
-                        
                     }
                 }
 

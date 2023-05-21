@@ -8,7 +8,7 @@
     <script src="/public/cuteVue.js"></script>
 </head>
 <body>
-    <h1>template front</h1>
+    <h1>template back</h1>
     <?php include $view ?>
 </body>
 </html>

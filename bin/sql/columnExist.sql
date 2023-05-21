@@ -1,6 +1,7 @@
 SELECT 
     column_name,
     conname,
+    column_default,
     case
         when pg_constraint.contype = 'u' then true
         else false
@@ -15,7 +16,7 @@ SELECT
         when data_type = 'date' then 'DATE'
         when data_type = 'text' then 'TEXT'
         when data_type = 'boolean' then 'BOOLEAN'
-        when data_type = 'numeric' then 'FLOAT'
+        when data_type = 'numeric' then 'NUMERIC'
         else data_type
     end as data_type
 FROM information_schema.columns

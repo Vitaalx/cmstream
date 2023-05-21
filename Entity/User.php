@@ -25,6 +25,7 @@ class User extends Entity
     /**
      * @type{VARCHAR(100)}
      * @notnullable{}
+     * @default{0.25}
      */
     private string $email;
 
