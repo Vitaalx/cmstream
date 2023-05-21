@@ -14,7 +14,7 @@ SELECT
         when data_type = 'integer' then 'INT'
         when data_type = 'date' then 'DATE'
         when data_type = 'text' then 'TEXT'
-        when data_type = 'boolean' then 'BOOL'
+        when data_type = 'boolean' then 'BOOLEAN'
         when data_type = 'numeric' then 'FLOAT'
         else data_type
     end as data_type

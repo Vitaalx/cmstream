@@ -97,6 +97,8 @@ scan(
             //get all props
             foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
                 //type is entity
+                if($prop->getType()->getName() === "array") continue;
+                
                 if(str_starts_with($prop->getType()->getName(), "Entity\\")){
                     preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
                     $type = "";
@@ -110,7 +112,7 @@ scan(
                         }
                     }
 
-                    array_push($propsName, $prop->getName() . "_id INT" . $type);
+                    array_push($propsName, $prop->getName() . "_id INT " . $type);
                 }
                 //type is defined in comment
                 else if($prop->getDocComment() !== false){
