@@ -25,7 +25,6 @@ class User extends Entity
     /**
      * @type{VARCHAR(100)}
      * @notnullable{}
-     * @default{0.25}
      */
     private string $email;
 
@@ -44,12 +43,14 @@ class User extends Entity
     /**
      * @type{Date}
      * @notnullable{}
+     * @default{CURRENT_TIMESTAMP}
      */
     private string $created_at;
 
     /**
      * @type{Date}
      * @notnullable{}
+     * @default{CURRENT_TIMESTAMP}
      */
     private string $updated_at;
 
