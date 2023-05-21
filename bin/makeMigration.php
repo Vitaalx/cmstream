@@ -348,7 +348,7 @@ scan(
                     $migrationSql .= replace(
                         "dropColumn", 
                         [
-                            "tableName" => $entityName,
+                            "tableName" => $prefixedEntityName,
                             "columnName" => $columnName
                         ]
                     ) . "\n";
