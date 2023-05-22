@@ -4,10 +4,20 @@
 <h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{ data.title }}</h1>
 
 <script>
-    CuteVue.component("test", {
+    CuteVue.globalComponent("test", {
         el: "#title",
         props: {
-            title: "mon super titre"
+            title: "mon super titre global"
+        },
+        mounted(){
+
+        }
+    });
+
+    let test = CuteVue.localComponent({
+        el: "#title",
+        props: {
+            title: "mon super titre local"
         },
         mounted(){
 
@@ -15,6 +25,23 @@
     });
 </script>
 </div>
+
+<script>
+    CuteVue.createStore(
+        "user",
+        {
+            states: {
+                userName: "mathieu"
+            },
+
+            actions: {
+                setName(){
+                    this.userName = "gabriel";
+                }
+            }
+        }
+    )
+</script>
 
 <div 
 id="app"
@@ -27,7 +54,7 @@ class="test"
         <div cv-if="data.value === 2">te</div>
     </test>
 
-    <test #title-click="data.$destroy()" :title="data.name">
+    <test #title-click="data.setName()">
         
     </test>
 
@@ -45,12 +72,13 @@ class="test"
         <button type="button" @click="test1">subscrit2</button>
     </form>
 
-    <div cv-ref="view" :title="data.name"></div>
+    {{data.userName}}
 </div>
 
 <script>
     new CuteVue({
         el: "#app",
+        components: {test},
         data: {
             name: "mon super nom",
             test: true,
@@ -69,14 +97,21 @@ class="test"
             }
         },
         watch: {
-            test(n, old){
-                
+            userName(n, old){
+                console.log(n);
             }
         },
         mounted(){
             // CuteVue.mounted("test", this.$refs.view);
             console.log(this.$instance.getEl());
-        }
+        },
+        stores: [
+            {
+                name: "user",
+                states: ["userName"],
+                actions: ["setName"],
+            }
+        ]
     });
 </script>
 

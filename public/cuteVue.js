@@ -6,12 +6,16 @@ class CuteVue {
         properties.methods = properties.methods || {};
         properties.props = properties.props || {};
         properties.watch = properties.watch || {};
-
+        properties.components = properties.components || {};
+        properties.stores = properties.stores || [];
+        properties.computed = properties.computed || {};
+        
+        this.#components = properties.components;
         const proxy = this.#makeProxy(properties);
 
         if(properties.template === undefined){
             this.#el = document.querySelector(properties.el);
-            this.#template = properties.template || CuteVue.makeTemplate(this.#el, proxy);
+            this.#template = CuteVue.makeTemplate(this.#el, proxy, properties.components);
             let newEl = this.render(this.#template, proxy);
             this.#el.replaceWith(newEl);
             this.#el = newEl;
@@ -32,6 +36,7 @@ class CuteVue {
         let methods = properties.methods;
         let props = properties.props;
         let watch = properties.watch;
+        let stores = properties.stores;
 
         const proxy = {};
         properties = {
@@ -71,13 +76,55 @@ class CuteVue {
                         this.#launchSubscriber(key, newValue, oldValue);
                     }
                 }
-            )
+            );
         });
 
         this.#subscriber = Object.keys({...data, ...props}).reduce((p, c) => {
             p[c] = [];
             return p;
         }, {});
+
+        stores.forEach(element => {
+            let store = CuteVue.stores[element.name];
+
+            (element.states || []).forEach(key => {
+                Object.defineProperty(
+                    this.#subscriber,
+                    key,
+                    {
+                        get: () => {
+                            return store.subscribers[key];
+                        },
+                        set: (newValue) => {
+                            store.subscribers[key] = newValue;
+                        },
+                        enumerable: true,
+                    }
+                );
+
+                Object.defineProperty(
+                    proxy,
+                    key,
+                    {
+                        get: () => {
+                            return store.proxy[key];
+                        },
+                    }
+                );
+            });
+
+            (element.actions || []).forEach(key => {
+                Object.defineProperty(
+                    proxy,
+                    key,
+                    {
+                        get: () => {
+                            return store.proxy[key];
+                        },
+                    }
+                );
+            });
+        })
 
         Object.entries(watch).forEach(([key, fnc]) => this.#subscriber[key].push(fnc.bind(proxy)));
 
@@ -89,20 +136,14 @@ class CuteVue {
     /**
      * @param {HTMLElement} el 
      */
-    static makeTemplate(el, proxy){
+    static makeTemplate(el, proxy, component){
         if(el.nodeName === "#comment") return "";
+        
+        let nodeName = el.nodeName.toLowerCase()
 
         let obj = {
-            type: CuteVue.components[el.nodeName] ? 
-                eval(/* js */`
-                    (props) => new CuteVue(
-                        {
-                            ...CuteVue.components.${el.nodeName}, 
-                            props: {...CuteVue.components.${el.nodeName}.props, ...props}
-                        }
-                    )
-                `) : 
-                el.nodeName,
+            type: nodeName,
+            isComponent: component[nodeName] || CuteVue.components[nodeName] ? true : false,
             attributes: {},
             objectAttributes: {},
             functionAttributes: {},
@@ -117,7 +158,7 @@ class CuteVue {
                     return child.textContent.replace(/\n/g, "");
                 } 
                 else {
-                    return this.makeTemplate(child, proxy);
+                    return this.makeTemplate(child, proxy, component);
                 }
             }),
         };
@@ -194,15 +235,28 @@ class CuteVue {
             p[c] = [];
             return p;
         }, {});
-        if(typeof template.type === "string") el = document.createElement(template.type);
-        else if(typeof template.type === "function"){
-            instance = template.type({...template.attributes, ...template.objectAttributes});
+
+        if(template.isComponent === false){
+            el = document.createElement(template.type);
+            el.$proxy = proxy;
+        }
+        else{
+            let component = this.#components[template.type] || CuteVue.components[template.type];
+            
+            instance = new CuteVue({
+                ...component,
+                props: {
+                    ...(component?.props || {}),
+                    ...template.attributes, 
+                    ...template.objectAttributes
+                }
+            })
             el = instance.getEl();
             el.$unmounted = () => instance.proxy.unmounted();
         }
 
         el.$template = template;
-        el.$proxy = proxy;
+        
         
         let $destroy = el.$destroy || (() => false);
         el.$destroy = () => {
@@ -210,9 +264,10 @@ class CuteVue {
                 value.forEach(fnc => {
                     this.#subscriber[key] = this.#subscriber[key].filter(v => v !== fnc);
                 })
-            })
-            el.childNodes.forEach(childNode => childNode.$destroy?.());
+            });
+
             if($destroy() === false)el.remove();
+            el.childNodes.forEach(childNode => childNode.$destroy?.());
         }
 
         Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
@@ -479,6 +534,10 @@ class CuteVue {
      */
     proxy = null;
     /**
+     * @type {object}
+     */
+    #components = {};
+    /**
      * @type {HTMLElement}
      */
     #el = null;
@@ -493,10 +552,17 @@ class CuteVue {
     
     static components = {};
 
-    static component(name, properties){
-        CuteVue.components[name.toUpperCase()] = true;
-        properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {});
-        CuteVue.components[name.toUpperCase()] = properties;
+    static globalComponent(name, properties){
+        CuteVue.components[name.toLowerCase()] = true;
+        properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {}, properties.components || {});
+        delete properties.el;
+        CuteVue.components[name.toLowerCase()] = properties;
+    }
+
+    static localComponent(properties){
+        properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {}, properties.components || {});
+        delete properties.el;
+        return properties;
     }
 
     static mounted(name, el, properties = {}){
@@ -507,13 +573,60 @@ class CuteVue {
             el.replaceWith(cv.getEl());
         }
         else{
-            el.$template.type = () => new CuteVue({
-                ...CuteVue.components[name],
-                ...properties,
-                props: {...CuteVue.components[name].props, ...(properties.props || {})}
-            });
+            el.$template.type = name;
+            el.$template.isComponent = true;
             el.$destroy?.();
             el.$proxy.$update();
         }
+    }
+
+    static stores = {};
+
+    static createStore(name, properties){
+        const actions = properties.actions;
+        const states = properties.states;
+        const subscribers = Object.keys(states).reduce((p, c) => {
+            p[c] = [];
+            return p;
+        }, {});
+
+        const proxy = {};
+
+        Object.keys(states).forEach(key => {
+            Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => {
+                        return states[key];
+                    },
+                    set: (newValue) => {
+                        let oldValue = states[key];
+                        states[key] = newValue;
+                        subscribers[key].forEach(element => element(newValue, oldValue));
+                    }
+                }
+            )
+        });
+
+        Object.keys(actions).forEach(key => {
+            actions[key] = actions[key].bind(proxy);
+            Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => {
+                        return actions[key];
+                    },
+                }
+            )
+        });
+
+        this.stores[name] = {
+            proxy,
+            subscribers,
+        }
+
+        return proxy;
     }
 }
