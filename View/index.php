@@ -1,7 +1,30 @@
 <h1>index</h1>
 
+<script>
+    CuteVue.createStore(
+        "user",
+        {
+            states: {
+                userName: "mathieu"
+            },
+
+            actions: {
+                setName(){
+                    this.userName = "gabriel";
+                }
+            },
+
+            computed: {
+                goodName(){
+                    return "voici mon nom : " + this.userName
+                }
+            }
+        }
+    )
+</script>
+
 <div style="display: none;">
-<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{ data.title }}</h1>
+<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{ data.title }} + {{data.goodName}}</h1>
 
 <script>
     CuteVue.globalComponent("test", {
@@ -21,27 +44,16 @@
         },
         mounted(){
 
-        }
+        },
+        stores: [
+            {
+                name: "user",
+                computed: ["goodName"]
+            }
+        ]
     });
 </script>
 </div>
-
-<script>
-    CuteVue.createStore(
-        "user",
-        {
-            states: {
-                userName: "mathieu"
-            },
-
-            actions: {
-                setName(){
-                    this.userName = "gabriel";
-                }
-            }
-        }
-    )
-</script>
 
 <div 
 id="app"
@@ -54,7 +66,7 @@ class="test"
         <div cv-if="data.value === 2">te</div>
     </test>
 
-    <test #title-click="data.setName()">
+    <test cv-if="data.userName !== 'gabriel'" #title-click="data.setName()">
         
     </test>
 
@@ -71,8 +83,7 @@ class="test"
         <button type="button" cv-show="data.test === true" @click="clicked">subscrit</button>
         <button type="button" @click="test1">subscrit2</button>
     </form>
-
-    {{data.userName}}
+    {{data.bigName}}
 </div>
 
 <script>
@@ -83,6 +94,11 @@ class="test"
             name: "mon super nom",
             test: true,
             arr: [1],
+        },
+        computed:{
+            bigName(){
+                return this.name + " " + this.userName
+            }
         },
         methods: {
             clicked(){

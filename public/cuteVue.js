@@ -32,11 +32,12 @@ class CuteVue {
      * @param {object} properties
      */
     #makeProxy(properties){
-        let data = typeof properties.data === "function" ? properties.data() : properties.data;
-        let methods = properties.methods;
-        let props = properties.props;
-        let watch = properties.watch;
-        let stores = properties.stores;
+        const data = typeof properties.data === "function" ? properties.data() : properties.data;
+        const methods = properties.methods;
+        const props = properties.props;
+        const watch = properties.watch;
+        const stores = properties.stores;
+        const computed = properties.computed;
 
         const proxy = {};
         properties = {
@@ -79,7 +80,7 @@ class CuteVue {
             );
         });
 
-        this.#subscriber = Object.keys({...data, ...props}).reduce((p, c) => {
+        this.#subscriber = Object.keys({...data, ...props, ...computed}).reduce((p, c) => {
             p[c] = [];
             return p;
         }, {});
@@ -124,7 +125,66 @@ class CuteVue {
                     }
                 );
             });
-        })
+
+            (element.computed || []).forEach(key => {
+                Object.defineProperty(
+                    this.#subscriber,
+                    key,
+                    {
+                        get: () => {
+                            return store.subscribers[key];
+                        },
+                        set: (newValue) => {
+                            store.subscribers[key] = newValue;
+                        },
+                        enumerable: true,
+                    }
+                );
+                
+                Object.defineProperty(
+                    proxy,
+                    key,
+                    {
+                        get: () => {
+                            return store.proxy[key];
+                        },
+                    }
+                );
+            });
+        });
+
+        Object.keys(computed).forEach(key => {
+            let fncString = computed[key].toString();
+            computed[key] = computed[key].bind(proxy);
+            let comput;
+
+            Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => comput,
+                }
+            );
+
+            let groups = [];
+            for(let [match, group] of fncString.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(groups.indexOf(group) !== -1) continue;
+                else groups.push(group);
+
+                let subscriber = () => {
+                    let oldValue = comput;
+                    let newValue = computed[key]();
+                    comput = newValue;
+                    this.#launchSubscriber(key, newValue, oldValue);
+                };
+
+                if(groups.length === 1)subscriber();
+
+                if(this.#subscriber[group] !== undefined){
+                    this.#subscriber[group].push(subscriber);
+                }
+            }
+        });
 
         Object.entries(watch).forEach(([key, fnc]) => this.#subscriber[key].push(fnc.bind(proxy)));
 
@@ -280,8 +340,12 @@ class CuteVue {
                     })
                 `);
                 
+                let groups = [];
                 for(let [match, group] of value.matchAll(/data(?:[ ]|^$)*.([A-Za-z0-9 ]*)/g)){
                     group = group.trim();
+                    if(groups.indexOf(group) !== -1) continue;
+                    else groups.push(group);
+
                     let subscriber = () => {
                         el.setAttribute(key, attrRender(proxy));
                         if(instance !== undefined)instance.proxy[key] = attrRender(proxy);
@@ -291,15 +355,21 @@ class CuteVue {
                         subscribers[group].push(subscriber);
                         this.#subscriber[group].push(subscriber);
                     }
-                    subscriber();
+
+                    if(groups.length === 1)subscriber();
                 }
                 
             }
         );
 
         if(template.class !== undefined){
+
+            let groups = [];
             for(let [match, group] of template.class.matchAll(/data(?:[ ]|^$)*.([A-Za-z0-9 ]*)/g)){
                 group = group.trim();
+                if(groups.indexOf(group) !== -1) continue;
+                else groups.push(group);
+
                 let subscriber = () => {
                     Object.entries(eval(/* js */`((data) => (${template.class}))(proxy)`)).forEach(([key, value]) => {
                         if(value) el.classList.add(...key.split(" "));
@@ -311,7 +381,7 @@ class CuteVue {
                     subscribers[group].push(subscriber);
                     this.#subscriber[group].push(subscriber);
                 }
-                subscriber();
+                if(groups.length === 1) subscriber();
             }
         }
 
@@ -337,8 +407,13 @@ class CuteVue {
         }
 
         if(template.show !== undefined){
+
+            let groups = [];
             for(let [match, group] of template.show.matchAll(/data(?:[ ]|^$)*.([A-Za-z0-9 ]*)/g)){
                 group = group.trim();
+                if(groups.indexOf(group) !== -1) continue;
+                else groups.push(group);
+
                 let cdn = eval(/* js */`
                     ((data) => {
                         return ${template.show}
@@ -355,7 +430,7 @@ class CuteVue {
                     subscribers[group].push(subscriber);
                     this.#subscriber[group].push(subscriber);
                 }
-                subscriber();
+                if(groups.length === 1) subscriber();
             }
         }
 
@@ -363,17 +438,22 @@ class CuteVue {
             if(typeof templateChild === "string"){
                 let textNode = document.createTextNode(templateChild);
 
-                for(let [m, g] of templateChild.matchAll(/{{([^{}]*)}}/g)){
-                    let textRender = eval(/* js */`
-                        ((data) => {
-                            return ${g};
-                        })
-                    `);
+                let textRender = eval(`
+                    ((data) => {
+                        return \`${templateChild.replace(/{{([^{}]*)}}/g, (match, g) => "${" + g + "}")}\`;
+                    })
+                `);
 
+                for(let [m, g] of templateChild.matchAll(/{{([^{}]*)}}/g)){
+
+                    let groups = [];
                     for(let [match, group] of g.matchAll(/data(?:[ ]|^$)*.([A-Za-z0-9 ]*)/g)){
                         group = group.trim();
+                        if(groups.indexOf(group) !== -1) continue;
+                        else groups.push(group);
+
                         let subscriber = () => {
-                            let newTextNode = document.createTextNode(templateChild.replace(m, textRender(proxy)));
+                            let newTextNode = document.createTextNode(textRender(proxy));
                             textNode.replaceWith(newTextNode);
                             textNode = newTextNode;
                         };
@@ -382,7 +462,7 @@ class CuteVue {
                             subscribers[group].push(subscriber);
                             this.#subscriber[group].push(subscriber);
                         }
-                        subscriber();
+                        if(groups.length === 1) subscriber();
                     }
                 }
 
@@ -404,8 +484,12 @@ class CuteVue {
                         })
                     `);
                     
+                    let groups = [];
                     for(let [match, group] of templateChild.if.matchAll(/data(?:[ ]|^$)*.((?:[A-Za-z0-9 ])*)/g)){
                         group = group.trim();
+                        if(groups.indexOf(group) !== -1) continue;
+                        else groups.push(group);
+
                         let subscriber = () => {
                             let result = cdn(proxy);
                             if(result){
@@ -427,7 +511,7 @@ class CuteVue {
                             subscribers[group].push(subscriber);
                             this.#subscriber[group].push(subscriber);
                         }
-                        subscriber();
+                        if(groups.length === 1) subscriber();
                     }
 
                     if(instance === undefined)el.appendChild(elementNode);
@@ -583,9 +667,10 @@ class CuteVue {
     static stores = {};
 
     static createStore(name, properties){
-        const actions = properties.actions;
-        const states = properties.states;
-        const subscribers = Object.keys(states).reduce((p, c) => {
+        const actions = properties.actions || {};
+        const states = properties.states || {};
+        const computed = properties.computed || {};
+        const subscribers = Object.keys({...states, ...computed}).reduce((p, c) => {
             p[c] = [];
             return p;
         }, {});
@@ -620,6 +705,39 @@ class CuteVue {
                     },
                 }
             )
+        });
+
+        Object.keys(computed).forEach(key => {
+            let fncString = computed[key].toString();
+            computed[key] = computed[key].bind(proxy);
+            let comput;
+
+            Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => comput,
+                }
+            );
+
+            let groups = [];
+            for(let [match, group] of fncString.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(groups.indexOf(group) !== -1) continue;
+                else groups.push(group);
+
+                let subscriber = () => {
+                    let oldValue = comput;
+                    let newValue = computed[key]();
+                    comput = newValue;
+                    subscribers[key].forEach(element => element(newValue, oldValue));
+                };
+
+                if(groups.length === 1)subscriber();
+
+                if(subscribers[group] !== undefined){
+                    subscribers[group].push(subscriber);
+                }
+            }
         });
 
         this.stores[name] = {
