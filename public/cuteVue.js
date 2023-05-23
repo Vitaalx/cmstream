@@ -1,5 +1,11 @@
 "use strict";
 
+const __element__ = Symbol("element");
+const __components__ = Symbol("components");
+const __subscribers__ = Symbol("subscribers");
+const __launchSubscribers__ = Symbol("launchSubscribers");
+const __slot__ = Symbol("slot");
+
 class CuteVue {
     constructor(properties){
         properties.data = properties.data || {};
@@ -9,29 +15,35 @@ class CuteVue {
         properties.components = properties.components || {};
         properties.stores = properties.stores || [];
         properties.computed = properties.computed || {};
-        
-        this.#components = properties.components;
-        const proxy = this.#makeProxy(properties);
 
-        if(properties.template === undefined){
-            this.#el = document.querySelector(properties.el);
-            this.#template = CuteVue.makeTemplate(this.#el, proxy, properties.components);
-            let newEl = this.render(this.#template, proxy);
-            this.#el.replaceWith(newEl);
-            this.#el = newEl;
-            proxy.mounted();
-        }
-        else {
-            this.#template = properties.template;
-            this.#el = this.render(this.#template, proxy);
-            proxy.mounted();
+        this.properties = properties;
+
+        if(properties.template !== undefined) this.template = properties.template;
+        else if(properties.el !== undefined) {
+            properties.el = typeof properties.el === "string" ? document.querySelector(properties.el) : properties.el;
+            this.template = CuteVue.makeTemplate(properties.el, properties.methods, properties.components);
+            properties.el.remove();
+            delete properties.el;
         }
     }
 
-    /**
-     * @param {object} properties
-     */
-    #makeProxy(properties){
+    mount(el){
+        const proxy = CuteVue.makeProxy(this.properties, this.template);
+        const newEl = CuteVue.render(this.template, proxy);
+        if(el !== undefined){
+            el = typeof el === "string" ? document.querySelector(el) : el;
+            el.replaceWith(newEl);
+        }
+        proxy[__element__] = newEl;
+        proxy.mounted();
+        return proxy;
+    }
+
+    properties = null;
+    template = null;
+    slot = null;
+
+    static makeProxy(properties, template){
         const data = typeof properties.data === "function" ? properties.data() : properties.data;
         const methods = properties.methods;
         const props = properties.props;
@@ -39,32 +51,59 @@ class CuteVue {
         const stores = properties.stores;
         const computed = properties.computed;
 
-        const proxy = {};
+        const proxy = {}
+
+        proxy[__launchSubscribers__] = (prop, newValue, oldValue) => proxy[__subscribers__][prop].forEach(element => element(newValue, oldValue));
+        proxy[__slot__] = null;
+        proxy[__components__] = properties.components;
+
         properties = {
-            ...data, 
-            ...methods, 
+            ...data,
             ...props, 
             mounted: properties.mounted?.bind(proxy) || function(){},
             unmounted: properties.unmounted?.bind(proxy) || function(){},
             $update: (arg) => {
                 if(!arg){
-                    let newEl = this.render(this.#template, proxy);
-                    this.#el.replaceWith(newEl);
-                    this.#el.$destroy();
-                    this.#el = newEl;
+                    let newEl = this.render(template, proxy);
+                    proxy[__element__].replaceWith(newEl);
+                    proxy[__element__].$destroy();
+                    proxy[__element__] = newEl;
                 }
                 else{
-                    this.#launchSubscriber(arg, proxy[arg], proxy[arg]);
+                    proxy[__launchSubscribers__](arg, proxy[arg], proxy[arg]);
                 }
             },
             $refs: {},
-            $instance: this,
-            $emit: (name, arg) => this.#el.$functionAttributes[name](arg),
-            $destroy: () => this.#el.$destroy(),
+            $emit: (name, arg) => proxy[__element__].$functionAttributes[name](arg),
+            $destroy: () => proxy[__element__].$destroy(),
+            $getElement: () => proxy[__element__],
         };
 
-        Object.keys(properties).forEach(key => {
+        Object.keys(methods).forEach(key => {
+            methods[key] = methods[key].bind(proxy);
+
             Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => {
+                        return methods[key];
+                    }
+                }
+            );
+        })
+
+        Object.keys(properties).forEach(key => {
+            if(typeof properties[key] === "function" || key.startsWith("$")) Object.defineProperty(
+                proxy,
+                key,
+                {
+                    get: () => {
+                        return properties[key];
+                    }
+                }
+            );
+            else Object.defineProperty(
                 proxy,
                 key,
                 {
@@ -74,13 +113,13 @@ class CuteVue {
                     set: (newValue) => {
                         let oldValue = properties[key];
                         properties[key] = newValue;
-                        this.#launchSubscriber(key, newValue, oldValue);
+                        proxy[__launchSubscribers__](key, newValue, oldValue);
                     }
                 }
             );
         });
 
-        this.#subscriber = Object.keys({...data, ...props, ...computed}).reduce((p, c) => {
+        proxy[__subscribers__] = Object.keys({...data, ...props, ...computed}).reduce((p, c) => {
             p[c] = [];
             return p;
         }, {});
@@ -90,7 +129,7 @@ class CuteVue {
 
             (element.states || []).forEach(key => {
                 Object.defineProperty(
-                    this.#subscriber,
+                    proxy[__subscribers__],
                     key,
                     {
                         get: () => {
@@ -128,7 +167,7 @@ class CuteVue {
 
             (element.computed || []).forEach(key => {
                 Object.defineProperty(
-                    this.#subscriber,
+                    proxy[__subscribers__],
                     key,
                     {
                         get: () => {
@@ -175,20 +214,18 @@ class CuteVue {
                     let oldValue = comput;
                     let newValue = computed[key]();
                     comput = newValue;
-                    this.#launchSubscriber(key, newValue, oldValue);
+                    proxy[__launchSubscribers__](key, newValue, oldValue);
                 };
 
                 if(groups.length === 1)subscriber();
 
-                if(this.#subscriber[group] !== undefined){
-                    this.#subscriber[group].push(subscriber);
+                if(proxy[__subscribers__][group] !== undefined){
+                    proxy[__subscribers__][group].push(subscriber);
                 }
             }
         });
 
-        Object.entries(watch).forEach(([key, fnc]) => this.#subscriber[key].push(fnc.bind(proxy)));
-
-        this.proxy = proxy;
+        Object.entries(watch).forEach(([key, fnc]) => proxy[__subscribers__][key].push(fnc.bind(proxy)));
 
         return proxy;
     }
@@ -233,11 +270,7 @@ class CuteVue {
                 let attr = attrName.slice(1);
                 let attrValue = el.getAttribute(attrName);
                 if(proxy[attrValue] === undefined){
-                    obj.events[attr] = eval(/* js */`
-                        ($event, data) => {
-                            ${attrValue}
-                        }
-                    `);
+                    obj.events[attr] = attrValue;
                 }
                 else obj.events[attr] = attrValue;
             }
@@ -245,11 +278,7 @@ class CuteVue {
                 let attr = attrName.slice(1);
                 let attrValue = el.getAttribute(attrName);
                 if(proxy[attrValue] === undefined){
-                    obj.functionAttributes[attr] = eval(/* js */`
-                        ($event, data) => {
-                            ${attrValue}
-                        }
-                    `);
+                    obj.functionAttributes[attr] = attrValue;
                 }
                 else obj.functionAttributes[attr] = attrValue;
             } 
@@ -285,44 +314,30 @@ class CuteVue {
      * @param {object} template
      * @returns {HTMLElement}
      */
-    render(template, proxy){
+    static render(template, proxy){
         /**
          * @type {HTMLElement}
          */
         let el;
         let instance;
-        let subscribers = Object.keys(this.#subscriber).reduce((p, c) => {
+        let subscribers = Object.keys(proxy[__subscribers__]).reduce((p, c) => {
             p[c] = [];
             return p;
         }, {});
 
-        if(template.isComponent === false){
-            el = document.createElement(template.type);
-            el.$proxy = proxy;
-        }
+        if(template.isComponent === false) el = document.createElement(template.type);
         else{
-            let component = this.#components[template.type] || CuteVue.components[template.type];
-            
-            instance = new CuteVue({
-                ...component,
-                props: {
-                    ...(component?.props || {}),
-                    ...template.attributes, 
-                    ...template.objectAttributes
-                }
-            })
-            el = instance.getEl();
-            el.$unmounted = () => instance.proxy.unmounted();
+            const component = proxy[__components__][template.type] || CuteVue.components[template.type];
+            instance = component.mount();
+            el = instance[__element__];
         }
-
-        el.$template = template;
-        
         
         let $destroy = el.$destroy || (() => false);
         el.$destroy = () => {
+            proxy.unmounted();
             Object.entries(subscribers).forEach(([key, value]) => {
                 value.forEach(fnc => {
-                    this.#subscriber[key] = this.#subscriber[key].filter(v => v !== fnc);
+                    proxy[__subscribers__][key] = proxy[__subscribers__][key].filter(v => v !== fnc);
                 })
             });
 
@@ -348,12 +363,12 @@ class CuteVue {
 
                     let subscriber = () => {
                         el.setAttribute(key, attrRender(proxy));
-                        if(instance !== undefined)instance.proxy[key] = attrRender(proxy);
+                        if(instance !== undefined)instance[key] = attrRender(proxy);
                     };
 
-                    if(this.#subscriber[group] !== undefined){
+                    if(proxy[__subscribers__][group] !== undefined){
                         subscribers[group].push(subscriber);
-                        this.#subscriber[group].push(subscriber);
+                        proxy[__subscribers__][group].push(subscriber);
                     }
 
                     if(groups.length === 1)subscriber();
@@ -377,28 +392,44 @@ class CuteVue {
                     });
                 };
 
-                if(this.#subscriber[group] !== undefined){
+                if(proxy[__subscribers__][group] !== undefined){
                     subscribers[group].push(subscriber);
-                    this.#subscriber[group].push(subscriber);
+                    proxy[__subscribers__][group].push(subscriber);
                 }
                 if(groups.length === 1) subscriber();
             }
         }
 
         Object.entries(template.events).forEach(([key, value]) => {
+            const fnc = typeof proxy[value] === "function" ?
+                proxy[value].bind(proxy) :
+                eval(/* js */`
+                    ($event, data) => {
+                        ${value}
+                    }
+                `);
+
             el.addEventListener(
                 key, 
-                typeof value === "string" ? 
-                    proxy[value].bind(proxy) : 
-                    (e) => value(e, proxy)
+                typeof proxy[value] === "function" ? 
+                    fnc :
+                    (e) => fnc(e, proxy)
             );
         });
 
         el.$functionAttributes = {};
         Object.entries(template.functionAttributes).forEach(([key, value]) => {
-            el.$functionAttributes[key] = typeof value === "string"?
-                proxy[value].bind(proxy): 
-                (e) => value(e, proxy);
+            const fnc = typeof proxy[value] === "function" ?
+                proxy[value].bind(proxy) :
+                eval(/* js */`
+                    ($event, data) => {
+                        ${value}
+                    }
+                `);
+            
+            el.$functionAttributes[key] = typeof proxy[value] === "function" ? 
+                fnc :
+                (e) => fnc(e, proxy);
         });
 
         if(template.ref !== undefined && !(proxy.$refs[template.ref] instanceof Array)){
@@ -426,9 +457,9 @@ class CuteVue {
                     else el.style.display = "none";
                 };
     
-                if(this.#subscriber[group] !== undefined){
+                if(proxy[__subscribers__][group] !== undefined){
                     subscribers[group].push(subscriber);
-                    this.#subscriber[group].push(subscriber);
+                    proxy[__subscribers__][group].push(subscriber);
                 }
                 if(groups.length === 1) subscriber();
             }
@@ -458,22 +489,22 @@ class CuteVue {
                             textNode = newTextNode;
                         };
 
-                        if(this.#subscriber[group] !== undefined){
+                        if(proxy[__subscribers__][group] !== undefined){
                             subscribers[group].push(subscriber);
-                            this.#subscriber[group].push(subscriber);
+                            proxy[__subscribers__][group].push(subscriber);
                         }
                         if(groups.length === 1) subscriber();
                     }
                 }
 
                 if(instance === undefined)el.appendChild(textNode);
-                else if(instance.getSlot())instance.getSlot().parentNode.insertBefore(textNode, instance.getSlot());
+                else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(textNode, instance[__slot__]);
             }
             else if(typeof templateChild === "object"){
                 let elementNode = document.createComment("");
 
-                if(templateChild.type === "SLOT"){
-                    this.#slot = elementNode;
+                if(templateChild.type === "slot"){
+                    proxy[__slot__] = elementNode;
                     el.appendChild(elementNode);
                     return;
                 }
@@ -507,15 +538,15 @@ class CuteVue {
                                 elementNode = newCommentNode;
                             }
                         };
-                        if(this.#subscriber[group] !== undefined){
+                        if(proxy[__subscribers__][group] !== undefined){
                             subscribers[group].push(subscriber);
-                            this.#subscriber[group].push(subscriber);
+                            proxy[__subscribers__][group].push(subscriber);
                         }
                         if(groups.length === 1) subscriber();
                     }
 
                     if(instance === undefined)el.appendChild(elementNode);
-                    else if(instance.getSlot())instance.getSlot().parentNode.insertBefore(elementNode, instance.getSlot());
+                    else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(elementNode, instance[__slot__]);
                 }
                 else if(templateChild.for !== undefined){
                     let currentForElement = [];
@@ -567,101 +598,31 @@ class CuteVue {
                         });
                     }`);
                     
-                    if(this.#subscriber[forArr] !== undefined){
+                    if(proxy[__subscribers__][forArr] !== undefined){
                         subscribers[forArr].push(subscriber);
-                        this.#subscriber[forArr].push(subscriber);
+                        proxy[__subscribers__][forArr].push(subscriber);
                     }
 
                     if(instance === undefined)el.appendChild(elementNode);
-                    else if(instance.getSlot())instance.getSlot().parentNode.insertBefore(elementNode, instance.getSlot());
+                    else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(elementNode, instance[__slot__]);
                     subscriber();
                 }
                 else {
                     elementNode = this.render(templateChild, proxy);
 
                     if(instance === undefined)el.appendChild(elementNode);
-                    else if(instance.getSlot())instance.getSlot().parentNode.insertBefore(elementNode, instance.getSlot());
+                    else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(elementNode, instance[__slot__]);
                 }
             }
         })
 
         return el;
     }
-
-    destroy(){
-        this.#el.$destroy();
-    }
-
-    /**
-     * @param {string} prop 
-     * @param {any} newValue 
-     * @param {any} oldValue 
-     */
-    #launchSubscriber(prop, newValue, oldValue){
-        this.#subscriber[prop].forEach(element => element(newValue, oldValue));
-    }
-
-    getEl(){
-        return this.#el;
-    }
-
-    getSlot(){
-        return this.#slot;
-    }
-
-    /**
-     * @type {object}
-     */
-    #template = null;
-    /**
-     * @type {object}
-     */
-    proxy = null;
-    /**
-     * @type {object}
-     */
-    #components = {};
-    /**
-     * @type {HTMLElement}
-     */
-    #el = null;
-    /**
-     * @type {HTMLElement}
-     */
-    #slot = null;
-    /**
-     * @type {object}
-     */
-    #subscriber = null;
     
     static components = {};
 
-    static globalComponent(name, properties){
-        CuteVue.components[name.toLowerCase()] = true;
-        properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {}, properties.components || {});
-        delete properties.el;
-        CuteVue.components[name.toLowerCase()] = properties;
-    }
-
-    static localComponent(properties){
-        properties.template = this.makeTemplate(document.querySelector(properties.el), properties.methods || {}, properties.components || {});
-        delete properties.el;
-        return properties;
-    }
-
-    static mounted(name, el, properties = {}){
-        name = name.toUpperCase()
-        el = typeof el === "string" ? document.querySelector(el) : el;
-        if(el.$template === undefined){
-            let cv = new CuteVue({...CuteVue.components[name], props: {...CuteVue.components[name].props, ...props}});
-            el.replaceWith(cv.getEl());
-        }
-        else{
-            el.$template.type = name;
-            el.$template.isComponent = true;
-            el.$destroy?.();
-            el.$proxy.$update();
-        }
+    static component(name, component){
+        CuteVue.components[name.toLowerCase()] = component;
     }
 
     static stores = {};
