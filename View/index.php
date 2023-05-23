@@ -1,65 +1,87 @@
 <h1>index</h1>
 
-<div style="display: none;">
-<h1 id="title" @click="data.$emit('title-click', 'test')"><slot></slot> titre : {{ data.title }}</h1>
-
 <script>
-    CuteVue.component("test", {
-        el: "#title",
-        props: {
-            title: "mon super titre"
-        },
-        mounted(){
+    CuteVue.createStore(
+        "user",
+        {
+            states: {
+                userName: "mathieu"
+            },
 
+            actions: {
+                setName(){
+                    this.userName = "gabriel";
+                }
+            },
+
+            computed: {
+                goodName(){
+                    return "voici mon nom : " + this.userName
+                }
+            }
         }
-    });
+    )
 </script>
-</div>
 
 <div 
 id="app"
-class="test" 
 >
-    ramdom text
+    
+</div>
 
-    <test #title-click="clicked" cv-for="value of Object.entries(data.arr)" :title="data.name + ' ' + data.value">
-        {{ data.value[1] + ":" + data.value[0]}}
-        <div cv-if="data.value === 2">te</div>
-    </test>
-
-    <test #title-click="data.$destroy()" :title="data.name">
-        
-    </test>
-
-    <form
-    cv-ref="form"
-    :name="data.name"
-    cv-class="{'bg tt': data.test === true}"
-    >
-        <div cv-ref="for" cv-for="value of data.arr" @click="data.arr = []">
-            <p :name="data.name">mon super titre {{data.value + " " + data.name}}</p>
-            <p cv-for="val of data.arr">{{data.val}}</p>
-        </div>
-        {{data.name}}
-        <button type="button" cv-show="data.test === true" @click="clicked">subscrit</button>
-        <button type="button" @click="test1">subscrit2</button>
-    </form>
-
-    <div cv-ref="view" :title="data.name"></div>
+<div 
+id="test1"
+@click="data.$emit('click')"
+>
+    {{data.name}}
+    <slot></slot>
 </div>
 
 <script>
-    new CuteVue({
-        el: "#app",
+    const test1 = new CuteVue({
+        el: "#test1",
+        data: {
+            
+        },
+        props: {
+            name: "test",
+        }
+    });
+</script>
+
+<div 
+id="test"
+cv-class="{'none': data.arr.length !== 4}"
+>
+    <test1 #click="setName" :name="data.name">test</test1>
+
+    {{data.name}} {{data.bigName + " " + data.goodName}}
+
+    <div cv-ref="test" cv-for="value of data.arr">
+        <h1 :title="data.value" cv-if="data.value !== 'un'" @click="data.clicked(data.value)">{{data.value}}</h1>
+    </div>
+</div>
+
+<script>
+    const test = new CuteVue({
+        el: "#test",
+        components: {test1},
         data: {
             name: "mon super nom",
             test: true,
-            arr: [1],
+            arr: ["un", "deux", "trois"],
+        },
+        computed:{
+            bigName(){
+                return this.name + " " + this.arr
+            }
         },
         methods: {
-            clicked(){
+            clicked(value){
                 this.name = "test";
-                this.arr = ["un", "deux", "trois"];
+                this.arr = ["un", "deux", "trois", "quatre"];
+                console.log(value);
+                console.log(this.$refs);
             },
             test1(){
                 this.test = !this.test;
@@ -69,14 +91,21 @@ class="test"
             }
         },
         watch: {
-            test(n, old){
-                
-            }
+            
         },
         mounted(){
-            // CuteVue.mounted("test", this.$refs.view);
-            console.log(this.$instance.getEl());
-        }
+            console.log(this.$refs);
+        },
+        stores: [
+            {
+                name: "user",
+                computed: ["goodName"],
+                actions: ["setName"]
+            }
+        ]
     });
 </script>
 
+<script>
+    test.mount("#app");
+</script>

@@ -50,7 +50,7 @@ $entitysName = [];
 //         "columnExist", 
 //         [
 //             "tableName" => "_test",
-//             "columnName" => "subtitle",
+//             "columnName" => "tt",
 //         ]
 //     )
 // ); 
@@ -97,6 +97,8 @@ scan(
             //get all props
             foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
                 //type is entity
+                if($prop->getType()->getName() === "array") continue;
+                
                 if(str_starts_with($prop->getType()->getName(), "Entity\\")){
                     preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
                     $type = "";
@@ -110,7 +112,7 @@ scan(
                         }
                     }
 
-                    array_push($propsName, $prop->getName() . "_id INT" . $type);
+                    array_push($propsName, $prop->getName() . "_id INT " . $type);
                 }
                 //type is defined in comment
                 else if($prop->getDocComment() !== false){
@@ -128,6 +130,9 @@ scan(
                         }
                         else if($value === "unique"){
                             $type .= "UNIQUE ";
+                        }
+                        else if($value === "default"){
+                            $type .= "DEFAULT " . $groups[2][$key] . " ";
                         }
                     }
                     array_push($propsName, $prop->getName() . " " . $type);
@@ -158,6 +163,7 @@ scan(
                 $columnType = "";
                 $isNotNullable = false;
                 $isUnique = false;
+                $default = null;
 
                 if($prop->getType()->getName() === "array") continue;
                 //type is entity
@@ -190,6 +196,9 @@ scan(
                         else if($value === "unique"){
                             $isUnique = true;
                         }
+                        else if($value === "default"){
+                            $default = $groups[2][$key];
+                        }
                     }
                 }
 
@@ -221,6 +230,7 @@ scan(
                             "columnType" => $columnType 
                                 . ($isNotNullable === true? " NOT NULL" : "") 
                                 . ($isUnique === true? " UNIQUE" : "")
+                                . ($default !== null ? " DEFAULT " . $default : "")
                         ]
                     ) . "\n";
                 }
@@ -237,6 +247,39 @@ scan(
                                 "columnType" => $columnType
                             ]
                         ) . "\n";
+                    }
+                    if(
+                        (
+                            (
+                                $result[0]["column_default"] === null && 
+                                $result[0]["column_default"] !== $default
+                            ) ||
+                            (
+                                gettype($result[0]["column_default"]) === "string" &&
+                                explode("::", $result[0]["column_default"])[0] !== $default
+                            )
+                        ) && 
+                        $columnName !== "id"
+                    ){
+                        if($default === null){
+                            $migrationSql .= replace(
+                                "alterColumnDropDefault",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName
+                                ]
+                            ) . "\n";
+                        }
+                        else{
+                            $migrationSql .= replace(
+                                "alterColumnDefault",
+                                [
+                                    "tableName" => $prefixedEntityName,
+                                    "columnName" => $columnName,
+                                    "defaultValue" => $default
+                                ]
+                            ) . "\n";
+                        }   
                     }
                     if($result[0]["is_not_nullable"] !== $isNotNullable && $columnName !== "id"){
                         if($isNotNullable === true){
@@ -278,7 +321,6 @@ scan(
                                 ]
                             ) . "\n";
                         }
-                        
                     }
                 }
 
@@ -303,7 +345,7 @@ scan(
                     $migrationSql .= replace(
                         "dropColumn", 
                         [
-                            "tableName" => $entityName,
+                            "tableName" => $prefixedEntityName,
                             "columnName" => $columnName
                         ]
                     ) . "\n";
