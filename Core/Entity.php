@@ -3,6 +3,8 @@
 namespace Core;
 
 use Exception;
+use Core\Database;
+use Core\ConfigFile;
 
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable
@@ -245,11 +247,16 @@ abstract class Entity implements \JsonSerializable
 
     static public function dataBaseConnection()
     {
-        self::$db = new \PDO(
-            "pgsql:host=database;port=5432;dbname=esgi",
-            "esgi",
-            "Test1234",
+        $config = new ConfigFile();
+        $database = new Database(
+            $config->getEnv('DB_CONNECTION'),
+            $config->getEnv('DB_HOST'),
+            $config->getEnv('DB_PORT'),
+            $config->getEnv('DB_DATABASE'),
+            $config->getEnv('DB_USERNAME'),
+            $config->getEnv('DB_PASSWORD')
         );
+        self::$db = $database->connection();
     }
 }
 
