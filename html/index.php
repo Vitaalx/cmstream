@@ -1,12 +1,25 @@
 <?php
+
 use Core\Route;
 
 require "../Core/Route.php";
 
 Route::match([
     "method" => "GET",
-    "path" => "/user/{id}",
-    "controller" => "API/user/get",
+    "path" => "/register",
+    "controller" => "API/UserController/register",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/login",
+    "controller" => "API/UserController/loginUser",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/checkToken",
+    "controller" => "API/TestTokenController/checkToken",
 ]);
 
 Route::match([
