@@ -23,17 +23,55 @@
     )
 </script>
 
+<div id="app"></div>
+
+<div id="router"></div>
+
+<div id="view"></div>
+
+<script>
+    const router = new CuteVue({
+        el: "#router",
+        mounted(){
+            router.properties.components["template"] = template;
+            router.template.type = "template";
+            router.template.isComponent = true;
+            this.$update();
+        }
+    });
+
+    const view = new CuteVue({
+        el: "#view",
+        mounted(){
+            view.properties.components["test"] = test;
+            view.template.type = "test";
+            view.template.isComponent = true;
+            this.$update();
+        }
+    });
+
+    CuteVue.component("view", view);
+</script>
+
 <div 
-id="app"
+id="template"
 >
-    
+    template
+
+    <view></view>
 </div>
+
+<script>
+    const template = new CuteVue({
+        el: "#template",
+    });
+</script>
 
 <div 
 id="test1"
-@click="data.$emit('click')"
+@click="this.$emit('click')"
 >
-    {{data.name}}
+    {{this.name}}
     <slot></slot>
 </div>
 
@@ -51,14 +89,14 @@ id="test1"
 
 <div 
 id="test"
-cv-class="{'none': data.arr.length !== 4}"
+cv-class="{'none': this.arr.length !== 4}"
 >
-    <test1 #click="setName" :name="data.name">test</test1>
+    <test1 #click="setName" :name="this.name">test</test1>
 
-    {{data.name}} {{data.bigName + " " + data.goodName}}
+    {{this.name}} {{this.bigName + " " + this.goodName}}
 
-    <div cv-ref="test" cv-for="value of data.arr">
-        <h1 :title="data.value" cv-if="data.value !== 'un'" @click="data.clicked(data.value)">{{data.value}}</h1>
+    <div cv-ref="test" cv-for="value of this.arr">
+        <h1 :title="this.value" cv-show="this.value !== 'un'" @click="this.clicked(this.value)">{{this.value}} {{this.userName}}</h1>
     </div>
 </div>
 
@@ -81,12 +119,10 @@ cv-class="{'none': data.arr.length !== 4}"
                 this.name = "test";
                 this.arr = ["un", "deux", "trois", "quatre"];
                 console.log(value);
-                console.log(this.$refs);
             },
             test1(){
                 this.test = !this.test;
                 this.arr[0] = "quatre";
-                console.log(this.$refs);
                 this.$update("arr");
             }
         },
@@ -94,11 +130,12 @@ cv-class="{'none': data.arr.length !== 4}"
             
         },
         mounted(){
-            console.log(this.$refs);
+            
         },
         stores: [
             {
                 name: "user",
+                states: ["userName"],
                 computed: ["goodName"],
                 actions: ["setName"]
             }
@@ -107,5 +144,5 @@ cv-class="{'none': data.arr.length !== 4}"
 </script>
 
 <script>
-    test.mount("#app");
+    router.mount("#app");
 </script>
