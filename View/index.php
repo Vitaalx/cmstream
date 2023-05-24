@@ -91,7 +91,7 @@ id="test1"
 id="test"
 cv-class="{'none': this.arr.length !== 4}"
 >
-    <test1 #click="setName" :name="this.name">test</test1>
+    <test1 @click="this.setName()" :name="this.name">test</test1>
 
     {{this.name}} {{this.bigName + " " + this.goodName}}
 
