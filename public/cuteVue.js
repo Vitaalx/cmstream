@@ -235,8 +235,6 @@ var CuteVue = (() => {
          * @param {HTMLElement} el 
          */
         static makeTemplate(el, proxy, component){
-            if(el.nodeName === "#comment") return "";
-            
             let nodeName = el.nodeName.toLowerCase()
     
             let obj = {
@@ -269,7 +267,13 @@ var CuteVue = (() => {
                             script,
                             vars,
                         };
-                    } 
+                    }
+                    else if(child.nodeName === "#comment"){
+                        return {
+                            type: "comment",
+                            content: child.textContent,
+                        };
+                    }
                     else {
                         return this.makeTemplate(child, proxy, component);
                     }
@@ -519,6 +523,10 @@ var CuteVue = (() => {
     
                     if(instance === undefined)el.appendChild(textNode);
                     else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(textNode, instance[__slot__]);
+                }
+                else if(templateChild.type === "comment"){
+                    let elementNode = document.createComment(templateChild.content);
+                    el.appendChild(elementNode);
                 }
                 else{
                     let elementNode = document.createComment("");
