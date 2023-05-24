@@ -75,7 +75,7 @@ var CuteVue = (() => {
                     }
                 },
                 $refs: {},
-                $emit: (name, arg) => proxy[__element__].$functionAttributes[name](arg),
+                $emit: (name, arg) => proxy[__element__].$events[name](arg),
                 $destroy: () => proxy[__element__].$destroy(),
                 $getElement: () => proxy[__element__],
             };
@@ -242,7 +242,6 @@ var CuteVue = (() => {
                 isComponent: component[nodeName] || CuteVue.components[nodeName] ? true : false,
                 attributes: {},
                 objectAttributes: {},
-                functionAttributes: {},
                 events: {},
                 if: undefined,
                 for: undefined,
@@ -297,11 +296,6 @@ var CuteVue = (() => {
                     let attrValue = el.getAttribute(attrName);
                     obj.events[attr] = attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
                 }
-                else if(attrName.startsWith("#")){
-                    let attr = attrName.slice(1);
-                    let attrValue = el.getAttribute(attrName);
-                    obj.functionAttributes[attr] = attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
-                } 
                 else if(attrName === "cv-if"){
                     let attrValue = el.getAttribute(attrName);
                     obj.if = {
@@ -438,7 +432,8 @@ var CuteVue = (() => {
 
                 subscriber();
             }
-    
+            
+            el.$events = el.$events || {};
             Object.entries(template.events).forEach(([key, value]) => {
                 const fnc = typeof proxy[value] === "function" ?
                     proxy[value].bind(proxy) :
@@ -447,28 +442,17 @@ var CuteVue = (() => {
                             ${value}
                         }
                     `);
-    
-                el.addEventListener(
-                    key, 
-                    typeof proxy[value] === "function" ? 
-                        fnc :
-                        (e) => fnc(e, proxy)
-                );
-            });
-    
-            el.$functionAttributes = {};
-            Object.entries(template.functionAttributes).forEach(([key, value]) => {
-                const fnc = typeof proxy[value] === "function" ?
-                    proxy[value].bind(proxy) :
-                    eval(/* js */`
-                        ($event, data) => {
-                            ${value}
-                        }
-                    `);
-                
-                el.$functionAttributes[key] = typeof proxy[value] === "function" ? 
+
+                const fncEvent = typeof proxy[value] === "function" ? 
                     fnc :
                     (e) => fnc(e, proxy);
+
+                if(el.$events[key] === undefined)el.addEventListener(
+                    key,
+                    fncEvent
+                );
+
+                el.$events[key] = fncEvent;
             });
     
             if(template.ref !== undefined && !(proxy.$refs[template.ref] instanceof Array)){
