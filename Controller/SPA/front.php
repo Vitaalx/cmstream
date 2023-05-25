@@ -5,8 +5,10 @@ use Core\Controller;
 use Core\QueryBuilder;
 use Core\Request;
 use Core\Response;
+use Entity\Category;
 use Entity\Post;
 use Entity\User;
+use Entity\Video;
 
 class index extends Controller{
     public function checkers(Request $request): array
@@ -36,6 +38,11 @@ class index extends Controller{
         // $user->groups("posts");
         // $response->send($user);
         
+        // $category = Category::insertOne(["title" => "ma super category"]);
+        // $video = Video::insertOne(["title" => "ma super vidéo", "category" => $category]);
+        // $category->delete();
+        // $response->send($category);
+
         $response->info("test")->render("index", "front", []);
     }
 }

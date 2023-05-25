@@ -20,6 +20,7 @@ class Video extends Entity
     /**
      * @many{Entity\Url,video_url}
      * @groups{urls}
+     * @cascade{}
      */
     private array $urls;
 
@@ -29,7 +30,10 @@ class Video extends Entity
      */
     private array $comments;
 
-    /** @notnullable{} */
+    /** 
+     * @notnullable{}
+     * @groups{videoCategory}
+     */
     private Category $category;
 
     /**

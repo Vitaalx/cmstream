@@ -17,7 +17,8 @@ class Category extends Entity
 
     /**
      * @many{Entity\Video,category}
-     * @groups{catagories}
+     * @groups{catagoriesVideo}
+     * @cascade{}
      */
     private array $videos;
 
