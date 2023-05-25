@@ -1,6 +1,7 @@
 <?php
 
 namespace Entity;
+
 use Core\Entity;
 
 class Video extends Entity
@@ -11,6 +12,7 @@ class Video extends Entity
     /** 
      * @type{VARCHAR(100)}
      * @notnullable{} 
+     * @unique{}
      */
     private string $title;
 
@@ -125,5 +127,12 @@ class Video extends Entity
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
+    }
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+
+        return $this;
     }
 }
