@@ -56,7 +56,7 @@ id="test1"
 <h1
 id="test2"
 >
-    test2 
+    test2 {{this.name}}
     <test1 @click="clicked">tetete</test1>
 </h1>
 
@@ -69,6 +69,7 @@ id="test2"
         },
         props: {
            v: null,
+           name: null
         },
         methods: {
             clicked(value){
@@ -94,11 +95,11 @@ cv-class="{'none': this.arr.length !== 4}"
 
     <div cv-ref="test" cv-for="value of this.arr">
         <h1 :title="this.value" cv-show="this.value !== 'un'" @click="this.clicked(this.value)">{{this.value}} {{this.userName}}</h1>
-        <test1 cv-if="this.test" name="ttt">ok</test1>
+        <test1 cv-if="this.test">ok</test1>
     </div>
 
     <div cv-if="this.test">
-        <test2 cv-for="value of this.arr" :v="this.value"></test2>
+        <test2 cv-for="value of this.arr" :v="this.value" :name="'ttt'"></test2>
     </div>
 
     <button @click="test1">click</button>

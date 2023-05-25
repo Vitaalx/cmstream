@@ -34,17 +34,11 @@ abstract class Entity implements \JsonSerializable
     {
         if ($prop->getType()->getName() === "array") {
 
-            preg_match_all("/@([a-z]*){(.*)}/", $prop->getDocComment(), $groups);
-            $targetEntity = null;
-            $targetProp = null;
+            preg_match("/@many{(.*)}/", $prop->getDocComment(), $groups);
 
-            foreach ($groups[1] ?? [] as $key => $value) {
-                if ($value === "many") {
-                    $info = explode(",", $groups[2][$key]);
-                    $targetEntity = $info[0] ?? null;
-                    $targetProp = $info[1] ?? null;
-                }
-            }
+            $info = explode(",", $groups[1]);
+            $targetEntity = $info[0] ?? null;
+            $targetProp = $info[1] ?? null;
 
             if ($targetEntity === null || $targetProp === null) return false;
 
@@ -54,7 +48,7 @@ abstract class Entity implements \JsonSerializable
             return true;
         } else {
             $propName = $prop->getName() . "_id";
-
+            
             if (
                 isset($this->props[$propName]) === false ||
                 str_starts_with($prop->getType()->getName(), "Entity\\") === false
@@ -66,7 +60,7 @@ abstract class Entity implements \JsonSerializable
             $targetEntity = $prop->getType()->getName();
 
             $result = $targetEntity::findFirst(["id" => $propValue]);
-
+            
             if ($result === null) return false;
 
             $this->props[$prop->getName()] = $result;
@@ -95,7 +89,7 @@ abstract class Entity implements \JsonSerializable
                         break;
                     }
                 }
-            }
+            }  
 
             if (array_key_exists($propName, $this->props) === false) continue;
 
@@ -126,10 +120,19 @@ abstract class Entity implements \JsonSerializable
         foreach ($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop) {
             $propName = $prop->getName();
             if ($propName === "id" || $prop->getType()->getName() === "array") continue;
-            else if (str_starts_with($prop->getType()->getName(), "Entity\\") === true) $props[$propName . "_id"] = $this->props[$propName . "_id"];
+            else if (str_starts_with($prop->getType()->getName(), "Entity\\") === true){
+                if(gettype($this->props[$propName]) === "object"){
+                    $props[$propName . "_id"] = $this->props[$propName]->get("id");
+                    $this->props[$propName . "_id"] = $props[$propName . "_id"];
+                }
+                else if(isset($this->props[$propName . "_id"]) === true)$props[$propName . "_id"] = $this->props[$propName . "_id"];
+                else $props[$propName . "_id"] === null;
+            }
             else if (array_key_exists($propName, $this->props)) $props[$propName] = $this->props[$propName];
             else $this->props[$propName] = null;
         }
+
+        print_r($props);
 
         if (array_key_exists("id", $this->props) === false) {
             $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props) . " RETURNING id";
@@ -155,6 +158,25 @@ abstract class Entity implements \JsonSerializable
             $result->execute();
         } catch (\Throwable $th) {
             return false;
+        }
+
+        $rp = new \ReflectionObject($this);
+        foreach ($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop) {
+            $propName = $prop->getName();
+            $propType = $prop->getType()->getName();
+            $propComment = $prop->getDocComment();
+            if ($propType !== "array" && str_starts_with($propType, "Entity\\") === false) continue;
+            else if (preg_match("/@cascade{}/", $propComment) === 0) continue;
+            else if ($propType === "array") {
+                foreach($this->get($propName) as $entity){
+                    $entity->delete();
+                }
+            }
+            else {
+                $entity = $this->get($propName);
+                if($entity === null) continue;
+                $entity->delete();
+            }
         }
 
         unset($this->props["id"]);
