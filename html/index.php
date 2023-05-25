@@ -23,6 +23,24 @@ Route::match([
 ]);
 
 Route::match([
+    "method" => "POST",
+    "path" => "/createMovie",
+    "controller" => "API/ContentManagerController/createMovie",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/createCategory",
+    "controller" => "API/ContentManagerController/createCategory",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/createSerie",
+    "controller" => "API/ContentManagerController/createSerie",
+]);
+
+Route::match([
     "method" => "GET",
     "path" => "/",
     "controller" => "SPA/front/index",
