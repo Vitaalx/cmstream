@@ -6,6 +6,10 @@ var CuteVue = (() => {
     const __subscribers__ = Symbol("subscribers");
     const __launchSubscribers__ = Symbol("launchSubscribers");
     const __slot__ = Symbol("slot");
+    const __parent__ = Symbol("parent");
+    const __mounted__ = Symbol("mounted");
+    const __unmounted__ = Symbol("unmounted");
+    const __ignoreWatcher__ = Symbol("ignoreWatcher");
 
     return class CuteVue {
         constructor(properties){
@@ -36,7 +40,7 @@ var CuteVue = (() => {
                 el.replaceWith(newEl);
             }
             proxy[__element__] = newEl;
-            proxy.mounted();
+            proxy[__element__].$mounted();
             return proxy;
         }
     
@@ -57,12 +61,12 @@ var CuteVue = (() => {
             proxy[__launchSubscribers__] = (prop, newValue, oldValue) => proxy[__subscribers__][prop].forEach(element => element(newValue, oldValue));
             proxy[__slot__] = null;
             proxy[__components__] = properties.components;
+            proxy[__mounted__] = properties.mounted?.bind(proxy) || function(){};
+            proxy[__unmounted__] = properties.unmounted?.bind(proxy) || function(){};
     
             properties = {
                 ...data,
-                ...props, 
-                mounted: properties.mounted?.bind(proxy) || function(){},
-                unmounted: properties.unmounted?.bind(proxy) || function(){},
+                ...props,
                 $update: (arg) => {
                     if(!arg){
                         let newEl = this.render(template, proxy);
@@ -71,24 +75,27 @@ var CuteVue = (() => {
                         proxy[__element__] = newEl;
                     }
                     else{
-                        proxy[__launchSubscribers__](arg, proxy[arg], proxy[arg]);
+                        proxy[__launchSubscribers__](arg, __ignoreWatcher__);
                     }
                 },
                 $refs: {},
-                $emit: (name, arg) => proxy[__element__].$events[name](arg),
+                $emit: (name, arg) => {
+                    if(proxy[__element__].$events[name] === proxy[__element__].$selfEvents[name]) return;
+                    return proxy[__element__].$events[name](arg);
+                },
                 $destroy: () => proxy[__element__].$destroy(),
                 $getElement: () => proxy[__element__],
             };
     
             Object.keys(methods).forEach(key => {
-                methods[key] = methods[key].bind(proxy);
+                let fnc = methods[key].bind(proxy);
     
                 Object.defineProperty(
                     proxy,
                     key,
                     {
                         get: () => {
-                            return methods[key];
+                            return fnc;
                         }
                     }
                 );
@@ -195,7 +202,7 @@ var CuteVue = (() => {
     
             Object.keys(computed).forEach(key => {
                 let fncString = computed[key].toString();
-                computed[key] = computed[key].bind(proxy);
+                let fnc = computed[key].bind(proxy);
                 let comput;
     
                 Object.defineProperty(
@@ -205,28 +212,30 @@ var CuteVue = (() => {
                         get: () => comput,
                     }
                 );
+
+                let subscriber = () => {
+                    comput = fnc();
+                    proxy[__launchSubscribers__](key, __ignoreWatcher__);
+                };
     
                 let groups = [];
                 for(let [match, group] of fncString.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
                     if(groups.indexOf(group) !== -1) continue;
                     else groups.push(group);
-    
-                    let subscriber = () => {
-                        let oldValue = comput;
-                        let newValue = computed[key]();
-                        comput = newValue;
-                        proxy[__launchSubscribers__](key, newValue, oldValue);
-                    };
-    
-                    if(groups.length === 1)subscriber();
-    
                     if(proxy[__subscribers__][group] !== undefined){
                         proxy[__subscribers__][group].push(subscriber);
                     }
                 }
+
+                subscriber();
             });
     
-            Object.entries(watch).forEach(([key, fnc]) => proxy[__subscribers__][key].push(fnc.bind(proxy)));
+            Object.entries(watch).forEach(([key, fnc]) => {
+                fnc = fnc.bind(proxy);
+                proxy[__subscribers__][key].push((newValue, oldValue) => {
+                    if(newValue !== __ignoreWatcher__)fnc(newValue, oldValue);
+                })
+            });
     
             return proxy;
         }
@@ -367,22 +376,28 @@ var CuteVue = (() => {
             if(template.isComponent === false) el = document.createElement(template.type);
             else{
                 const component = proxy[__components__][template.type] || CuteVue.components[template.type];
-                instance = component.mount();
+                instance = CuteVue.makeProxy(component.properties, component.template);
+                instance[__element__] = CuteVue.render(component.template, instance);
+                instance[__parent__] = proxy;
                 el = instance[__element__];
+                el.$instance = instance;
             }
             
             let $destroy = el.$destroy || (() => false);
             el.$destroy = () => {
-                proxy.unmounted();
                 Object.entries(subscribers).forEach(([key, value]) => {
                     value.forEach(fnc => {
                         proxy[__subscribers__][key] = proxy[__subscribers__][key].filter(v => v !== fnc);
                     })
                 });
-    
                 if($destroy() === false)el.remove();
-                el.childNodes.forEach(childNode => childNode.$destroy?.());
-            }
+                else el.$instance[__unmounted__]();
+                [...el.childNodes].forEach(childNode => childNode.$destroy?.());
+            };
+            el.$mounted = () => {
+                if(el.$instance) el.$instance[__mounted__]();
+                [...el.childNodes].forEach(childNode => childNode.$mounted?.());
+            };
     
             Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
     
@@ -434,11 +449,12 @@ var CuteVue = (() => {
             }
             
             el.$events = el.$events || {};
+            el.$selfEvents = el.$selfEvents || {};
             Object.entries(template.events).forEach(([key, value]) => {
                 const fnc = typeof proxy[value] === "function" ?
-                    proxy[value].bind(proxy) :
+                    proxy[value] :
                     eval(/* js */`
-                        ($event, prop) => {
+                        ($event, proxy) => {
                             ${value}
                         }
                     `);
@@ -447,10 +463,13 @@ var CuteVue = (() => {
                     fnc :
                     (e) => fnc(e, proxy);
 
-                if(el.$events[key] === undefined)el.addEventListener(
-                    key,
-                    fncEvent
-                );
+                if(el.$events[key] === undefined){
+                    el.addEventListener(
+                        key,
+                        fncEvent
+                    );
+                    el.$selfEvents[key] = fncEvent;
+                }
 
                 el.$events[key] = fncEvent;
             });
@@ -527,14 +546,13 @@ var CuteVue = (() => {
                             let result = cdn(proxy);
                             if(result){
                                 let newElementNode = this.render(templateChild, proxy);
-
                                 elementNode.replaceWith(newElementNode);
                                 elementNode = newElementNode;
+                                if(document.body.contains(newElementNode)) newElementNode.$mounted();
                             }
                             else{
                                 let newCommentNode = document.createComment("");
                                 elementNode.replaceWith(newCommentNode);
-                                if(elementNode.$unmounted !== undefined)elementNode.$unmounted();
                                 if(elementNode.$ref !== undefined) delete proxy.$refs[elementNode.$ref];
                                 elementNode.$destroy?.();
                                 elementNode = newCommentNode;
@@ -591,13 +609,13 @@ var CuteVue = (() => {
                             if(templateChild.ref !== undefined)proxy.$refs[templateChild.ref] = [];
     
                             currentForElement.forEach(e => {
-                                if(e.$unmounted !== undefined)e.$unmounted();
                                 e.$destroy?.();
                             });
                             currentForElement = children;
                             currentForElement.forEach(e => {
                                 if(templateChild.ref !== undefined)proxy.$refs[templateChild.ref].push(e);
                                 el.insertBefore(e, elementNode);
+                                if(document.body.contains(e)) e.$mounted();
                             });
                         }`);
                         

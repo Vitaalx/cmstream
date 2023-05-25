@@ -23,49 +23,9 @@
     )
 </script>
 
-<div id="app"></div>
-
-<div id="router"></div>
-
-<div id="view"></div>
-
-<script>
-    const router = new CuteVue({
-        el: "#router",
-        mounted(){
-            router.properties.components["template"] = template;
-            router.template.type = "template";
-            router.template.isComponent = true;
-            this.$update();
-        }
-    });
-
-    const view = new CuteVue({
-        el: "#view",
-        mounted(){
-            view.properties.components["test"] = test;
-            view.template.type = "test";
-            view.template.isComponent = true;
-            this.$update();
-        }
-    });
-
-    CuteVue.component("view", view);
-</script>
-
-<div 
-id="template"
->
-    template
-
-    <view></view>
+<div id="app">
+    
 </div>
-
-<script>
-    const template = new CuteVue({
-        el: "#template",
-    });
-</script>
 
 <div 
 id="test1"
@@ -83,6 +43,43 @@ id="test1"
         },
         props: {
             name: "test",
+        },
+        mounted(){
+            console.log("mount test1");
+        },
+        unmounted(){
+            console.log("unmount test1");
+        }
+    });
+</script>
+
+<h1
+id="test2"
+>
+    test2 
+    <test1 @click="clicked">tetete</test1>
+</h1>
+
+<script>
+    const test2 = new CuteVue({
+        el: "#test2",
+        components: {test1},
+        data: {
+            
+        },
+        props: {
+           v: null,
+        },
+        methods: {
+            clicked(value){
+                console.log(this.v);
+            }
+        },
+        mounted(){
+            console.log("mount test2");
+        },
+        unmounted(){
+            console.log("unmount test2");
         }
     });
 </script>
@@ -91,23 +88,30 @@ id="test1"
 id="test"
 cv-class="{'none': this.arr.length !== 4}"
 >
-    <test1 @click="this.setName()" :name="this.name">test</test1>
+    <test1 cv-if="this.test" @click="this.setName()" :name="this.name">test</test1>
 
     {{this.name}} {{this.bigName + " " + this.goodName}}
 
     <div cv-ref="test" cv-for="value of this.arr">
         <h1 :title="this.value" cv-show="this.value !== 'un'" @click="this.clicked(this.value)">{{this.value}} {{this.userName}}</h1>
+        <test1 cv-if="this.test" name="ttt">ok</test1>
     </div>
+
+    <div cv-if="this.test">
+        <test2 cv-for="value of this.arr" :v="this.value"></test2>
+    </div>
+
+    <button @click="test1">click</button>
 </div>
 
 <script>
     const test = new CuteVue({
         el: "#test",
-        components: {test1},
+        components: {test1,test2},
         data: {
             name: "mon super nom",
             test: true,
-            arr: ["un", "deux", "trois"],
+            arr: ["un", "deux", "trois", "quatre"],
         },
         computed:{
             bigName(){
@@ -117,20 +121,21 @@ cv-class="{'none': this.arr.length !== 4}"
         methods: {
             clicked(value){
                 this.name = "test";
-                this.arr = ["un", "deux", "trois", "quatre"];
+                this.arr = ["un", "deux"];
                 console.log(value);
             },
             test1(){
                 this.test = !this.test;
-                this.arr[0] = "quatre";
-                this.$update("arr");
+                // this.arr = ["un", "deux"];
+                // this.arr[0] = "quatre";
+                // this.$update();
             }
         },
         watch: {
             
         },
         mounted(){
-            
+            console.log("test");
         },
         stores: [
             {
@@ -144,5 +149,5 @@ cv-class="{'none': this.arr.length !== 4}"
 </script>
 
 <script>
-    router.mount("#app");
+    let proxy = test.mount("#app");
 </script>
