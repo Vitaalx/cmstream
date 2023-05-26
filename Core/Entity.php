@@ -121,18 +121,16 @@ abstract class Entity implements \JsonSerializable
             $propName = $prop->getName();
             if ($propName === "id" || $prop->getType()->getName() === "array") continue;
             else if (str_starts_with($prop->getType()->getName(), "Entity\\") === true){
-                if(gettype($this->props[$propName]) === "object"){
+                if(isset($this->props[$propName]) && gettype($this->props[$propName]) === "object"){
                     $props[$propName . "_id"] = $this->props[$propName]->get("id");
                     $this->props[$propName . "_id"] = $props[$propName . "_id"];
                 }
                 else if(isset($this->props[$propName . "_id"]) === true)$props[$propName . "_id"] = $this->props[$propName . "_id"];
-                else $props[$propName . "_id"] === null;
+                else $props[$propName . "_id"] = null;
             }
             else if (array_key_exists($propName, $this->props)) $props[$propName] = $this->props[$propName];
             else $this->props[$propName] = null;
         }
-
-        print_r($props);
 
         if (array_key_exists("id", $this->props) === false) {
             $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props) . " RETURNING id";
