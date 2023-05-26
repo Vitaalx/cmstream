@@ -64,20 +64,12 @@ class VideoManagerService
     public function deleteVideo(int $id): void
     {
         try {
-            if (Serie::findFirst(["video" => $id]) !== null) {
-                $serie = Serie::findFirst(["video" => $id]);
-                $serie->delete();
-            } else if (Film::findFirst(["video" => $id]) !== null) {
-                $film = Film::findFirst(["video" => $id]);
-                $film->delete();
-            }
-            $urls = Url::findMany(["video_url" => $id]);
-            foreach ($urls as $url) {
-                $url->delete();
-            }
             $video = Video::findFirst([
                 "id" => $id
             ]);
+            foreach ($video->getUrls() as $url) {
+                $url->delete();
+            }
             $video->delete();
         } catch (\Exception $e) {
             throw new \Exception("Error delete video: " . $e->getMessage());
@@ -117,13 +109,13 @@ class VideoManagerService
     {
         try {
             $urls = Url::findMany([
-                "video_url" => $video
+                "video_url_id" => $video
             ]);
-            $url = [];
+            $result = [];
             foreach ($urls as $url) {
-                $url[] = $url->getUrl();
+                $result[] = $url->getUrl();
             }
-            return $url;
+            return $result;
         } catch (\Exception $e) {
             throw new \Exception("Error get url where video: " . $e->getMessage());
         }

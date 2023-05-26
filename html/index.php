@@ -4,6 +4,8 @@ use Core\Route;
 
 require "../Core/Route.php";
 
+
+// USER
 Route::match([
     "method" => "POST",
     "path" => "/register",
@@ -22,29 +24,82 @@ Route::match([
     "controller" => "API/TestTokenController/checkToken",
 ]);
 
+
+// FILM
 Route::match([
     "method" => "POST",
-    "path" => "/createMovie",
-    "controller" => "API/ContentManagerController/createMovie",
+    "path" => "/createFilm",
+    "controller" => "API/ContentManager/FilmController/createFilm",
 ]);
 
+// CATEGORY
 Route::match([
     "method" => "GET",
     "path" => "/createCategory",
-    "controller" => "API/ContentManagerController/createCategory",
-]);
-
-Route::match([
-    "method" => "POST",
-    "path" => "/createSerie",
-    "controller" => "API/ContentManagerController/createSerie",
+    "controller" => "API/ContentManager/CategoryController/createCategory",
 ]);
 
 Route::match([
     "method" => "GET",
-    "path" => "/",
-    "controller" => "SPA/front/index",
+    "path" => "/getCategories",
+    "controller" => "API/ContentManager/CategoryController/getCategories",
 ]);
+Route::match([
+    "method" => "GET",
+    "path" => "/getAllContentWhereCategory",
+    "controller" => "API/ContentManager/CategoryController/getAllContentWhereCategory",
+]);
+
+// SERIE
+Route::match([
+    "method" => "POST",
+    "path" => "/createSerie",
+    "controller" => "API/ContentManager/SerieController/createSerie",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/addEpisodeWhereSerie",
+    "controller" => "API/ContentManager/SerieController/addEpisodeWhereSerie",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/getEpisodeWhereSerie",
+    "controller" => "API/ContentManager/SerieController/getEpisodeWhereSerie",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/getAllEpisodesWhereSerie",
+    "controller" => "API/ContentManager/SerieController/getAllEpisodesWhereSerie",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/getSeriesInfos",
+    "controller" => "API/ContentManager/SerieController/getTitleAndImageWhereAllSeries",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/deleteSerie",
+    "controller" => "API/ContentManager/SerieController/deleteSerie",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/deleteEpisodeWhereSerie",
+    "controller" => "API/ContentManager/SerieController/deleteEpisodeWhereSerie",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/updateSerie",
+    "controller" => "API/ContentManager/SerieController/updateSerieNameAndImage",
+]);
+
+// COMMENT
 
 Route::match([
     "method" => "POST",
@@ -74,10 +129,4 @@ Route::match([
     "method" => "*",
     "path" => "/public/.*",
     "controller" => "handlers/assets",
-]);
-
-Route::match([
-    "method" => "*",
-    "path" => ".*",
-    "controller" => "handlers/notfound",
 ]);

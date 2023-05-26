@@ -46,6 +46,18 @@ class Video extends Entity
     private array $stars;
 
     /**
+     * @many{Entity\Film,video}
+     * @groups{film}
+     */
+    private array $film;
+
+    /**
+     * @many{Entity\Serie,video}
+     * @groups{series}
+     */
+    private array $series;
+
+    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
@@ -68,7 +80,7 @@ class Video extends Entity
         return parent::get("id");
     }
 
-    public function getTitle(): self
+    public function getTitle(): string
     {
         return parent::get("title");
     }
@@ -134,5 +146,15 @@ class Video extends Entity
         parent::set("updated_at", $updated_at);
 
         return $this;
+    }
+
+    public function getFilm(): array
+    {
+        return parent::get("film");
+    }
+
+    public function getSeries(): array
+    {
+        return parent::get("series");
     }
 }

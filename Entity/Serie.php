@@ -30,6 +30,12 @@ class Serie extends Entity
      */
     private string $image;
 
+    /** 
+     * @type{VARCHAR(100)}
+     * @notnullable{}
+     */
+    private string $title;
+
     /**
      * @type{Date}
      * @notnullable{}
@@ -115,5 +121,16 @@ class Serie extends Entity
     {
         parent::set("video", $video);
         return $this;
+    }
+
+    public function setTitle(string $title): self
+    {
+        parent::set("title", $title);
+        return $this;
+    }
+
+    public function getTitle(): string
+    {
+        return parent::get("title");
     }
 }
