@@ -11,8 +11,8 @@ abstract class Entity implements \JsonSerializable
 {
 
     static private \PDO $db;
+    static private array $groups = [];
     private array $props = [];
-    private array $groups = [];
 
     public function __construct(array $array)
     {
@@ -83,8 +83,8 @@ abstract class Entity implements \JsonSerializable
                 if (isset($groups[1]) === false) continue;
 
                 $groups = explode(",", $groups[1]);
-                foreach ($groups as $group) {
-                    if (in_array($group, $this->groups) === true) {
+                foreach($groups as $group){
+                    if(in_array($group, self::$groups) === true){
                         $this->join($prop);
                         break;
                     }
@@ -106,7 +106,7 @@ abstract class Entity implements \JsonSerializable
 
     public function groups(string ...$groups): void
     {
-        $this->groups = $groups;
+        self::$groups = $groups;
     }
 
     public function save(): void
@@ -115,6 +115,7 @@ abstract class Entity implements \JsonSerializable
         $currentEntityName = "_" . array_pop($currentEntityName);
 
         $props = [];
+        $returning = ["id"];
 
         $rp = new \ReflectionObject($this);
         foreach ($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop) {
@@ -130,15 +131,20 @@ abstract class Entity implements \JsonSerializable
             }
             else if (array_key_exists($propName, $this->props)) $props[$propName] = $this->props[$propName];
             else $this->props[$propName] = null;
+
+            if(preg_match("/@default/", $prop->getDocComment()) !== 0)array_push($returning, $propName);
         }
 
         if (array_key_exists("id", $this->props) === false) {
-            $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props) . " RETURNING id";
+            $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props, ["RETURNING" => $returning]);
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
             $result = $result->fetchAll(\PDO::FETCH_ASSOC)[0];
-            $this->props["id"] = $result["id"];
-        } else {
+            foreach ($result as $key => $value) {
+                $this->props[$key] = $value;
+            }
+        } 
+        else {
             $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
@@ -193,8 +199,9 @@ abstract class Entity implements \JsonSerializable
     protected function get(string $prop)
     {
         $prop = new \ReflectionProperty(static::class, $prop);
+        $propType = $prop->getType()->getName();
 
-        if (str_starts_with($prop->getType()->getName(), "Entity\\") === true || $prop->getType()->getName() === "array") $this->join($prop);
+        if(str_starts_with($propType, "Entity\\") === true || $propType === "array") $this->join($prop);
 
         return $this->props[$prop->getName()];
     }
