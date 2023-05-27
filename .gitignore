@@ -13,6 +13,7 @@
 # Deleting VSCode & Intellij files
 .idea
 .code
+.env*
 
 # Deleting migration file
 /migration.sql

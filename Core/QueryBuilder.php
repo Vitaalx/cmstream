@@ -26,23 +26,28 @@ class QueryBuilder {
             }
             array_push($values, $value);
         }
+
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
         return "INSERT INTO  " . $to . " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $values) . " ) " . $options; 
     }
 
-    static function createUpdateRequest(string $from, array $set, array $where){
+    static function createUpdateRequest(string $from, array $set, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);
         $set = self::arrayToArraySet($set);
         $set = implode(", ", $set);
-        return "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where;
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options;
     }
 
-    static function createDeleteRequest(string $from, array $where){
+    static function createDeleteRequest(string $from, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);
-        return "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where;
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " " . $options;
     }
 
     static function arrayToArrayWhere(array $array, string $operator = "="){
@@ -125,11 +130,18 @@ class QueryBuilder {
 
     static function arrayToArrayOptions(array $array){
         $options = [];
-        if(isset($array["LIMIT"]) === true){
-            array_push($options, "LIMIT " . $array["LIMIT"]);
-        }
-        if(isset($array["RETURNING"]) === true){
-            array_push($options, "RETURNING " . $array["RETURNING"]);
+        foreach($array as $key => $value){
+            if($key === "ORDER_BY"){
+                $orderOptions = [];
+
+                foreach ($value as $v) {
+                    array_push($orderOptions, $v[1] . " " . $v[0]);
+                }
+
+                array_push($options, "ORDER BY " . implode(", ", $orderOptions));
+            }
+            else if($key === "RETURNING") array_push($options, "RETURNING " . implode(", ", $value));
+            else array_push($options, $key . " " . $value);
         }
 
         return $options;

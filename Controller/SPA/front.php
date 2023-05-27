@@ -39,10 +39,17 @@ class index extends Controller{
         // $response->send($user);
         
         // $category = Category::insertOne(["title" => "ma super category"]);
+        // $category = Category::findFirst([]);
         // $video = Video::insertOne(["title" => "ma super vidéo", "category" => $category]);
-        // $category->delete();
-        // $response->send($category);
 
-        $response->info("test")->render("index", "front", []);
+        // $video = Video::findFirst([]);
+
+        // foreach(Category::findMany([]) as $category){
+        //     $category->delete();
+        // }
+        // $category->groups("catagoriesVideo");
+        $response->send();
+
+        // $response->info("test")->render("index", "front", []);
     }
 }
