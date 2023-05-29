@@ -35,6 +35,7 @@ class Comment extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $created_at;
 
@@ -42,6 +43,7 @@ class Comment extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $updated_at;
 
@@ -105,20 +107,6 @@ class Comment extends Entity
     function setStatus(bool $status): self
     {
         parent::set("status", $status);
-
-        return $this;
-    }
-
-    function setCreatedAt(string $created_at): self
-    {
-        parent::set("created_at", $created_at);
-
-        return $this;
-    }
-
-    function setUpdatedAt(string $updated_at): self
-    {
-        parent::set("updated_at", $updated_at);
 
         return $this;
     }

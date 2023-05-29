@@ -44,6 +44,7 @@ class User extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $created_at;
 
@@ -51,6 +52,7 @@ class User extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $updated_at;
 
@@ -195,16 +197,12 @@ class User extends Entity
     }
 
     /**
-     * Set the value of created_at
+     * Get the value of updated_at
      *
-     * @param string
-     *
-     * @return self
+     * @return string
      */
-    public function setCreatedAt(string $created_at): self
+    public function getUpdatedAt(): string
     {
-        parent::set("created_at", $created_at);
-
-        return $this;
+        return parent::get("updated_at");
     }
 }

@@ -76,22 +76,20 @@ abstract class Entity implements \JsonSerializable
         foreach ($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop) {
             $propName = $prop->getName();
             $propType = $prop->getType()->getName();
-            if (str_starts_with($propType, "Entity\\") === true || $propType === "array") {
-                unset($this->props[$propName]);
-                preg_match("/@groups{(.*)}/", $prop->getDocComment(), $groups);
-
-                if (isset($groups[1]) === false) continue;
-
+            
+            if(preg_match("/@groups{(.*)}/", $prop->getDocComment(), $groups) === 1){
                 $groups = explode(",", $groups[1]);
+                $hasGroupe = false;
                 foreach($groups as $group){
                     if(in_array($group, self::$groups) === true){
-                        $this->join($prop);
+                        $hasGroupe = true;
                         break;
                     }
                 }
-            }  
-
-            if (array_key_exists($propName, $this->props) === false) continue;
+                if($hasGroupe === true && (str_starts_with($propType, "Entity\\") === true || $propType === "array")) $this->join($prop);
+                else if($hasGroupe === false) continue;
+            }
+            else if (str_starts_with($propType, "Entity\\") === true || $propType === "array") continue;
 
             try {
                 if (str_starts_with($prop->getType()->getName(), "Entity\\") === true) $array[$propName] = $this->props[$propName]->toArray();

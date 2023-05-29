@@ -25,6 +25,7 @@ class History extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $created_at;
 
@@ -32,6 +33,7 @@ class History extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $updated_at;
 
@@ -99,30 +101,6 @@ class History extends Entity
     public function setUser(User $user): self
     {
         parent::set("user", $user);
-
-        return $this;
-    }
-
-    /**
-     * Set the value of created_at
-     *
-     * @return  self
-     */
-    public function setCreatedAt(string $created_at): self
-    {
-        parent::set("created_at", $created_at);
-
-        return $this;
-    }
-
-    /**
-     * Set the value of updated_at
-     *
-     * @return  self
-     */
-    public function setUpdatedAt(string $updated_at): self
-    {
-        parent::set("updated_at", $updated_at);
 
         return $this;
     }
