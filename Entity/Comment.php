@@ -26,10 +26,10 @@ class Comment extends Entity
     private User $user;
 
     /**
-     * @type{Boolean}
+     * @type{int}
      * @notnullable{}
      */
-    private bool $status;
+    private int $status;
 
     /**
      * @type{Date}
@@ -104,7 +104,7 @@ class Comment extends Entity
         return $this;
     }
 
-    function setStatus(bool $status): self
+    function setStatus(int $status): self
     {
         parent::set("status", $status);
 

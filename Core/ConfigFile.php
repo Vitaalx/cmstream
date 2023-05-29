@@ -98,7 +98,7 @@ class ConfigFile
             $line = fgets($file);
             $line = explode("=", $line);
             if ($line[0] === $key) {
-                return substr($line[1], 0, -1);
+                return trim($line[1]);
             }
         }
         fclose($file);

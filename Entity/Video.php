@@ -27,6 +27,7 @@ class Video extends Entity
     /**
      * @many{Entity\Comment,video}
      * @groups{comments}
+     * @cascade{}
      */
     private array $comments;
 
