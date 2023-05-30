@@ -8,7 +8,35 @@ use Core\Response;
 use Entity\Serie;
 use Services\Back\VideoManagerService as VideoManager;
 
-// Valid
+/**
+ * @api {post} /api/content-manager/serie/create
+ * @apiName CreateSerie
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Create a serie
+ * @param array url
+ * @param string title_video
+ * @param string description
+ * @param string image
+ * @param string title_serie
+ * @param int category
+ * @return Response
+ */
+/*
+Entry:
+{
+ "url": [
+ "https://www.youtube.com/watch?v=1",
+ "https://www.youtube.com/watch?v=2"
+ ],
+ "title_video": "Video title",
+ "description": "Video description",
+ "image": "https://www.image.com/image.png",
+ "title_serie": "Serie title",
+ "category": 1
+}
+ */
 class createSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -19,6 +47,7 @@ class createSerie extends Controller
             ["video/description", $request->getBody()['description']],
             ["video/image", $request->getBody()['image']],
             ["serie/title", $request->getBody()['title_serie']],
+            ["category/id", $request->getBody()['category']]
         ];
     }
 
@@ -35,7 +64,7 @@ class createSerie extends Controller
                 $this->floor->pickup("video/url"),
                 $this->floor->pickup("video/title"),
                 $this->floor->pickup("video/description"),
-                $request->getBody()['category']
+                $this->floor->pickup("category/id")
             );
             Serie::insertOne([
                 "video_id" => $video->getId(),
@@ -52,6 +81,22 @@ class createSerie extends Controller
     }
 }
 
+/**
+ * @api {delete} /api/content-manager/serie/delete
+ * @apiName GetSerie
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get a serie
+ * @param string name
+ * @return Response
+ */
+/*
+Entry:
+{
+ "name": "Serie title"
+}
+*/
 class deleteSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -74,7 +119,23 @@ class deleteSerie extends Controller
         }
     }
 }
-// Valid
+
+/**
+ * @api {get} /api/content-manager/serie/get-all
+ * @apiName GetSerie
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get a serie
+ * @param string name
+ * @return Response
+ */
+/*
+Entry:
+{
+ "name": "Serie title"
+}
+*/
 class getTitleAndImageWhereAllSeries extends Controller
 {
     public function checkers(Request $request): array
@@ -104,7 +165,26 @@ class getTitleAndImageWhereAllSeries extends Controller
         }
     }
 }
-// Valid
+/**
+ * @api {put} /api/content-manager/serie/update
+ * @apiName UpdateSerie
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Update a serie
+ * @param string title_serie
+ * @param string new_title_serie
+ * @param string image
+ * @return Response
+ */
+/*
+Entry:
+{
+ "title_serie": "Serie title",
+ "new_title_serie": "New serie title",
+ "image": "https://www.image.com/image.png"
+}
+*/
 class updateSerieNameAndImage extends Controller
 {
     public function checkers(Request $request): array
@@ -132,7 +212,38 @@ class updateSerieNameAndImage extends Controller
         }
     }
 }
-// Valid
+
+/**
+ * @api {post} /api/content-manager/serie/add-episode
+ * @apiName AddEpisode
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Add an episode to a serie
+ * @param array url
+ * @param string title_video
+ * @param string description
+ * @param string title_serie
+ * @param int episode
+ * @param int season
+ * @param int category
+ * @return Response
+ */
+/*
+Entry:
+{
+ "url": [
+ "https://www.youtube.com/watch?v=1",
+ "https://www.youtube.com/watch?v=2"
+ ],
+ "title_video": "Video title",
+ "description": "Video description",
+ "title_serie": "Serie title",
+ "episode": 1,
+ "season": 1,
+ "category": 1
+}
+*/
 class addEpisodeWhereSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -177,7 +288,27 @@ class addEpisodeWhereSerie extends Controller
         }
     }
 }
-// Valid
+
+/**
+ * @api {get} /api/content-manager/serie/get-episode
+ * @apiName GetEpisode
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get an episode
+ * @param string name
+ * @param int episode
+ * @param int season
+ * @return Response
+ */
+/*
+Entry:
+{
+ "name": "Serie title",
+ "episode": 1,
+ "season": 1
+}
+*/
 class getEpisodeWhereSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -215,7 +346,23 @@ class getEpisodeWhereSerie extends Controller
         }
     }
 }
-// Valid
+
+/**
+ * @api {get} /api/content-manager/serie/get-all-episodes
+ * @apiName GetAllEpisodes
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get all episodes of a serie
+ * @param string name
+ * @return Response
+ */
+/*
+Entry:
+{
+ "name": "Serie title"
+}
+*/
 class getAllEpisodesWhereSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -250,6 +397,25 @@ class getAllEpisodesWhereSerie extends Controller
     }
 }
 
+/**
+ * @api {delete} /api/content-manager/serie/delete-episode
+ * @apiName DeleteEpisode
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Delete an episode
+ * @param string name
+ * @param int episode
+ * @return Response
+ /
+/*
+Entry:
+{
+ "name": "Serie title",
+ "episode": 1,
+ "season": 1
+}
+ */
 class deleteEpisodeWhereSerie extends Controller
 {
     public function checkers(Request $request): array
@@ -257,6 +423,7 @@ class deleteEpisodeWhereSerie extends Controller
         return [
             ["serie/title", $request->getQuery('name')],
             ["serie/episode", $request->getQuery('episode')],
+            ["serie/season", $request->getQuery('season')],
         ];
     }
 
@@ -265,7 +432,8 @@ class deleteEpisodeWhereSerie extends Controller
         try {
             $serie = Serie::findFirst([
                 "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode")
+                "episode" => $this->floor->pickup("serie/episode"),
+                "season" => $this->floor->pickup("serie/season")
             ]);
             $serie->delete();
             $response->send(["message" => "Episode deleted"]);
@@ -275,17 +443,44 @@ class deleteEpisodeWhereSerie extends Controller
     }
 }
 
+/**
+ * @api {put} /api/content-manager/serie/update-episode
+ * @apiName UpdateEpisode
+ * @apiGroup ContentManager/SerieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Update an episode
+ * @param string title_serie
+ * @param string title_video
+ * @param string description
+ * @param int episode
+ * @param int season
+ * @param int category
+ * @return Response
+ */
+/*
+Entry:
+{
+ "title_serie": "Serie title",
+ "title_video": "Video title",
+ "description": "Video description",
+ "episode": 1,
+ "season": 1,
+ "category": 1
+}
+*/
 class updateEpisodeInfo extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getQuery('name')],
-            ["serie/episode", $request->getQuery('episode')],
+            ["serie/title", $request->getBody()['title_serie']],
+            ["serie/episode", $request->getBody()['episode']],
             ["video/title", $request->getBody()['title_video']],
             ["video/description", $request->getBody()['description']],
             ["serie/episode", $request->getBody()['episode']],
             ["serie/season", $request->getBody()['season']],
+            ["category/id", $request->getBody()['category']]
         ];
     }
 
@@ -296,46 +491,16 @@ class updateEpisodeInfo extends Controller
 
             $serie = Serie::findFirst([
                 "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode")
+                "episode" => $this->floor->pickup("serie/episode"),
+                "season" => $this->floor->pickup("serie/season")
             ]);
 
             $videoManager->updateVideo(
                 $serie->getVideo()->getId(),
                 $this->floor->pickup("video/title"),
                 $this->floor->pickup("video/description"),
-                $request->getBody()['category']
+                $this->floor->pickup("category/id")
             );
-
-            $response->send(["message" => "Episode updated"]);
-        } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
-        }
-    }
-}
-
-class updateUrlWhereEpisode extends Controller
-{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["serie/title", $request->getQuery('name')],
-            ["serie/episode", $request->getQuery('episode')],
-            ["video/url", $request->getBody()['url']],
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        try {
-            $serie = Serie::findFirst([
-                "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode")
-            ]);
-            $urls = $serie->getVideo()->getUrls();
-            foreach ($urls as $url) {
-                $url->setUrl($this->floor->pickup("video/url"));
-                $url->save();
-            }
 
             $response->send(["message" => "Episode updated"]);
         } catch (\Exception $e) {

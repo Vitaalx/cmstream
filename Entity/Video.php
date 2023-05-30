@@ -42,18 +42,21 @@ class Video extends Entity
     /**
      * @many{Entity\Star,video}
      * @groups{stars}
+     * @cascade{}
      */
     private array $stars;
 
     /**
      * @many{Entity\Film,video}
      * @groups{film}
+     * @cascade{}
      */
     private array $film;
 
     /**
      * @many{Entity\Serie,video}
      * @groups{series}
+     * @cascade{}
      */
     private array $series;
 

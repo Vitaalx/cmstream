@@ -30,7 +30,7 @@ function title(string $title, Floor $floor, Response $response): string
 function description(string $description, Floor $floor, Response $response): string
 {
     $description = trim($description);
-    if (strlen($description) < 4 || strlen($description) > 20) {
+    if (strlen($description) < 4 || strlen($description) > 200) {
         $response->info("video.description")->code(400)->send();
     }
     return $description;

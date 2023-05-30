@@ -9,7 +9,22 @@ use Core\Response;
 use Entity\Category;
 use Services\Back\CategoryManagerService as CategoryManager;
 
-// Valid
+/**
+ * @api {post} /api/content-manager/category/create
+ * @apiName CreateCategory
+ * @apiGroup ContentManager/CategoryController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Create a category
+ * @param string name
+ * @return Response
+ */
+/*
+ Entry:
+ {
+  "name": "Category name"
+ }
+*/
 class createCategory extends Controller
 {
     public function checkers(Request $request): array
@@ -34,28 +49,23 @@ class createCategory extends Controller
         }
     }
 }
-// Valid
-class getCategories extends Controller
+
+/**
+ * @api {delete} /api/content-manager/category/delete
+ * @apiName DeleteCategory
+ * @apiGroup ContentManager/CategoryController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Delete a category
+ * @param string name
+ * @return Response
+ */
+/*
+Entry:
 {
-    public function checkers(Request $request): array
-    {
-        return [];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        try {
-            $categoryManager = new CategoryManager();
-
-            $categories = $categoryManager->getCategories();
-
-            $response->send(["categories" => $categories]);
-        } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
-        }
-    }
+"name": "Category name"
 }
-// Valid
+*/
 class deleteCategory extends Controller
 {
     public function checkers(Request $request): array
@@ -80,7 +90,53 @@ class deleteCategory extends Controller
         }
     }
 }
-// Valid
+
+/**
+ * @api {get} /api/content-manager/category/get-all
+ * @apiName GetAllCategories
+ * @apiGroup ContentManager/CategoryController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get all categories
+ * @return Response
+ */
+class getAllCategories extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        try {
+            $categoryManager = new CategoryManager();
+
+            $categories = $categoryManager->getCategories();
+
+            $response->send(["categories" => $categories]);
+        } catch (\Exception $e) {
+            $response->send(["error" => $e->getMessage()]);
+        }
+    }
+}
+
+/**
+ * @api {get} /api/content-manager/category/get-all-content
+ * @apiName GetAllContentWhereCategory
+ * @apiGroup ContentManager/CategoryController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Get all content where category
+ * @param string name
+ * @return Response
+ */
+/*
+Entry:
+{
+"name": "Category name"
+}
+*/
 class getAllContentWhereCategory extends Controller
 {
     public function checkers(Request $request): array

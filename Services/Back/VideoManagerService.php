@@ -94,6 +94,7 @@ class VideoManagerService
             $video->setTitle($title);
             $video->setDescription($description);
             $video->setCategory(Category::findFirst(["id" => $category]));
+            $video->save();
         } catch (\Exception $e) {
             throw new \Exception("Error update video: " . $e->getMessage());
         }

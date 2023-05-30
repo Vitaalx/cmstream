@@ -13,3 +13,8 @@ function name(string $name, Floor $floor, Response $response): string
     }
     return $name;
 }
+
+function id(int $id, Floor $floor, Response $response): int
+{
+    return $id;
+}

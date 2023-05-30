@@ -9,7 +9,10 @@ class Film extends Entity
     /** @type{int} */
     private int $id;
 
-    /** @notnullable{} */
+    /** 
+     * @notnullable{}
+     * @cascade{}
+     */
     private Video $video;
 
     /** 
