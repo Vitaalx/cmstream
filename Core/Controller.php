@@ -27,7 +27,7 @@ abstract class Controller {
                     $checker[1] = $checker[1]();
                 }
                 $value = $function($checker[1], $floor, $response);
-                $floor->droped($checker[0], $value);
+                $floor->droped($checker[2] ?? $checker[0], $value);
             }
         }
         catch(\TypeError $th){

@@ -9,7 +9,7 @@ class assets extends Controller{
     public function checkers(Request $request): array
     {
         return [
-            ["file/checkPath", $request->getPath()],
+            ["file/checkPath", $request->getPath(), "path"],
             ["file/exist", fn() => $this->floor->pickup("path")]
         ];
     }
