@@ -273,14 +273,18 @@ abstract class Entity implements \JsonSerializable
     static public function dataBaseConnection()
     {
         $config = new ConfigFile();
-        $database = new Database(
-            $config->getEnv('DB_CONNECTION'),
-            $config->getEnv('DB_HOST'),
-            $config->getEnv('DB_PORT'),
-            $config->getEnv('DB_DATABASE'),
-            $config->getEnv('DB_USERNAME'),
-            $config->getEnv('DB_PASSWORD')
-        );
+        try {
+            $database = new Database(
+                $config->getEnv('DB_CONNECTION'),
+                $config->getEnv('DB_HOST'),
+                $config->getEnv('DB_PORT'),
+                $config->getEnv('DB_DATABASE'),
+                $config->getEnv('DB_USERNAME'),
+                $config->getEnv('DB_PASSWORD')
+            );
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
         self::$db = $database->connection();
     }
 }

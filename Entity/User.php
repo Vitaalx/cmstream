@@ -31,6 +31,7 @@ class User extends Entity
     /**
      * @type{VARCHAR(255)}
      * @notnullable{}
+     * @groups{userPassword}
      */
     private string $password;
 

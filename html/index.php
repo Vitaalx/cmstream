@@ -29,6 +29,30 @@ Route::match([
 ]);
 
 Route::match([
+    "method" => "POST",
+    "path" => "/addComment",
+    "controller" => "API/CommentController/addComment",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/getComments",
+    "controller" => "API/CommentController/getComments",
+]);
+
+Route::match([
+    "method" => "DELETE",
+    "path" => "/deleteComment",
+    "controller" => "API/CommentController/deleteComment",
+]);
+
+Route::match([
+    "method" => "PUT",
+    "path" => "/modifyComment",
+    "controller" => "API/CommentController/modifyComment",
+]);
+
+Route::match([
     "method" => "*",
     "path" => "/public/.*",
     "controller" => "handlers/assets",

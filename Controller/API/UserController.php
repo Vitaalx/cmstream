@@ -6,8 +6,6 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Entity\User;
-
 use Services\Back\AuthService;
 
 

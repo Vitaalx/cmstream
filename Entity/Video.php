@@ -27,6 +27,7 @@ class Video extends Entity
     /**
      * @many{Entity\Comment,video}
      * @groups{comments}
+     * @cascade{}
      */
     private array $comments;
 
@@ -89,17 +90,17 @@ class Video extends Entity
         return $this;
     }
 
-    public function getUrls(): Url
+    public function getUrls(): array
     {
         return parent::get("urls");
     }
 
-    public function getComments(): Comment
+    public function getComments(): array
     {
         return parent::get("comments");
     }
 
-    public function getCategory(): Category
+    public function getCategory(): array
     {
         return parent::get("category");
     }
@@ -111,7 +112,7 @@ class Video extends Entity
         return $this;
     }
 
-    public function getStars(): Star
+    public function getStars(): array
     {
         return parent::get("stars");
     }
