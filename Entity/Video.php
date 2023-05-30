@@ -1,6 +1,7 @@
 <?php
 
 namespace Entity;
+
 use Core\Entity;
 
 class Video extends Entity
@@ -11,6 +12,7 @@ class Video extends Entity
     /** 
      * @type{VARCHAR(100)}
      * @notnullable{} 
+     * @unique{}
      */
     private string $title;
 
@@ -40,8 +42,23 @@ class Video extends Entity
     /**
      * @many{Entity\Star,video}
      * @groups{stars}
+     * @cascade{}
      */
     private array $stars;
+
+    /**
+     * @many{Entity\Film,video}
+     * @groups{film}
+     * @cascade{}
+     */
+    private array $film;
+
+    /**
+     * @many{Entity\Serie,video}
+     * @groups{series}
+     * @cascade{}
+     */
+    private array $series;
 
     /**
      * @type{Date}
@@ -66,7 +83,7 @@ class Video extends Entity
         return parent::get("id");
     }
 
-    public function getTitle(): self
+    public function getTitle(): string
     {
         return parent::get("title");
     }
@@ -125,5 +142,22 @@ class Video extends Entity
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
+    }
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+
+        return $this;
+    }
+
+    public function getFilm(): array
+    {
+        return parent::get("film");
+    }
+
+    public function getSeries(): array
+    {
+        return parent::get("series");
     }
 }

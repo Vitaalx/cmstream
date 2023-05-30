@@ -17,7 +17,7 @@ class Category extends Entity
 
     /**
      * @many{Entity\Video,category}
-     * @groups{categoryVideo}
+     * @groups{catagories}
      * @cascade{}
      */
     private array $videos;
@@ -45,7 +45,7 @@ class Category extends Entity
         return parent::get("id");
     }
 
-    public function getTitle(): self
+    public function getTitle(): string
     {
         return parent::get("title");
     }
@@ -57,18 +57,25 @@ class Category extends Entity
         return $this;
     }
 
-    public function getVideo(): array
+    public function getVideos(): array
     {
-        return parent::get("video");
+        return parent::get("videos");
     }
 
     public function getCreatedAt(): self
     {
         return parent::get("created_at");
     }
-    
+
     public function getUpdatedAt(): self
     {
         return parent::get("updated_at");
+    }
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+
+        return $this;
     }
 }
