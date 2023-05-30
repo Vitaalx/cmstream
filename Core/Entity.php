@@ -302,7 +302,8 @@ abstract class Entity implements \JsonSerializable
                 $config->getEnv('DB_USERNAME'),
                 $config->getEnv('DB_PASSWORD')
             );
-        } catch (Exception $e) {
+        } 
+        catch (\Exception $e) {
             die($e->getMessage());
         }
         self::$db = $database->connection();
