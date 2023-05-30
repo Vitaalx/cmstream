@@ -22,6 +22,7 @@ class Comment extends Entity
 
     /**
      * @notnullable{}
+     * @groups{commentAuthor}
      */
     private User $user;
 

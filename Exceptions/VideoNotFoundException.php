@@ -4,10 +4,18 @@ namespace Exceptions;
 
 class VideoNotFoundException extends \Exception implements \Throwable
 {
-    public function __construct($message = "", $code = 0, \Throwable $previous = null)
+    public function __construct($messageProvided = "", $codeProvided = 0, \Throwable $previous = null)
     {
-        $message = "Video not found";
-        $code = 404;
+        if(trim($messageProvided) != "" || $messageProvided != NULL) {
+            $message = $messageProvided;
+        } else {
+            $message = "Video not found";
+        }
+        if($codeProvided != NULL) {
+            $code = $codeProvided;
+        } else {
+            $code = 404;
+        }
         parent::__construct($message, $code, $previous);
     }
 }

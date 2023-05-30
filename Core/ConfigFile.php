@@ -94,6 +94,7 @@ class ConfigFile
     public function getEnv(string $key): string
     {
         $file = fopen("./../.env", "r");
+        if(!$file) die("Cannot opened file (Verify .env file at root folder).");
         while (!feof($file)) {
             $line = fgets($file);
             $line = explode("=", $line);

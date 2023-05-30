@@ -65,13 +65,18 @@ class addComment extends Controller
                 "comment" => $commentToInsert
             ]);
         } catch (\Exception $e) {
-            $response->code(400)->send([
+            $response->code($e->getCode())->send([
                 "error" => $e->getMessage(), "code" => $e->getCode(), "string" => $e->__toString()
             ]);
         }
     }
 }
 
+/**
+ * @method GET
+ * @path /getComment
+ * @param $id
+ */
 class getComments extends Controller
 {
 
@@ -91,23 +96,26 @@ class getComments extends Controller
 
             if(!$video) throw new VideoNotFoundException();
 
-            $comment = Comment::findMany([
-                "video_id" => $this->floor->pickup("comment/videoId")
-            ]);
+            $comments = $video->getComments();
 
-            if(!$comment) throw new CommentNotFoundException();
+            $video->groups("commentAuthor");
 
             $response->code(200)->send([
-                "comment" => $comment
+                "comment" => $comments
             ]);
         } catch (\Exception $e) {
-            $response->code(400)->send([
+            $response->code($e->getCode())->send([
                 "error" => $e->getMessage(), "code" => $e->getCode(), "string" => $e->__toString()
             ]);
         }
     }
 }
 
+/**
+ * @method DELETE
+ * @path /deleteComment
+ * @param $id
+ */
 class deleteComment extends Controller
 {
 
@@ -141,6 +149,14 @@ class deleteComment extends Controller
 }
 
 //Modify comment status or content
+/**
+ * @method PUT
+ * @path /modifyComment
+ * @Body Json Request
+ * @param $id
+ * @param $content
+ * @param $status
+ */
 class modifyComment extends Controller
 {
 
