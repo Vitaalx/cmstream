@@ -48,8 +48,8 @@ class index extends Controller{
         //     $category->delete();
         // }
         // $category::groups("categoryVideo");
-        $response->send();
+        // $response->send();
 
-        // $response->info("test")->render("index", "front", []);
+        $response->info("test")->render("index", "front", []);
     }
 }
