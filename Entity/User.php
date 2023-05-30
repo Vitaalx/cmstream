@@ -12,7 +12,6 @@ class User extends Entity
     /** 
      * @type{VARCHAR(60)} 
      * @notnullable{}
-     * @unique{}
      */
     private string $firstname;
 
@@ -25,6 +24,7 @@ class User extends Entity
     /**
      * @type{VARCHAR(100)}
      * @notnullable{}
+     * @unique{}
      */
     private string $email;
 

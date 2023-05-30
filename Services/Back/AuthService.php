@@ -4,6 +4,7 @@ namespace Services\Back;
 
 use Core\Auth;
 use Entity\User;
+use Exceptions\UserAlreadyUsedException;
 
 class AuthService
 {
@@ -20,12 +21,19 @@ class AuthService
      * @param string $lastname
      * @param string $email
      * @param string $password hash method sha256
-     * 
+     *
      * @return string token
+     * @throws \Exception
      */
     public function register(string $firstname, string $lastname, string $email, string $password): string
     {
         try {
+            $user = User::findFirst([
+                "email" => $email,
+            ]);
+
+            if(!empty($user)) throw new UserAlreadyUsedException("Email already used.", 409);
+
             $userInserted = User::insertOne([
                 "firstname" => $firstname,
                 "lastname" => $lastname,
@@ -49,26 +57,22 @@ class AuthService
 
     public function login(string $email, string $password): string
     {
-        try {
-            $user = User::findFirst([
-                "email" => $email,
-            ]);
+        $user = User::findFirst([
+            "email" => $email,
+        ]);
 
-            if (!$user) {
-                throw new \Exception("User not found");
-            }
-            if ($user->getPassword() !== $this->auth->passwordHash($password)) {
-                throw new \Exception("Wrong password");
-            }
-
-            return $this->auth->generateToken(
-                $user->getId(),
-                $user->getEmail(),
-                $user->getFirstname()
-            );
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        if (!$user) {
+            throw new \Exception("User not found", 404);
         }
+        if ($user->getPassword() !== $this->auth->passwordHash($password)) {
+            throw new \Exception("Wrong password", 401);
+        }
+
+        return $this->auth->generateToken(
+            $user->getId(),
+            $user->getEmail(),
+            $user->getFirstname()
+        );
     }
 
     // tmp for test feature token

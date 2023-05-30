@@ -10,22 +10,22 @@ use Services\Back\AuthService;
 
 
 /**
- * @method GET
- * @path /createUser
+ * @method POST
+ * @path /register
  * @Body Json Request
- * @param firstname
- * @param lastname
- * @param email
- * @param password hash method sha256
+ * @param $firstname
+ * @param $lastname
+ * @param $email
+ * @param $password
  * 
- * @return token
- * exemple: 
+ * @return $token
+ * example:
  * entry:
  *  {
-	"firstname": "william",
-	"lastname": "florentin",
-	"email": "williamflorentin@mail.com",
-	"password": "azertyuiop"
+	"firstname": "John",
+	"lastname": "Doe",
+	"email": "johndoe@test.com",
+	"password": "test"
     }
  * response:
  *  {
@@ -44,17 +44,27 @@ class register extends Controller
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handler(Request $request, Response $response): void
     {
         $auth = new AuthService();
-        $token = $auth->register(
-            $this->floor->pickup("user/firstname"),
-            $this->floor->pickup("user/lastname"),
-            $this->floor->pickup("user/email"),
-            $request->getBody()['password']
-        );
+        try {
+            $token = $auth->register(
+                $this->floor->pickup("user/firstname"),
+                $this->floor->pickup("user/lastname"),
+                $this->floor->pickup("user/email"),
+                $request->getBody()['password']
+            );
+        } catch (\Exception $e) {
+            $response->code($e->getCode())->send([
+                "error" => $e->getMessage(),
+                "code" => $e->getCode()
+            ]);
+        }
 
-        $response->send([
+        $response->code(200)->send([
             'token' => $token
         ]);
     }
@@ -62,24 +72,24 @@ class register extends Controller
 
 /**
  * @method POST
- * @path /loginUser
+ * @path /login
  * @Body Json Request
- * @param email
- * @param password hash method sha256
+ * @param $email
+ * @param $password
  * 
- * @return token
- * exemple: 
+ * @return $token
+ * example:
  * entry:
  *  {
-    "email": "williamflorentin@mail.com",
-    "password": "azertyuiop"
+    "email": "johndoe@test.com",
+    "password": "test"
     }
  * response:
  *  {
 	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
     }
  */
-class loginUser extends Controller
+class login extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -89,15 +99,24 @@ class loginUser extends Controller
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handler(Request $request, Response $response): void
     {
         $auth = new AuthService();
-        $token = $auth->login(
-            $this->floor->pickup("user/email"),
-            $request->getBody()['password']
-        );
-
-        $response->send([
+        try {
+            $token = $auth->login(
+                $this->floor->pickup("user/email"),
+                $request->getBody()['password']
+            );
+        } catch (\Exception $e) {
+            $response->code($e->getCode())->send([
+                "error" => $e->getMessage(),
+                "code" => $e->getCode()
+            ]);
+        }
+        $response->code(200)->send([
             'token' => $token
         ]);
     }

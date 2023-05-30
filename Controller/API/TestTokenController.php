@@ -11,7 +11,7 @@ use Entity\User;
 use Services\Back\AuthService;
 
 
-class checktoken extends Controller
+class checkToken extends Controller
 {
     public function checkers(Request $request): array
     {
