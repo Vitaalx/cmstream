@@ -9,6 +9,7 @@ require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
+include __DIR__ . "/../config.php";
 
 class Route{
     static private string $requestPath;
