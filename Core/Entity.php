@@ -161,7 +161,7 @@ abstract class Entity implements \JsonSerializable
         }
     }
 
-    public function delete()
+    public function delete(): bool
     {
         $currentEntityName = "_" . $this->entityName;
 
@@ -191,7 +191,7 @@ abstract class Entity implements \JsonSerializable
         return true;
     }
 
-    protected function set(string $prop, mixed $value)
+    protected function set(string $prop, mixed $value): void
     {
         $prop = self::$reflections[static::class][$prop];
 
@@ -254,7 +254,7 @@ abstract class Entity implements \JsonSerializable
         return $instance;
     }
 
-    static public function deleteMany(array $where = [])
+    static public function deleteMany(array $where = []): bool
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
@@ -280,16 +280,21 @@ abstract class Entity implements \JsonSerializable
         return self::$db;
     }
 
-    static public function dataBaseConnection()
+    static public function dataBaseConnection(): void
     {
-        $pdo = new \PDO(
-            CONFIG["DB_CONNECTION"] .
-            ":host=" . CONFIG["DB_HOST"] .
-            ";port=" . CONFIG["DB_PORT"] .
-            ";dbname=" . CONFIG["DB_NAME"],
-            CONFIG["DB_USER"],
-            CONFIG["DB_PASSWORD"]
-        );
+        try {
+            $pdo = new \PDO(
+                CONFIG["DB_CONNECTION"] .
+                ":host=" . CONFIG["DB_HOST"] .
+                ";port=" . CONFIG["DB_PORT"] .
+                ";dbname=" . CONFIG["DB_NAME"],
+                CONFIG["DB_USER"],
+                CONFIG["DB_PASSWORD"]
+            );
+        } catch (\Exception $th) {
+            echo "Error: " . $th->getMessage();
+            die();
+        }
         self::$db = $pdo;
     }
 }
