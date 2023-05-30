@@ -25,7 +25,7 @@ function lastname(string $lastname, Floor $floor, Response $response): string
 {
     $lastname = trim($lastname);
     $lastname = strtoupper($lastname);
-    if (strlen($lastname) < 4 || strlen($lastname) > 20) {
+    if (strlen($lastname) < 1 || strlen($lastname) > 60) {
         $response->info("user.lastname")->code(400)->send();
     }
     return $lastname;
@@ -35,7 +35,7 @@ function firstname(string $firstname, Floor $floor, Response $response): string
 {
     $firstname = trim($firstname);
     $firstname = strtoupper($firstname);
-    if (strlen($firstname) < 4 || strlen($firstname) > 20) {
+    if (strlen($firstname) < 1 || strlen($firstname) > 60) {
         $response->info("user.firstname")->code(400)->send();
     }
     return $firstname;

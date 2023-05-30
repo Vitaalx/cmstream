@@ -5,7 +5,7 @@ use Core\Route;
 require "../Core/Route.php";
 
 Route::match([
-    "method" => "GET",
+    "method" => "POST",
     "path" => "/register",
     "controller" => "API/UserController/register",
 ]);
@@ -13,7 +13,7 @@ Route::match([
 Route::match([
     "method" => "POST",
     "path" => "/login",
-    "controller" => "API/UserController/loginUser",
+    "controller" => "API/UserController/login",
 ]);
 
 Route::match([
