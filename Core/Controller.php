@@ -18,7 +18,7 @@ abstract class Controller {
     abstract public function checkers(Request $request): array;
     abstract public function handler(Request $request, Response $response): void;
 
-    static private function launchCheckers(array $checkers, Floor $floor, Response $response)
+    static private function launchCheckers(array $checkers, Floor $floor, Response $response): void
     {
         try{
             foreach($checkers as $checker){
@@ -27,7 +27,7 @@ abstract class Controller {
                     $checker[1] = $checker[1]();
                 }
                 $value = $function($checker[1], $floor, $response);
-                $floor->droped($checker[0], $value);
+                $floor->droped($checker[2] ?? $checker[0], $value);
             }
         }
         catch(\TypeError $th){

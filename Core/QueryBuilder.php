@@ -2,17 +2,17 @@
 namespace Core;
 
 class QueryBuilder {
-    static function createSelectRequest(string $from, array $select, array $where, array $join = []){
+    static function createSelectRequest(string $from, array $select, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);
         $select = self::arrayToArraySelect($select);
         $select = implode(", ", $select);
-        $join = self::arrayToArrayJoin($join, $from);
-        $join = implode(" ", $join);
-        return "SELECT " . $select . " FROM " . $from . " " . $join . ($where !== ""? " WHERE " : "") . $where; 
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "SELECT " . $select . " FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options; 
     }
 
-    static function createInsertRequest(string $to, array $tableValue){
+    static function createInsertRequest(string $to, array $tableValue, array $options = []){
         $keys = [];
         $values = [];
 
@@ -26,21 +26,28 @@ class QueryBuilder {
             }
             array_push($values, $value);
         }
-        return "INSERT INTO  " . $to . " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $values) . " )"; 
+
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "INSERT INTO  " . $to . " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $values) . " ) " . $options; 
     }
 
-    static function createUpdateRequest(string $from, array $set, array $where){
+    static function createUpdateRequest(string $from, array $set, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);
         $set = self::arrayToArraySet($set);
         $set = implode(", ", $set);
-        return "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where;
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options;
     }
 
-    static function createDeleteRequest(string $from, array $where){
+    static function createDeleteRequest(string $from, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);
-        return "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where;
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " " . $options;
     }
 
     static function arrayToArrayWhere(array $array, string $operator = "="){
@@ -63,6 +70,8 @@ class QueryBuilder {
                 $not = implode(" AND ", $not);
                 array_push($wheres, $not);
             }
+            else if($key === "\$GT") array_push($wheres, $value[0] . " > " . $value[1]);
+            else if($key === "\$GTE") array_push($wheres, $value[0] . " >= " . $value[1]);
             else{
                 $where = $key . " " . $operator . " ";
 
@@ -119,12 +128,23 @@ class QueryBuilder {
         return $selects;
     }
 
-    static function arrayToArrayJoin(array $array, string $from){
-        $joins = [];
-        foreach ($array as $key => $value) {
-            array_push($joins, "JOIN " . $key . " on " . $from . "." . $value[0] . " = " . $key . "." . $value[1]);
+    static function arrayToArrayOptions(array $array){
+        $options = [];
+        foreach($array as $key => $value){
+            if($key === "ORDER_BY"){
+                $orderOptions = [];
+
+                foreach ($value as $v) {
+                    array_push($orderOptions, $v[1] . " " . $v[0]);
+                }
+
+                array_push($options, "ORDER BY " . implode(", ", $orderOptions));
+            }
+            else if($key === "RETURNING") array_push($options, "RETURNING " . implode(", ", $value));
+            else array_push($options, $key . " " . $value);
         }
-        return $joins;
+
+        return $options;
     }
 
     static function arrayToArraySet(array $array){

@@ -20,16 +20,21 @@ class Video extends Entity
     /**
      * @many{Entity\Url,video_url}
      * @groups{urls}
+     * @cascade{}
      */
     private array $urls;
 
     /**
      * @many{Entity\Comment,video}
      * @groups{comments}
+     * @cascade{}
      */
     private array $comments;
 
-    /** @notnullable{} */
+    /** 
+     * @notnullable{}
+     * @groups{videoCategory}
+     */
     private Category $category;
 
     /**
@@ -42,6 +47,7 @@ class Video extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $created_at;
 
@@ -49,6 +55,7 @@ class Video extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $updated_at;
 
@@ -83,17 +90,17 @@ class Video extends Entity
         return $this;
     }
 
-    public function getUrls(): Url
+    public function getUrls(): array
     {
         return parent::get("urls");
     }
 
-    public function getComments(): Comment
+    public function getComments(): array
     {
         return parent::get("comments");
     }
 
-    public function getCategory(): Category
+    public function getCategory(): array
     {
         return parent::get("category");
     }
@@ -105,7 +112,7 @@ class Video extends Entity
         return $this;
     }
 
-    public function getStars(): Star
+    public function getStars(): array
     {
         return parent::get("stars");
     }
@@ -115,22 +122,8 @@ class Video extends Entity
         return parent::get("created_at");
     }
 
-    public function setCreatedAt(string $created_at): self
-    {
-        parent::set("created_at", $created_at);
-
-        return $this;
-    }
-
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
-    }
-
-    public function setUpdatedAt(string $updated_at): self
-    {
-        parent::set("updated_at", $updated_at);
-
-        return $this;
     }
 }

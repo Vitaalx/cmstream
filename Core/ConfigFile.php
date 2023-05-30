@@ -27,7 +27,7 @@ class ConfigFile
 
             $database->testConnection();
 
-            $file = fopen(".env", "a+");
+            $file = fopen("./../.env", "a+");
             fwrite($file, "DB_CONNECTION=" . $data['driver'] . "\n");
             fwrite($file, "DB_HOST=" . $data['host'] . "\n");
             fwrite($file, "DB_PORT=" . $data['port'] . "\n");
@@ -49,7 +49,7 @@ class ConfigFile
     public function setAppName(string $appName): void
     {
         try {
-            $file = fopen(".env", "a+");
+            $file = fopen("./../.env", "a+");
             fwrite($file, "APP_NAME=" . $appName . "\n");
             fclose($file);
         } catch (\Exception $e) {
@@ -66,11 +66,43 @@ class ConfigFile
     public function setSecretKey(string $secretKey): void
     {
         try {
-            $file = fopen(".env", "a+");
+            $file = fopen("./../.env", "a+");
             fwrite($file, "SECRET_KEY=" . $secretKey . "\n");
             fclose($file);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    public function setTokenDuration(int $duration): void
+    {
+        try {
+            $file = fopen("./../.env", "a+");
+            fwrite($file, "TOKEN_DURATION=" . $duration . "\n");
+            fclose($file);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * thus method is used to get the value of a key in the .env file
+     *
+     * @param string $key
+     * @return string
+     */
+    public function getEnv(string $key): string
+    {
+        $file = fopen("./../.env", "r");
+        if(!$file) die("Cannot opened file (Verify .env file at root folder).");
+        while (!feof($file)) {
+            $line = fgets($file);
+            $line = explode("=", $line);
+            if ($line[0] === $key) {
+                return trim($line[1]);
+            }
+        }
+        fclose($file);
+        return "";
     }
 }

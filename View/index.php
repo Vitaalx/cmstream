@@ -23,17 +23,15 @@
     )
 </script>
 
-<div 
-id="app"
->
+<div id="app">
     
 </div>
 
 <div 
 id="test1"
-@click="data.$emit('click')"
+@click="this.$emit('click')"
 >
-    {{data.name}}
+    {{this.name}}
     <slot></slot>
 </div>
 
@@ -45,31 +43,76 @@ id="test1"
         },
         props: {
             name: "test",
+        },
+        mounted(){
+            console.log("mount test1");
+        },
+        unmounted(){
+            console.log("unmount test1");
+        }
+    });
+</script>
+
+<h1
+id="test2"
+>
+    test2 {{this.name}}
+    <test1 @click="clicked">tetete</test1>
+</h1>
+
+<script>
+    const test2 = new CuteVue({
+        el: "#test2",
+        components: {test1},
+        data: {
+            
+        },
+        props: {
+           v: null,
+           name: null
+        },
+        methods: {
+            clicked(value){
+                console.log(this.v);
+            }
+        },
+        mounted(){
+            console.log("mount test2");
+        },
+        unmounted(){
+            console.log("unmount test2");
         }
     });
 </script>
 
 <div 
 id="test"
-cv-class="{'none': data.arr.length !== 4}"
+cv-class="{'none': this.arr.length !== 4}"
 >
-    <test1 #click="setName" :name="data.name">test</test1>
+    <test1 cv-if="this.test" @click="this.setName()" :name="this.name">test</test1>
 
-    {{data.name}} {{data.bigName + " " + data.goodName}}
+    {{this.name}} {{this.bigName + " " + this.goodName}}
 
-    <div cv-ref="test" cv-for="value of data.arr">
-        <h1 :title="data.value" cv-if="data.value !== 'un'" @click="data.clicked(data.value)">{{data.value}}</h1>
+    <div cv-ref="test" cv-for="value of this.arr">
+        <h1 :title="this.value" cv-show="this.value !== 'un'" @click="this.clicked(this.value)">{{this.value}} {{this.userName}}</h1>
+        <test1 cv-if="this.test">ok</test1>
     </div>
+
+    <div cv-if="this.test">
+        <test2 cv-for="value of this.arr" :v="this.value" :name="'ttt'"></test2>
+    </div>
+
+    <button @click="test1">click</button>
 </div>
 
 <script>
     const test = new CuteVue({
         el: "#test",
-        components: {test1},
+        components: {test1,test2},
         data: {
             name: "mon super nom",
             test: true,
-            arr: ["un", "deux", "trois"],
+            arr: ["un", "deux", "trois", "quatre"],
         },
         computed:{
             bigName(){
@@ -79,26 +122,26 @@ cv-class="{'none': data.arr.length !== 4}"
         methods: {
             clicked(value){
                 this.name = "test";
-                this.arr = ["un", "deux", "trois", "quatre"];
+                this.arr = ["un", "deux"];
                 console.log(value);
-                console.log(this.$refs);
             },
             test1(){
                 this.test = !this.test;
-                this.arr[0] = "quatre";
-                console.log(this.$refs);
-                this.$update("arr");
+                // this.arr = ["un", "deux"];
+                // this.arr[0] = "quatre";
+                // this.$update();
             }
         },
         watch: {
             
         },
         mounted(){
-            console.log(this.$refs);
+            console.log("test");
         },
         stores: [
             {
                 name: "user",
+                states: ["userName"],
                 computed: ["goodName"],
                 actions: ["setName"]
             }
@@ -107,5 +150,5 @@ cv-class="{'none': data.arr.length !== 4}"
 </script>
 
 <script>
-    test.mount("#app");
+    let proxy = test.mount("#app");
 </script>

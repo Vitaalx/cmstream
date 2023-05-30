@@ -9,7 +9,7 @@ function checkPath(string $path, Floor $floor, Response $response){
         $response->code(400)->info("invalidePath")->send();
     }
     
-    $floor->droped("path", __DIR__ . "/.." . $path);
+    return __DIR__ . "/.." . $path;
 }
 
 function exist(string $path, Floor $floor, Response $response){

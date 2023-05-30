@@ -17,7 +17,8 @@ class Category extends Entity
 
     /**
      * @many{Entity\Video,category}
-     * @groups{catagories}
+     * @groups{categoryVideo}
+     * @cascade{}
      */
     private array $videos;
 
@@ -25,6 +26,7 @@ class Category extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $created_at;
 
@@ -32,6 +34,7 @@ class Category extends Entity
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
+     * @groups{dateProps}
      */
     private string $updated_at;
 
@@ -63,24 +66,9 @@ class Category extends Entity
     {
         return parent::get("created_at");
     }
-
-    public function setCreatedAt(string $created_at): self
-    {
-        parent::set("created_at", $created_at);
-
-        return $this;
-    }
-
+    
     public function getUpdatedAt(): self
     {
         return parent::get("updated_at");
     }
-
-    public function setUpdatedAt(string $updated_at): self
-    {
-        parent::set("updated_at", $updated_at);
-
-        return $this;
-    }
-
 }
