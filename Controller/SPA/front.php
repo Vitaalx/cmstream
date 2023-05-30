@@ -47,7 +47,7 @@ class index extends Controller{
         // foreach(Category::findMany([]) as $category){
         //     $category->delete();
         // }
-        // $category->groups("catagoriesVideo");
+        // $category::groups("categoryVideo");
         $response->send();
 
         // $response->info("test")->render("index", "front", []);
