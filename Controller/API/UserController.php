@@ -8,7 +8,17 @@ use Core\Response;
 
 use Services\Back\AuthService;
 
-
+/*
+entry: {
+	"firstname": "John",
+	"lastname": "Doe",
+	"email": "johndoe@test.com",
+	"password": "test"
+}
+response: {
+	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
+}
+*/
 /**
  * @method POST
  * @path /register
@@ -19,18 +29,6 @@ use Services\Back\AuthService;
  * @param $password
  * 
  * @return $token
- * example:
- * entry:
- *  {
-	"firstname": "John",
-	"lastname": "Doe",
-	"email": "johndoe@test.com",
-	"password": "test"
-    }
- * response:
- *  {
-	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
-    }
  */
 class register extends Controller
 {
@@ -70,6 +68,15 @@ class register extends Controller
     }
 }
 
+/*
+entry: {
+    "email": "johndoe@test.com",
+    "password": "test"
+}
+response: {
+	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
+}
+*/
 /**
  * @method POST
  * @path /login
@@ -78,16 +85,6 @@ class register extends Controller
  * @param $password
  * 
  * @return $token
- * example:
- * entry:
- *  {
-    "email": "johndoe@test.com",
-    "password": "test"
-    }
- * response:
- *  {
-	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
-    }
  */
 class login extends Controller
 {
