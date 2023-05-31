@@ -42,6 +42,14 @@ class QueryBuilder {
         return "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options;
     }
 
+    static function createCountRequest(string $from, array $where, array $options = []){
+        $where = self::arrayToArrayWhere($where);
+        $where = implode(" AND ", $where);
+        $options = self::arrayToArrayOptions($options);
+        $options = implode(" ", $options);
+        return "SELECT count(*) FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options; 
+    }
+
     static function createDeleteRequest(string $from, array $where, array $options = []){
         $where = self::arrayToArrayWhere($where);
         $where = implode(" AND ", $where);

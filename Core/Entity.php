@@ -270,6 +270,19 @@ abstract class Entity implements \JsonSerializable
         return true;
     }
 
+    static public function count(array $where = []): int
+    {
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $sqlRequest = QueryBuilder::createCountRequest($currentEntityName, $where);
+        $result = self::$db->prepare($sqlRequest);
+        $result->execute();
+        $result = $result->fetchColumn();
+
+        return $result;
+    }
+
     static public function groups(string ...$groups): void
     {
         self::$groups = $groups;
