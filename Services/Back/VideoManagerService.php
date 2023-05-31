@@ -94,6 +94,7 @@ class VideoManagerService
             $video->setTitle($title);
             $video->setDescription($description);
             $video->setCategory(Category::findFirst(["id" => $category]));
+            $video->setUpdatedAt(date("Y-m-d H:i:s"));
             $video->save();
         } catch (\Exception $e) {
             throw new \Exception("Error update video: " . $e->getMessage());
@@ -136,6 +137,7 @@ class VideoManagerService
                 "id" => $id
             ]);
             $url->setUrl($content);
+            $url->setUpdatedAt(date("Y-m-d H:i:s"));
             $url->save();
         } catch (\Exception $e) {
             throw new \Exception("Error update url where id: " . $e->getMessage());

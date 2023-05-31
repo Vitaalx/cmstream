@@ -34,7 +34,7 @@ Entry:
  "description": "Video description",
  "image": "https://www.image.com/image.png",
  "title_serie": "Serie title",
- "category": 1
+ "category_id": 1
 }
  */
 class createSerie extends Controller
@@ -43,11 +43,17 @@ class createSerie extends Controller
     {
         return [
             ["video/url", $request->getBody()['url']],
-            ["video/title", $request->getBody()['title_video']],
-            ["video/description", $request->getBody()['description']],
-            ["video/image", $request->getBody()['image']],
-            ["serie/title", $request->getBody()['title_serie']],
-            ["category/id", $request->getBody()['category']]
+            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["type/string", $request->getBody()['description'], "description"],
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/string", $request->getBody()['image'], "image"],
+            ["video/image", fn () => $this->floor->pickup("image"), "image"],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
@@ -56,27 +62,25 @@ class createSerie extends Controller
         try {
             $videoManager = new VideoManager();
 
-            if (Serie::findFirst(["title" => $this->floor->pickup("serie/title")])) {
-                throw new \Exception("Serie already exist");
-            }
-
             $video = $videoManager->createVideo(
                 $this->floor->pickup("video/url"),
-                $this->floor->pickup("video/title"),
-                $this->floor->pickup("video/description"),
-                $this->floor->pickup("category/id")
+                $this->floor->pickup("title_serie"),
+                $this->floor->pickup("description"),
+                $this->floor->pickup("category")->getId()
             );
+            if ($video === null) $response->info("video.error")->code(500)->send();
+
             Serie::insertOne([
                 "video_id" => $video->getId(),
                 "episode" => 1,
                 "season" => 1,
-                "image" => $this->floor->pickup("video/image"),
-                "title" => $this->floor->pickup("serie/title")
+                "image" => $this->floor->pickup("image"),
+                "title" => $this->floor->pickup("title_serie"),
             ]);
 
-            $response->send(["message" => "Serie created"]);
+            $response->info("serie.created")->code(201)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("serie.error")->code(500)->send();
         }
     }
 }
@@ -94,7 +98,7 @@ class createSerie extends Controller
 /*
 Entry:
 {
- "name": "Serie title"
+ "title_serie": "Serie title"
 }
 */
 class deleteSerie extends Controller
@@ -102,20 +106,21 @@ class deleteSerie extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getQuery('name')],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $serie = Serie::findMany(["title" => $this->floor->pickup("serie/title")]);
+            $serie = Serie::findMany(["title" => $this->floor->pickup("title_serie")]);
             foreach ($serie as $serie) {
                 $serie->delete();
             }
-            $response->send(["message" => "Serie deleted"]);
+            $response->info("serie.deleted")->code(200)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("serie.error")->code(500)->send();
         }
     }
 }
@@ -126,16 +131,9 @@ class deleteSerie extends Controller
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get a serie
- * @param string name
+ * @Description Get all serie
  * @return Response
  */
-/*
-Entry:
-{
- "name": "Serie title"
-}
-*/
 class getTitleAndImageWhereAllSeries extends Controller
 {
     public function checkers(Request $request): array
@@ -147,13 +145,16 @@ class getTitleAndImageWhereAllSeries extends Controller
     {
         try {
             $series = Serie::findMany();
+            if (empty($series)) $response->info("serie.notfound")->code(404)->send();
             $seriesInfos = [];
             $tmp = "";
             foreach ($series as $serie) {
                 if ($tmp != $serie->getTitle()) {
                     $seriesInfos[] = [
                         "title" => $serie->getTitle(),
-                        "image" => $serie->getImage()
+                        "image" => $serie->getImage(),
+                        "created_at" => $serie->getCreatedAt(),
+                        "updated_at" => $serie->getUpdatedAt()
                     ];
                     $tmp = $serie->getTitle();
                 }
@@ -161,7 +162,7 @@ class getTitleAndImageWhereAllSeries extends Controller
 
             $response->send(["series" => $seriesInfos]);
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("serie.error")->code(500)->send();
         }
     }
 }
@@ -190,25 +191,32 @@ class updateSerieNameAndImage extends Controller
     public function checkers(Request $request): array
     {
         return [
+            ["type/string", $request->getBody()['image'], "image"],
             ["video/image", $request->getBody()['image']],
-            ["serie/title", $request->getBody()['title_serie']],
-            ["video/title", $request->getBody()['new_title_serie']],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")],
+            ["type/string", $request->getBody()['new_title_serie'], "new_title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("new_title_serie"), "new_title_serie"],
+            ["serie/notexist", fn () => $this->floor->pickup("new_title_serie")],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $serie = Serie::findMany(["title" => $this->floor->pickup("serie/title")]);
-            foreach ($serie as $serie) {
-                $serie->setTitle($this->floor->pickup("video/title"));
-                $serie->setImage($this->floor->pickup("video/image"));
+            $series = Serie::findMany(["title" => $this->floor->pickup("title_serie")]);
+            if (empty($series)) $response->info("serie.notfound")->code(404)->send();
+            foreach ($series as $serie) {
+                $serie->setTitle($this->floor->pickup("new_title_serie"));
+                $serie->setImage($this->floor->pickup("image"));
+                $serie->setUpdatedAt(date("Y-m-d H:i:s"));
                 $serie->save();
             }
 
-            $response->send(["message" => "Serie updated"]);
+            $response->info("serie.updated")->code(200)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("serie.error")->code(500)->send();
         }
     }
 }
@@ -241,7 +249,7 @@ Entry:
  "title_serie": "Serie title",
  "episode": 1,
  "season": 1,
- "category": 1
+ "category_id": 1
 }
 */
 class addEpisodeWhereSerie extends Controller
@@ -249,42 +257,56 @@ class addEpisodeWhereSerie extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getBody()['title_serie']],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup('title_serie'), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie"), "serie"],
             ["video/url", $request->getBody()['url']],
-            ["video/title", $request->getBody()['title_video']],
-            ["video/description", $request->getBody()['description']],
-            ["serie/episode", $request->getBody()['episode']],
-            ["serie/season", $request->getBody()['season']],
+            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/title", fn () => $this->floor->pickup('title_video')],
+            ["type/string", $request->getBody()['description'], "description"],
+            ["video/description", fn () => $this->floor->pickup('title_video'), "description"],
+            ["type/int", $request->getBody()['episode'], "episode"],
+            ["serie/episode", fn () => $this->floor->pickup('episode'), "episode"],
+            ["type/int", $request->getBody()['season'], "season"],
+            ["serie/season", fn () => $this->floor->pickup('season'), "season"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $videoManager = new VideoManager();
-
-            if (!Serie::findFirst(["title" => $this->floor->pickup("serie/title")])) {
-                throw new \Exception("Serie doesn't exist");
+            if (Serie::findFirst([
+                "title" => $this->floor->pickup("title_serie"),
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season")
+            ]) !== null) {
+                $response->info("episode.exist")->code(400)->send();
             }
-            $serie = Serie::findFirst(["title" => $this->floor->pickup("serie/title")]);
+
+            $videoManager = new VideoManager();
 
             $video = $videoManager->createVideo(
                 $this->floor->pickup("video/url"),
-                $this->floor->pickup("video/title"),
-                $this->floor->pickup("video/description"),
-                $request->getBody()['category']
+                $this->floor->pickup("title_video"),
+                $this->floor->pickup("description"),
+                $this->floor->pickup("category")->getId()
             );
+
+            if ($video === null) $response->info("video.error")->code(500)->send();
+
             Serie::insertOne([
                 "video_id" => $video->getId(),
-                "episode" => $this->floor->pickup("serie/episode"),
-                "season" => $this->floor->pickup("serie/season"),
-                "image" => $serie->getImage(),
-                "title" => $this->floor->pickup("serie/title")
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season"),
+                "image" => $this->floor->pickup("serie")->getImage(),
+                "title" => $this->floor->pickup("serie")->getTitle(),
             ]);
 
-            $response->send(["message" => "Serie created"]);
+            $response->info("episode.created")->code(201)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("episode.error")->code(500)->send();
         }
     }
 }
@@ -304,7 +326,7 @@ class addEpisodeWhereSerie extends Controller
 /*
 Entry:
 {
- "name": "Serie title",
+ "title_serie": "Serie title",
  "episode": 1,
  "season": 1
 }
@@ -314,9 +336,13 @@ class getEpisodeWhereSerie extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getQuery('name')],
-            ["serie/episode", $request->getQuery('episode')],
-            ["serie/season", $request->getQuery('season')],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")],
+            ["type/int", $request->getBody()['episode'], "episode"],
+            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
+            ["type/int", $request->getBody()['season'], "season"],
+            ["serie/season", fn () => $this->floor->pickup("season"), "season"]
         ];
     }
 
@@ -324,14 +350,14 @@ class getEpisodeWhereSerie extends Controller
     {
         try {
             $serie = Serie::findFirst([
-                "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode"),
-                "season" => $this->floor->pickup("serie/season")
+                "title" => $this->floor->pickup("title_serie"),
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season")
             ]);
-            //die(var_dump($serie));
+            if ($serie === null) $response->info("episode.notfound")->code(404)->send();
             $episode = [
-                "episode" => $this->floor->pickup("serie/episode"),
-                "season" => $this->floor->pickup("serie/season"),
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season"),
                 "image" => $serie->getImage(),
                 "title" => $serie->getVideo()->getTitle(),
                 "description" => $serie->getVideo()->getDescription(),
@@ -340,9 +366,9 @@ class getEpisodeWhereSerie extends Controller
                 "created_at" => $serie->getCreatedAt(),
                 "updated_at" => $serie->getUpdatedAt()
             ];
-            $response->send([$this->floor->pickup("serie/title") => $episode]);
+            $response->send([$this->floor->pickup("title_serie") => $episode]);
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("episode.error")->code(500)->send();
         }
     }
 }
@@ -360,7 +386,7 @@ class getEpisodeWhereSerie extends Controller
 /*
 Entry:
 {
- "name": "Serie title"
+ "title_serie": "Serie title"
 }
 */
 class getAllEpisodesWhereSerie extends Controller
@@ -368,14 +394,17 @@ class getAllEpisodesWhereSerie extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getQuery('name')],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $serie = Serie::findMany(["title" => $this->floor->pickup("serie/title")]);
+            $serie = Serie::findMany(["title" => $this->floor->pickup("title_serie")]);
+            if (empty($serie)) $response->info("serie.notfound")->code(404)->send();
             $episodes = [];
             foreach ($serie as $serie) {
                 $episodes[] = [
@@ -390,9 +419,9 @@ class getAllEpisodesWhereSerie extends Controller
                     "updated_at" => $serie->getUpdatedAt()
                 ];
             }
-            $response->send([$this->floor->pickup("serie/title") => $episodes]);
+            $response->send([$this->floor->pickup("title_serie") => $episodes]);
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("serie.error")->code(500)->send();
         }
     }
 }
@@ -411,7 +440,7 @@ class getAllEpisodesWhereSerie extends Controller
 /*
 Entry:
 {
- "name": "Serie title",
+ "title_serie": "Serie title",
  "episode": 1,
  "season": 1
 }
@@ -421,9 +450,13 @@ class deleteEpisodeWhereSerie extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getQuery('name')],
-            ["serie/episode", $request->getQuery('episode')],
-            ["serie/season", $request->getQuery('season')],
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")],
+            ["type/int", $request->getBody()['episode'], "episode"],
+            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
+            ["type/int", $request->getBody()['season'], "season"],
+            ["serie/season", fn () => $this->floor->pickup("season"), "season"]
         ];
     }
 
@@ -431,14 +464,15 @@ class deleteEpisodeWhereSerie extends Controller
     {
         try {
             $serie = Serie::findFirst([
-                "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode"),
-                "season" => $this->floor->pickup("serie/season")
+                "title" => $this->floor->pickup("title_serie"),
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season")
             ]);
+            if ($serie === null) $response->info("episode.notfound")->code(404)->send();
             $serie->delete();
-            $response->send(["message" => "Episode deleted"]);
+            $response->info("episode.deleted")->code(200)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("episode.error")->code(500)->send();
         }
     }
 }
@@ -466,7 +500,7 @@ Entry:
  "description": "Video description",
  "episode": 1,
  "season": 1,
- "category": 1
+ "category_id": 1
 }
 */
 class updateEpisodeInfo extends Controller
@@ -474,13 +508,19 @@ class updateEpisodeInfo extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["serie/title", $request->getBody()['title_serie']],
-            ["serie/episode", $request->getBody()['episode']],
-            ["video/title", $request->getBody()['title_video']],
-            ["video/description", $request->getBody()['description']],
-            ["serie/episode", $request->getBody()['episode']],
-            ["serie/season", $request->getBody()['season']],
-            ["category/id", $request->getBody()['category']]
+            ["type/string", $request->getBody()['title_serie'], "title_serie"],
+            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/exist", fn () => $this->floor->pickup("title_serie")],
+            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["type/string", $request->getBody()['description'], "description"],
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/int", $request->getBody()['episode'], "episode"],
+            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
+            ["type/int", $request->getBody()['season'], "season"],
+            ["serie/season", fn () => $this->floor->pickup("season"), "season"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
@@ -490,21 +530,22 @@ class updateEpisodeInfo extends Controller
             $videoManager = new VideoManager();
 
             $serie = Serie::findFirst([
-                "title" => $this->floor->pickup("serie/title"),
-                "episode" => $this->floor->pickup("serie/episode"),
-                "season" => $this->floor->pickup("serie/season")
+                "title" => $this->floor->pickup("title_serie"),
+                "episode" => $this->floor->pickup("episode"),
+                "season" => $this->floor->pickup("season")
             ]);
+            if ($serie === null) $response->info("episode.notfound")->code(404)->send();
 
             $videoManager->updateVideo(
                 $serie->getVideo()->getId(),
-                $this->floor->pickup("video/title"),
-                $this->floor->pickup("video/description"),
-                $this->floor->pickup("category/id")
+                $this->floor->pickup("title_video"),
+                $this->floor->pickup("description"),
+                $this->floor->pickup("category")->getId()
             );
 
-            $response->send(["message" => "Episode updated"]);
+            $response->info("episode.updated")->code(200)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("episode.error")->code(500)->send();
         }
     }
 }

@@ -4,8 +4,11 @@ namespace checker\film;
 
 use Core\Floor;
 use Core\Response;
+use Entity\Film;
 
-function id(int $id, Floor $floor, Response $response): int
+function exist(int $id, Floor $floor, Response $response): Film
 {
-    return $id;
+    $film = Film::findFirst(["id" => $id]);
+    if ($film === null) $response->info("film.notfound")->code(404)->send();
+    return $film;
 }

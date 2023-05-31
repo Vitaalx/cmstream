@@ -4,6 +4,7 @@ namespace checker\serie;
 
 use Core\Floor;
 use Core\Response;
+use Entity\Serie;
 
 function episode(int $episode, Floor $floor, Response $response): int
 {
@@ -28,4 +29,18 @@ function title(string $title, Floor $floor, Response $response): string
         $response->info("video.title")->code(400)->send();
     }
     return $title;
+}
+
+function exist(string $name, Floor $floor, Response $response): Serie
+{
+    $serie = Serie::findFirst(["title" => $name]);
+    if ($serie === null) $response->info("serie.notfound")->code(404)->send();
+    return $serie;
+}
+
+function notexist(string $name, Floor $floor, Response $response): null
+{
+    $serie = Serie::findFirst(["title" => $name]);
+    if ($serie !== null) $response->info("serie.exist")->code(400)->send();
+    return $serie;
 }

@@ -4,6 +4,7 @@ namespace checker\category;
 
 use Core\Floor;
 use Core\Response;
+use Entity\Category;
 
 function name(string $name, Floor $floor, Response $response): string
 {
@@ -14,7 +15,16 @@ function name(string $name, Floor $floor, Response $response): string
     return $name;
 }
 
-function id(int $id, Floor $floor, Response $response): int
+function exist(int $id, Floor $floor, Response $response): Category
 {
-    return $id;
+    $category = Category::findFirst(["id" => $id]);
+    if ($category === null) $response->info("category.notfound")->code(404)->send();
+    return $category;
+}
+
+function notexist(string $name, Floor $floor, Response $response): null
+{
+    $category = Category::findFirst(["title" => $name]);
+    if ($category !== null) $response->info("category.exist")->code(400)->send();
+    return $category;
 }
