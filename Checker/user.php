@@ -61,3 +61,10 @@ function emailIsFree(string $email, Floor $floor, Response $response): string
     }
     return $email;
 }
+
+function exist(int $userId, Floor $floor, Response $response): User
+{
+    $user = User::findFirst(["id" => $userId]);
+    if($user === null) $response->info("user.notfound")->code(404)->send();
+    return $user;
+}

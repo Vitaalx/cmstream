@@ -4,7 +4,6 @@ use Core\Route;
 
 require "../Core/Route.php";
 
-
 // USER
 Route::match([
     "method" => "POST",
@@ -161,14 +160,16 @@ Route::match([
     "controller" => "API/CommentController/deleteComment",
 ]);
 
+
+// OTHER
 Route::match([
-    "method" => "PUT",
-    "path" => "/modifyComment",
-    "controller" => "API/CommentController/modifyComment",
+    "method" => "GET",
+    "path" => "/public/.*",
+    "controller" => "handlers/assets",
 ]);
 
 Route::match([
     "method" => "*",
-    "path" => "/public/.*",
-    "controller" => "handlers/assets",
+    "path" => ".*",
+    "controller" => "handlers/notfound",
 ]);

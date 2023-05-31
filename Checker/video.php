@@ -4,7 +4,7 @@ namespace checker\video;
 
 use Core\Floor;
 use Core\Response;
-
+use Entity\Video;
 
 function url(array $url, Floor $floor, Response $response): array
 {
@@ -43,4 +43,11 @@ function image(string $image, Floor $floor, Response $response): string
         $response->info("video.image")->code(400)->send();
     }
     return $image;
+}
+
+function exist(int $videoId, Floor $floor, Response $response): Video
+{
+    $video = Video::findFirst(["id" => $videoId]);
+    if($video === null) $response->info("video.notfound")->code(404)->send();
+    return $video;
 }
