@@ -10,6 +10,13 @@ Route::match([
     "controller" => "API/InitAppController/initApp",
 ]);
 
+// HOME
+Route::match([
+    "method" => "GET",
+    "path" => "/",
+    "controller" => "SPA/front/index",
+]);
+
 // OTHER
 Route::match([
     "method" => "GET",
