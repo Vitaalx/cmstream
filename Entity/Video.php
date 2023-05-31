@@ -160,4 +160,13 @@ class Video extends Entity
     {
         return parent::get("series");
     }
+
+    public function AvgStars(): int
+    {
+        $req = $this->getDb()->prepare("SELECT AVG(note) FROM _star WHERE video_id = :video");
+        $req->execute([
+            "video" => $this->getId()
+        ]);
+        return intval($req->fetchColumn());
+    }
 }

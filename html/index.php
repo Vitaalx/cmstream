@@ -173,3 +173,41 @@ Route::match([
     "path" => ".*",
     "controller" => "handlers/notfound",
 ]);
+
+// STAR
+
+Route::match([
+    "method" => "POST",
+    "path" => "/api/stars/create",
+    "controller" => "API/StarsController/createStar",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/api/stars/average",
+    "controller" => "API/StarsController/starAverage",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/api/stars/get",
+    "controller" => "API/StarsController/getStar",
+]);
+
+Route::match([
+    "method" => "GET",
+    "path" => "/api/stars/get-all-average",
+    "controller" => "API/StarsController/getAllAverageStarsWhereVideos",
+]);
+
+Route::match([
+    "method" => "PUT",
+    "path" => "/api/stars/update",
+    "controller" => "API/StarsController/updateStar",
+]);
+
+Route::match([
+    "method" => "DELETE",
+    "path" => "/api/stars/delete",
+    "controller" => "API/StarsController/deleteStar",
+]);
