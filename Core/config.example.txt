@@ -1,0 +1,14 @@
+<?php
+
+define("CONFIG", [
+    'DB_HOST' => '{DB_HOST}',
+    'DB_PORT' => '{DB_PORT}',
+    'APP_NAME' => '{APP_NAME}',
+    'DB_CONNECTION' => '{DB_CONNECTION}',
+    'DB_DATABASE' => '{DB_DATABASE}',
+    'DB_USERNAME' => '{DB_USERNAME}',
+    'DB_PASSWORD' => '{DB_PASSWORD}',
+    'SECRET_KEY' => '{SECRET_KEY}',
+    'TOKEN_DURATION' => {TOKEN_DURATION},
+    'URL' => '{URL}'
+ ]);

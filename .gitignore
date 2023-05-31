@@ -13,7 +13,10 @@
 # Deleting VSCode & Intellij files
 .idea
 .code
-.env*
+.env
+
+# Deleting Config file
+/config.php
 
 # Deleting migration file
 /migration.sql
