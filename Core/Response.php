@@ -65,9 +65,9 @@ class Response{
         $this
         ->setHeader(
             "Content-Type",
-            mime_content_type($path)
+            self::getMimeType($path)
         )
-        ->autoSetHeaders($content);
+        ->autoSetHeaders();
 
         readfile($path);
 
@@ -125,6 +125,66 @@ class Response{
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");
         }
+    }
+
+    static private function getMimeType($filename) {
+        $split = explode(".", $filename);
+        $ext = array_pop($split);
+        $ext = strtolower($ext);
+    
+        $mimet = match($ext) { 
+            "txt" => "text/plain",
+            "htm" => "text/html",
+            "html" => "text/html",
+            "php" => "text/html",
+            "css" => "text/css",
+            "js" => "application/javascript",
+            "json" => "application/json",
+            "xml" => "application/xml",
+            "swf" => "application/x-shockwave-flash",
+        
+            "flv" => "video/x-flv",
+            "png" => "image/png",
+            "jpe" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "jpg" => "image/jpeg",
+            "gif" => "image/gif",
+            "bmp" => "image/bmp",
+            "ico" => "image/vnd.microsoft.icon",
+            "tiff" => "image/tiff",
+            "tif" => "image/tiff",
+            "svg" => "image/svg+xml",
+            "svgz" => "image/svg+xml",
+        
+            "zip" => "application/zip",
+            "rar" => "application/x-rar-compressed",
+            "exe" => "application/x-msdownload",
+            "msi" => "application/x-msdownload",
+            "cab" => "application/vnd.ms-cab-compressed",
+        
+            "mp3" => "audio/mpeg",
+            "qt" => "video/quicktime",
+            "mov" => "video/quicktime",
+        
+            "pdf" => "application/pdf",
+            "psd" => "image/vnd.adobe.photoshop",
+            "ai" => "application/postscript",
+            "eps" => "application/postscript",
+            "ps" => "application/postscript",
+        
+            "doc" => "application/msword",
+            "rtf" => "application/rtf",
+            "xls" => "application/vnd.ms-excel",
+            "ppt" => "application/vnd.ms-powerpoint",
+            "docx" => "application/msword",
+            "xlsx" => "application/vnd.ms-excel",
+            "pptx" => "application/vnd.ms-powerpoint",
+        
+            "odt" => "application/vnd.oasis.opendocument.text",
+            "ods" => "application/vnd.oasis.opendocument.spreadsheet",
+        };
+        
+        return $mimet ?? "application/octet-stream";
     }
 
     /**
