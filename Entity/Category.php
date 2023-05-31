@@ -57,6 +57,9 @@ class Category extends Entity
         return $this;
     }
 
+    /**
+     * @return \Entity\Video[]
+     */
     public function getVideos(): array
     {
         return parent::get("videos");
