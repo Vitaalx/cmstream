@@ -62,7 +62,12 @@ class Response{
     }
     public function sendFile(string $path): void
     {
-        $this->autoSetHeaders($content);
+        $this
+        ->setHeader(
+            "Content-Type",
+            mime_content_type($path)
+        )
+        ->autoSetHeaders($content);
 
         readfile($path);
 

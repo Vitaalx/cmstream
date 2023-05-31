@@ -16,7 +16,9 @@ class assets extends Controller{
 
     public function handler(Request $request, Response $response): void
     {
-        $response->sendFile(
+        $response
+        ->code(200)
+        ->sendFile(
             $this->floor->pickup("path")
         );
     }
