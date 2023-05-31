@@ -17,9 +17,6 @@
 .code
 .env
 
-# Deleting Config file
-/config.php
-
 # Deleting migration file
 /migration.sql
 

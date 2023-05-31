@@ -10,4 +10,4 @@ define("CONFIG", [
     'DB_PASSWORD' => '{DB_PASSWORD}',
     'SECRET_KEY' => '{SECRET_KEY}',
     'TOKEN_DURATION' => {TOKEN_DURATION}
- ]);
+]);
