@@ -40,6 +40,7 @@ var CuteVue = (() => {
                 el.replaceWith(newEl);
             }
             proxy[__element__] = newEl;
+            proxy[__mounted__]();
             proxy[__element__].$mounted();
             return proxy;
         }
