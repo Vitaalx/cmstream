@@ -287,8 +287,8 @@ abstract class Entity implements \JsonSerializable
                 CONFIG["DB_CONNECTION"] .
                 ":host=" . CONFIG["DB_HOST"] .
                 ";port=" . CONFIG["DB_PORT"] .
-                ";dbname=" . CONFIG["DB_NAME"],
-                CONFIG["DB_USER"],
+                ";dbname=" . CONFIG["DB_DATABASE"],
+                CONFIG["DB_USERNAME"],
                 CONFIG["DB_PASSWORD"]
             );
         } catch (\Exception $th) {

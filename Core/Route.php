@@ -2,14 +2,14 @@
 namespace Core;
 
 use Core\Request;
-use Core\Response;
+use Core\Response;;
 
 require __DIR__ . "/Request.php";
 require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
-if(defined("CONFIG")) include __DIR__ . "/../config.php";
+if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 
 class Route{
     static private string $requestPath;
@@ -64,7 +64,7 @@ class Route{
         return "/^" . $path  . "$/";
     }
 
-    static function checkInfo($info)
+    static function checkInfo($info): void
     {
         if(isset($info["method"]) === false)
         {
@@ -108,7 +108,7 @@ class Route{
         return $class;
     }
 
-    static function initRoute()
+    static function initRoute(): void
     {
         $uri = explode("?", $_SERVER["REQUEST_URI"]);
         self::$requestPath = $uri[0] === "/" ? "/" : rtrim($uri[0], "/");
