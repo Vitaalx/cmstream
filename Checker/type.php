@@ -1,6 +1,6 @@
 <?php
 
-namespace checker\token;
+namespace checker\type;
 
 function string(string $string): string
 {
