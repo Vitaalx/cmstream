@@ -49,7 +49,7 @@ var CuteVue = (() => {
         template = null;
         slot = null;
     
-        static makeProxy(properties, template){
+        static   makeProxy(properties, template){
             const data = typeof properties.data === "function" ? properties.data() : properties.data;
             const methods = properties.methods;
             const props = properties.props;

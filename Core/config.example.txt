@@ -9,6 +9,5 @@ define("CONFIG", [
     'DB_USERNAME' => '{DB_USERNAME}',
     'DB_PASSWORD' => '{DB_PASSWORD}',
     'SECRET_KEY' => '{SECRET_KEY}',
-    'TOKEN_DURATION' => {TOKEN_DURATION},
-    'URL' => '{URL}'
+    'TOKEN_DURATION' => {TOKEN_DURATION}
  ]);
