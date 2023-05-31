@@ -32,6 +32,7 @@ class addComment extends Controller
             ["type/int", $comment['video'], "videoId"],
             ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
             ["type/int", $comment['user'], "userId"],
+            ["type/flawless", $comment['content'], "content"],
             ["user/exist", fn() => $this->floor->pickup("userId"), "user"],
         ];
     }
@@ -39,13 +40,15 @@ class addComment extends Controller
     public function handler(Request $request, Response $response): void
     {
         $commentToInsert = Comment::insertOne([
-            "content" => $this->floor->pickup("comment/content"),
+            "content" => $this->floor->pickup("content"),
             "video" => $this->floor->pickup("video"),
             "user" => $this->floor->pickup("user"),
             "status" => 1,
         ]);
 
-        $response->code(200)->info("comment.post")->send($commentToInsert);
+        //Comment::groups("commentVideo", "commentAuthor");
+
+        $response->code(200)->info("comment.posted")->send($commentToInsert);
     }
 }
 
@@ -97,6 +100,6 @@ class deleteComment extends Controller
         /** @var \Entity\Comment */
         $comment = $this->floor->pickup("comment");
         $comment->delete();
-        $response->code(200)->send($comment);
+        $response->code(200)->info("comment.deleted")->send($comment);
     }
 }

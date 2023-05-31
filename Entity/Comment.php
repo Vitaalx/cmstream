@@ -17,6 +17,7 @@ class Comment extends Entity
 
     /**
      * @notnullable{}
+     * @groups{commentVideo}
      */
     private Video $video;
 
