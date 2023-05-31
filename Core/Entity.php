@@ -293,4 +293,6 @@ abstract class Entity implements \JsonSerializable
         self::$db = $pdo;
     }
 }
-if(defined("CONFIG")) Entity::dataBaseConnection(CONFIG);
+
+if(isset(CONFIG["DB_CONNECTION"]) === true)Entity::dataBaseConnection(CONFIG);
+

@@ -10,6 +10,7 @@ require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
+else define("CONFIG", []);
 
 class Route{
     static private string $requestPath;
