@@ -18,7 +18,7 @@ class initApp extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["initApp/tokenDuration", $request->getBody()["token_duration"]]
+            ["initApp/tokenDuration", $request->getBody()["TOKEN_DURATION"]]
         ];
     }
     public function handler(Request $request, Response $response): void
@@ -26,13 +26,7 @@ class initApp extends Controller
         $body = $request->getBody();
         $file = fopen(EXAMPLE_FILE_PATH.EXAMPLE_FILENAME, "a+");
         try {
-            $pdo = new \PDO($body["db_connection"].
-                ":host=".$body["db_host"].
-                ";port=".$body["db_port"].
-                ";dbname=".$body["db_database"],
-                $body["db_username"],
-                $body["db_password"]
-            );
+            Entity::dataBaseConnection($body);
         } catch (\PDOException $e) {
             $response->code(500)->info("Config.uncreated")->send(["error" => "Connexion à la base de données impossible"]);
         }

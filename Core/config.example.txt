@@ -1,14 +1,14 @@
 <?php
 
-const CONFIG = [
-     'DB_HOST' => '{db_host}',
-     'DB_PORT' => '{db_port}',
-     'APP_NAME' => '{app_name}',
-     'DB_CONNECTION' => '{db_connection}',
-     'DB_DATABASE' => '{db_database}',
-     'DB_USERNAME' => '{db_username}',
-     'DB_PASSWORD' => '{db_password}',
-     'SECRET_KEY' => '{secret_key}',
-     'TOKEN_DURATION' => {token_duration},
-     'URL' => '{url}'
-];
+define("CONFIG", [
+    'DB_HOST' => '{DB_HOST}',
+    'DB_PORT' => '{DB_PORT}',
+    'APP_NAME' => '{APP_NAME}',
+    'DB_CONNECTION' => '{DB_CONNECTION}',
+    'DB_DATABASE' => '{DB_DATABASE}',
+    'DB_USERNAME' => '{DB_USERNAME}',
+    'DB_PASSWORD' => '{DB_PASSWORD}',
+    'SECRET_KEY' => '{SECRET_KEY}',
+    'TOKEN_DURATION' => {TOKEN_DURATION},
+    'URL' => '{URL}'
+ ]);

@@ -280,23 +280,17 @@ abstract class Entity implements \JsonSerializable
         return self::$db;
     }
 
-    static public function dataBaseConnection(): void
+    static public function dataBaseConnection(array $CONFIG): void
     {
-        try {
-            $pdo = new \PDO(
-                CONFIG["DB_CONNECTION"] .
-                ":host=" . CONFIG["DB_HOST"] .
-                ";port=" . CONFIG["DB_PORT"] .
-                ";dbname=" . CONFIG["DB_DATABASE"],
-                CONFIG["DB_USERNAME"],
-                CONFIG["DB_PASSWORD"]
-            );
-        } catch (\Exception $th) {
-            echo "Error: " . $th->getMessage();
-            die();
-        }
+        $pdo = new \PDO(
+            $CONFIG["DB_CONNECTION"] .
+            ":host=" . $CONFIG["DB_HOST"] .
+            ";port=" . $CONFIG["DB_PORT"] .
+            ";dbname=" . $CONFIG["DB_DATABASE"],
+            $CONFIG["DB_USERNAME"],
+            $CONFIG["DB_PASSWORD"]
+        );
         self::$db = $pdo;
     }
 }
-
-Entity::dataBaseConnection();
+if(defined("CONFIG")) Entity::dataBaseConnection(CONFIG);
