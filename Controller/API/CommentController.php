@@ -14,8 +14,7 @@ use Exceptions\VideoNotFoundException;
 
 
 /**
- * @method POST
- * @path /addComment
+ * @POST{/comment}
  * @Body Json Request
  * @param $content
  * @param $video_id
@@ -53,9 +52,8 @@ class addComment extends Controller
 }
 
 /**
- * @method GET
- * @path /getComment
- * @param $id
+ * @GET{/comments/{id}}
+ * @param $videoId
  */
 class getComments extends Controller
 {
@@ -63,25 +61,25 @@ class getComments extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getQuery("id"), "videoId"],
+            ["type/int", $request->getParam("id"), "videoId"],
             ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Video */
+        /** @var \Entity\Video $video */
         $video = $this->floor->pickup("video");
 
-        $video::groups("commentAuthor");
+        $comments = Comment::findMany(["video_id" => $video->getId(), "status" => 1]);
+        Comment::groups("commentAuthor");
 
-        $response->code(200)->info("comment.get")->send($video->getComments());
+        $response->code(200)->info("comments.get")->send($comments);
     }
 }
 
 /**
- * @method DELETE
- * @path /deleteComment
+ * @DELETE{/comment/{id}}
  * @param $id
  */
 class deleteComment extends Controller
@@ -90,7 +88,7 @@ class deleteComment extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getQuery("id"), "commentId"],
+            ["type/int", $request->getParam("id"), "commentId"],
             ["comment/exist", fn() => $this->floor->pickup("commentId"), "comment"],
         ];
     }

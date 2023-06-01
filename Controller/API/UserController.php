@@ -10,8 +10,7 @@ use Core\Response;
 use Entity\User;
 
 /**
- * @method POST
- * @path /register
+ * @POST{/register}
  * @Body Json Request
  * @param $firstname
  * @param $lastname
@@ -65,8 +64,7 @@ class register extends Controller
 }
 
 /**
- * @method POST
- * @path /login
+ * @POST{/login}
  * @Body Json Request
  * @param $email
  * @param $password
@@ -102,11 +100,8 @@ class login extends Controller
         $response->code(200)->info("user.logged")->send(["token" => $token]);
     }
 }
-
-//Create delete user & PUT
 /**
- * @method DELETE
- * @path /deleteUser
+ * @DELETE{/user/{id}}
  * @Path Path Request
  * @param $userId
  *
@@ -132,6 +127,9 @@ class deleteUser extends Controller {
     }
 }
 
+/**
+ * @PUT{/user/{id}}
+ */
 class modifyUser extends Controller {
 
     public function checkers(Request $request): array

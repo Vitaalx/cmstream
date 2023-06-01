@@ -5,7 +5,7 @@ use Core\Route;
 
 Route::match([
     "method" => "POST",
-    "path" => "/init-app",
+    "path" => "/init",
     "controller" => "API/InitAppController/initApp",
 ]);
 
