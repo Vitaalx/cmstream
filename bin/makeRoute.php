@@ -37,7 +37,7 @@ scan(
             $comment = $rp->getDocComment();
             if($comment === false) continue;
             
-            preg_match("/@([a-zA-Z]*){(.*)}/", $comment, $match);
+            preg_match("/@([a-zA-Z]*){((?:[^{}]+|{(?2)})*)}/", $comment, $match);
             if(isset($match[0]) === false) continue;
             $method = strtoupper($match[1]);
             $path = $match[2];
@@ -53,6 +53,8 @@ scan(
     }
 );
 
-$file = fopen(__DIR__ . "/../html/generate.index.php", "w");
-$fileContent = fwrite($file, $routeFileContent);
-fclose($file);
+var_dump($routeFileContent);
+
+// $file = fopen(__DIR__ . "/../html/generate.index.php", "w");
+// $fileContent = fwrite($file, $routeFileContent);
+// fclose($file);

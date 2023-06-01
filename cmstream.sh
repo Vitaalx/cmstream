@@ -12,10 +12,8 @@ RED='31m'
 
 if [ -n "$1" ]; then
     docker-compose exec php php /var/www/bin/$1.php $2
-    exit 0
 else
     printf "${START}${BLUE}Commands:${END}\n"
     printf "${START}${GREEN}- makeMigration${END}\n"
     printf "${START}${GREEN}- doMigation${END}\n"
-    exit 1
 fi
