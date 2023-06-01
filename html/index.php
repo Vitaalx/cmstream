@@ -64,86 +64,80 @@ Route::match([
 Route::match([
     "method" => "POST",
     "path" => "/api/content-manager/category/create",
-    "controller" => "API/ContentManager/CategoryController/createCategory",
+    "controller" => "API/CategoryController/createCategory",
 ]);
 
 Route::match([
     "method" => "DELETE",
     "path" => "/api/content-manager/category/delete",
-    "controller" => "API/ContentManager/CategoryController/deleteCategory",
+    "controller" => "API/CategoryController/deleteCategory",
 ]);
 
 Route::match([
     "method" => "GET",
     "path" => "/api/content-manager/category/get-all",
-    "controller" => "API/ContentManager/CategoryController/getAllCategories",
+    "controller" => "API/CategoryController/getAllCategories",
 ]);
 
 Route::match([
     "method" => "GET",
     "path" => "/api/content-manager/category/get-all-content",
-    "controller" => "API/ContentManager/CategoryController/getAllContentWhereCategory",
-]);
-
-Route::match([
-    "method" => "PUT",
-    "path" => "/api/content-manager/category/update",
-    "controller" => "API/ContentManager/CategoryController/updateCategory",
+    "controller" => "API/CategoryController/getAllContentWhereCategory",
 ]);
 
 // SERIE
 Route::match([
     "method" => "POST",
     "path" => "/api/content-manager/serie/create",
-    "controller" => "API/ContentManager/SerieController/createSerie",
+    "controller" => "API/SerieController/createSerie",
 ]);
 
 Route::match([
     "method" => "DELETE",
     "path" => "/api/content-manager/serie/delete",
-    "controller" => "API/ContentManager/SerieController/deleteSerie",
+    "controller" => "API/SerieController/deleteSerie",
 ]);
 
 Route::match([
     "method" => "GET",
-    "path" => "/api/content-manager/serie/get-all",
-    "controller" => "API/ContentManager/SerieController/getTitleAndImageWhereAllSeries",
+    "path" => "/api/content-manager/series/get-all",
+    "controller" => "API/SerieController/getTitleAndImageWhereAllSeries",
 ]);
 
 Route::match([
     "method" => "PUT",
     "path" => "/api/content-manager/serie/update",
-    "controller" => "API/ContentManager/SerieController/updateSerieNameAndImage",
+    "controller" => "API/SerieController/updateSerieNameAndImage",
 ]);
 
 Route::match([
     "method" => "POST",
     "path" => "/api/content-manager/serie/add-episode",
-    "controller" => "API/ContentManager/SerieController/addEpisodeWhereSerie",
+    "controller" => "API/SerieController/addEpisodeWhereSerie",
 ]);
 
 Route::match([
     "method" => "GET",
     "path" => "/api/content-manager/serie/get-episode",
-    "controller" => "API/ContentManager/SerieController/getEpisodeWhereSerie",
+    "controller" => "API/SerieController/getEpisodeWhereSerie",
 ]);
 
 Route::match([
     "method" => "GET",
     "path" => "/api/content-manager/serie/get-all-episodes",
-    "controller" => "API/ContentManager/SerieController/getAllEpisodesWhereSerie",
+    "controller" => "API/SerieController/getAllEpisodesWhereSerie",
 ]);
 
 Route::match([
     "method" => "DELETE",
     "path" => "/api/content-manager/serie/delete-episode",
-    "controller" => "API/ContentManager/SerieController/deleteEpisodeWhereSerie",
+    "controller" => "API/SerieController/deleteEpisodeWhereSerie",
 ]);
 
 Route::match([
     "method" => "PUT",
     "path" => "/api/content-manager/serie/update-episode",
-    "controller" => "API/ContentManager/SerieController/updateEpisodeInfo",
+    "controller" => "API/SerieController/updateEpisodeWhereSerie",
 ]);
 
 // COMMENT
