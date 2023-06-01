@@ -1,5 +1,6 @@
 import CuteVue, {importer} from "../js/cuteVue/index.js";
+import "./router/index.js";
 
-let test = await importer("/public/cuteVue/components/test.html");
+const app = await importer("/public/cuteVue/app.html");
 
-test.mount("#app");
+app.mount("#app");

@@ -27,6 +27,8 @@ export default async function importer(path){
 
         let properties = await fnc();
         properties.el = page.body.children[0];
-        return new CuteVue(properties);
+        let component = new CuteVue(properties);
+        resolve(component);
+        return component;
     }
 }
