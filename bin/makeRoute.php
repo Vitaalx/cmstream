@@ -53,8 +53,6 @@ scan(
     }
 );
 
-var_dump($routeFileContent);
-
-// $file = fopen(__DIR__ . "/../html/generate.index.php", "w");
-// $fileContent = fwrite($file, $routeFileContent);
-// fclose($file);
+$file = fopen(__DIR__ . "/../html/generate.index.php", "w");
+$fileContent = fwrite($file, $routeFileContent);
+fclose($file);
