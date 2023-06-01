@@ -33,7 +33,7 @@ Entry:
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
-"category": 1
+"category_id": 1
 }
 */
 class createFilm extends Controller
@@ -42,29 +42,40 @@ class createFilm extends Controller
     {
         return [
             ["video/url", $request->getBody()['url']],
-            ["video/title", $request->getBody()['title_video']],
-            ["video/description", $request->getBody()['description']],
-            ["video/image", $request->getBody()['image']],
-            ["category/id", $request->getBody()['category']]
+            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["type/string", $request->getBody()['description'], "description"],
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/string", $request->getBody()['image'], "image"],
+            ["video/image", fn () => $this->floor->pickup("image"), "image"],
+            ["type/int", $request->getBody()['category'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $videoManager = new VideoManager();
-        $video = $videoManager->createVideo(
-            $this->floor->pickup("video/url"),
-            $this->floor->pickup("video/title"),
-            $this->floor->pickup("video/description"),
-            $this->floor->pickup("category/id")
-        );
+        try {
+            $videoManager = new VideoManager();
+            $video = $videoManager->createVideo(
+                $this->floor->pickup("video/url"),
+                $this->floor->pickup("title_video"),
+                $this->floor->pickup("description"),
+                $this->floor->pickup("category")->getId()
+            );
+            if ($video === null) {
+                $response->info("video.error")->code(500)->send();
+            }
 
-        Film::insertOne([
-            "video_id" => $video->getId(),
-            "image" => $this->floor->pickup("video/image")
-        ]);
+            Film::insertOne([
+                "video_id" => $video->getId(),
+                "image" => $this->floor->pickup("video/image")
+            ]);
 
-        $response->send(["message" => "Film created"]);
+            $response->info("film.created")->code(201)->send();
+        } catch (\Exception $e) {
+            $response->info("film.error")->code(500)->send();
+        }
     }
 }
 
@@ -81,7 +92,7 @@ class createFilm extends Controller
 /*
 Entry:
 {
-"id": 1
+"film_id": 1
 }
 */
 class deleteFilm extends Controller
@@ -89,15 +100,14 @@ class deleteFilm extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["film/id", $request->getBody()['id']]
+            ["type/int", $request->getBody()['film_id'], "film_id"],
+            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $film = Film::findFirst([
-            "id" => $this->floor->pickup("film/id")
-        ]);
+        $film = $this->floor->pickup("film");
         $film->delete();
 
         $response->send(["message" => "Film deleted"]);
@@ -117,7 +127,7 @@ class deleteFilm extends Controller
 /*
 Entry:
 {
-"id": 1
+"film_id": 1
 }
 */
 class getFilm extends Controller
@@ -125,15 +135,16 @@ class getFilm extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["film/id", $request->getBody()['id']]
+            ["type/int", $request->getBody()['film_id'], "film_id"],
+            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $film = Film::findFirst([
-            "id" => $this->floor->pickup("film/id")
-        ]);
+        $film = [];
+        $film[] = $this->floor->pickup("film");
+        $film[] = $this->floor->pickup("film")->getVideo();
 
         $response->send(["film" => $film]);
     }
@@ -157,44 +168,24 @@ class getAllFilms extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        $films = Film::findMany();
+        try {
+            $films = Film::findMany();
+            if ($films === null) {
+                $response->info("film.notfound")->code(404)->send();
+            }
 
-        $response->send(["films" => $films]);
-    }
-}
+            $films = array_map(function ($film) {
+                return [
+                    "id" => $film->getId(),
+                    "video" => $film->getVideo(),
+                    "image" => $film->getImage()
+                ];
+            }, $films);
 
-/**
- * @api {get} /api/content-manager/film/get-where-film
- * @apiName GetWhereFilm
- * @apiGroup ContentManager/FilmController
- * @apiVersion 1.0.0
- * @Feature ContentManager
- * @Description Get a film
- * @param int id
- * @return Response
- */
-/*
-Entry:
-{
-"id": 1
-}
-*/
-class getVideoWhereFilm extends Controller
-{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["film/id", $request->getBody()['id']]
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        $film = Film::findFirst([
-            "id" => $this->floor->pickup("film/id")
-        ]);
-
-        $response->send(["video" => $film->getVideo()]);
+            $response->send(["films" => $films]);
+        } catch (\Exception $e) {
+            $response->info("film.error")->code(500)->send();
+        }
     }
 }
 
@@ -216,7 +207,7 @@ class getVideoWhereFilm extends Controller
 /*
 Entry:
 {
-"id": 1,
+"film_id": 1,
 "url": [
 "https://www.youtube.com/watch?v=1",
 "https://www.youtube.com/watch?v=2"
@@ -224,7 +215,7 @@ Entry:
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
-"category": 1
+"category_id": 1
 }
 */
 class updateFilm extends Controller
@@ -232,34 +223,40 @@ class updateFilm extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["film/id", $request->getBody()['id']],
+            ["type/int", $request->getBody()['id'], "film_id"],
+            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"],
             ["video/url", $request->getBody()['url']],
-            ["video/title", $request->getBody()['title_video']],
-            ["video/description", $request->getBody()['description']],
-            ["video/image", $request->getBody()['image']],
-            ["category/id", $request->getBody()['category']]
+            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["type/string", $request->getBody()['description'], "description"],
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/string", $request->getBody()['image'], "image"],
+            ["video/image", fn () => $this->floor->pickup("image"), "image"],
+            ["type/int", $request->getBody()['category'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $videoManager = new VideoManager();
+        try {
+            $videoManager = new VideoManager();
 
-        $film = Film::findFirst([
-            "id" => $this->floor->pickup("film/id")
-        ]);
+            $videoManager->updateVideo(
+                $this->floor->pickup("film")->getVideo(),
+                $this->floor->pickup("video/url"),
+                $this->floor->pickup("title_video"),
+                $this->floor->pickup("description"),
+                $this->floor->pickup("category")->getId()
+            );
 
-        $videoManager->updateVideo(
-            $film->getVideo()->getId(),
-            $this->floor->pickup("video/url"),
-            $this->floor->pickup("video/title"),
-            $this->floor->pickup("video/description"),
-            $this->floor->pickup("category/id")
-        );
+            $this->floor->pickup("film")->setImage($this->floor->pickup("image"));
+            $this->floor->pickup("film")->setUpdatedAt(date("Y-m-d H:i:s"));
+            $this->floor->pickup("film")->save();
 
-        $film->setImage($this->floor->pickup("video/image"));
-        $film->save();
-
-        $response->send(["message" => "Film updated"]);
+            $response->info("film.updated")->code(200)->send();
+        } catch (\Exception $e) {
+            $response->info("film.error")->code(500)->send();
+        }
     }
 }

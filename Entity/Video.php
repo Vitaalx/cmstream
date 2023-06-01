@@ -12,7 +12,6 @@ class Video extends Entity
     /** 
      * @type{VARCHAR(100)}
      * @notnullable{} 
-     * @unique{}
      */
     private string $title;
 
@@ -117,7 +116,7 @@ class Video extends Entity
         return parent::get("comments");
     }
 
-    public function getCategory(): array
+    public function getCategory(): Category
     {
         return parent::get("category");
     }

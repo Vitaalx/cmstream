@@ -7,7 +7,6 @@ use Core\Request;
 use Core\Response;
 
 use Entity\Category;
-use Services\Back\CategoryManagerService as CategoryManager;
 
 /**
  * @api {post} /api/content-manager/category/create
@@ -16,13 +15,13 @@ use Services\Back\CategoryManagerService as CategoryManager;
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Create a category
- * @param string name
+ * @param string categorie_name
  * @return Response
  */
 /*
  Entry:
  {
-  "name": "Category name"
+  "categorie_name": "Category name"
  }
 */
 class createCategory extends Controller
@@ -30,22 +29,20 @@ class createCategory extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["category/name", $request->getBody()['name']],
+            ["type/string", $request->getBody()['categorie_name'], "category_name"],
+            ["category/name", fn () => $this->floor->pickup("category_name"), "category_name"],
+            ["category/notexist", fn () => $this->floor->pickup("category_name")]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $categoryManager = new CategoryManager();
+            Category::insertOne(["title" => $this->floor->pickup("category_name")]);
 
-            $categoryManager->createCategory(
-                $this->floor->pickup("category/name")
-            );
-
-            $response->send(["message" => "Category created"]);
+            $response->info("category.created")->code(201)->send();
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("category.error")->code(500)->send();
         }
     }
 }
@@ -57,13 +54,13 @@ class createCategory extends Controller
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Delete a category
- * @param string name
+ * @param int category_id
  * @return Response
  */
 /*
 Entry:
 {
-"name": "Category name"
+"category_id": 1
 }
 */
 class deleteCategory extends Controller
@@ -71,23 +68,16 @@ class deleteCategory extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["category/name", $request->getBody()['name']],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $categoryManager = new CategoryManager();
-
-            $categoryManager->deleteCategory(
-                $this->floor->pickup("category/name")
-            );
-
-            $response->send(["message" => "Category deleted"]);
-        } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
-        }
+        $category = $this->floor->pickup("category");
+        $category->delete();
+        $response->info("category.deleted")->code(200)->send();
     }
 }
 
@@ -110,13 +100,10 @@ class getAllCategories extends Controller
     public function handler(Request $request, Response $response): void
     {
         try {
-            $categoryManager = new CategoryManager();
-
-            $categories = $categoryManager->getCategories();
-
+            $categories = Category::findMany();
             $response->send(["categories" => $categories]);
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("category.error")->code(500)->send();
         }
     }
 }
@@ -128,13 +115,13 @@ class getAllCategories extends Controller
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Get all content where category
- * @param string name
+ * @param int category_id
  * @return Response
  */
 /*
 Entry:
 {
-"name": "Category name"
+"category_id": 1
 }
 */
 class getAllContentWhereCategory extends Controller
@@ -142,15 +129,15 @@ class getAllContentWhereCategory extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["category/name", $request->getQuery('name')],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         try {
-            $category = Category::findFirst(["title" => $this->floor->pickup("category/name")]);
-            $videos = $category->getVideos();
+            $videos = $this->floor->pickup("category")->getVideos();
             $content = [];
             foreach ($videos as $video) {
                 if ($video->getFilm() != null) {
@@ -176,13 +163,58 @@ class getAllContentWhereCategory extends Controller
                         }
                     }
                 } else {
-                    throw new \Exception("Error getting content");
+                    throw new \Exception("Video not found");
                 }
             }
 
             $response->send(["content" => $content]);
         } catch (\Exception $e) {
-            $response->send(["error" => $e->getMessage()]);
+            $response->info("category.error")->code(500)->send();
+        }
+    }
+}
+/**
+ * @api {put} /api/content-manager/category/update
+ * @apiName UpdateCategory
+ * @apiGroup ContentManager/CategoryController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @Description Update a category
+ * @param int category_id
+ * @param string category_name
+ * @return Response
+ */
+/*
+Entry:
+{
+"category_id": 1,
+"category_name": "Category name"
+}
+*/
+class updateCategory extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
+            ["type/string", $request->getBody()['category_name'], "category_name"],
+            ["category/name", fn () => $this->floor->pickup("category_name"), "category_name"],
+            ["category/notexist", fn () => $this->floor->pickup("category_name")]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        try {
+            $category = $this->floor->pickup("category");
+            $category->setTitle($this->floor->pickup("category_name"));
+            $category->setUpdatedAt(date("Y-m-d H:i:s"));
+            $category->save();
+
+            $response->info("category.updated")->code(200)->send();
+        } catch (\Exception $e) {
+            $response->info("category.error")->code(500)->send();
         }
     }
 }
