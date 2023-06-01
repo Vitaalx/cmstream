@@ -16,4 +16,5 @@ function exist(string $path, Floor $floor, Response $response){
     if(file_exists($path) === false){
         $response->code(404)->info("fileNotFound")->send();
     }
+    return $path;
 }
