@@ -1,0 +1,26 @@
+<div>
+    <div cv-mount="layout"></div>
+</div>
+
+<script>
+export default {
+    watch: {
+        currentPath(){
+            console.log("update");
+        }
+    },
+    mounted(){
+        
+    },
+    stores: [
+        {
+            name: "router",
+            states: ["currentPath"]
+        }
+    ]
+}
+</script>
+
+<style>
+
+</style>
