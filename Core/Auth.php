@@ -7,52 +7,56 @@ use Core\ConfigFile;
 
 class Auth
 {
-    private int $duration;
-    private string $secretKey;
+    static private int $duration;
+    static private string $secretKey;
 
     public function __construct(int $duration = 3600)
     {
-        $config = new ConfigFile();
-        $this->duration = intval($config->getEnv('TOKEN_DURATION'));
-        $this->secretKey = $config->getEnv('SECRET_KEY');
-        if ($this->secretKey === "") {
-            throw new \Exception("Secret key not found");
+        if(defined("CONFIG")) {
+            self::$duration = CONFIG["TOKEN_DURATION"];
+            self::$secretKey = CONFIG["SECRET_KEY"];
+        } else {
+            self::$duration = $duration;
+            self::$secretKey = "";
         }
     }
 
-    public function generateToken(int $id, string $email, string $userName): string
+    static public function generateToken(string $email, string $userName): string
     {
         $clearToken = "http://"
             . $_SERVER["SERVER_NAME"]
             . $_SERVER["REQUEST_URI"]
             . $_SERVER['HTTP_USER_AGENT'];
 
-        $informations = $id . " " . $email . " " . $userName;
-        $token = $this->passwordHash($clearToken);
+        $informations = $email . " " . $userName;
+        $token = self::passwordHash($clearToken);
         $token = base64_encode($token . "/" . $informations . "/" . time());
 
-        return $this->setTokenInCookie($token, $informations);
+        return self::setTokenInCookie($token, $informations);
     }
 
-    public function passwordHash(string $password): string
+    static public function passwordHash(string $password): string
     {
-        return hash_hmac('sha256', $password, $this->secretKey);
+        return hash_hmac('sha256', $password, self::$secretKey);
     }
 
-    public function setTokenInCookie(string $token, string $informations): string
+    static public function setTokenInCookie(string $token, string $informations): string
     {
-        setcookie('token', $token, time() + $this->duration);
-        setcookie('informations', $informations, time() + $this->duration);
+        setcookie('token', $token, time() + self::$duration);
+        setcookie('informations', $informations, time() + self::$duration);
 
         return $token;
     }
 
-    public function checkToken(string $token): bool
+    /**
+     * @throws \Exception
+     */
+    static public function checkToken(string $token): bool
     {
         try {
             $token = explode("/", base64_decode($token));
             if (
-                $token[0] === $this->passwordHash("http://"
+                $token[0] === self::passwordHash("http://"
                     . $_SERVER["SERVER_NAME"]
                     . $_SERVER["REQUEST_URI"]
                     . $_SERVER['HTTP_USER_AGENT'])
@@ -69,7 +73,7 @@ class Auth
                 throw new \Exception("User not found");
             }
 
-            if ($token[2] + $this->duration < time()) {
+            if ($token[2] . self::$duration < time()) {
                 throw new \Exception("Token expired");
             }
             return true;
