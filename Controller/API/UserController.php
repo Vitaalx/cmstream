@@ -9,17 +9,6 @@ use Core\Response;
 
 use Entity\User;
 
-/*
-entry: {
-	"firstname": "John",
-	"lastname": "Doe",
-	"email": "johndoe@test.com",
-	"password": "test"
-}
-response: {
-	"token": "MTIxMGZmMzQ5MTZiZDEwODhlZmMyNmE1ODdkY2M4ZWIwNGI3MmVkMWQyYjAwZDBkZjE0ODM5MGQ0YzRlMjVmZC8yIHdpbGxpYW1mbG9yZW50aW5AbWFpbC5jb20gV0lMTElBTS8xNjg0NTE2MDY2"
-}
-*/
 /**
  * @method POST
  * @path /register
@@ -115,3 +104,62 @@ class login extends Controller
 }
 
 //Create delete user & PUT
+/**
+ * @method DELETE
+ * @path /deleteUser
+ * @Path Path Request
+ * @param $userId
+ *
+ * @return void
+ */
+class deleteUser extends Controller {
+
+    public function checkers(Request $request): array
+    {
+        $userId = $request->getParam("id");
+        return [
+            ["type/int", $userId],
+            ["user/exist", fn() => $userId, "user"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $user->delete();
+        $response->code(204)->info("user.deleted")->send();
+    }
+}
+
+class modifyUser extends Controller {
+
+    public function checkers(Request $request): array
+    {
+        $userId = $request->getQuery("id");
+        $user = $request->getBody();
+        return [
+            ["type/int", $userId, "userId"],
+            ["user/exist", fn() => $userId, "user"],
+            ["user/firstname", $user["firstname"], "firstname"],
+            ["user/lastname", $user["lastname"], "lastname"],
+            ["user/username", $user["username"], "username"],
+            ["user/password", $user["password"], "password"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->setPassword($this->floor->pickup("password"));
+
+        $user->save();
+
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
+    }
+}
