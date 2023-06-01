@@ -48,7 +48,6 @@ var CuteVue = (() => {
     
         properties = null;
         template = null;
-        slot = null;
     
         static makeProxy(properties, template){
             const data = typeof properties.data === "function" ? properties.data() : properties.data;
@@ -769,4 +768,4 @@ var CuteVue = (() => {
     }
 })();
 
-
+export default CuteVue;
