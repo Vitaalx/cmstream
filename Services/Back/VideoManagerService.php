@@ -2,11 +2,8 @@
 
 namespace Services\Back;
 
-use Entity\Category;
 use Entity\Video;
 use Entity\Url;
-use Entity\Film;
-use Entity\Serie;
 
 class VideoManagerService
 {
@@ -19,60 +16,22 @@ class VideoManagerService
      * @param integer $category
      * @return void
      */
-    public function createVideo(array $url, string $title, string $description, int $category): Video
+    public static function createVideo(array $url, string $title, string $description): Video
     {
         try {
             $video = Video::insertOne([
                 "title" => $title,
                 "description" => $description,
-                "category_id" => Category::findFirst(["id" => $category])->getId()
             ]);
             foreach ($url as $url) {
-                $this->createUrl($url, $video->getId());
+                Url::insertOne([
+                    "url" => $url,
+                    "video_url_id" => $video->getId()
+                ]);
             }
             return $video;
         } catch (\Exception $e) {
             throw new \Exception("Error creating video - " . $e->getMessage());
-        }
-    }
-
-    /**
-     * this function create a url
-     *
-     * @param array $url
-     * @param integer $videoId
-     * @return void
-     */
-    private function createUrl(string $url, int $video): void
-    {
-        try {
-            Url::insertOne([
-                "url" => $url,
-                "video_url_id" => $video
-            ]);
-        } catch (\Exception $e) {
-            throw new \Exception("Error creating url");
-        }
-    }
-
-    /**
-     * this function delete a video
-     *
-     * @param integer $id
-     * @return void
-     */
-    public function deleteVideo(int $id): void
-    {
-        try {
-            $video = Video::findFirst([
-                "id" => $id
-            ]);
-            foreach ($video->getUrls() as $url) {
-                $url->delete();
-            }
-            $video->delete();
-        } catch (\Exception $e) {
-            throw new \Exception("Error delete video: " . $e->getMessage());
         }
     }
 
@@ -85,7 +44,7 @@ class VideoManagerService
      * @param integer $category
      * @return void
      */
-    public function updateVideo(int $id, string $title, string $description, int $category): void
+    public static function updateVideo(int $id, string $title, string $description): void
     {
         try {
             $video = Video::findFirst([
@@ -93,7 +52,6 @@ class VideoManagerService
             ]);
             $video->setTitle($title);
             $video->setDescription($description);
-            $video->setCategory(Category::findFirst(["id" => $category]));
             $video->setUpdatedAt(date("Y-m-d H:i:s"));
             $video->save();
         } catch (\Exception $e) {
@@ -107,7 +65,7 @@ class VideoManagerService
      * @param integer $video
      * @return array
      */
-    public function getUrlWhereVideo(int $video): array
+    public static function getUrlWhereVideo(int $video): array
     {
         try {
             $urls = Url::findMany([
@@ -130,7 +88,7 @@ class VideoManagerService
      * @param string $content (url)
      * @return void
      */
-    public function updateUrlWhereId(int $id, string $content): void
+    public static function updateUrlWhereId(int $id, string $content): void
     {
         try {
             $url = Url::findFirst([

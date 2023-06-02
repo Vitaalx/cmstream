@@ -4,15 +4,14 @@ namespace Entity;
 
 use Core\Entity;
 
-class Playlist extends Entity
+class Watchlist extends Entity
 {
     /** @type{int} */
     private int $id;
 
-    /**
-     * @notnullable{}
-     */
-    private Video $video;
+    private Film $film;
+
+    private Serie $serie;
 
     /**
      * @notnullable{}
@@ -48,14 +47,6 @@ class Playlist extends Entity
     }
 
     /**
-     * Get the value of video
-     */
-    public function getVideo(): Video
-    {
-        return parent::get("video");
-    }
-
-    /**
      * Get the value of user
      */
     public function getUser(): User
@@ -80,18 +71,6 @@ class Playlist extends Entity
     }
 
     /**
-     * Set the value of video
-     *
-     * @return  self
-     */
-    public function setVideo(Video $video): self
-    {
-        parent::set("video", $video);
-
-        return $this;
-    }
-
-    /**
      * Set the value of user
      *
      * @return  self
@@ -99,6 +78,74 @@ class Playlist extends Entity
     public function setUser(User $user): self
     {
         parent::set("user", $user);
+
+        return $this;
+    }
+
+    /**
+     * Set the value of created_at
+     *
+     * @return  self
+     */
+    public function setCreatedAt(string $created_at): self
+    {
+        parent::set("created_at", $created_at);
+
+        return $this;
+    }
+
+    /**
+     * Set the value of updated_at
+     *
+     * @return  self
+     */
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of film
+     */
+
+    public function getFilm(): Film
+    {
+        return parent::get("film");
+    }
+
+    /**
+     * Set the value of film
+     *
+     * @return  self
+     */
+
+    public function setFilm(Film $film): self
+    {
+        parent::set("film", $film);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serie
+     */
+
+    public function getSerie(): Serie
+    {
+        return parent::get("serie");
+    }
+
+    /**
+     * Set the value of serie
+     *
+     * @return  self
+     */
+    public function setSerie(Serie $serie): self
+    {
+        parent::set("serie", $serie);
 
         return $this;
     }

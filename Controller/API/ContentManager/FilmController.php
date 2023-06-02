@@ -10,7 +10,7 @@ use Entity\Film;
 use Services\Back\VideoManagerService as VideoManager;
 
 /**
- * @api {post} /api/content-manager/film/create
+ * @POST{/api/film/create}
  * @apiName CreateFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -56,12 +56,11 @@ class createFilm extends Controller
     public function handler(Request $request, Response $response): void
     {
         try {
-            $videoManager = new VideoManager();
-            $video = $videoManager->createVideo(
+            /** @var Video $video */
+            $video = VideoManager::createVideo(
                 $this->floor->pickup("video/url"),
                 $this->floor->pickup("title_video"),
-                $this->floor->pickup("description"),
-                $this->floor->pickup("category")->getId()
+                $this->floor->pickup("description")
             );
             if ($video === null) {
                 $response->info("video.error")->code(500)->send();
@@ -69,7 +68,8 @@ class createFilm extends Controller
 
             Film::insertOne([
                 "video_id" => $video->getId(),
-                "image" => $this->floor->pickup("video/image")
+                "image" => $this->floor->pickup("video/image"),
+                "category_id" => $this->floor->pickup("category")->getId()
             ]);
 
             $response->info("film.created")->code(201)->send();
@@ -80,7 +80,7 @@ class createFilm extends Controller
 }
 
 /**
- * @api {delete} /api/content-manager/film/delete
+ * @DELETE{/api/film/delete}
  * @apiName DeleteFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -107,15 +107,17 @@ class deleteFilm extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        $film = $this->floor->pickup("film");
-        $film->delete();
-
-        $response->send(["message" => "Film deleted"]);
+        try {
+            $this->floor->pickup("film")->delete();
+            $response->info("film.deleted")->code(204)->send();
+        } catch (\Exception $e) {
+            $response->info("film.error")->code(500)->send();
+        }
     }
 }
 
 /**
- * @api {get} /api/content-manager/film/get
+ * @GET{ /api/film/get/{film_id}}
  * @apiName GetFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -135,7 +137,7 @@ class getFilm extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['film_id'], "film_id"],
+            ["type/int", $request->getParam('film_id'), "film_id"],
             ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
         ];
     }
@@ -151,7 +153,7 @@ class getFilm extends Controller
 }
 
 /**
- * @api {get} /api/content-manager/film/get-all
+ * @GET{/api/film/get}
  * @apiName GetAllFilms
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -170,9 +172,7 @@ class getAllFilms extends Controller
     {
         try {
             $films = Film::findMany();
-            if ($films === null) {
-                $response->info("film.notfound")->code(404)->send();
-            }
+            if ($films === null) $response->info("film.notfound")->code(404)->send();
 
             $films = array_map(function ($film) {
                 return [
@@ -190,7 +190,7 @@ class getAllFilms extends Controller
 }
 
 /**
- * @api {put} /api/content-manager/film/update
+ * @PUT{/api/film/update}
  * @apiName UpdateFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -240,14 +240,10 @@ class updateFilm extends Controller
     public function handler(Request $request, Response $response): void
     {
         try {
-            $videoManager = new VideoManager();
-
-            $videoManager->updateVideo(
-                $this->floor->pickup("film")->getVideo(),
-                $this->floor->pickup("video/url"),
+            VideoManager::updateVideo(
+                $this->floor->pickup("film")->getVideo()->getId(),
                 $this->floor->pickup("title_video"),
-                $this->floor->pickup("description"),
-                $this->floor->pickup("category")->getId()
+                $this->floor->pickup("description")
             );
 
             $this->floor->pickup("film")->setImage($this->floor->pickup("image"));
