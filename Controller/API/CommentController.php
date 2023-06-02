@@ -95,7 +95,7 @@ class deleteComment extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Comment */
+        /** @var \Entity\Comment $comment */
         $comment = $this->floor->pickup("comment");
         $comment->delete();
         $response->code(200)->info("comment.deleted")->send($comment);
