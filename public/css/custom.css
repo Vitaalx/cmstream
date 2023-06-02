@@ -1,14 +1,9 @@
 /* GLOBAL */
-:root {
-    --black: #000,
-    --blackless: #141519,
-    --darkblue: #23252B,
-    --skyblue: #5499C7,
-    --grey: #A0A0A0,
-    --whiteless: #DADADA,
-    --white: #FFF,
-}
 
+body {
+    background-color: #000;
+    color: #DADADA;
+}
 
 /* BURGER MENU */
 
