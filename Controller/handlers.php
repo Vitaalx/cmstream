@@ -24,17 +24,18 @@ class assets extends Controller{
     }
 }
 
-class index extends Controller{
+class notfoundIndex extends Controller{
     public function checkers(Request $request): array
     {
         return [
             ["file/exist", __DIR__ . "/../index.html", "path"]
         ];
     }
+
     public function handler(Request $request, Response $response): void
     {
         $response
-        ->code(200)
+        ->code(404)
         ->sendFile(
             $this->floor->pickup("path")
         );

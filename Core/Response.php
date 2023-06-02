@@ -102,6 +102,11 @@ class Response{
         exit;
     }
 
+    public function redirect(string $url){
+        $this->setHeader("Location", $url);
+        $this->code(303)->info("redirected")->send();
+    }
+
     private function autoSetHeaders(mixed &$content = ""){
         http_response_code($this->code);
         

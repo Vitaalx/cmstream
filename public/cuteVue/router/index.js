@@ -1,14 +1,15 @@
 import CuteVue, { importer } from "../../js/cuteVue/index.js";
 
-let router;
-
-let proxyRouter = CuteVue.createStore(
+const proxyRouter = CuteVue.createStore(
     "router",
     {
         states: {
+            beforeFnc: null,
+            afterFnc: null,
             currentPath: null,
             currentLayout: null,
             currentView: null,
+            router: [],
             params: {},
         },
         actions: {
@@ -24,7 +25,13 @@ let proxyRouter = CuteVue.createStore(
                         path
                 );
 
-                for(const route of router){
+                let beforePath = await this.beforeFnc(path);
+                if(beforePath !== path){
+                    this.push(beforePath);
+                    return;
+                }
+
+                for(const route of this.router){
                     let regexp = new RegExp(route.regexPath, "g");
                     let match = regexp.exec(path);
                     if(match !== null){
@@ -45,8 +52,10 @@ let proxyRouter = CuteVue.createStore(
 
                         this.params = match.groups ?? {};
                         this.currentPath = path;
+                        history.pushState(null, "", path);
                         if(updateLayout !== false)this.currentLayout = updateLayout;
                         if(updateView !== false)this.currentView = updateView;
+                        await this.afterFnc(path);
                         break;
                     }
                 }
@@ -107,8 +116,14 @@ function computedRoute(arr){
     return router;
 }
 
-export function createRoute(arr){
-    router = computedRoute(arr);
+export function createRoute(arr, before = (path) => path, after = () => undefined){
+    proxyRouter.router = computedRoute(arr);
+    proxyRouter.beforeFnc = before;
+    proxyRouter.afterFnc = after;
+    window.addEventListener("popstate", (e) => {
+        e.preventDefault();
+        console.log(location.pathname);
+    })
     window.router = proxyRouter;
     window.router.push(location.pathname);
 }
