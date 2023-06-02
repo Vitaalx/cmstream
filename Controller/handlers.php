@@ -5,9 +5,6 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-/**
- * @get{/test/{id}/test/{ieie}}
- */
 class assets extends Controller{
     public function checkers(Request $request): array
     {

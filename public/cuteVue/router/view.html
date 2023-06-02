@@ -5,17 +5,17 @@
 <script>
 export default {
     watch: {
-        currentPath(){
-            console.log("update");
+        currentView(){
+            if(this.currentView !== null)this.$mount("view", this.currentView);
         }
     },
     mounted(){
-        
+        if(this.currentView !== null)this.$mount("view", this.currentView);
     },
     stores: [
         {
             name: "router",
-            states: ["currentPath"]
+            states: ["currentView"]
         }
     ]
 }

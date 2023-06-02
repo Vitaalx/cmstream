@@ -6,12 +6,10 @@ const {
     __element__,
     __components__,
     __subscribers__,
-    __launchSubscribers__,
     __slot__,
     __parent__,
     __mounted__,
     __unmounted__,
-    __ignoreWatcher__,
     __mount__
 } = symbol;
 
@@ -301,6 +299,7 @@ export default function render(template, proxy){
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);
                         elementNode.$destroy?.();
+                        newElementNode.$mounted();
                         elementNode = newElementNode;
                     }
                 }

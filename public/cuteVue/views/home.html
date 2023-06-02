@@ -1,0 +1,21 @@
+<div>
+    home
+</div>
+
+<script>
+export default {
+    mounted(){
+        setTimeout(() => {
+            console.log(router.params.id);
+            router.push("/test");
+        }, 2000)
+    },
+    unmounted(){
+
+    }
+}
+</script>
+
+<style>
+
+</style>

@@ -5,17 +5,17 @@
 <script>
 export default {
     watch: {
-        currentPath(){
-            console.log("update");
+        currentLayout(){
+            if(this.currentLayout !== null)this.$mount("layout", this.currentLayout);
         }
     },
     mounted(){
-        
+        if(this.currentLayout !== null)this.$mount("layout", this.currentLayout);
     },
     stores: [
         {
             name: "router",
-            states: ["currentPath"]
+            states: ["currentLayout"]
         }
     ]
 }
