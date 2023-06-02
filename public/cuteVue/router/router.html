@@ -1,0 +1,26 @@
+<div>
+    <div cv-mount="layout"></div>
+</div>
+
+<script>
+export default {
+    watch: {
+        currentLayout(){
+            if(this.currentLayout !== null)this.$mount("layout", this.currentLayout);
+        }
+    },
+    mounted(){
+        if(this.currentLayout !== null)this.$mount("layout", this.currentLayout);
+    },
+    stores: [
+        {
+            name: "router",
+            states: ["currentLayout"]
+        }
+    ]
+}
+</script>
+
+<style>
+
+</style>
