@@ -1,19 +1,71 @@
 <div>
-    home
+    <div class="h-[600px] mb-[40px] bg-skyblue slider-ctnr">
+
+    </div>
+    
+    <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col gap-[40px] content">
+        <div class="show-block">
+            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Derniers ajouts</h2>
+            <div class="grid grid-cols-6">
+                <show_card cv-for="num in this.last_shows"></show_card>
+            </div>
+            <div class="see-more">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                    Voir plus
+                    <span class="mdi mdi-arrow-right mb-[-3px]"></span>
+                </router_link>
+            </div>
+        </div>
+        <div class="show-block">
+            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Les plus populaires</h2>
+            <div class="grid grid-cols-6">
+                <show_card cv-for="num in this.popular_shows"></show_card>
+            </div>
+            <div class="see-more">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                    Voir plus
+                    <span class="mdi mdi-arrow-right mb-[-3px]"></span>
+                </router_link>
+            </div>
+        </div>
+        <div class="show-block">
+            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Découvrir</h2>
+            <div class="grid grid-cols-6">
+                <show_card cv-for="num in this.discover_shows"></show_card>
+            </div>
+            <div class="see-more">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                    Voir plus
+                    <span class="mdi mdi-arrow-right mb-[-3px]"></span>
+                </router_link>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-export default {
-    mounted(){
-        setTimeout(() => {
-            console.log(router.params.id);
-            router.push("/test");
-        }, 2000)
-    },
-    unmounted(){
+    const [show_card] = await Promise.all([
+        importer('/public/cuteVue/components/show_card.html')
+    ]);
+    export default {
+        components: {
+            show_card
+        },
 
+        data: {
+            last_shows: [1, 2, 3, 4, 5, 6],
+            popular_shows: [1, 2, 3, 4, 5, 6],
+            discover_shows: [1, 2, 3, 4, 5, 6],
+        },
+
+        mounted(){
+            
+        },
+        
+        unmounted(){
+
+        }
     }
-}
 </script>
 
 <style>
