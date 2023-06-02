@@ -31,6 +31,8 @@ const proxyRouter = CuteVue.createStore(
                     return;
                 }
 
+                console.log(path);
+
                 for(const route of this.router){
                     let regexp = new RegExp(route.regexPath, "g");
                     let match = regexp.exec(path);
