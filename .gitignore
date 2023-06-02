@@ -23,3 +23,4 @@
 # Deleting .env file
 .env
 
+generate.index.php

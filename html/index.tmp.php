@@ -21,7 +21,7 @@ Route::match([
 Route::match([
     "method" => "GET",
     "path" => ".*",
-    "controller" => "handlers/index",
+    "controller" => "handlers/notfoundIndex",
 ]);
 
 Route::match([

@@ -24,7 +24,7 @@ scan(
 
         preg_match("/namespace[ ]*([a-zA-Z0-9\\\]*)/", $fileContent, $namespaceMatch);
         $namespace = $namespaceMatch[1];
-        preg_match_all("/class[ ]*([a-zA-Z0-9]*)[ ]*extends[ ]*Controller/", $fileContent, $classMatch);
+        preg_match_all("/class[ ]*([a-zA-Z0-9_]*)[ ]*extends[ ]*Controller/", $fileContent, $classMatch);
         $classList = $classMatch[1];
 
         include $path;
@@ -37,18 +37,22 @@ scan(
             $comment = $rp->getDocComment();
             if($comment === false) continue;
             
-            preg_match("/@([a-zA-Z]*){((?:[^{}]+|{(?2)})*)}/", $comment, $match);
-            if(isset($match[0]) === false) continue;
-            $method = strtoupper($match[1]);
-            $path = $match[2];
+            preg_match_all("/@([a-zA-Z]*){((?:[^{}]+|{(?2)})*)}/", $comment, $match);
+            if($match === null) continue;
 
-            global $textRoute;
-            $newRout = str_replace("{METHOD}", $method, $textRoute);
-            $newRout = str_replace("{PATH}", $path, $newRout);
-            $newRout = str_replace("{CONTROLLER}", $class, $newRout);
+            foreach ($match[0] as $key => $value) {
+                $method = strtoupper($match[1][$key]);
+                $path = $match[2][$key];
 
-            global $routeFileContent;
-            $routeFileContent .= $newRout;
+                global $textRoute;
+                $newRout = str_replace("{METHOD}", $method, $textRoute);
+                $newRout = str_replace("{PATH}", $path, $newRout);
+                $newRout = str_replace("{CONTROLLER}", $class, $newRout);
+
+                global $routeFileContent;
+                $routeFileContent .= $newRout;
+            }
+            
         }
     }
 );

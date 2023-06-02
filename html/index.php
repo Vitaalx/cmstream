@@ -5,14 +5,6 @@ require __DIR__ . "/generate.index.php";
 use Core\Route;
 
 Route::match([
-    "method" => "*",
-    "path" => "/api/.*",
-    "controller" => "handlers/notfound",
-]);
-
-// OTHER
-
-Route::match([
     "method" => "GET",
     "path" => "/public/.*",
     "controller" => "handlers/assets",
@@ -21,7 +13,7 @@ Route::match([
 Route::match([
     "method" => "GET",
     "path" => ".*",
-    "controller" => "handlers/index",
+    "controller" => "handlers/notfoundIndex",
 ]);
 
 Route::match([
