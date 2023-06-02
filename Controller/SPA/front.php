@@ -27,8 +27,8 @@ class index extends Controller{
 }
 
 /**
- * @GET{/sigin}
- * @GET{/sigup}
+ * @GET{/signin}
+ * @GET{/signup}
  */
 class connection extends Controller{
     public function checkers(Request $request): array

@@ -1,0 +1,43 @@
+<router_link :href="'#'" class="w-[150px] h-[320px] show-card">
+    <div class="h-[225px] mb-[10px] thumbnail">
+        <img src="/public/img/thumbnails/unloaded.png" alt="show title">
+    </div>
+    <div class="content">
+        <h3 class="text-bold show-title">Show title</h3>
+        <p class="text-sm show-description">Show description</p>
+        <div class="mt-[10px] text-xs tags">
+            <span class="p-1 rounded tag tag-1">tag1</span>
+            <span class="p-1 rounded tag tag-2">tag2</span>
+            <span class="p-1 rounded tag tag-3">tag3</span>
+        </div>
+    </div>
+</router_link>
+
+<script>
+    export default {
+        data: {},
+
+        props: {},
+
+        methods: {},
+    }
+</script>
+
+<style>
+    .show-card:hover .show-title,
+    .show-card:hover .show-description {
+        color: #5499C7;
+    }
+
+    .tag-1 {
+        background-color: #F5B041;
+    }
+
+    .tag-2 {
+        background-color: #5DADE2;
+    }
+
+    .tag-3 {
+        background-color: #58D68D;
+    }
+</style>

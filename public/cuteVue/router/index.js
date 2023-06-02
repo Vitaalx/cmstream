@@ -31,6 +31,8 @@ const proxyRouter = CuteVue.createStore(
                     return;
                 }
 
+                console.log(path);
+
                 for(const route of this.router){
                     let regexp = new RegExp(route.regexPath, "g");
                     let match = regexp.exec(path);
@@ -64,13 +66,15 @@ const proxyRouter = CuteVue.createStore(
     }
 );
 
-const [Router, View] = await Promise.all([
+const [Router, View, router_link] = await Promise.all([
     importer("/public/cuteVue/router/router.html"),
     importer("/public/cuteVue/router/view.html"),
+    importer("/public/cuteVue/router/router_link.html"),
 ]);
 
 CuteVue.component("router", Router);
 CuteVue.component("view", View);
+CuteVue.component("router_link", router_link);
 
 function computedRoute(arr){
     let router = [];
