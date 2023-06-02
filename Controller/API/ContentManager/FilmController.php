@@ -10,7 +10,7 @@ use Entity\Film;
 use Services\Back\VideoManagerService as VideoManager;
 
 /**
- * @POST{/api/film/create}
+ * @POST{/api/film}
  * @apiName CreateFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -80,7 +80,7 @@ class createFilm extends Controller
 }
 
 /**
- * @DELETE{/api/film/delete}
+ * @DELETE{/api/film/{id}}
  * @apiName DeleteFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -89,18 +89,12 @@ class createFilm extends Controller
  * @param int id
  * @return Response
  */
-/*
-Entry:
-{
-"film_id": 1
-}
-*/
 class deleteFilm extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['film_id'], "film_id"],
+            ["type/int", $request->getParam('id'), "film_id"],
             ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
         ];
     }
@@ -117,7 +111,7 @@ class deleteFilm extends Controller
 }
 
 /**
- * @GET{ /api/film/get/{film_id}}
+ * @GET{/api/film/{id}}
  * @apiName GetFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -126,18 +120,12 @@ class deleteFilm extends Controller
  * @param int id
  * @return Response
  */
-/*
-Entry:
-{
-"film_id": 1
-}
-*/
 class getFilm extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('film_id'), "film_id"],
+            ["type/int", $request->getParam('id'), "film_id"],
             ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
         ];
     }
@@ -153,12 +141,12 @@ class getFilm extends Controller
 }
 
 /**
- * @GET{/api/film/get}
- * @apiName GetAllFilms
+ * @GET{/api/films/}
+ * @apiName GetFilms
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get all films
+ * @Description Get films
  * @return Response
  */
 class getAllFilms extends Controller
@@ -190,7 +178,7 @@ class getAllFilms extends Controller
 }
 
 /**
- * @PUT{/api/film/update}
+ * @PUT{/api/film/{id}}
  * @apiName UpdateFilm
  * @apiGroup ContentManager/FilmController
  * @apiVersion 1.0.0
@@ -207,7 +195,6 @@ class getAllFilms extends Controller
 /*
 Entry:
 {
-"film_id": 1,
 "url": [
 "https://www.youtube.com/watch?v=1",
 "https://www.youtube.com/watch?v=2"
@@ -223,7 +210,7 @@ class updateFilm extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['id'], "film_id"],
+            ["type/int", $request->getParam('id'), "film_id"],
             ["film/exist", fn () => $this->floor->pickup("film_id"), "film"],
             ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],

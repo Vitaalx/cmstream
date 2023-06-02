@@ -9,7 +9,7 @@ use Core\Response;
 use Entity\Category;
 
 /**
- * @api {post} /api/content-manager/category/create
+ * @POST{/api/category}
  * @apiName CreateCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
@@ -48,27 +48,21 @@ class createCategory extends Controller
 }
 
 /**
- * @api {delete} /api/content-manager/category/delete
+ * @DELETE{/api/category/{id}}
  * @apiName DeleteCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Delete a category
- * @param int category_id
+ * @param int id
  * @return Response
  */
-/*
-Entry:
-{
-"category_id": 1
-}
-*/
 class deleteCategory extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["type/int", $request->getParam('id'), "category_id"],
             ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
         ];
     }
@@ -82,15 +76,15 @@ class deleteCategory extends Controller
 }
 
 /**
- * @api {get} /api/content-manager/category/get-all
- * @apiName GetAllCategories
+ * @GET{/api/categories}
+ * @apiName GetCategories
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get all categories
+ * @Description Get categories
  * @return Response
  */
-class getAllCategories extends Controller
+class getCategories extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -109,27 +103,21 @@ class getAllCategories extends Controller
 }
 
 /**
- * @api {get} /api/content-manager/category/get-all-content
+ * @GET{/api/contents/category/{id}}
  * @apiName GetAllContentWhereCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get all content where category
- * @param int category_id
+ * @Description Get contents by category
+ * @param int id
  * @return Response
  */
-/*
-Entry:
-{
-"category_id": 1
-}
-*/
 class getAllContentWhereCategory extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["type/int", $request->getParam('id'), "category_id"],
             ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
         ];
     }
@@ -174,20 +162,19 @@ class getAllContentWhereCategory extends Controller
     }
 }
 /**
- * @api {put} /api/content-manager/category/update
+ * @PUT{/api/category/{id}}
  * @apiName UpdateCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Update a category
- * @param int category_id
+ * @param int id
  * @param string category_name
  * @return Response
  */
 /*
 Entry:
 {
-"category_id": 1,
 "category_name": "Category name"
 }
 */
@@ -196,7 +183,7 @@ class updateCategory extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["type/int", $request->getParam('id'), "category_id"],
             ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
             ["type/string", $request->getBody()['category_name'], "category_name"],
             ["category/name", fn () => $this->floor->pickup("category_name"), "category_name"],

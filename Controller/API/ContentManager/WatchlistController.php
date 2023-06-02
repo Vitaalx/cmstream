@@ -9,7 +9,7 @@ use Core\Response;
 use Entity\Watchlist;
 
 /**
- * @POST{/api/watchlist/add}
+ * @POST{/api/watchlist/wish}
  * @apiName AddWichWatchlist
  * @apiGroup ContentManager/WatchlistController
  * @apiVersion 1.0.0
@@ -64,7 +64,7 @@ class addWishWatchlist extends Controller
 }
 
 /**
- * @DELETE{/api/watchlist/delete}
+ * @DELETE{/api/watchlist/{user_id}}
  * @apiName DeleteWatchlist
  * @apiGroup ContentManager/WatchlistController
  * @apiVersion 1.0.0
@@ -73,18 +73,12 @@ class addWishWatchlist extends Controller
  * @param int user_id
  * @return Response
  */
-/*
-Entry:
-{
- "user_id": 1
-}
-*/
 class deleteWatchlist extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['user_id'], "user_id"],
+            ["type/int", $request->getParam("user_id"), "user_id"],
             ["user/exist", fn () => $this->floor->pickup("user_id"), "user"],
         ];
     }
@@ -105,27 +99,21 @@ class deleteWatchlist extends Controller
 }
 
 /**
- * @DELETE{/api/watchlist/delete}
+ * @DELETE{/api/watchlist/wish/{id}}
  * @apiName DeleteWatchlist
  * @apiGroup ContentManager/WatchlistController
  * @apiVersion 1.0.0
  * @Feature WatchList
  * @Description Delete a watchlist
- * @param int watch_id
+ * @param int id
  * @return Response
  */
-/*
-Entry:
-{
- "watch_id": 1
-}
-*/
 class deleteWishWatchlist extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['watch_id'], "watch_id"],
+            ["type/int", $request->getParam("id"), "watch_id"],
             ["watchlist/exist", fn () => $this->floor->pickup("watch_id"), "watchlist"],
         ];
     }

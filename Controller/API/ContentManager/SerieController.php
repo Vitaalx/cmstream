@@ -10,7 +10,7 @@ use Entity\Episode;
 use Services\Back\VideoManagerService as VideoManager;
 
 /**
- * @POST{/api/serie/create}
+ * @POST{/api/serie}
  * @apiName CreateSerie
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -67,27 +67,21 @@ class createSerie extends Controller
 }
 
 /**
- * @DELETE{/api/serie/delete}
- * @apiName GetSerie
+ * @DELETE{/api/serie/{id}}
+ * @apiName DeleteSerie
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Get a serie
- * @param int serie_id
+ * @param int id
  * @return Response
  */
-/*
-Entry:
-{
- "serie_id": 1
-}
-*/
 class deleteSerie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $request->getParam("id"), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
         ];
     }
@@ -104,27 +98,21 @@ class deleteSerie extends Controller
 }
 
 /**
- * @GET{/api/serie/get/{serie_id}}
+ * @GET{/api/serie/{id}}
  * @apiName GetSerie
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Get a serie
- * @param int serie_id
+ * @param int id
  * @return Response
  */
-/*
-Entry:
-{
- "serie_id": 1
-}
-*/
 class getSerie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('serie_id'), "serie_id"],
+            ["type/int", $request->getParam('id'), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
         ];
     }
@@ -149,15 +137,15 @@ class getSerie extends Controller
 }
 
 /**
- * @GET{/api/serie/get}
- * @apiName GetSerie
+ * @GET{/api/series}
+ * @apiName GetSeries
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Get all serie
  * @return Response
  */
-class getAllSeries extends Controller
+class getSeries extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -176,7 +164,7 @@ class getAllSeries extends Controller
     }
 }
 /**
- * @PUT{/api/serie/update}
+ * @PUT{/api/serie/{id}}
  * @apiName UpdateSerie
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -190,8 +178,7 @@ class getAllSeries extends Controller
 /*
 Entry:
 {
- "serie_id": 1
- "title_serie": "Serie title",
+ "title_serie": "Serie title"
  "image": "https://www.image.com/image.png",
  "description": "serie description"
 }
@@ -203,7 +190,7 @@ class updateSerie extends Controller
         return [
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
             ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $request->getParam("id"), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
             ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
             ["type/string", $request->getBody()['image'], "image"],
@@ -229,7 +216,7 @@ class updateSerie extends Controller
 }
 
 /**
- * @POST{/api/episode/create}
+ * @POST{/api/episode}
  * @apiName AddEpisode
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -261,17 +248,18 @@ class addEpisodeWhereSerie extends Controller
 {
     public function checkers(Request $request): array
     {
+        $episode = $request->getBody();
         return [
-            ["video/url", fn () => $this->floor->pickup("url"), "url"],
-            ["type/string", $request->getBody()['title_video'], "title_video"],
+            ["video/url", $episode['url'], "url"],
+            ["type/string", $episode['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
-            ["type/string", $request->getBody()['description'], "description"],
+            ["type/string", $episode['description'], "description"],
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $episode['serie_id'], "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
-            ["type/int", $request->getBody()['episode'], "episode"],
+            ["type/int", $episode['episode'], "episode"],
             ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
-            ["type/int", $request->getBody()['season'], "season"],
+            ["type/int", $episode['season'], "season"],
             ["serie/season", fn () => $this->floor->pickup("season"), "season"],
             [
                 "episode/notexist", [
@@ -308,35 +296,27 @@ class addEpisodeWhereSerie extends Controller
 }
 
 /**
- * @GET{/api/episode/get/{serieId}/{season}/{episode}}
+ * @GET{/api/episode/{serie_id}/{season}/{episode}}
  * @apiName GetEpisode
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Get an episode
- * @param string name
+ * @param int serie_id
  * @param int episode
  * @param int season
  * @return Response
  */
-/*
-Entry:
-{
- "serie_id": 1,
- "episode": 1,
- "season": 1
-}
-*/
 class getEpisodeWhereSerie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $request->getParam('serie_id'), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
-            ["type/int", $request->getBody()['episode'], "episode"],
+            ["type/int", $request->getParam('episode'), "episode"],
             ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
-            ["type/int", $request->getBody()['season'], "season"],
+            ["type/int", $request->getParam('season'), "season"],
             ["serie/season", fn () => $this->floor->pickup("season"), "season"]
         ];
     }
@@ -370,27 +350,21 @@ class getEpisodeWhereSerie extends Controller
 }
 
 /**
- * @GET{/api/episode/get/{serieId}}
- * @apiName GetAllEpisodes
+ * @GET{/api/episodes/{serie_id}}
+ * @apiName GetEpisodes
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get all episodes of a serie
- * @param string name
+ * @Description Get episodes of a serie
+ * @param int serie_id
  * @return Response
  */
-/*
-Entry:
-{
- "serie_id": 1
-}
-*/
-class getAllEpisodesWhereSerie extends Controller
+class getEpisodesWhereSerie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $request->getParam('serie_id'), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
         ];
     }
@@ -409,28 +383,21 @@ class getAllEpisodesWhereSerie extends Controller
 }
 
 /**
- * @DELETE{/api/episode/delete}
+ * @DELETE{/api/episode/{id}}
  * @apiName DeleteEpisode
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Delete an episode
- * @param string name
- * @param int episode
+ * @param int id
  * @return Response
- /
-/*
-Entry:
-{
- "episode_id": 1
-}
  */
 class deleteEpisode extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['episode_id'], "episode_id"],
+            ["type/int", $request->getParam('id'), "episode_id"],
             ["episode/exist", fn () => $this->floor->pickup("episode_id"), "episode"]
         ];
     }
@@ -447,7 +414,7 @@ class deleteEpisode extends Controller
 }
 
 /**
- * @PUT{/api/episode/data/update}
+ * @PUT{/api/episode/data/{serie_id}}
  * @apiName UpdateEpisodeInfo
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -456,7 +423,7 @@ class deleteEpisode extends Controller
  * @param string title_serie
  * @param string title_video
  * @param string description
- * @param int episode
+ * @param int serie_id
  * @param int season
  * @param int category
  * @return Response
@@ -464,7 +431,6 @@ class deleteEpisode extends Controller
 /*
 Entry:
 {
- "serie_id": 1,
  "title_video": "Video title",
  "description": "Video description",
  "episode": 1,
@@ -477,7 +443,7 @@ class updateEpisodeInfo extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['serie_id'], "serie_id"],
+            ["type/int", $request->getParam('serie_id'), "serie_id"],
             ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
@@ -516,22 +482,21 @@ class updateEpisodeInfo extends Controller
 }
 
 /**
- * @PUT{/api/episode/update}
+ * @PUT{/api/episode/order/{id}}
  * @apiName UpdateEpisode
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Update an episode
- * @param int episode_id
- * @param int episode
+ * @param int id
+ * @param int episode_order
  * @param int season
  * @return Response
  */
 /*
 Entry:
 {
- "episode_id": 1,
- "episode": 1,
+ "episode_order": 1,
  "season": 1
 }
 */
@@ -540,10 +505,10 @@ class updateEpisode extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['episode_id'], "episode_id"],
+            ["type/int", $request->getParam('id'), "episode_id"],
             ["episode/exist", fn () => $this->floor->pickup("episode_id"), "episode"],
             ["type/int", $request->getBody()['season'], "season"],
-            ["type/int", $request->getBody()['episode'], "episode_nb"],
+            ["type/int", $request->getBody()['episode_order'], "episode_nb"],
             ["serie/episode", fn () => $this->floor->pickup("episode_nb"), "episode_nb"],
             ["serie/season", fn () => $this->floor->pickup("season"), "season"],
             [
