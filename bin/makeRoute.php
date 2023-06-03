@@ -24,7 +24,7 @@ scan(
 
         preg_match("/namespace[ ]*([a-zA-Z0-9\\\]*)/", $fileContent, $namespaceMatch);
         $namespace = $namespaceMatch[1];
-        preg_match_all("/class[ ]*([a-zA-Z0-9_]*)[ ]*extends[ ]*Controller/", $fileContent, $classMatch);
+        preg_match_all("/class[ ]*([a-zA-Z0-9_]*)/", $fileContent, $classMatch);
         $classList = $classMatch[1];
 
         include $path;
