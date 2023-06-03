@@ -13,7 +13,9 @@ const proxyRouter = CuteVue.createStore(
             params: {},
         },
         actions: {
-            async push(path){
+            async push(url){
+                let path = url.split("?")[0].split("#")[0];
+
                 path = (
                     path.startsWith("/") ? 
                         path : 
@@ -30,8 +32,6 @@ const proxyRouter = CuteVue.createStore(
                     this.push(beforePath);
                     return;
                 }
-
-                console.log(path);
 
                 for(const route of this.router){
                     let regexp = new RegExp(route.regexPath, "g");
@@ -54,7 +54,7 @@ const proxyRouter = CuteVue.createStore(
 
                         this.params = match.groups ?? {};
                         this.currentPath = path;
-                        history.pushState(null, "", path);
+                        history.pushState(null, "", url);
                         if(updateLayout !== false)this.currentLayout = updateLayout;
                         if(updateView !== false)this.currentView = updateView;
                         await this.afterFnc(path);

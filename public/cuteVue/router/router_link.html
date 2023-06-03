@@ -4,14 +4,12 @@
 
 <script>
     export default {
-        data: {},
         props: {
             href: "#"
         },
         methods: {
             redirect(e) {
                 e.preventDefault();
-                console.log(this.$emit('click', e));
                 if(this.$emit('click', e) === false) return;
                 router.push(this.href);
             }
