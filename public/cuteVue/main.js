@@ -26,6 +26,7 @@ export const loaderStore = CuteVue.createStore(
                         this.list = this.list.filter(value => value !== id);
                     }, 200);
                 }
+                this.timeouts = this.timeouts.filter(item => item.id !== id);
             }
         },
     }
@@ -69,11 +70,11 @@ createRoute(
     }
 );
 
-const [app, loader] = await Promise.all([
+const [app, page_loader] = await Promise.all([
     importer("/public/cuteVue/app.html"),
-    importer("/public/cuteVue/components/loader.html")
+    importer("/public/cuteVue/components/page_loader.html")
 ]);
 
-CuteVue.component("loader", loader);
+CuteVue.component("page_loader", page_loader);
 
 app.mount("#app");
