@@ -11,6 +11,7 @@ class Request{
     private array $requestJsonBody;
     private $requestBody;
     private array $info;
+    private array $cookies;
 
     public function __construct(string $path, array $info, string $regexPath)
     {
@@ -18,6 +19,7 @@ class Request{
         
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->requestMethod = $_SERVER["REQUEST_METHOD"];
+        $this->cookies = $_COOKIE;
 
         $this->requestPath = $path;
         $this->info = $info;
@@ -53,6 +55,30 @@ class Request{
     public function getParams(): array
     {
         return $this->requestParams;
+    }
+
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    public function getCookie(string $key): array
+    {
+        return $this->cookies[$key];
+    }
+
+    public function setCookies(array $cookies): Request
+    {
+        $this->cookies = $cookies;
+
+        return $this;
+    }
+
+    public function setCookie(string $key, array $cookies): Request
+    {
+        $this->cookies[$key] = $cookies;
+
+        return $this;
     }
 
     public function getBody()
