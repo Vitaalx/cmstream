@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\ContentManager\SerieController;
+namespace Controller\API\ContentManager\SerieController;
 
 use Core\Controller;
 use Core\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\InitAppController;
+namespace Controller\API\InitAppController;
 
 use Core\Controller;
 use Core\Entity;

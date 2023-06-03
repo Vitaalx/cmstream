@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\ContentManager\FilmController;
+namespace Controller\API\ContentManager\FilmController;
 
 use Core\Controller;
 use Core\Request;

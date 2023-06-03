@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\CommentController;
+namespace Controller\API\CommentController;
 
 use Core\Controller;
 use Core\Request;

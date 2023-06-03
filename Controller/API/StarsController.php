@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\StarsController;
+namespace Controller\API\StarsController;
 
 use Core\Controller;
 use Core\Request;

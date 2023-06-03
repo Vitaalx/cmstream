@@ -1,49 +1,23 @@
 <?php
-namespace controller\SPA\front;
+namespace Controller\SPA\front;
 
-use Core\Controller;
+use Services\IndexHandler;
 use Core\Request;
-use Core\Response;
 
 /**
  * @GET{/}
  */
-class index extends Controller{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["file/exist", __DIR__ . "/../../index.html", "path"]
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        $response
-        ->code(200)
-        ->sendFile(
-            $this->floor->pickup("path")
-        );
-    }
-}
+class index extends IndexHandler{}
 
 /**
  * @GET{/signin}
  * @GET{/signup}
  */
-class connection extends Controller{
+class connection extends IndexHandler{
     public function checkers(Request $request): array
     {
         return [
-            ["file/exist", __DIR__ . "/../../index.html", "path"]
+            
         ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        $response
-        ->code(200)
-        ->sendFile(
-            $this->floor->pickup("path")
-        );
     }
 }

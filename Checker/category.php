@@ -22,9 +22,8 @@ function exist(int $id, Floor $floor, Response $response): Category
     return $category;
 }
 
-function notexist(string $name, Floor $floor, Response $response): null
+function notexist(string $name, Floor $floor, Response $response): void
 {
     $category = Category::findFirst(["title" => $name]);
-    if ($category !== null) $response->info("category.exist")->code(400)->send();
-    return $category;
+    if ($category !== null) $response->info("category.exist")->code(409)->send();
 }
