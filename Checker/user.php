@@ -71,12 +71,11 @@ function existByMail(string $email, Floor $floor, Response $response): User
     return $user;
 }
 
-function mailUsed(string $email, Floor $floor, Response $response): bool
+function mailUsed(string $email, Floor $floor, Response $response): void
 {
     /** @var User $user */
     $user = User::findFirst(["email" => $email]);
-    if($user !== null) return true;
-    return false;
+    if($user !== null) $response->code(409)->info("email.already.used")->send();
 }
 
 function exist(int $userId, Floor $floor, Response $response): User

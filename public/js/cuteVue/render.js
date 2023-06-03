@@ -20,15 +20,15 @@ export default function render(template, proxy){
      * @type {HTMLElement}
      */
     let el;
-    let instance;
+    let instance = proxy[__components__][template.type] || globalComponents[template.type] || undefined;
     let subscribers = Object.keys(proxy[__subscribers__]).reduce((p, c) => {
         p[c] = [];
         return p;
     }, {});
 
-    if(template.isComponent === false) el = document.createElement(template.type);
+    if(instance === undefined) el = document.createElement(template.type);
     else{
-        const component = proxy[__components__][template.type] || globalComponents[template.type];
+        let component = instance;
         instance = makeProxy(component.properties, component.template);
         instance[__element__] = render(component.template, instance);
         instance[__parent__] = proxy;
@@ -169,7 +169,7 @@ export default function render(template, proxy){
     }
 
     template.children.forEach(templateChild => {
-        if(templateChild.type === "textNode"){
+        if(templateChild.type === "#textNode"){
             let textNode = document.createTextNode(templateChild);
 
             let textRender = eval(/* js */`(
@@ -199,7 +199,7 @@ export default function render(template, proxy){
             if(instance === undefined)el.appendChild(textNode);
             else if(instance[__slot__])instance[__slot__].parentNode.insertBefore(textNode, instance[__slot__]);
         }
-        else if(templateChild.type === "comment"){
+        else if(templateChild.type === "#comment"){
             let elementNode = document.createComment(templateChild.content);
             el.appendChild(elementNode);
         }
@@ -210,6 +210,10 @@ export default function render(template, proxy){
                 proxy[__slot__] = elementNode;
                 el.appendChild(elementNode);
                 return;
+            }
+            else if(templateChild.type === "svg"){
+                elementNode = renderSvg(templateChild);
+                el.appendChild(elementNode);
             }
             else if(templateChild.if !== undefined){
                 let cdn = eval(/* js */`(
@@ -318,9 +322,8 @@ export default function render(template, proxy){
                         elementNode = newCommentNode;
                     }
                     else {
-                        globalComponents[name] = component;
+                        proxy[__components__][name] = component;
                         templateChild.type = name;
-                        templateChild.isComponent = true;
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);
                         elementNode.$destroy?.();
@@ -342,5 +345,20 @@ export default function render(template, proxy){
         }
     })
 
+    return el;
+}
+
+function renderSvg(template){
+    let el = document.createElementNS("http://www.w3.org/2000/svg", template.type);
+
+    Object.entries(template.attributes).forEach(([key, value]) => {
+        el.setAttributeNS(null, key, value);
+    });
+
+    template.children.forEach(templateChild => {
+        if(templateChild.type === "#textNode" || templateChild.type === "#comment") return;
+        el.appendChild(renderSvg(templateChild));
+    });
+    
     return el;
 }

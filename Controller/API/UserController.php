@@ -48,17 +48,15 @@ class register extends Controller
      */
     public function handler(Request $request, Response $response): void
     {
-        $auth = new Auth();
-        if($this->floor->pickup("mailUsed")) $response->code(409)->info("email.already.used")->send();
         User::insertOne([
            "firstname" => $this->floor->pickup("firstname"),
            "lastname" => $this->floor->pickup("lastname"),
            "username" => $this->floor->pickup("username"),
            "email" => $this->floor->pickup("email"),
-           "password" => $auth::passwordHash($this->floor->pickup("password")),
+           "password" => Auth::passwordHash($this->floor->pickup("password")),
             "role" => null
         ]);
-        $token = $auth::generateToken($this->floor->pickup("email"), $this->floor->pickup("username"));
+        $token = Auth::generateToken($this->floor->pickup("email"), $this->floor->pickup("username"));
         $response->code(200)->info("user.registered")->send(["token" => $token]);
     }
 }
@@ -89,14 +87,13 @@ class login extends Controller
     }
     public function handler(Request $request, Response $response): void
     {
-        $auth = new Auth();
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        if ($user->getPassword() !== $auth::passwordHash($this->floor->pickup("password"))) {
+        if ($user->getPassword() !== Auth::passwordHash($this->floor->pickup("password"))) {
             $response->code(401)->info("wrong.password")->send();
         }
-        $token = $auth::generateToken($user->getEmail(), $user->getUsername());
+        $token = Auth::generateToken($user->getEmail(), $user->getUsername());
         $response->code(200)->info("user.logged")->send(["token" => $token]);
     }
 }

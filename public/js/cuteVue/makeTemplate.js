@@ -1,11 +1,8 @@
-import {components as globalComponents} from "./index.js";
-
-export default function makeTemplate(el, proxy, component){
+export default function makeTemplate(el, proxy){
     let nodeName = el.nodeName.toLowerCase();
     
     let obj = {
         type: nodeName,
-        isComponent: component[nodeName] || globalComponents[nodeName] ? true : false,
         attributes: {},
         objectAttributes: {},
         events: {},
@@ -29,19 +26,19 @@ export default function makeTemplate(el, proxy, component){
                 }
 
                 return {
-                    type: "textNode",
+                    type: "#textNode",
                     script,
                     vars,
                 };
             }
             else if(child.nodeName === "#comment"){
                 return {
-                    type: "comment",
+                    type: "#comment",
                     content: child.textContent,
                 };
             }
             else {
-                return makeTemplate(child, proxy, component);
+                return makeTemplate(child, proxy);
             }
         }),
     };

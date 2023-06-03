@@ -35,7 +35,7 @@ function CuteVue(properties){
     if(properties.template !== undefined) this.template = properties.template;
     else if(properties.el !== undefined) {
         properties.el = typeof properties.el === "string" ? document.querySelector(properties.el) : properties.el;
-        this.template = makeTemplate(properties.el, properties.methods, properties.components);
+        this.template = makeTemplate(properties.el, properties.methods);
         properties.el.remove();
         delete properties.el;
     }
