@@ -31,9 +31,9 @@ function title(string $title, Floor $floor, Response $response): string
     return $title;
 }
 
-function exist(string $name, Floor $floor, Response $response): Serie
+function exist(int $id, Floor $floor, Response $response): Serie
 {
-    $serie = Serie::findFirst(["title" => $name]);
+    $serie = Serie::findFirst(["id" => $id]);
     if ($serie === null) $response->info("serie.notfound")->code(404)->send();
     return $serie;
 }

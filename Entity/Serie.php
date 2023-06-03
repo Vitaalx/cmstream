@@ -10,22 +10,11 @@ class Serie extends Entity
     private int $id;
 
     /** 
-     * @notnullable{}
+     * @many{Entity\Episode,serie}
+     * @groups{serie_episodes}
      * @cascade{}
      */
-    private Video $video;
-
-    /** 
-     * @type{int}
-     * @notnullable{}
-     */
-    private int $episode;
-
-    /** 
-     * @type{int}
-     * @notnullable{}
-     */
-    private int $season;
+    private array $episodes;
 
     /** 
      * @type{VARCHAR(255)}
@@ -38,6 +27,17 @@ class Serie extends Entity
      * @notnullable{}
      */
     private string $title;
+
+    /** 
+     * @type{TEXT}
+     */
+    private string $description;
+
+    /** 
+     * @notnullable{}
+     * @groups{videoCategory}
+     */
+    private Category $category;
 
     /**
      * @type{Date}
@@ -60,21 +60,6 @@ class Serie extends Entity
         return parent::get("id");
     }
 
-    public function getVideo(): Video
-    {
-        return parent::get("video");
-    }
-
-    public function getEpisode(): int
-    {
-        return parent::get("episode");
-    }
-
-    public function getSeason(): int
-    {
-        return parent::get("season");
-    }
-
     public function getImage(): string
     {
         return parent::get("image");
@@ -88,18 +73,6 @@ class Serie extends Entity
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
-    }
-
-    public function setEpisode(int $episode): self
-    {
-        parent::set("episode", $episode);
-        return $this;
-    }
-
-    public function setSeason(int $season): self
-    {
-        parent::set("season", $season);
-        return $this;
     }
 
     public function setImage(string $image): self
@@ -120,12 +93,6 @@ class Serie extends Entity
         return $this;
     }
 
-    public function setVideo(Video $video): self
-    {
-        parent::set("video", $video);
-        return $this;
-    }
-
     public function setTitle(string $title): self
     {
         parent::set("title", $title);
@@ -135,5 +102,32 @@ class Serie extends Entity
     public function getTitle(): string
     {
         return parent::get("title");
+    }
+
+    public function getEpisodes(): array
+    {
+        return parent::get("episodes");
+    }
+
+    public function setDescription(string $description): self
+    {
+        parent::set("description", $description);
+        return $this;
+    }
+
+    public function getDescription(): string
+    {
+        return parent::get("description");
+    }
+
+    public function setCategory(Category $category): self
+    {
+        parent::set("category", $category);
+        return $this;
+    }
+
+    public function getCategory(): Category
+    {
+        return parent::get("category");
     }
 }

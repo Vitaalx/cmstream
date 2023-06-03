@@ -32,12 +32,6 @@ class Video extends Entity
      */
     private array $comments;
 
-    /** 
-     * @notnullable{}
-     * @groups{videoCategory}
-     */
-    private Category $category;
-
     /**
      * @many{Entity\Star,video}
      * @groups{stars}
@@ -53,11 +47,11 @@ class Video extends Entity
     private array $film;
 
     /**
-     * @many{Entity\Serie,video}
-     * @groups{series}
+     * @many{Entity\Episode,video}
+     * @groups{episodes}
      * @cascade{}
      */
-    private array $series;
+    private array $episodes;
 
     /**
      * @type{Date}
@@ -155,9 +149,9 @@ class Video extends Entity
         return parent::get("film");
     }
 
-    public function getSeries(): array
+    public function getEpisodes(): array
     {
-        return parent::get("series");
+        return parent::get("episodes");
     }
 
     public function AvgStars(): int

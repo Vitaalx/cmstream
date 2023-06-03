@@ -15,6 +15,12 @@ class Film extends Entity
      */
     private Video $video;
 
+    /**
+     * notnullable{}
+     * cascade{}
+     */
+    private Category $category;
+
     /** 
      * @type{VARCHAR(255)}
      * @notnullable{}
@@ -84,5 +90,16 @@ class Film extends Entity
     {
         parent::set("video", $video);
         return $this;
+    }
+
+    public function setCategory(Category $category): self
+    {
+        parent::set("category", $category);
+        return $this;
+    }
+
+    public function getCategory(): Category
+    {
+        return parent::get("category");
     }
 }
