@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\ContentManager\CategoryController;
+namespace Controller\API\ContentManager\CategoryController;
 
 use Core\Controller;
 use Core\Request;

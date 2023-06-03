@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\ContentManager\PlaylistController;
+namespace Controller\API\ContentManager\PlaylistController;
 
 use Core\Controller;
 use Core\Request;

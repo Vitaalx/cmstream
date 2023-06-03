@@ -10,8 +10,19 @@ abstract class Controller {
 
     public function __construct(Request $request, Response $response){
         $this->floor = new Floor();
+        if(method_exists($this, "extendCheckers") === true){
+            $extendCheckers = "extendCheckers";
+            $extendCheckers = $this->$extendCheckers($request);
+            self::launchCheckers($extendCheckers, $this->floor, $response);
+        } 
+        
         $checkers = $this->checkers($request);
         self::launchCheckers($checkers, $this->floor, $response);
+
+        if(method_exists($this, "extendHandler") === true){
+            $extendHandler = "extendHandler";
+            $this->$extendHandler($request, $response);
+        }
         $this->handler($request, $response);
     }
     
@@ -69,6 +80,25 @@ abstract class Controller {
 
         return $function;
     }
+}
+
+abstract class OverrideController extends Controller {
+    public function extendCheckers(Request $request): array
+    {
+        return [];
+    }
+
+    public function extendHandler(Request $request, Response $response): void
+    {
+        
+    }
+}
+
+abstract class LiteController {
+    public function __construct(Request $request, Response $response){
+        $this->handler($request, $response);
+    }
+    abstract public function handler(Request $request, Response $response): void;
 }
 
 function callChecker(string $checker, mixed $value){

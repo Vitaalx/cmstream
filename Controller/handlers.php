@@ -1,7 +1,8 @@
 <?php
-namespace controller\handlers;
+namespace Controller\handlers;
 
 use Core\Controller;
+use Core\LiteController;
 use Core\Request;
 use Core\Response;
 
@@ -42,12 +43,7 @@ class notfoundIndex extends Controller{
     }
 }
 
-class notfound extends Controller{
-    public function checkers(Request $request): array
-    {
-        return [];
-    }
-
+class notfound extends LiteController{
     public function handler(Request $request, Response $response): void
     {
         $response->code(404)->info("notfound")->send();

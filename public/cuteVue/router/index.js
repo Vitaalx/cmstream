@@ -125,8 +125,7 @@ export function createRoute(arr, before = (path) => path, after = () => undefine
     proxyRouter.beforeFnc = before;
     proxyRouter.afterFnc = after;
     window.addEventListener("popstate", (e) => {
-        e.preventDefault();
-        console.log(location.pathname);
+        proxyRouter.push(location.pathname);
     })
     window.router = proxyRouter;
     window.router.push(location.pathname);

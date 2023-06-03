@@ -1,6 +1,6 @@
 <?php
 
-namespace controller\API\UserController;
+namespace Controller\API\UserController;
 
 use Core\Auth;
 use Core\Controller;
