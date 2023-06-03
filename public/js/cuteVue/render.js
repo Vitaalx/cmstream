@@ -10,7 +10,9 @@ const {
     __parent__,
     __mounted__,
     __unmounted__,
-    __mount__
+    __mount__,
+    __props__,
+    __properties__,
 } = symbol;
 
 export default function render(template, proxy){
@@ -50,16 +52,23 @@ export default function render(template, proxy){
         [...el.childNodes].forEach(childNode => childNode.$mounted?.());
     };
 
-    Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
+    Object.entries(template.attributes).forEach(([key, value]) => {
+        el.setAttribute(key, value);
+        if(instance !== undefined && instance[__props__][key] !== undefined)instance[__properties__][key] = value;
+    });
 
     Object.entries(template.objectAttributes).forEach(
         ([key, value]) => {
-            let attrRender = eval(/* js */`data => ${value.script}`);
+            let attrRender = eval(/* js */`(
+                function anonymous(proxy){
+                    return ${value.script}
+                }
+            )`);
             
             let subscriber = () => {
                 let result = attrRender(proxy);
                 if(typeof result === "string" || typeof result === "number")el.setAttribute(key, result);
-                if(instance !== undefined)instance[key] = result;
+                if(instance !== undefined && instance[__props__][key] !== undefined)instance[__properties__][key] = result;
             };
 
             let groups = [];
@@ -77,7 +86,11 @@ export default function render(template, proxy){
     );
 
     if(template.class !== undefined){
-        let classRender = eval(/* js */`(proxy) => (${template.class.script})`);
+        let classRender = eval(/* js */`(
+            function anonymous(proxy){
+                return ${template.class.script}
+            }
+        )`);
 
         let subscriber = () => {
             Object.entries(classRender(proxy)).forEach(([key, value]) => {
@@ -104,11 +117,11 @@ export default function render(template, proxy){
     Object.entries(template.events).forEach(([key, value]) => {
         const fnc = typeof proxy[value] === "function" ?
             proxy[value] :
-            eval(/* js */`
-                ($event, proxy) => {
+            eval(/* js */`(
+                function anonymous($event, proxy){
                     ${value}
                 }
-            `);
+            )`);
 
         const fncEvent = typeof proxy[value] === "function" ? 
             fnc :
@@ -131,7 +144,11 @@ export default function render(template, proxy){
     }
 
     if(template.show !== undefined){
-        let cdn = eval(/* js */`proxy => ${template.show.script}`);
+        let cdn = eval(/* js */`(
+            function anonymous(proxy){
+                return ${template.show.script}
+            }
+        )`);
 
         let subscriber = () => {
             let result = cdn(proxy);
@@ -155,7 +172,11 @@ export default function render(template, proxy){
         if(templateChild.type === "textNode"){
             let textNode = document.createTextNode(templateChild);
 
-            let textRender = eval(/* js */`proxy => ${templateChild.script}`);
+            let textRender = eval(/* js */`(
+                function anonymous(data){
+                    return ${templateChild.script}
+                }
+            )`);
 
             let subscriber = () => {
                 let newTextNode = document.createTextNode(textRender(proxy));
@@ -191,7 +212,11 @@ export default function render(template, proxy){
                 return;
             }
             else if(templateChild.if !== undefined){
-                let cdn = eval(/* js */`(proxy) => ${templateChild.if.script}`);
+                let cdn = eval(/* js */`(
+                    function anonymous(proxy){
+                        return ${templateChild.if.script}
+                    }
+                )`);
 
                 let subscriber = () => {
                     let result = cdn(proxy);
@@ -230,7 +255,7 @@ export default function render(template, proxy){
                 let forElement = {...templateChild};
                 delete forElement.for;
                 
-                let subscriber = eval(/* js */`() => {
+                let subscriber = eval(/* js */`(function anonymous(){
                     let children = [];
                     
                     for(const ${templateChild.for.script}){
@@ -268,7 +293,7 @@ export default function render(template, proxy){
                         el.insertBefore(e, elementNode);
                         if(document.body.contains(e)) e.$mounted();
                     });
-                }`);
+                })`);
                 
                 let groups = [];
                 for(let group of templateChild.for.vars){

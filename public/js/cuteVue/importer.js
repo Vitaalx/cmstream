@@ -19,11 +19,11 @@ export default async function importer(path){
         document.head.appendChild(page.body.children[2]);
         let script = page.body.children[1].innerHTML.replace(/export[ ]*default/i, "return ");
 
-        let fnc = eval(/* js */` 
-            async () => {
+        let fnc = eval(/* js */`( 
+            async function anonymous(){
                 ${script};
             }
-        `)
+        )`);
 
         let properties = await fnc();
         properties.el = page.body.children[0];

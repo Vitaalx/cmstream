@@ -11,7 +11,9 @@ const {
     __mounted__,
     __unmounted__,
     __ignoreWatcher__,
-    __mount__
+    __mount__,
+    __props__,
+    __properties__,
 } = symbol; 
 
 export default function makeProxy(properties, template){
@@ -22,7 +24,7 @@ export default function makeProxy(properties, template){
     const stores = properties.stores;
     const computed = properties.computed;
 
-    const proxy = {}
+    const proxy = {};
 
     proxy[__launchSubscribers__] = (prop, newValue, oldValue) => proxy[__subscribers__][prop].forEach(element => element(newValue, oldValue));
     proxy[__slot__] = null;
@@ -31,20 +33,14 @@ export default function makeProxy(properties, template){
     proxy[__unmounted__] = properties.unmounted?.bind(proxy) || function(){};
     proxy[__mount__] = {};
     proxy[__parent__] = undefined;
+    proxy[__props__] = props;
 
     properties = {
         ...data,
         ...props,
         $update: (arg) => {
-            if(!arg){
-                let newEl = this.render(template, proxy);
-                proxy[__element__].replaceWith(newEl);
-                proxy[__element__].$destroy();
-                proxy[__element__] = newEl;
-            }
-            else{
-                proxy[__launchSubscribers__](arg, __ignoreWatcher__);
-            }
+            if(!arg) Object.keys(proxy[__launchSubscribers__]).forEach(key => proxy[__launchSubscribers__](key, __ignoreWatcher__));
+            else proxy[__launchSubscribers__](arg, __ignoreWatcher__);
         },
         $refs: {},
         $emit: (name, arg) => {
@@ -56,6 +52,8 @@ export default function makeProxy(properties, template){
         $mount: (name, component) => proxy[__mount__][name](name, component),
         $getParent: () => proxy[__parent__],
     };
+
+    proxy[__properties__] = properties;
 
     Object.keys(methods).forEach(key => {
         let fnc = methods[key].bind(proxy);
