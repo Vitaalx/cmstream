@@ -10,29 +10,56 @@ class Auth
     static private int $duration;
     static private string $secretKey;
 
-    public function __construct(int $duration = 3600)
+    public static function generateToken(array $payload): string
     {
-        if(defined("CONFIG")) {
+        if (defined("CONFIG")) {
             self::$duration = CONFIG["TOKEN_DURATION"];
             self::$secretKey = CONFIG["SECRET_KEY"];
         } else {
-            self::$duration = $duration;
-            self::$secretKey = "";
+            throw new \Exception("Config.uncreated");
         }
+
+        $header = base64_encode(json_encode([
+            'alg' => 'SHA256',
+            'typ' => 'JWT',
+            'expiresIn' => self::$duration
+        ]));
+
+        $payload = base64_encode(json_encode($payload + ["iat" => time()]));
+        $signatureInput = $header . '.' . $payload;
+        $signature = hash_hmac('sha256', $signatureInput, self::$secretKey, true);
+        $encodedSignature = base64_encode($signature);
+        $token = $header . '.' . $payload . '.' . $encodedSignature;
+
+        self::setTokenInCookie($token);
+
+        return $token;
     }
 
-    static public function generateToken(string $email, string $userName): string
+    public static function checkToken(string $token): array | bool
     {
-        $clearToken = "http://"
-            . $_SERVER["SERVER_NAME"]
-            . $_SERVER["REQUEST_URI"]
-            . $_SERVER['HTTP_USER_AGENT'];
+        list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
 
-        $informations = $email . " " . $userName;
-        $token = self::passwordHash($clearToken);
-        $token = base64_encode($token . "/" . $informations . "/" . time());
+        $header = json_decode(base64_decode($headerEncoded), true);
+        $payload = json_decode(base64_decode($payloadEncoded), true);
 
-        return self::setTokenInCookie($token, $informations);
+        $signatureInput = $headerEncoded . '.' . $payloadEncoded;
+
+        $signature = base64_decode($signatureEncoded);
+
+        $calculatedSignature = hash_hmac($header["alg"], $signatureInput, self::$secretKey, true);
+
+        $signatureMatches = hash_equals($calculatedSignature, $signature);
+
+        if (!$signatureMatches) {
+            return false;
+        }
+
+        if ($header['expiresIn'] + $payload['iat'] < time()) {
+            return false;
+        }
+
+        return $payload;
     }
 
     static public function passwordHash(string $password): string
@@ -40,45 +67,8 @@ class Auth
         return hash_hmac('sha256', $password, self::$secretKey);
     }
 
-    static public function setTokenInCookie(string $token, string $informations): string
+    static public function setTokenInCookie(string $token): void
     {
-        setcookie('token', $token, time() + self::$duration);
-        setcookie('informations', $informations, time() + self::$duration);
-
-        return $token;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    static public function checkToken(string $token): bool
-    {
-        try {
-            $token = explode("/", base64_decode($token));
-            if (
-                $token[0] === self::passwordHash("http://"
-                    . $_SERVER["SERVER_NAME"]
-                    . $_SERVER["REQUEST_URI"]
-                    . $_SERVER['HTTP_USER_AGENT'])
-            ) {
-                throw new \Exception("Wrong token");
-            }
-            $informations = explode(" ", $token[1]);
-            $user = User::findFirst([
-                "id" => $informations[0],
-                "email" => $informations[1],
-                "firstname" => $informations[2],
-            ]);
-            if (!$user) {
-                throw new \Exception("User not found");
-            }
-
-            if ($token[2] . self::$duration < time()) {
-                throw new \Exception("Token expired");
-            }
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
+        setcookie("token", $token, time() + self::$duration, "/", "", false, true);
     }
 }
