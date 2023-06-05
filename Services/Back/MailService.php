@@ -3,9 +3,9 @@
 namespace Services\Back;
 
 
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\Exception;
+use PHPMailer\PHPMailer;
+use PHPMailer\SMTP;
 
 class MailService
 {

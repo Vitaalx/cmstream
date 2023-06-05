@@ -42,13 +42,6 @@ class Waiting_validate extends Entity
     private string $password;
 
     /**
-     * @type{VARCHAR(255)}
-     * @notnullable{}
-     * @unique{}
-     */
-    private string $token;
-
-    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}

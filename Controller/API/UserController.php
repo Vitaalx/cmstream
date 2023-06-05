@@ -2,7 +2,7 @@
 
 namespace Controller\API\UserController;
 
-use Core\Auth;
+use Core\Token;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
@@ -55,14 +55,12 @@ class register extends Controller
     {
         try {
             if ($this->floor->pickup("mailUsed")) $response->code(409)->info("email.already.used")->send();
-            $token = Auth::generateToken([$this->floor->pickup("email"), $this->floor->pickup("firstname")]);
             Waiting_validate::insertOne([
                 "firstname" => $this->floor->pickup("firstname"),
                 "lastname" => $this->floor->pickup("lastname"),
                 "username" => $this->floor->pickup("username"),
                 "email" => $this->floor->pickup("email"),
-                "password" => Auth::passwordHash($this->floor->pickup("password")),
-                "token" => $token
+                "password" => Token::passwordHash($this->floor->pickup("password")),
             ]);
 
             MailService::send(
@@ -72,7 +70,7 @@ class register extends Controller
                 "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",\n\n" .
                     "Merci de vous être inscrit sur notre site.\n" .
                     "Pour valider votre compte, veuillez cliquer sur le lien suivant :\n" .
-                    CONFIG['HOST'] . "api/user/validate?token=" . $token . "\n\n" .
+                    CONFIG['HOST'] . "api/user/validate?token=" . Token::generateTokenMail([$this->floor->pickup("email"), $this->floor->pickup("firstname")]) . "\n\n" .
                     "Cordialement,\n" .
                     "L'équipe de notre site."
             );
@@ -101,20 +99,19 @@ class login extends Controller
 {
     public function checkers(Request $request): array
     {
-        $user = $request->getBody();
         return [
-            ["user/email", $user['email'], "email"],
+            ["user/email", $request->getBody()['email'], "email"],
             ["user/existByMail", fn () => $this->floor->pickup("email"), "user"],
-            ["type/string", $user['password'], "password"],
+            ["type/string", $request->getBody()['password'], "password"],
         ];
     }
     public function handler(Request $request, Response $response): void
     {
 
-        if ($this->floor->pickup("user")->getPassword() !== Auth::passwordHash($this->floor->pickup("password"))) {
+        if ($this->floor->pickup("user")->getPassword() !== Token::passwordHash($this->floor->pickup("password"))) {
             $response->code(401)->info("wrong.password")->send();
         }
-        $token = Auth::generateToken([
+        $token = Token::generateToken([
             "id" => $this->floor->pickup("user")->getId(),
             "username" => $this->floor->pickup("user")->getUsername(),
             "email" => $this->floor->pickup("user")->getEmail(),
@@ -156,34 +153,35 @@ class deleteUser extends Controller
  */
 class modifyUser extends Controller
 {
-
     public function checkers(Request $request): array
     {
-        $userId = $request->getQuery("id");
-        $user = $request->getBody();
         return [
-            ["type/int", $userId, "userId"],
-            ["user/exist", fn () => $userId, "user"],
-            ["user/firstname", $user["firstname"], "firstname"],
-            ["user/lastname", $user["lastname"], "lastname"],
-            ["user/username", $user["username"], "username"],
-            ["user/password", $user["password"], "password"]
+            ["type/int", $request->getQuery("id"), "user_id"],
+            ["user/exist", fn () => $this->floor->pickup('user_id'), "user"],
+            ["user/firstname", $request->getBody()["firstname"], "firstname"],
+            ["user/lastname", $request->getBody()["lastname"], "lastname"],
+            ["user/username", $request->getBody()["username"], "username"],
+            ["user/password", $request->getBody()["password"], "password"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var User $user */
-        $user = $this->floor->pickup("user");
+        try {
+            /** @var User $user */
+            $user = $this->floor->pickup("user");
 
-        $user->setFirstname($this->floor->pickup("firstname"));
-        $user->setLastname($this->floor->pickup("lastname"));
-        $user->setUsername($this->floor->pickup("username"));
-        $user->setPassword($this->floor->pickup("password"));
+            $user->setFirstname($this->floor->pickup("firstname"));
+            $user->setLastname($this->floor->pickup("lastname"));
+            $user->setUsername($this->floor->pickup("username"));
+            $user->setPassword($this->floor->pickup("password"));
 
-        $user->save();
+            $user->save();
 
-        $response->code(200)->info("user.modified")->send(["user" => $user]);
+            $response->code(200)->info("user.modified")->send(["user" => $user]);
+        } catch (\Exception $e) {
+            $response->code(500)->info("user.not.modified")->send();
+        }
     }
 }
 
@@ -206,10 +204,9 @@ class MailValidate extends Controller
 {
     public function checkers(Request $request): array
     {
-        $token = $request->getQuery("token");
         return [
-            ["type/string", $token, "token"],
-            ["token/mail", fn () => $token, "user"]
+            ["token/check", $_GET['token'], "payload"],
+            ["token/mail", fn () => $this->floor->pickup("payload"), "user"]
         ];
     }
 
@@ -255,18 +252,18 @@ class testToken extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        $token = Auth::generateToken([
+        $token = Token::generateToken([
             "id" => $this->floor->pickup("id"),
             "username" => $this->floor->pickup("username"),
             "email" => $this->floor->pickup("email"),
             "role" => null
         ]);
-        $payload1 = Auth::checkToken($token);
+        $payload1 = Token::checkToken($token);
         list($header, $payload, $signature) = explode('.', $token);
         $payload = json_decode(base64_decode($payload), true);
         $payload["iat"] = date("Y-m-d H:i:s", $payload["iat"]);
         $payload = base64_encode(json_encode($payload));
-        $payload2 = Auth::checkToken("{$header}.{$payload}.{$signature}");
+        $payload2 = Token::checkToken("{$header}.{$payload}.{$signature}");
 
 
         $response->code(200)->info("token.valid")->send(["token" => $token, "payload" => $payload1, "si" => $payload2]);

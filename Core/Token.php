@@ -5,7 +5,7 @@ namespace Core;
 use Entity\User;
 use Core\ConfigFile;
 
-class Auth
+class Token
 {
     static private int $duration;
     static private string $secretKey;
@@ -38,6 +38,12 @@ class Auth
 
     public static function checkToken(string $token): array | bool
     {
+        if (defined("CONFIG")) {
+            self::$secretKey = CONFIG["SECRET_KEY"];
+        } else {
+            throw new \Exception("Config.uncreated");
+        }
+
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
 
         $header = json_decode(base64_decode($headerEncoded), true);
@@ -54,9 +60,10 @@ class Auth
         if (!$signatureMatches) {
             return false;
         }
-
-        if ($header['expiresIn'] + $payload['iat'] < time()) {
-            return false;
+        if (isset($payload['iat'])) {
+            if ($header['expiresIn'] + $payload['iat'] < time()) {
+                return false;
+            }
         }
 
         return $payload;
@@ -64,11 +71,38 @@ class Auth
 
     static public function passwordHash(string $password): string
     {
+        if (defined("CONFIG")) {
+            self::$secretKey = CONFIG["SECRET_KEY"];
+        } else {
+            throw new \Exception("Config.uncreated");
+        }
         return hash_hmac('sha256', $password, self::$secretKey);
     }
 
     static public function setTokenInCookie(string $token): void
     {
         setcookie("token", $token, time() + self::$duration, "/", "", false, true);
+    }
+
+    public static function generateTokenMail(array $payload): string
+    {
+        if (defined("CONFIG")) {
+            self::$secretKey = CONFIG["SECRET_KEY"];
+        } else {
+            throw new \Exception("Config.uncreated");
+        }
+
+        $header = base64_encode(json_encode([
+            'alg' => 'SHA256',
+            'typ' => 'JWT',
+        ]));
+
+        $payload = base64_encode(json_encode($payload));
+        $signatureInput = $header . '.' . $payload;
+        $signature = hash_hmac('sha256', $signatureInput, self::$secretKey, true);
+        $encodedSignature = base64_encode($signature);
+        $token = $header . '.' . $payload . '.' . $encodedSignature;
+
+        return $token;
     }
 }
