@@ -41,12 +41,12 @@
             this.navigationDots = document.querySelector(".navigation-dots")
 
             this.init();
+            this.updateWidth();
             this.automateSlider();
 
             // Fixes the width when resizing the window
             window.addEventListener("resize", () => {
-                this.slideWidth = this.slides[0].clientWidth;
-                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * this.currentSlide}px)`;
+                this.updateWidth();
             });
         },
 
@@ -80,11 +80,12 @@
             },
 
             prev(){
+                this.updateWidth();
+
                 if (this.currentSlide <= 0) {
                     this.goToSlide(this.slideCount - 1);
 
                     return;
-
                 }
 
                 this.currentSlide--;
@@ -92,6 +93,8 @@
             },
 
             next(){
+                this.updateWidth();
+
                 if (this.currentSlide >= this.slideCount - 1) {
                     this.goToSlide(0);
 
@@ -131,6 +134,11 @@
                     if (slideNumber > this.slideCount - 1) slideNumber = 0;
                     this.goToSlide(slideNumber);
                 }, this.switchDelay);
+            },
+
+            updateWidth(){
+                this.slideWidth = this.slides[0].clientWidth;
+                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * this.currentSlide}px)`;
             },
 
             getContents(){
@@ -211,7 +219,7 @@
     }
 
     .single-dot {
-        z-index: 100;
+        z-index: 5;
         height: 16px;
         width: 16px;
         margin: 0 8px;
