@@ -32,8 +32,9 @@ scan(
         foreach ($classList as $className) {
             $class = "{$namespace}\\{$className}";
             $rp = new \ReflectionClass($class);
-            $class = str_replace("Controller\\", "", $class);
-            $class = str_replace("\\", "/", $class);
+            $class = explode("\\", $class);
+            array_shift($class);
+            $class = implode("/", $class);
             $comment = $rp->getDocComment();
             if($comment === false) continue;
             
