@@ -1,6 +1,8 @@
 <div>
-    <div class="h-[600px] mb-[40px] bg-skyblue slider-ctnr">
-
+    <div class="h-[600px] mb-[40px] bg-skyblue hero">
+        <div class="max-w-[1130px] h-full mx-auto px-7 lg:px-14">
+            <slider></slider>
+        </div>
     </div>
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col gap-[40px] content">
@@ -10,7 +12,7 @@
                 <show_card cv-for="num in this.last_shows"></show_card>
             </div>
             <div class="see-more">
-                <router_link :href="'#'" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
                     Voir plus
                     <span class="mdi mdi-arrow-right mb-[-3px]"></span>
                 </router_link>
@@ -22,7 +24,7 @@
                 <show_card cv-for="num in this.popular_shows"></show_card>
             </div>
             <div class="see-more">
-                <router_link :href="'#'" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
                     Voir plus
                     <span class="mdi mdi-arrow-right mb-[-3px]"></span>
                 </router_link>
@@ -34,7 +36,7 @@
                 <show_card cv-for="num in this.discover_shows"></show_card>
             </div>
             <div class="see-more">
-                <router_link :href="'#'" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
+                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
                     Voir plus
                     <span class="mdi mdi-arrow-right mb-[-3px]"></span>
                 </router_link>
@@ -44,11 +46,14 @@
 </div>
 
 <script>
-    const [show_card] = await Promise.all([
+    const [slider, show_card] = await Promise.all([
+        importer('/public/cuteVue/components/slider.html'),
         importer('/public/cuteVue/components/show_card.html')
     ]);
+    
     export default {
         components: {
+            slider,
             show_card
         },
 

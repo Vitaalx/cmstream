@@ -1,0 +1,229 @@
+<div class="w-full h-full flex flex-col items-center">
+    <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
+        <div class="prev-btn" @click="this.prev()">
+            <span class="mdi mdi-chevron-left"></span>
+        </div>
+        <div class="slides-container">
+            <!-- <div class="slide"><img src="https://i.postimg.cc/hvtQjxyw/slide1.jpg" alt="Slide 1"></div>
+            <div class="slide"><img src="https://i.postimg.cc/7YbTr3TJ/slide2.jpg" alt="Slide 2"></div>
+            <div class="slide"><img src="https://i.postimg.cc/QNfWz4Vr/slide3.jpg" alt="Slide 3"></div> -->
+            <div class="slide" cv-for="content of this.getContents()">
+                <img :src="this.content">
+            </div>
+        </div>
+        <div class="next-btn" @click="this.next()">
+            <span class="mdi mdi-chevron-right"></span>
+        </div>
+    </div>
+    
+    <div class="navigation-dots"></div>
+</div>
+
+<script>
+    export default {
+        data: {
+            slidesContainer: "",
+            slides: "",
+            slideWidth: "",
+            slideCount: "",
+            currentSlide: 0,
+            navigationDots: "",
+            switchDelay: 10000,
+        },
+
+        props: {},
+
+        mounted(){
+            this.slidesContainer = document.querySelector(".slides-container");
+            this.slides = document.querySelectorAll(".slide");
+            this.slideWidth = this.slides[0].clientWidth;
+            this.slideCount = this.slides.length;
+            this.navigationDots = document.querySelector(".navigation-dots")
+
+            this.init();
+            this.automateSlider();
+
+            // Fixes the width when resizing the window
+            window.addEventListener("resize", () => {
+                this.slideWidth = this.slides[0].clientWidth;
+                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * this.currentSlide}px)`;
+            });
+        },
+
+        methods: {
+            init(){
+                /*
+                    this.slides[0] = 0
+                    this.slides[1] = 100%
+                    this.slides[2] = 200%
+                */
+
+                this.slides.forEach((img, i) => {
+                    img.style.left = i * 100 + "%";
+                });
+                this.slides[0].classList.add("active");
+                this.createNavigationDots();
+            },
+
+            createNavigationDots() {
+                for (let i = 0; i < this.slideCount; i++) {
+                    const dot = document.createElement("div");
+
+                    dot.classList.add("single-dot");
+                    this.navigationDots.appendChild(dot);
+                    dot.addEventListener("click", () => {
+                        this.goToSlide(i);
+                    });
+                }
+
+                this.navigationDots.children[0].classList.add("active");
+            },
+
+            prev(){
+                if (this.currentSlide <= 0) {
+                    this.goToSlide(this.slideCount - 1);
+
+                    return;
+
+                }
+
+                this.currentSlide--;
+                this.goToSlide(this.currentSlide);
+            },
+
+            next(){
+                if (this.currentSlide >= this.slideCount - 1) {
+                    this.goToSlide(0);
+
+                    return;
+
+                }
+
+                this.currentSlide++;
+                this.goToSlide(this.currentSlide);
+            },
+
+            goToSlide(slideNumber) {
+                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * slideNumber}px)`;
+                this.currentSlide = slideNumber;
+                this.setActiveClass();
+            },
+
+            setActiveClass() {
+                // Set active class for Slide Image
+                let currentActive = document.querySelector(".slide.active");
+
+                currentActive.classList.remove("active");
+                this.slides[this.currentSlide].classList.add("active");
+
+                // Set active class for Navigation Dots
+                let currentDot = document.querySelector(".single-dot.active");
+
+                currentDot.classList.remove("active");
+                this.navigationDots.children[this.currentSlide].classList.add("active");
+            },
+
+            automateSlider() {
+                let slideNumber = this.currentSlide;
+
+                setInterval(() => {
+                    slideNumber++;
+                    if (slideNumber > this.slideCount - 1) slideNumber = 0;
+                    this.goToSlide(slideNumber);
+                }, this.switchDelay);
+            },
+
+            getContents(){
+                let contents = [
+                    "https://i.postimg.cc/hvtQjxyw/slide1.jpg",
+                    "https://i.postimg.cc/7YbTr3TJ/slide2.jpg",
+                    "https://i.postimg.cc/QNfWz4Vr/slide3.jpg"
+                ];
+
+                return contents;
+            }
+        }
+    }
+</script>
+
+<style>
+    .wrapper {
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .slides-container {
+        width: 100%;
+        height: 500px;
+        position: relative;
+        transition: 900ms cubic-bezier(0.48, 0.15, 0.18, 1)
+    }
+
+    .slide {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .next-btn,
+    .prev-btn {
+        padding: 16px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        background-color: #FFFFFF;
+        color: #5499C7;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+        cursor: pointer;
+        transition: 400ms;
+    }
+
+    .next-btn:hover,
+    .prev-btn:hover {
+        background-color: #DADADA;
+        color: #5499C7
+    }
+
+    .prev-btn {
+        left: 0;
+    }
+
+    .next-btn {
+        right: 0;
+    }
+
+    .navigation-dots {
+        display: flex;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        margin: 16px 0;
+        margin-top: -50px;
+    }
+
+    .single-dot {
+        z-index: 100;
+        height: 16px;
+        width: 16px;
+        margin: 0 8px;
+        border: 2px solid #000000;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 400ms;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+    }
+
+    .single-dot.active {
+        background-color: #FFFFFF;
+    }
+</style>

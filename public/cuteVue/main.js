@@ -49,6 +49,10 @@ createRoute(
                     path: "/signin",
                     view: () => importer("/public/cuteVue/views/signin.html"),
                 },
+                {
+                    path: "/catalog",
+                    view: () => importer("/public/cuteVue/views/catalog.html"),
+                }
             ]
         },
     ],
