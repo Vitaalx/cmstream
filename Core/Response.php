@@ -149,8 +149,8 @@ class Response{
         }
 
         if(isset($this->info) === true){
-            $this->setHeader("info", $this->info);
-            $this->addExpose("info");
+            $this->setHeader("aob-info", $this->info);
+            $this->addExpose("aob-info");
         }
 
         $this->setHeader("access-control-expose-headers", implode(", ", $this->expose));

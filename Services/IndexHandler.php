@@ -22,6 +22,9 @@ abstract class IndexHandler extends OverrideController{
 
     public function handler(Request $request, Response $response): void
     {
-        $response->code($this->code)->sendFile($this->floor->pickup("path"));
+        $response
+        ->setHeader("Content-Type", "text/html")
+        ->code($this->code)
+        ->sendFile($this->floor->pickup("path"));
     }
 }
