@@ -5,6 +5,7 @@ use Core\Controller;
 use Core\LiteController;
 use Core\Request;
 use Core\Response;
+use Services\IndexHandler;
 
 class assets extends Controller{
     public function checkers(Request $request): array
@@ -25,22 +26,8 @@ class assets extends Controller{
     }
 }
 
-class notfoundIndex extends Controller{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["file/exist", __DIR__ . "/../index.html", "path"]
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        $response
-        ->code(404)
-        ->sendFile(
-            $this->floor->pickup("path")
-        );
-    }
+class notfoundIndex extends IndexHandler{
+    public int $code = 404;
 }
 
 class notfound extends LiteController{
