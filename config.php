@@ -8,6 +8,11 @@ define("CONFIG", [
     'DB_DATABASE' => 'esgi',
     'DB_USERNAME' => 'esgi',
     'DB_PASSWORD' => 'Test1234',
-    'SECRET_KEY' => 'XXXXXX',
-    'TOKEN_DURATION' => 3600
+    'SECRET_KEY' => 'secretKey',
+    'TOKEN_DURATION' => 3600,
+    'MAIL_HOST' => 'maildev',
+    'MAIL_PORT' => 1025,
+    'MAIL_FROM' => 'no-reply-cmstream@mail.com',
+    'MAIL_FROM_NAME' => 'cmStream',
+    'HOST' => 'http://localhost:1506/',
 ]);

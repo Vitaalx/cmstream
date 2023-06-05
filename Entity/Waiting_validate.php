@@ -4,7 +4,7 @@ namespace Entity;
 
 use Core\Entity;
 
-class User extends Entity
+class Waiting_validate extends Entity
 {
     /** @type{int} */
     private int $id;
@@ -38,27 +38,15 @@ class User extends Entity
     /**
      * @type{VARCHAR(255)}
      * @notnullable{}
-     * @groups{userPassword}
      */
     private string $password;
 
-    private Role $role;
-
     /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
-     * @groups{dateProps}
      */
     private string $created_at;
-
-    /**
-     * @type{Date}
-     * @notnullable{}
-     * @default{CURRENT_TIMESTAMP}
-     * @groups{dateProps}
-     */
-    private string $updated_at;
 
     /**
      * Get the value of id
@@ -191,30 +179,6 @@ class User extends Entity
     }
 
     /**
-     * Get the value of role
-     *
-     * @return string
-     */
-    public function getRole(): string
-    {
-        return parent::get("role");
-    }
-
-    /**
-     * Set the value of role
-     *
-     * @param string
-     *
-     * @return self
-     */
-    public function setRole(string $role): self
-    {
-        parent::set("role", $role);
-
-        return $this;
-    }
-
-    /**
      * Get the value of created_at
      *
      * @return string
@@ -222,15 +186,5 @@ class User extends Entity
     public function getCreatedAt(): string
     {
         return parent::get("created_at");
-    }
-
-    /**
-     * Get the value of updated_at
-     *
-     * @return string
-     */
-    public function getUpdatedAt(): string
-    {
-        return parent::get("updated_at");
     }
 }

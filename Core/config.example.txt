@@ -9,5 +9,10 @@ define("CONFIG", [
     'DB_USERNAME' => '{DB_USERNAME}',
     'DB_PASSWORD' => '{DB_PASSWORD}',
     'SECRET_KEY' => '{SECRET_KEY}',
-    'TOKEN_DURATION' => {TOKEN_DURATION}
+    'TOKEN_DURATION' => {TOKEN_DURATION},
+    'MAIL_PORT' => {MAIL_PORT},
+    'MAIL_HOST' => '{MAIL_HOST}',
+    'MAIL_FROM_NAME' => '{MAIL_FROM_NAME}',
+    'MAIL_FROM' => '{MAIL_FROM}',
+    'HOST' => '{HOST}'
 ]);
