@@ -1,16 +1,11 @@
 <?php
 
-namespace controller\API\CommentController;
+namespace Controller\API\CommentController;
 
 use Core\Controller;
 use Core\Request;
 use Core\Response;
 use Entity\Comment;
-use Entity\User;
-use Entity\Video;
-use Exceptions\CommentNotFoundException;
-use Exceptions\UserNotFoundException;
-use Exceptions\VideoNotFoundException;
 
 
 /**
