@@ -62,23 +62,9 @@ class Request{
         return $this->cookies;
     }
 
-    public function getCookie(string $key): array
+    public function getCookie(string $key): ?string
     {
-        return $this->cookies[$key];
-    }
-
-    public function setCookies(array $cookies): Request
-    {
-        $this->cookies = $cookies;
-
-        return $this;
-    }
-
-    public function setCookie(string $key, array $cookies): Request
-    {
-        $this->cookies[$key] = $cookies;
-
-        return $this;
+        return $this->cookies[$key] ?? null;
     }
 
     public function getBody()

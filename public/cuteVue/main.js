@@ -62,7 +62,7 @@ createRoute(
         }
         else {
             close();
-            return "";
+            return "/";
         }
     },
     (path) => {

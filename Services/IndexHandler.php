@@ -6,6 +6,8 @@ use Core\Request;
 use Core\Response;
 
 abstract class IndexHandler extends OverrideController{
+    public int $code = 200;
+
     public function extendCheckers(Request $request): array
     {
         return [
@@ -20,10 +22,6 @@ abstract class IndexHandler extends OverrideController{
 
     public function handler(Request $request, Response $response): void
     {
-        $response
-        ->code(200)
-        ->sendFile(
-            $this->floor->pickup("path")
-        );
+        $response->code($this->code)->sendFile($this->floor->pickup("path"));
     }
 }

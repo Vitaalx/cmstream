@@ -9,6 +9,7 @@ class Response{
     private string $info;
     private array $headers = [];
     private array $expose = [];
+    private array $cookies = [];
 
     public function __construct(){
         self::$currentResponse = $this;
@@ -25,9 +26,9 @@ class Response{
         $this->headers[$key] = $content;
         return $this;
     }
-    public function getHeader(string $key): array
+    public function getHeader(string $key): ?string
     {
-        return $this->headers[$key];
+        return $this->headers[$key] ?? null;
     }
 
     public function setHeaders(array $content): Response
@@ -41,9 +42,34 @@ class Response{
         return $this->headers;
     }
 
-    public function addExpose(mixed $value): void
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    public function getCookie(string $key): ?string
+    {
+        return $this->cookies[$key] ?? null;
+    }
+
+    public function setCookies(array $cookies): Response
+    {
+        $this->cookies = $cookies;
+
+        return $this;
+    }
+
+    public function setCookie(string $key, string $cookie): Response
+    {
+        $this->cookies[$key] = $cookie;
+
+        return $this;
+    }
+
+    public function addExpose(mixed $value): Response
     {
         array_push($this->expose, $value);
+        return $this;
     }
     
     public function info(string $info): Response
@@ -62,12 +88,14 @@ class Response{
     }
     public function sendFile(string $path): void
     {
-        $this
-        ->setHeader(
-            "Content-Type",
-            self::getMimeType($path)
-        )
-        ->autoSetHeaders();
+        if($this->getHeader("Content-Type") === null){
+            $this->setHeader(
+                "Content-Type",
+                self::getMimeType($path)
+            );
+        }
+
+        $this->autoSetHeaders();
 
         readfile($path);
 
@@ -129,6 +157,10 @@ class Response{
 
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");
+        }
+
+        foreach($this->cookies as $key => $value){
+            setcookie($key, $value);
         }
     }
 
