@@ -6,6 +6,7 @@ use Core\Request;
 
 /**
  * @GET{/}
+ * @GET{/catalog}
  */
 class index extends IndexHandler{}
 

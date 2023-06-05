@@ -1,0 +1,42 @@
+<div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 content">
+    <h1 class="mb-[40px] text-2xl font-bold">Catalogue</h1>
+    <div class="mb-[30px] flex justify-center gap-4 alphabet">
+        <a :href="'#' + this.letter" class="hover:text-skyblue hover:underline" cv-for="letter of this.getAlphabet()">{{ this.letter }}</a>
+    </div>
+    <div class="content">
+        <div id="#A" class="show-group">
+            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">#A</h2>
+            <div class="show-list">
+                <show_card_large></show_card_large>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [show_card_large] = await Promise.all([
+        importer('/public/cuteVue/components/show_card_large.html')
+    ]);
+
+    export default {
+        components: {
+            show_card_large
+        },
+
+        mounted(){
+        },
+
+        methods: {
+            getAlphabet(){
+                let alphabet = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                let alphabetArray = alphabet.split("");
+
+                return alphabetArray;
+            }
+        }
+    }
+</script>
+
+<style>
+
+</style>
