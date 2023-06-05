@@ -1,18 +1,24 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_0_0_rgba(0,0,0,0.1)]">
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)]">
     <div class="flex items-center justify-center gap-[30px] left">
-        <router_link :href="'/'" class="h-full pr-[10px] flex items-center logo">
+        <router_link href="/" class="h-full pr-[10px] flex items-center logo">
             <img src="/public/img/icons/logo.svg" alt="CMStream logo">
         </router_link>
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link :href="'#'" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">Catalogue</router_link>
+                    <router_link href="catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        Catalogue
+                    </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link :href="'#'" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">Boutique</router_link>
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        Boutique
+                    </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link :href="'#'" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">News</router_link>
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        News
+                    </router_link>
                 </li>
             </ul>
         </nav>
@@ -21,12 +27,12 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link :href="'#'" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
                         <span class="mdi mdi-magnify text-[24px]"></span>
                     </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link :href="'#'" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
                         <span class="mdi mdi-bookmark-outline text-[24px]"></span>
                     </router_link>
                 </li>
@@ -39,11 +45,11 @@
                         </div>
                         <div cv-if="this.displayOptionsMenu" class="absolute top-[60px] right-0 w-[280px] bg-blackless account-options">
                             <div cv-if="!this.connected" class="py-4 flex flex-col gap-4">
-                                <router_link :href="'signup'" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup">
+                                <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptions()">
                                     <span class="text-xl font-semibold">Créer un compte</span>
                                     <p class="text-sm">Inscrivez-vous gratuitement.</p>
                                 </router_link>
-                                <router_link :href="'signin'" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin">
+                                <router_link href="signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptions()">
                                     <span class="text-xl font-semibold">Se connecter</span>
                                     <p class="text-sm">Déjà inscrit ? Bon retour.</p>
                                 </router_link>
@@ -83,13 +89,19 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">Catalogue</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Catalogue
+                    </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">Boutique</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Boutique
+                    </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">News</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        News
+                    </a>
                 </li>
             </ul>
         </nav>
@@ -97,13 +109,19 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">Rechercher</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Rechercher
+                    </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">Watchlists</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Watchlist
+                    </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">Connexion</a>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Connexion
+                    </a>
                 </li>
             </ul>
         </nav>
@@ -115,10 +133,19 @@
     export default {
         data: {
             connected: false,
-            displayOptionsMenu: false
+            displayOptionsMenu: false,
+            isOpen: false,
         },
 
         props: {},
+
+        mounted() {
+            window.addEventListener("resize", () => {
+                if(window.innerWidth > 1024){
+                    this.closeMenu();
+                }
+            });
+        },
 
         methods: {
             toggleMenu(){
@@ -127,13 +154,22 @@
 
                 burgerButton.classList.toggle("active");
                 menuWrapper.classList.toggle("active");
+                this.isOpen = !this.isOpen;
+            },
+
+            closeMenu(){
+                const burgerButton = document.querySelector("#burgerButton");
+                const menuWrapper = document.querySelector("#menuWrapper");
+
+                burgerButton.classList.remove("active");
+                menuWrapper.classList.remove("active");
+                this.isOpen = false;
             },
 
             displayOptions(){
                 this.displayOptionsMenu = !this.displayOptionsMenu;
-                console.log(this.displayOptionsMenu);
-            }
-        },
+            },
+        }
     }
 </script>
 
