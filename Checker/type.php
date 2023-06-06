@@ -1,10 +1,15 @@
 <?php
 
-namespace checker\token;
+namespace checker\type;
 
 function string(string $string): string
 {
     return $string;
+}
+
+function flawless(string $string): string
+{
+    return htmlspecialchars($string);
 }
 
 function int(int $int): int

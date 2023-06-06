@@ -11,12 +11,12 @@ function id(int $id, Floor $floor, Response $response): int
     return $id;
 }
 
-function name(string $name, Floor $floor, Response $response): string
+function username(string $name, Floor $floor, Response $response): string
 {
     $name = trim($name);
     $name = strtolower($name);
-    if (strlen($name) < 4 || strlen($name) > 20) {
-        $response->info("user.name")->code(400)->send();
+    if (strlen($name) < 4 || strlen($name) > 120) {
+        $response->info("user.username")->code(400)->send();
     }
     return $name;
 }
@@ -25,7 +25,7 @@ function lastname(string $lastname, Floor $floor, Response $response): string
 {
     $lastname = trim($lastname);
     $lastname = strtoupper($lastname);
-    if (strlen($lastname) < 1 || strlen($lastname) > 60) {
+    if (strlen($lastname) < 1 || strlen($lastname) > 120) {
         $response->info("user.lastname")->code(400)->send();
     }
     return $lastname;
@@ -34,11 +34,23 @@ function lastname(string $lastname, Floor $floor, Response $response): string
 function firstname(string $firstname, Floor $floor, Response $response): string
 {
     $firstname = trim($firstname);
-    $firstname = strtoupper($firstname);
-    if (strlen($firstname) < 1 || strlen($firstname) > 60) {
+    $firstname = ucfirst($firstname);
+    if (strlen($firstname) < 4 || strlen($firstname) > 60) {
         $response->info("user.firstname")->code(400)->send();
     }
     return $firstname;
+}
+
+function password(string $pwd, Floor $floor, Response $response) : string {
+    $pattern = '/[!@#$%^&*(),.?":{}|<>]/';
+    $password = trim($pwd);
+    if (strlen($password) < 4 || strlen($password) > 255) {
+        $response->info("user.password.length")->code(400)->send();
+    }
+    if(!preg_match($pattern, $password)) {
+        $response->info("user.password.pattern")->code(400)->send();
+    }
+    return $password;
 }
 
 function email(string $email, Floor $floor, Response $response): string
@@ -51,13 +63,25 @@ function email(string $email, Floor $floor, Response $response): string
     return $email;
 }
 
-function emailIsFree(string $email, Floor $floor, Response $response): string
+function existByMail(string $email, Floor $floor, Response $response): User
 {
-    $user = User::findFirst([
-        "email" => $email
-    ]);
-    if ($user) {
-        $response->info("user.email")->code(400)->send();
-    }
-    return $email;
+    /** @var User $user */
+    $user = User::findFirst(["email" => $email]);
+    if($user === null) $response->info("user.notfound.mail")->code(404)->send();
+    return $user;
+}
+
+function mailUsed(string $email, Floor $floor, Response $response): void
+{
+    /** @var User $user */
+    $user = User::findFirst(["email" => $email]);
+    if($user !== null) $response->code(409)->info("email.already.used")->send();
+}
+
+function exist(int $userId, Floor $floor, Response $response): User
+{
+    /** @var User $user */
+    $user = User::findFirst(["id" => $userId]);
+    if($user === null) $response->info("user.notfound.id")->code(404)->send();
+    return $user;
 }

@@ -1,0 +1,241 @@
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)]">
+    <div class="flex items-center justify-center gap-[30px] left">
+        <router_link href="/" class="h-full pr-[10px] flex items-center logo">
+            <img src="/public/img/icons/logo.svg" alt="CMStream logo">
+        </router_link>
+        <nav class="h-full hidden lg:block">
+            <ul class="h-full flex items-center justify-center gap-[30px]">
+                <li class="h-full">
+                    <router_link href="catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        Catalogue
+                    </router_link>
+                </li>
+                <li class="h-full">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        Boutique
+                    </router_link>
+                </li>
+                <li class="h-full">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        News
+                    </router_link>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="flex items-center justify-center gap-[40px] right">
+        <nav class="h-full hidden lg:block">
+            <ul class="h-full flex items-center justify-center gap-[30px]">
+                <li class="h-full">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        <span class="mdi mdi-magnify text-[24px]"></span>
+                    </router_link>
+                </li>
+                <li class="h-full">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                        <span class="mdi mdi-bookmark-outline text-[24px]"></span>
+                    </router_link>
+                </li>
+                <li class="relative h-full">
+                    <div id="accountButton" class="relative h-full">
+                        <div class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless" cv-class="{ 'bg-blackless': this.displayOptionsMenu }" @click="this.displayOptions()">
+                            <span class="mdi mdi-account-circle text-[24px]" cv-class="{ 'text-white': this.displayOptionsMenu }"></span>
+                            <span cv-if="!this.displayOptionsMenu" class="mdi mdi-triangle-small-down"></span>
+                            <span cv-if="this.displayOptionsMenu" class="mdi mdi-triangle-small-up text-white"></span>
+                        </div>
+                        <div cv-if="this.displayOptionsMenu" class="absolute top-[60px] right-0 w-[280px] bg-blackless account-options">
+                            <div cv-if="!this.connected" class="py-4 flex flex-col gap-4">
+                                <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptions()">
+                                    <span class="text-xl font-semibold">Créer un compte</span>
+                                    <p class="text-sm">Inscrivez-vous gratuitement.</p>
+                                </router_link>
+                                <router_link href="signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptions()">
+                                    <span class="text-xl font-semibold">Se connecter</span>
+                                    <p class="text-sm">Déjà inscrit ? Bon retour.</p>
+                                </router_link>
+                            </div>
+                            <div cv-if="this.connected" class="py-4 flex flex-col gap-4">
+                                <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:bg-darkblue user">
+                                    <span class="mdi mdi-account-circle text-[40px]"></span>
+                                    <span class="font-semibold">Username</span>
+                                </div>
+                                <div class="h-[2px] bg-darkblue separator"></div>
+                                <div class="options">
+                                    <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue notifications">
+                                        <span class="mdi mdi-bell-outline text-[24px]"></span>
+                                        <span>Notifications</span>
+                                    </div>
+                                    <div class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account">
+                                        <span class="mdi mdi-account text-[24px]"></span>
+                                        <span>Paramètres du compte</span>
+                                    </div>
+                                </div>
+                                <div class="h-[2px] bg-darkblue separator"></div>
+                                <div class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue disconnect">
+                                    <span class="mdi mdi-logout text-[24px]"></span>
+                                    <span>Se déconnecter</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <div id="burgerButton" class="block lg:hidden burger-button" @click="this.toggleMenu()">
+            <div class="burger-line"></div>
+        </div>
+    </div>
+    <div id="menuWrapper" class="z-5 menu-wrapper">
+        <nav>
+            <ul>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Catalogue
+                    </a>
+                </li>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Boutique
+                    </a>
+                </li>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        News
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="h-[2px] my-4 bg-grey"></div>
+        <nav>
+            <ul>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Rechercher
+                    </a>
+                </li>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Watchlist
+                    </a>
+                </li>
+                <li>
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                        Connexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+    </div>
+</header>
+
+<script>
+    export default {
+        data: {
+            connected: false,
+            displayOptionsMenu: false,
+            isOpen: false,
+        },
+
+        props: {},
+
+        mounted() {
+            window.addEventListener("resize", () => {
+                if(window.innerWidth > 1024){
+                    this.closeMenu();
+                }
+            });
+        },
+
+        methods: {
+            toggleMenu(){
+                const burgerButton = document.querySelector("#burgerButton");
+                const menuWrapper = document.querySelector("#menuWrapper");
+
+                burgerButton.classList.toggle("active");
+                menuWrapper.classList.toggle("active");
+                this.isOpen = !this.isOpen;
+            },
+
+            closeMenu(){
+                const burgerButton = document.querySelector("#burgerButton");
+                const menuWrapper = document.querySelector("#menuWrapper");
+
+                burgerButton.classList.remove("active");
+                menuWrapper.classList.remove("active");
+                this.isOpen = false;
+            },
+
+            displayOptions(){
+                this.displayOptionsMenu = !this.displayOptionsMenu;
+            },
+        }
+    }
+</script>
+
+<style>
+    .burger-button {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        cursor: pointer;
+        transition: 0.4s;
+    }
+
+    .burger-button .burger-line,
+    .burger-button .burger-line::before,
+    .burger-button .burger-line::after {
+        position: absolute;
+        width: 40px;
+        height: 4px;
+        background-color: #ffffff;
+        transition: 0.4s;
+    }
+
+    .burger-button .burger-line {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .burger-button .burger-line::before {
+        content: "";
+        top: -12px;
+    }
+
+    .burger-button .burger-line::after {
+        content: "";
+        top: 12px;
+    }
+
+    .burger-button.active .burger-line {
+        background: transparent;
+    }
+
+    .burger-button.active .burger-line::before {
+        top: 0;
+        transform: rotate(45deg);
+    }
+
+    .burger-button.active .burger-line::after {
+        top: 0;
+        transform: rotate(-45deg);
+    } 
+
+    .menu-wrapper {
+        position: fixed;
+        right: -250px; 
+        width: 250px;
+        height: calc(100vh - 60px);
+        margin-top: 60px;
+        display: block;
+        background-color: #23252B;
+        transition: 0.5s;
+    }
+
+    .menu-wrapper.active {
+        right: 0;
+        box-shadow: -5px 0 0 0 rgba(0, 0, 0, 0.1);
+        transition: 0.5s;
+    }
+</style>

@@ -9,6 +9,7 @@ class Response{
     private string $info;
     private array $headers = [];
     private array $expose = [];
+    private array $cookies = [];
 
     public function __construct(){
         self::$currentResponse = $this;
@@ -25,9 +26,9 @@ class Response{
         $this->headers[$key] = $content;
         return $this;
     }
-    public function getHeader(string $key): array
+    public function getHeader(string $key): ?string
     {
-        return $this->headers[$key];
+        return $this->headers[$key] ?? null;
     }
 
     public function setHeaders(array $content): Response
@@ -41,9 +42,34 @@ class Response{
         return $this->headers;
     }
 
-    public function addExpose(mixed $value): void
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    public function getCookie(string $key): ?string
+    {
+        return $this->cookies[$key] ?? null;
+    }
+
+    public function setCookies(array $cookies): Response
+    {
+        $this->cookies = $cookies;
+
+        return $this;
+    }
+
+    public function setCookie(string $key, string $cookie): Response
+    {
+        $this->cookies[$key] = $cookie;
+
+        return $this;
+    }
+
+    public function addExpose(mixed $value): Response
     {
         array_push($this->expose, $value);
+        return $this;
     }
     
     public function info(string $info): Response
@@ -62,7 +88,14 @@ class Response{
     }
     public function sendFile(string $path): void
     {
-        $this->autoSetHeaders($content);
+        if($this->getHeader("Content-Type") === null){
+            $this->setHeader(
+                "Content-Type",
+                self::getMimeType($path)
+            );
+        }
+
+        $this->autoSetHeaders();
 
         readfile($path);
 
@@ -97,6 +130,11 @@ class Response{
         exit;
     }
 
+    public function redirect(string $url){
+        $this->setHeader("Location", $url);
+        $this->code(303)->info("redirected")->send();
+    }
+
     private function autoSetHeaders(mixed &$content = ""){
         http_response_code($this->code);
         
@@ -111,8 +149,8 @@ class Response{
         }
 
         if(isset($this->info) === true){
-            $this->setHeader("info", $this->info);
-            $this->addExpose("info");
+            $this->setHeader("aob-info", $this->info);
+            $this->addExpose("aob-info");
         }
 
         $this->setHeader("access-control-expose-headers", implode(", ", $this->expose));
@@ -120,6 +158,70 @@ class Response{
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");
         }
+
+        foreach($this->cookies as $key => $value){
+            setcookie($key, $value);
+        }
+    }
+
+    static private function getMimeType($filename) {
+        $split = explode(".", $filename);
+        $ext = array_pop($split);
+        $ext = strtolower($ext);
+    
+        $mimet = match($ext) { 
+            "txt" => "text/plain",
+            "htm" => "text/html",
+            "html" => "text/html",
+            "php" => "text/html",
+            "css" => "text/css",
+            "js" => "application/javascript",
+            "json" => "application/json",
+            "xml" => "application/xml",
+            "swf" => "application/x-shockwave-flash",
+        
+            "flv" => "video/x-flv",
+            "png" => "image/png",
+            "jpe" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "jpg" => "image/jpeg",
+            "gif" => "image/gif",
+            "bmp" => "image/bmp",
+            "ico" => "image/vnd.microsoft.icon",
+            "tiff" => "image/tiff",
+            "tif" => "image/tiff",
+            "svg" => "image/svg+xml",
+            "svgz" => "image/svg+xml",
+        
+            "zip" => "application/zip",
+            "rar" => "application/x-rar-compressed",
+            "exe" => "application/x-msdownload",
+            "msi" => "application/x-msdownload",
+            "cab" => "application/vnd.ms-cab-compressed",
+        
+            "mp3" => "audio/mpeg",
+            "qt" => "video/quicktime",
+            "mov" => "video/quicktime",
+        
+            "pdf" => "application/pdf",
+            "psd" => "image/vnd.adobe.photoshop",
+            "ai" => "application/postscript",
+            "eps" => "application/postscript",
+            "ps" => "application/postscript",
+        
+            "doc" => "application/msword",
+            "rtf" => "application/rtf",
+            "xls" => "application/vnd.ms-excel",
+            "ppt" => "application/vnd.ms-powerpoint",
+            "docx" => "application/msword",
+            "xlsx" => "application/vnd.ms-excel",
+            "pptx" => "application/vnd.ms-powerpoint",
+        
+            "odt" => "application/vnd.oasis.opendocument.text",
+            "ods" => "application/vnd.oasis.opendocument.spreadsheet",
+        };
+        
+        return $mimet ?? "application/octet-stream";
     }
 
     /**

@@ -1,0 +1,86 @@
+<footer class="px-14 py-12 bg-darkblue">
+    <div class="max-w-[1050px] mx-auto footer-content">
+        <div class="top flex flex-col lg:flex-row justify-between">
+            <nav class="navigation-nav">
+                <h2 class="text-xl font-bold leading-normal mt-0 mb-2 text-white">Navigation</h2>
+                <ul>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Catalogue</a>
+                    </li>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Boutique</a>
+                    </li>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">News</a>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="social-nav">
+                <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Suivez-nous !</h2>
+                <ul>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">
+                            <span class="mdi mdi-facebook"></span>
+                            Facebook
+                        </a>
+                    </li>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">
+                            <span class="mdi mdi-twitter"></span>
+                            Twitter
+                        </a>
+                    </li>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">
+                            <span class="mdi mdi-instagram"></span>
+                            Instagram
+                        </a>
+                    </li>
+                    <li>
+                        <a class="text-sm text-whiteless hover:text-white" href="#">
+                            <span class="mdi mdi-youtube"></span>
+                            Youtube
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="account-nav">
+                <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Compte</h2>
+                <ul>
+                    <li cv-if="!this.connected">
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Créer un compte</a>
+                    </li>
+                    <li cv-if="!this.connected">
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Se connecter</a>
+                    </li>
+                    <li cv-if="this.connected">
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Mes watchlists</a>
+                    </li>
+                    <li cv-if="this.connected">
+                        <a class="text-sm text-whiteless hover:text-white" href="#">Paramètres du compte</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <hr class="my-6">
+        <div class="bot">
+            <small class="text-whiteless">&copy; CMStream 2023</small>
+        </div>
+    </div>
+</footer>
+
+<script>
+    export default {
+        data: {
+            connected: true,
+        },
+
+        props: {},
+
+        methods: {},
+    }
+</script>
+
+<style>
+
+</style>

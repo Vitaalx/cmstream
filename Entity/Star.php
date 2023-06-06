@@ -9,17 +9,17 @@ class Star extends Entity
     /** @type{int} */
     private int $id;
 
-     /**
-     * @many{Entity\Video,id}
-     * @groups{videos}
+    /** 
+     * notnullable{}
+     * @groups{starVideo}
      */
-    private array $video;
+    private Video $video;
 
-    /**
-     * @many{Entity\User,id}
-     * @groups{users}
+    /** 
+     * notnullable{}
+     * @groups{starUser}
      */
-    private array $user;
+    private User $user;
 
     /**
      * @type{int}
@@ -130,6 +130,8 @@ class Star extends Entity
 
         return $this;
     }
+
+
 
     /**
      * Set the value of created_at

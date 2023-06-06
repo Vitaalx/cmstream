@@ -2,9 +2,6 @@
 
 namespace Core;
 
-use Core\Database;
-use Core\ConfigFile;
-
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable
 {
@@ -16,10 +13,10 @@ abstract class Entity implements \JsonSerializable
 
     public function __construct(array $array)
     {
-        if(isset(self::$reflections[static::class]) === false){
+        if (isset(self::$reflections[static::class]) === false) {
             self::$reflections[static::class] = [];
             $rp = new \ReflectionObject($this);
-            foreach($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop){
+            foreach ($rp->getProperties(\ReflectionProperty::IS_PRIVATE) as $prop) {
                 $type = $prop->getType()->getName();
                 $name = $prop->getName();
                 $comment = $prop->getDocComment();
@@ -34,7 +31,7 @@ abstract class Entity implements \JsonSerializable
                     "default" => null,
                 ];
 
-                if(str_starts_with($type, "Entity\\")){
+                if (str_starts_with($type, "Entity\\")) {
                     $entityProp = explode("\\", $type);
                     self::$reflections[static::class][$name]["entityProp"] = array_pop($entityProp);
                 }
@@ -42,10 +39,10 @@ abstract class Entity implements \JsonSerializable
                 preg_match_all("/@(.*){(.*)}/", $comment, $groups);
 
                 foreach ($groups[1] as $key => $value) {
-                    if($value === "many") self::$reflections[static::class][$name][$value] = explode(",", $groups[2][$key]);
-                    else if($value === "groups") self::$reflections[static::class][$name][$value] = explode(",", $groups[2][$key]);
-                    else if($value === "cascade") self::$reflections[static::class][$name][$value] = true;
-                    else if($value === "default") self::$reflections[static::class][$name][$value] = true;
+                    if ($value === "many") self::$reflections[static::class][$name][$value] = explode(",", $groups[2][$key]);
+                    else if ($value === "groups") self::$reflections[static::class][$name][$value] = explode(",", $groups[2][$key]);
+                    else if ($value === "cascade") self::$reflections[static::class][$name][$value] = true;
+                    else if ($value === "default") self::$reflections[static::class][$name][$value] = true;
                 }
             }
         }
@@ -77,12 +74,11 @@ abstract class Entity implements \JsonSerializable
 
             $result = $targetEntity::findMany(["{$targetProp}_id" => $this->props["id"]]);
 
-            $this->props[$prop["name" ]] = $result;
+            $this->props[$prop["name"]] = $result;
             return true;
-        } 
-        else {
-            $propName = $prop["name" ] . "_id";
-            
+        } else {
+            $propName = $prop["name"] . "_id";
+
             if (
                 isset($this->props[$propName]) === false ||
                 $prop["entityProp"] === null
@@ -92,7 +88,7 @@ abstract class Entity implements \JsonSerializable
             $targetEntity = $prop["type"];
 
             $result = $targetEntity::findFirst(["id" => $propValue]);
-            
+
             if ($result === null) return false;
 
             $this->props[$prop["name"]] = $result;
@@ -105,22 +101,21 @@ abstract class Entity implements \JsonSerializable
         $array = [];
 
         foreach (self::$reflections[static::class] as $propName => $prop) {
-            if($prop["groups"] !== null){
+            if ($prop["groups"] !== null) {
                 $hasGroupe = false;
-                foreach($prop["groups"] as $group){
-                    if(in_array($group, self::$groups) === true){
+                foreach ($prop["groups"] as $group) {
+                    if (in_array($group, self::$groups) === true) {
                         $hasGroupe = true;
                         break;
                     }
                 }
-                if($hasGroupe === true && ($prop["entityProp"] !== null || $prop["type"] === "array")) $this->join($prop);
-                else if($hasGroupe === false) continue;
-            }
-            else if ($prop["entityProp"] !== null || $prop["type"] === "array") continue;
+                if ($hasGroupe === true && ($prop["entityProp"] !== null || $prop["type"] === "array")) $this->join($prop);
+                else if ($hasGroupe === false) continue;
+            } else if ($prop["entityProp"] !== null || $prop["type"] === "array") continue;
 
             try {
-                if(isset($this->props[$propName]) === false) continue;
-                else if($prop["entityProp"] !== null) $array[$propName] = $this->props[$propName]->toArray();
+                if (isset($this->props[$propName]) === false) continue;
+                else if ($prop["entityProp"] !== null) $array[$propName] = $this->props[$propName]->toArray();
                 else $array[$propName] = $this->props[$propName];
             } catch (\Throwable $th) {
                 continue;
@@ -139,18 +134,16 @@ abstract class Entity implements \JsonSerializable
 
         foreach (self::$reflections[static::class] as $propName => $prop) {
             if ($propName === "id" || $prop["type"] === "array") continue;
-            else if ($prop["entityProp"] !== null){
-                if(isset($this->props[$propName]) && gettype($this->props[$propName]) === "object"){
+            else if ($prop["entityProp"] !== null) {
+                if (isset($this->props[$propName]) && gettype($this->props[$propName]) === "object") {
                     $props[$propName . "_id"] = $this->props[$propName]->get("id");
                     $this->props[$propName . "_id"] = $props[$propName . "_id"];
-                }
-                else if(isset($this->props[$propName . "_id"]) === true)$props[$propName . "_id"] = $this->props[$propName . "_id"];
+                } else if (isset($this->props[$propName . "_id"]) === true) $props[$propName . "_id"] = $this->props[$propName . "_id"];
                 else $props[$propName . "_id"] = null;
-            }
-            else if (array_key_exists($propName, $this->props)) $props[$propName] = $this->props[$propName];
+            } else if (array_key_exists($propName, $this->props)) $props[$propName] = $this->props[$propName];
             else $this->props[$propName] = null;
 
-            if($prop["default"] === true)array_push($returning, $propName);
+            if ($prop["default"] === true) array_push($returning, $propName);
         }
 
         if (array_key_exists("id", $this->props) === false) {
@@ -161,15 +154,14 @@ abstract class Entity implements \JsonSerializable
             foreach ($result as $key => $value) {
                 $this->props[$key] = $value;
             }
-        } 
-        else {
+        } else {
             $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
             $result = self::$db->prepare($sqlRequest);
             $result->execute();
         }
     }
 
-    public function delete()
+    public function delete(): bool
     {
         $currentEntityName = "_" . $this->entityName;
 
@@ -185,13 +177,12 @@ abstract class Entity implements \JsonSerializable
             if ($prop["type"] !== "array" && $prop["entityProp"] === null) continue;
             else if ($prop["cascade"] === null) continue;
             else if ($prop["type"] === "array") {
-                foreach($this->get($propName) as $entity){
+                foreach ($this->get($propName) as $entity) {
                     $entity->delete();
                 }
-            }
-            else {
+            } else {
                 $entity = $this->get($propName);
-                if($entity === null) continue;
+                if ($entity === null) continue;
                 $entity->delete();
             }
         }
@@ -200,21 +191,20 @@ abstract class Entity implements \JsonSerializable
         return true;
     }
 
-    protected function set(string $prop, mixed $value)
+    protected function set(string $prop, mixed $value): void
     {
         $prop = self::$reflections[static::class][$prop];
 
-        if($prop["entityProp"] !== null){
+        if ($prop["entityProp"] !== null) {
             $this->props[$prop["name"] . "_id"] = $value->getId();
-        } 
-        else $this->props[$prop["name"]] = $value;
+        } else $this->props[$prop["name"]] = $value;
     }
 
     protected function get(string $prop)
     {
         $prop = self::$reflections[static::class][$prop];
 
-        if($prop["entityProp"] !== null || $prop["type"] === "array") $this->join($prop);
+        if ($prop["entityProp"] !== null || $prop["type"] === "array") $this->join($prop);
 
         return $this->props[$prop["name"]];
     }
@@ -264,7 +254,7 @@ abstract class Entity implements \JsonSerializable
         return $instance;
     }
 
-    static public function deleteMany(array $where = [])
+    static public function deleteMany(array $where = []): bool
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
@@ -280,34 +270,42 @@ abstract class Entity implements \JsonSerializable
         return true;
     }
 
+    static public function count(array $where = []): int
+    {
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $sqlRequest = QueryBuilder::createCountRequest($currentEntityName, $where);
+        $result = self::$db->prepare($sqlRequest);
+        $result->execute();
+        $result = $result->fetchColumn();
+
+        return $result;
+    }
+
     static public function groups(string ...$groups): void
     {
         self::$groups = $groups;
     }
 
-    static public function getDb()
+    static public function getDb() : \PDO
     {
         return self::$db;
     }
 
-    static public function dataBaseConnection()
+    static public function dataBaseConnection(array $CONFIG): void
     {
-        $config = new ConfigFile();
-        try {
-            $database = new Database(
-                $config->getEnv('DB_CONNECTION'),
-                $config->getEnv('DB_HOST'),
-                $config->getEnv('DB_PORT'),
-                $config->getEnv('DB_DATABASE'),
-                $config->getEnv('DB_USERNAME'),
-                $config->getEnv('DB_PASSWORD')
-            );
-        } 
-        catch (\Exception $e) {
-            die($e->getMessage());
-        }
-        self::$db = $database->connection();
+        $pdo = new \PDO(
+            $CONFIG["DB_CONNECTION"] .
+            ":host=" . $CONFIG["DB_HOST"] .
+            ";port=" . $CONFIG["DB_PORT"] .
+            ";dbname=" . $CONFIG["DB_DATABASE"],
+            $CONFIG["DB_USERNAME"],
+            $CONFIG["DB_PASSWORD"]
+        );
+        self::$db = $pdo;
     }
 }
 
-Entity::dataBaseConnection();
+if(isset(CONFIG["DB_CONNECTION"]) === true)Entity::dataBaseConnection(CONFIG);
+

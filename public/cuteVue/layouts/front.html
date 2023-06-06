@@ -1,0 +1,27 @@
+<div>
+    <front_header></front_header>
+    <view class="pt-[60px] min-h-[calc(100vh-60px)]"></view>
+    <front_footer></front_footer>
+</div>
+
+<script>
+    const [front_header, front_footer] = await Promise.all([
+        importer('/public/cuteVue/components/front_header.html'),
+        importer('/public/cuteVue/components/front_footer.html')
+    ]);
+    
+    export default {
+        components: {
+            front_header,
+            front_footer
+        },
+        
+        mounted(){
+            
+        },
+    }
+</script>
+
+<style>
+
+</style>

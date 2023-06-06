@@ -32,5 +32,12 @@ services:
     ports:
       - 8080:8080
 
+  #Mail Service
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
 volumes:
   pgdata:

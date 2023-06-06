@@ -1,0 +1,22 @@
+<a @click="redirect">
+    <slot></slot>
+</a>
+
+<script>
+    export default {
+        props: {
+            href: "#"
+        },
+        methods: {
+            redirect(e) {
+                e.preventDefault();
+                if(this.$emit('click', e) === false) return;
+                router.push(this.href);
+            }
+        },
+    }
+</script>
+
+<style>
+    
+</style>

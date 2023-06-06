@@ -22,6 +22,13 @@ class User extends Entity
     private string $lastname;
 
     /**
+     * @type{VARCHAR(120)}
+     * @notnullable{}
+     * @unique{}
+     */
+    private string $username;
+
+    /**
      * @type{VARCHAR(100)}
      * @notnullable{}
      * @unique{}
@@ -35,11 +42,7 @@ class User extends Entity
      */
     private string $password;
 
-    /**
-     * @type{VARCHAR(20)}
-     * @notnullable{}
-     */
-    private String $role;
+    private Role $role;
 
     /**
      * @type{Date}
@@ -116,6 +119,30 @@ class User extends Entity
     }
 
     /**
+     * Get the value of username
+     *
+     * @return string
+     */
+    public function getUsername(): string
+    {
+        return parent::get("username");
+    }
+
+    /**
+     * Set the value of username
+     *
+     * @param string $username
+     *
+     * @return self
+     */
+    public function setUsername(string $username): self
+    {
+        parent::set("username", $username);
+
+        return $this;
+    }
+
+    /**
      * Get the value of email
      *
      * @return string
@@ -168,7 +195,7 @@ class User extends Entity
      *
      * @return string
      */
-    public function getRole(): string   
+    public function getRole(): string
     {
         return parent::get("role");
     }

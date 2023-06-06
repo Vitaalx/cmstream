@@ -1,8 +1,10 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+
 # Editor-based HTTP Client requests
 /httpRequests/
+
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
@@ -13,8 +15,12 @@
 # Deleting VSCode & Intellij files
 .idea
 .code
-.env*
+.env
 
 # Deleting migration file
 /migration.sql
 
+# Deleting .env file
+.env
+
+generate.index.php

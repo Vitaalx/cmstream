@@ -2,6 +2,7 @@
 
 require __DIR__ . "/../Core/AutoLoader.php";
 require __DIR__ . "/scan.php";
+require __DIR__ . "/../config.php";
 
 use Core\Entity;
 

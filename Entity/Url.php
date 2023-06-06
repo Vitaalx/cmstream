@@ -39,7 +39,7 @@ class Url extends Entity
         return parent::get("id");
     }
 
-    public function getUrl(): self
+    public function getUrl(): string
     {
         return parent::get("url");
     }
@@ -69,5 +69,11 @@ class Url extends Entity
     public function getUpdatedAt(): self
     {
         return parent::get("updated_at");
+    }
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+        return $this;
     }
 }

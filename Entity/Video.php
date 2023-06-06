@@ -1,6 +1,7 @@
 <?php
 
 namespace Entity;
+
 use Core\Entity;
 
 class Video extends Entity
@@ -31,17 +32,26 @@ class Video extends Entity
      */
     private array $comments;
 
-    /** 
-     * @notnullable{}
-     * @groups{videoCategory}
-     */
-    private Category $category;
-
     /**
      * @many{Entity\Star,video}
      * @groups{stars}
+     * @cascade{}
      */
     private array $stars;
+
+    /**
+     * @many{Entity\Film,video}
+     * @groups{film}
+     * @cascade{}
+     */
+    private array $film;
+
+    /**
+     * @many{Entity\Episode,video}
+     * @groups{episodes}
+     * @cascade{}
+     */
+    private array $episodes;
 
     /**
      * @type{Date}
@@ -66,7 +76,7 @@ class Video extends Entity
         return parent::get("id");
     }
 
-    public function getTitle(): self
+    public function getTitle(): string
     {
         return parent::get("title");
     }
@@ -100,7 +110,7 @@ class Video extends Entity
         return parent::get("comments");
     }
 
-    public function getCategory(): array
+    public function getCategory(): Category
     {
         return parent::get("category");
     }
@@ -125,5 +135,31 @@ class Video extends Entity
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
+    }
+
+    public function setUpdatedAt(string $updated_at): self
+    {
+        parent::set("updated_at", $updated_at);
+
+        return $this;
+    }
+
+    public function getFilm(): array
+    {
+        return parent::get("film");
+    }
+
+    public function getEpisodes(): array
+    {
+        return parent::get("episodes");
+    }
+
+    public function AvgStars(): int
+    {
+        $req = $this->getDb()->prepare("SELECT AVG(note) FROM _star WHERE video_id = :video");
+        $req->execute([
+            "video" => $this->getId()
+        ]);
+        return intval($req->fetchColumn());
     }
 }
