@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>trop bg le site</title>
+    <title>CMStream</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="/public/css/custom.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,9 +25,8 @@
         }
   </script>
   <script type="module" src="https://www.unpkg.com/toanotherback@2.0.1/src/index.js"></script>
-  <script type="module" src="/public/cuteVue/main.js" defer></script>
 </head>
 <body>
-    <div id="app"></div>
+    form init CMStream
 </body>
 </html>
