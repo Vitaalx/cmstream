@@ -89,3 +89,8 @@ function exist(int $userId, Floor $floor, Response $response): User
     if($user === null) $response->info("user.notfound.id")->code(404)->send();
     return $user;
 }
+
+function mustBeAdmin(User $user, Floor $floor, Response $response): void
+{
+    if($user->getRole()->getName() !== "admin") $response->info("user.forbbiden")->code(403)->send();
+}

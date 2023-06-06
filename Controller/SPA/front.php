@@ -14,11 +14,23 @@ class index extends IndexHandler{}
  * @GET{/signin}
  * @GET{/signup}
  */
-class connection extends IndexHandler{
+class guest extends IndexHandler{
     public function checkers(Request $request): array
     {
         return [
-            
+            ["page/onlyGuest", $request->getCookie("token") ?? null]
+        ];
+    }
+}
+
+/**
+ * 
+ */
+class connected extends IndexHandler{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", $request->getCookie("token") ?? ""]
         ];
     }
 }
