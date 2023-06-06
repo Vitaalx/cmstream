@@ -17,5 +17,5 @@ else
     printf "${START}${GREEN}- makeMigration${END}\n"
     printf "${START}${GREEN}- doMigation${END}\n"
     printf "${START}${RED}- makeRoute${END}\n"
-    printf "${START}${RED}- revertIndex${END}\n"
+    printf "${START}${RED}- reset${END}\n"
 fi

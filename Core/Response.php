@@ -109,13 +109,13 @@ class Response{
         $this->setHeader("view", $view);
         $this->addExpose("view");
 
-        $template = __DIR__ . "/../Template/" . $template . ".php";
+        $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)
         {
             die("Template '" . $template . "' not exist.");
         }
 
-        $view = __DIR__ . "/../View/" . $view . ".php";
+        $view = __DIR__ . "/../Views/" . $view . ".php";
         if(file_exists($view) === false)
         {
             die("View '" . $view . "' not exist.");

@@ -1,8 +1,10 @@
 <?php
 
-require __DIR__ . "/../Core/AutoLoader.php";
-require __DIR__ . "/scan.php";
-require __DIR__ . "/../config.php";
+namespace makeRoute;
+
+require_once __DIR__ . "/../Core/AutoLoader.php";
+require_once __DIR__ . "/scan.php";
+require_once __DIR__ . "/../config.php";
 
 $textRoute = '
 
