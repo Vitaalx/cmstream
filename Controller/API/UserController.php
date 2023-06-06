@@ -42,7 +42,7 @@ class register extends Controller
             ["user/firstname", $user["firstname"], "firstname"],
             ["user/lastname", $user["lastname"], "lastname"],
             ["user/email", $user["email"], "email"],
-            ["user/mailUsed", fn () => $this->floor->pickup("email"), "mailUsed"],
+            ["user/mailMustBeFree", fn () => $this->floor->pickup("email")],
             ["user/username", $user["username"], "username"],
             ["user/password", $user["password"], "password"]
         ];
@@ -53,32 +53,29 @@ class register extends Controller
      */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            if ($this->floor->pickup("mailUsed")) $response->code(409)->info("email.already.used")->send();
-            Waiting_validate::insertOne([
-                "firstname" => $this->floor->pickup("firstname"),
-                "lastname" => $this->floor->pickup("lastname"),
-                "username" => $this->floor->pickup("username"),
-                "email" => $this->floor->pickup("email"),
-                "password" => Token::passwordHash($this->floor->pickup("password")),
-            ]);
+        $waitingUser = Waiting_validate::insertOne([
+            "firstname" => $this->floor->pickup("firstname"),
+            "lastname" => $this->floor->pickup("lastname"),
+            "username" => $this->floor->pickup("username"),
+            "email" => $this->floor->pickup("email"),
+            "password" => password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT),
+        ]);
 
-            MailService::send(
-                $this->floor->pickup("email"),
-                "Validation de votre compte",
+        $token = Token::generateToken(["id" => $waitingUser->getId()], CONFIG["SECRET_KEY"]);
 
-                "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",\n\n" .
-                    "Merci de vous être inscrit sur notre site.\n" .
-                    "Pour valider votre compte, veuillez cliquer sur le lien suivant :\n" .
-                    CONFIG['HOST'] . "api/user/validate?token=" . Token::generateTokenMail([$this->floor->pickup("email"), $this->floor->pickup("firstname")]) . "\n\n" .
-                    "Cordialement,\n" .
-                    "L'équipe de notre site."
-            );
+        MailService::send(
+            $this->floor->pickup("email"),
+            "Validation de votre compte",
 
-            $response->code(200)->info("user.registered")->send();
-        } catch (\Exception $e) {
-            $response->code(500)->info("user.not.registered")->send();
-        }
+            "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",\n\n" .
+                "Merci de vous être inscrit sur notre site.\n" .
+                "Pour valider votre compte, veuillez cliquer sur le lien suivant :\n" .
+                CONFIG['HOST'] . "api/user/validate?token={$token}\n\n" .
+                "Cordialement,\n" .
+                "L'équipe de notre site."
+        );
+
+        $response->code(200)->info("user.registered")->send();
     }
 }
 
@@ -100,23 +97,19 @@ class login extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["user/email", $request->getBody()['email'], "email"],
+            ["user/email", $request->getBody()["email"] ?? null, "email"],
             ["user/existByMail", fn () => $this->floor->pickup("email"), "user"],
-            ["type/string", $request->getBody()['password'], "password"],
+            ["type/string", $request->getBody()["password"] ?? null, "password"],
         ];
     }
     public function handler(Request $request, Response $response): void
     {
 
-        if ($this->floor->pickup("user")->getPassword() !== Token::passwordHash($this->floor->pickup("password"))) {
+        if(password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
-        $token = Token::generateToken([
-            "id" => $this->floor->pickup("user")->getId(),
-            "username" => $this->floor->pickup("user")->getUsername(),
-            "email" => $this->floor->pickup("user")->getEmail(),
-            "role" => $this->floor->pickup("user")->getRole()
-        ]);
+        $token = Token::generateToken(["id" => $this->floor->pickup("user")->getId()], CONFIG["SECRET_KEY"]);
+        $response->setCookie("token", $token);
         $response->code(200)->info("user.logged")->send(["token" => $token]);
     }
 }
@@ -205,67 +198,25 @@ class MailValidate extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["token/check", $_GET['token'], "payload"],
-            ["token/mail", fn () => $this->floor->pickup("payload"), "user"]
+            ["token/check", $request->getQuery("token"), "payload"],
+            ["waiting_validate/existById", fn () => $this->floor->pickup("payload")["id"] ?? null, "waiting_user"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            User::insertOne([
-                "firstname" => $this->floor->pickup("user")->getFirstname(),
-                "lastname" => $this->floor->pickup("user")->getLastname(),
-                "username" => $this->floor->pickup("user")->getUsername(),
-                "email" => $this->floor->pickup("user")->getEmail(),
-                "password" => $this->floor->pickup("user")->getPassword(),
-                "role" => null
-            ]);
-            $response->code(200)->info("user.validated")->send();
-        } catch (\Exception $e) {
-            $response->code(500)->info("user.not.validated")->send();
-        }
-    }
-}
+        /** @var \Entity\Waiting_validate $waiting_user */
+        $waiting_user = $this->floor->pickup("waiting_user");
 
-/**
- * @POST{/api/token}
- */
-/*
-Entry:
-{
-    id: 1,
-    username: "jdoe",
-    email: "jdoe@example.com",
-}
-*/
-class testToken extends Controller
-{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["type/int", $request->getBody()["id"], "id"],
-            ["type/string", $request->getBody()["username"], "username"],
-            ["type/string", $request->getBody()["email"], "email"],
-        ];
-    }
+        User::insertOne(
+            fn(User $user) => $user
+                ->setFirstname($waiting_user->getFirstname())
+                ->setLastname($waiting_user->getLastname())
+                ->setUsername($waiting_user->getUsername())
+                ->setEmail($waiting_user->getEmail())
+                ->setPassword($waiting_user->getPassword())
+        );
 
-    public function handler(Request $request, Response $response): void
-    {
-        $token = Token::generateToken([
-            "id" => $this->floor->pickup("id"),
-            "username" => $this->floor->pickup("username"),
-            "email" => $this->floor->pickup("email"),
-            "role" => null
-        ]);
-        $payload1 = Token::checkToken($token);
-        list($header, $payload, $signature) = explode('.', $token);
-        $payload = json_decode(base64_decode($payload), true);
-        $payload["iat"] = date("Y-m-d H:i:s", $payload["iat"]);
-        $payload = base64_encode(json_encode($payload));
-        $payload2 = Token::checkToken("{$header}.{$payload}.{$signature}");
-
-
-        $response->code(200)->info("token.valid")->send(["token" => $token, "payload" => $payload1, "si" => $payload2]);
+        $response->code(200)->info("user.validated")->send();
     }
 }

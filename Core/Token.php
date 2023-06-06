@@ -21,7 +21,7 @@ class Token
         return $token;
     }
 
-    public static function checkToken(string $token, string $secretKey): array | bool
+    public static function checkToken(string $token, string $secretKey): ?array
     {
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
 
@@ -37,11 +37,11 @@ class Token
         $signatureMatches = hash_equals($calculatedSignature, $signature);
 
         if (!$signatureMatches) {
-            return false;
+            return null;
         }
         if (isset($payload['iat']) && $header['expiresIn'] !== null) {
             if ($header['expiresIn'] + $payload['iat'] < time()) {
-                return false;
+                return null;
             }
         }
 
