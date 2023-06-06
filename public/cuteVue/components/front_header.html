@@ -1,22 +1,22 @@
 <header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)]">
     <div class="flex items-center justify-center gap-[30px] left">
-        <router_link href="/" class="h-full pr-[10px] flex items-center logo">
+        <router_link href="/" class="h-full pr-[10px] flex items-center logo" @click="this.displayOptionsMenu = false; this.closeMenu()">
             <img src="/public/img/icons/logo.svg" alt="CMStream logo">
         </router_link>
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link href="catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Catalogue
                     </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Boutique
                     </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         News
                     </router_link>
                 </li>
@@ -27,12 +27,12 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         <span class="mdi mdi-magnify text-[24px]"></span>
                     </router_link>
                 </li>
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless">
+                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         <span class="mdi mdi-bookmark-outline text-[24px]"></span>
                     </router_link>
                 </li>
@@ -43,13 +43,13 @@
                             <span cv-if="!this.displayOptionsMenu" class="mdi mdi-triangle-small-down"></span>
                             <span cv-if="this.displayOptionsMenu" class="mdi mdi-triangle-small-up text-white"></span>
                         </div>
-                        <div cv-if="this.displayOptionsMenu" class="absolute top-[60px] right-0 w-[280px] bg-blackless account-options">
+                        <div cv-ref="optionMenu" cv-if="this.displayOptionsMenu" class="absolute top-[60px] right-0 w-[280px] bg-blackless account-options">
                             <div cv-if="!this.connected" class="py-4 flex flex-col gap-4">
-                                <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptions()">
+                                <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptionsMenu = false">
                                     <span class="text-xl font-semibold">Créer un compte</span>
                                     <p class="text-sm">Inscrivez-vous gratuitement.</p>
                                 </router_link>
-                                <router_link href="signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptions()">
+                                <router_link href="signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptionsMenu = false">
                                     <span class="text-xl font-semibold">Se connecter</span>
                                     <p class="text-sm">Déjà inscrit ? Bon retour.</p>
                                 </router_link>
@@ -65,13 +65,13 @@
                                         <span class="mdi mdi-bell-outline text-[24px]"></span>
                                         <span>Notifications</span>
                                     </div>
-                                    <div class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account">
+                                    <div class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
                                         <span class="mdi mdi-account text-[24px]"></span>
                                         <span>Paramètres du compte</span>
                                     </div>
                                 </div>
                                 <div class="h-[2px] bg-darkblue separator"></div>
-                                <div class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue disconnect">
+                                <div class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue disconnect" @click="this.displayOptionsMenu = false">
                                     <span class="mdi mdi-logout text-[24px]"></span>
                                     <span>Se déconnecter</span>
                                 </div>
@@ -89,17 +89,17 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         Catalogue
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         Boutique
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         News
                     </a>
                 </li>
@@ -109,17 +109,17 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         Rechercher
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         Watchlist
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#">
+                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.closeMenu()">
                         Connexion
                     </a>
                 </li>
