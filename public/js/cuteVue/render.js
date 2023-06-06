@@ -71,10 +71,7 @@ export default function render(template, proxy){
                 if(instance !== undefined && instance[__props__][key] !== undefined)instance[__properties__][key] = result;
             };
 
-            let groups = [];
             for(let group of value.vars){
-                if(groups.indexOf(group) !== -1) continue;
-                else groups.push(group);
                 if(proxy[__subscribers__][group] !== undefined){
                     subscribers[group].push(subscriber);
                     proxy[__subscribers__][group].push(subscriber);
@@ -99,10 +96,30 @@ export default function render(template, proxy){
             });
         };
 
-        let groups = [];
         for(let group of template.class.vars){
-            if(groups.indexOf(group) !== -1) continue;
-            else groups.push(group);
+            if(proxy[__subscribers__][group] !== undefined){
+                subscribers[group].push(subscriber);
+                proxy[__subscribers__][group].push(subscriber);
+            }
+        }
+
+        subscriber();
+    }
+
+    if(template.style !== undefined){
+        let styleRender = eval(/* js */`(
+            function anonymous(proxy){
+                return ${template.style.script}
+            }
+        )`);
+
+        let subscriber = () => {
+            Object.entries(styleRender(proxy)).forEach(([key, value]) => {
+                el.style[key] = value;
+            });
+        };
+
+        for(let group of template.style.vars){
             if(proxy[__subscribers__][group] !== undefined){
                 subscribers[group].push(subscriber);
                 proxy[__subscribers__][group].push(subscriber);
@@ -156,10 +173,7 @@ export default function render(template, proxy){
             else el.style.display = "none";
         };
 
-        let groups = [];
         for(let group of template.show.vars){
-            if(groups.indexOf(group) !== -1) continue;
-            else groups.push(group);
             if(proxy[__subscribers__][group] !== undefined){
                 subscribers[group].push(subscriber);
                 proxy[__subscribers__][group].push(subscriber);
@@ -184,10 +198,7 @@ export default function render(template, proxy){
                 textNode = newTextNode;
             };
 
-            let groups = [];
             for(let group of templateChild.vars){
-                if(groups.indexOf(group) !== -1) continue;
-                else groups.push(group);
                 if(proxy[__subscribers__][group] !== undefined){
                     subscribers[group].push(subscriber);
                     proxy[__subscribers__][group].push(subscriber);
@@ -239,10 +250,7 @@ export default function render(template, proxy){
                     }
                 };
 
-                let groups = [];
                 for(let group of templateChild.if.vars){
-                    if(groups.indexOf(group) !== -1) continue;
-                    else groups.push(group);
                     if(proxy[__subscribers__][group] !== undefined){
                         subscribers[group].push(subscriber);
                         proxy[__subscribers__][group].push(subscriber);
@@ -299,10 +307,7 @@ export default function render(template, proxy){
                     });
                 })`);
                 
-                let groups = [];
                 for(let group of templateChild.for.vars){
-                    if(groups.indexOf(group) !== -1) continue;
-                    else groups.push(group);
                     if(proxy[__subscribers__][group] !== undefined){
                         subscribers[group].push(subscriber);
                         proxy[__subscribers__][group].push(subscriber);
