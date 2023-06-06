@@ -59,11 +59,11 @@ createRoute(
     async (path) => {
         let close = loaderStore.push(path)
         let result = await fetch(path);
-        if(result.status === 200) return path;
-        else if(result.redirected === true){
+        if(result.redirected === true){
             close();
-            return result.url;
+            return result.url.replace(location.origin, "/");
         }
+        else if(result.status === 200) return path;
         else {
             close();
             return "/";

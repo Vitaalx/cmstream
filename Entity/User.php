@@ -193,9 +193,9 @@ class User extends Entity
     /**
      * Get the value of role
      *
-     * @return string
+     * @return Role
      */
-    public function getRole(): string
+    public function getRole(): Role
     {
         return parent::get("role");
     }
