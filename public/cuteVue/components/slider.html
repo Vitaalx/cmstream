@@ -1,156 +1,78 @@
 <div class="w-full h-full flex flex-col items-center">
     <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
-        <div class="prev-btn" @click="this.prev()">
+        <div class="prev-btn" @click="this.currentSlide--">
             <span class="mdi mdi-chevron-left"></span>
         </div>
-        <div class="slides-container">
-            <!-- <div class="slide"><img src="https://i.postimg.cc/hvtQjxyw/slide1.jpg" alt="Slide 1"></div>
-            <div class="slide"><img src="https://i.postimg.cc/7YbTr3TJ/slide2.jpg" alt="Slide 2"></div>
-            <div class="slide"><img src="https://i.postimg.cc/QNfWz4Vr/slide3.jpg" alt="Slide 3"></div> -->
-            <div class="slide" cv-for="content of this.getContents()">
-                <img :src="this.content">
+        <div
+        class="slides-container" 
+        cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
+        >
+            <div 
+            cv-ref="slides" 
+            class="slide" 
+            cv-for="content of Object.entries(this.contents)" 
+            cv-class="{'active': this.content[0] == this.currentSlide}"
+            :test="this.currentSlide + ':' + this.content[0]"
+            cv-style="{'left': this.content[0] * 100 + '%'}"
+            >
+                <img :src="this.content[1]">
             </div>
         </div>
-        <div class="next-btn" @click="this.next()">
+        <div class="next-btn" @click="this.currentSlide++">
             <span class="mdi mdi-chevron-right"></span>
         </div>
     </div>
     
-    <div class="navigation-dots"></div>
+    <div class="navigation-dots">
+        <div 
+        cv-for="key of Object.keys(this.contents)" 
+        @click="this.currentSlide = this.key"
+        class="single-dot"
+        cv-class="{'active': this.key == this.currentSlide}"
+        ></div>
+    </div>
 </div>
 
 <script>
     export default {
         data: {
-            slidesContainer: "",
-            slides: "",
-            slideWidth: "",
-            slideCount: "",
+            slideWidth: 0,
             currentSlide: 0,
-            navigationDots: "",
             switchDelay: 10000,
+            interval: null,
+            contents: [
+                "https://i.postimg.cc/hvtQjxyw/slide1.jpg",
+                "https://i.postimg.cc/7YbTr3TJ/slide2.jpg",
+                "https://i.postimg.cc/QNfWz4Vr/slide3.jpg"
+            ],
         },
 
-        props: {},
-
-        mounted(){
-            this.slidesContainer = document.querySelector(".slides-container");
-            this.slides = document.querySelectorAll(".slide");
-            this.slideWidth = this.slides[0].clientWidth;
-            this.slideCount = this.slides.length;
-            this.navigationDots = document.querySelector(".navigation-dots")
-
-            this.init();
-            this.updateWidth();
-            this.automateSlider();
-
-            // Fixes the width when resizing the window
-            window.addEventListener("resize", () => {
+        watch: {
+            async currentSlide(n){
                 this.updateWidth();
-            });
+                if(n === -1) this.currentSlide = this.contents.length-1;
+                else if(n === this.contents.length) this.currentSlide = 0;
+            } 
         },
 
         methods: {
-            init(){
-                /*
-                    this.slides[0] = 0
-                    this.slides[1] = 100%
-                    this.slides[2] = 200%
-                */
-
-                this.slides.forEach((img, i) => {
-                    img.style.left = i * 100 + "%";
-                });
-                this.slides[0].classList.add("active");
-                this.createNavigationDots();
-            },
-
-            createNavigationDots() {
-                for (let i = 0; i < this.slideCount; i++) {
-                    const dot = document.createElement("div");
-
-                    dot.classList.add("single-dot");
-                    this.navigationDots.appendChild(dot);
-                    dot.addEventListener("click", () => {
-                        this.goToSlide(i);
-                    });
-                }
-
-                this.navigationDots.children[0].classList.add("active");
-            },
-
-            prev(){
-                this.updateWidth();
-
-                if (this.currentSlide <= 0) {
-                    this.goToSlide(this.slideCount - 1);
-
-                    return;
-                }
-
-                this.currentSlide--;
-                this.goToSlide(this.currentSlide);
-            },
-
-            next(){
-                this.updateWidth();
-
-                if (this.currentSlide >= this.slideCount - 1) {
-                    this.goToSlide(0);
-
-                    return;
-
-                }
-
-                this.currentSlide++;
-                this.goToSlide(this.currentSlide);
-            },
-
-            goToSlide(slideNumber) {
-                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * slideNumber}px)`;
-                this.currentSlide = slideNumber;
-                this.setActiveClass();
-            },
-
-            setActiveClass() {
-                // Set active class for Slide Image
-                let currentActive = document.querySelector(".slide.active");
-
-                currentActive.classList.remove("active");
-                this.slides[this.currentSlide].classList.add("active");
-
-                // Set active class for Navigation Dots
-                let currentDot = document.querySelector(".single-dot.active");
-
-                currentDot.classList.remove("active");
-                this.navigationDots.children[this.currentSlide].classList.add("active");
-            },
-
-            automateSlider() {
-                let slideNumber = this.currentSlide;
-
-                setInterval(() => {
-                    slideNumber++;
-                    if (slideNumber > this.slideCount - 1) slideNumber = 0;
-                    this.goToSlide(slideNumber);
-                }, this.switchDelay);
-            },
-
             updateWidth(){
-                this.slideWidth = this.slides[0].clientWidth;
-                this.slidesContainer.style.transform = `translateX(-${this.slideWidth * this.currentSlide}px)`;
+                this.slideWidth = this.$refs.slides[0].clientWidth;
             },
+        },
 
-            getContents(){
-                let contents = [
-                    "https://i.postimg.cc/hvtQjxyw/slide1.jpg",
-                    "https://i.postimg.cc/7YbTr3TJ/slide2.jpg",
-                    "https://i.postimg.cc/QNfWz4Vr/slide3.jpg"
-                ];
+        mounted(){
+            this.interval = setInterval(() => {
+                this.currentSlide++;
+            }, this.switchDelay);
 
-                return contents;
-            }
-        }
+            window.addEventListener("resize", this.updateWidth);
+        },
+
+        unmounted(){
+            clearInterval(this.interval);
+            window.removeEventListener("resize", this.updateWidth);
+        },
     }
 </script>
 
