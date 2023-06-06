@@ -9,6 +9,7 @@ export default function makeTemplate(el, proxy){
         if: undefined,
         for: undefined,
         class: undefined,
+        style: undefined,
         show: undefined,
         ref: undefined,
         mount: undefined,
@@ -22,6 +23,7 @@ export default function makeTemplate(el, proxy){
 
                 let vars = [];
                 for(let [match, group] of child.textContent.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                    if(vars.indexOf(group) !== -1) continue;
                     vars.push(group);
                 }
 
@@ -52,6 +54,7 @@ export default function makeTemplate(el, proxy){
                 vars: [],
             };
             for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.objectAttributes[attr].vars.indexOf(group) !== -1) continue;
                 obj.objectAttributes[attr].vars.push(group);
             }
         } 
@@ -67,6 +70,7 @@ export default function makeTemplate(el, proxy){
                 vars: [],
             };
             for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.if.vars.indexOf(group) !== -1) continue;
                 obj.if.vars.push(group);
             }
         } 
@@ -78,6 +82,7 @@ export default function makeTemplate(el, proxy){
                 newVar: attrValue.match(/(?:[ ]|^$)*([A-Za-z0-9]*)(?:[ ]|^$)* (?:in|of)/)[1],
             };
             for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.for.vars.indexOf(group) !== -1) continue;
                 obj.for.vars.push(group);
             }
         } 
@@ -88,7 +93,19 @@ export default function makeTemplate(el, proxy){
                 vars: [],
             };
             for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.class.vars.indexOf(group) !== -1) continue;
                 obj.class.vars.push(group);
+            }
+        }
+        else if(attrName === "cv-style"){
+            let attrValue = el.getAttribute(attrName);
+            obj.style = {
+                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                vars: [],
+            };
+            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.style.vars.indexOf(group) !== -1) continue;
+                obj.style.vars.push(group);
             }
         }
         else if(attrName === "cv-ref"){
@@ -102,6 +119,7 @@ export default function makeTemplate(el, proxy){
                 vars: [],
             };
             for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(obj.show.vars.indexOf(group) !== -1) continue;
                 obj.show.vars.push(group);
             }
         }
