@@ -207,7 +207,7 @@ class User extends Entity
      *
      * @return self
      */
-    public function setRole(string $role): self
+    public function setRole(Role $role): self
     {
         parent::set("role", $role);
 

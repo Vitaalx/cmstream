@@ -243,12 +243,17 @@ abstract class Entity implements \JsonSerializable
         return $result;
     }
 
-    static public function insertOne(array $default): ?static
+    static public function insertOne(callable | array $default): ?static
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $instance = new static($default);
+        if(is_callable($default) === true){
+            $instance = new static([]);
+            $default($instance);
+        }
+        else $instance = new static($default);
+
         $instance->save();
 
         return $instance;

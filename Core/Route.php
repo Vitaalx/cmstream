@@ -9,6 +9,7 @@ require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
+error_reporting(0);
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
 

@@ -19,12 +19,12 @@ class Request{
         
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->requestMethod = $_SERVER["REQUEST_METHOD"];
+        $this->requestQuery = $_GET;
         $this->cookies = $_COOKIE;
 
         $this->requestPath = $path;
         $this->info = $info;
         $this->setRequestBody();
-        $this->setQuery();
         $this->setRequestParams($regexPath);
     }
 
@@ -99,19 +99,6 @@ class Request{
             foreach ($groups1 as $k => $key)
             {
                 $this->requestParams[$key] = $groups2[$k][0];
-            }
-        }
-    }
-
-    private function setQuery(){
-        $uri = explode("?", $this->uri);
-
-        if(isset($uri[1]))
-        {
-            $query = urldecode($uri[1]);
-            foreach(explode("&", $query) as $key => $args){
-                $args = explode("=", $args);
-                if($args[0] !== "" && ($args[1] ?? null))$this->requestQuery[$args[0]] = $args[1];
             }
         }
     }
