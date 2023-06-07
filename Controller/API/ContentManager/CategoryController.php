@@ -7,6 +7,7 @@ use Core\Request;
 use Core\Response;
 
 use Entity\Category;
+use Services\MustBeAdmin;
 
 /**
  * @POST{/api/category}
@@ -24,7 +25,7 @@ use Entity\Category;
   "categorie_name": "Category name"
  }
 */
-class createCategory extends Controller
+class createCategory extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -57,7 +58,7 @@ class createCategory extends Controller
  * @param int id
  * @return Response
  */
-class deleteCategory extends Controller
+class deleteCategory extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -178,7 +179,7 @@ Entry:
 "category_name": "Category name"
 }
 */
-class updateCategory extends Controller
+class updateCategory extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
