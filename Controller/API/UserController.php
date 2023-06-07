@@ -24,17 +24,15 @@ use Services\MustBeConnected;
  * @param $password
  * 
  * @return $token
+ * @example =>
+ * {
+ *  "firstname": "Jon",
+ *  "lastname": "DOE",
+ *  "username": "doe",
+ *  "email": "jdoe@mail.com",
+ *  "password": "jdo123!"
+ * }
  */
-/*
-Entry:
-{
-    "firstname": "John",
-    "lastname": "Doe",
-    "username": "jdoe",
-    "email": "jdoe@example.com",
-    "password": "jdo123!"
-}
-*/
 class register extends Controller
 {
     public function checkers(Request $request): array
@@ -46,8 +44,14 @@ class register extends Controller
             ["user/email", $user["email"], "email"],
             ["user/mailMustBeFree", fn () => $this->floor->pickup("email")],
             ["user/username", $user["username"], "username"],
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup("username")],
             ["user/password", $user["password"], "password"]
         ];
+    }
+
+    //TODO fonction check permettant de vérifier si l'email est joignable
+    public function check($email) {
+        $result = FALSE;
     }
 
     /**
@@ -69,12 +73,12 @@ class register extends Controller
             $this->floor->pickup("email"),
             "Validation de votre compte",
 
-            "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",\n\n" .
-                "Merci de vous être inscrit sur notre site.\n" .
-                "Pour valider votre compte, veuillez cliquer sur le lien suivant :\n" .
-                CONFIG['HOST'] . "api/user/validate?token={$token}\n\n" .
-                "Cordialement,\n" .
-                "L'équipe de notre site."
+            "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
+                "Merci de vous &ecirctre inscrit sur notre site.<br>" .
+                "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
+                "<a href='" . CONFIG["HOST"] . "api/user/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "Cordialement,<br>" .
+                "L'&eacutequipe de notre site."
         );
 
         $response->code(200)->info("user.registered")->send();
@@ -106,8 +110,7 @@ class login extends Controller
     }
     public function handler(Request $request, Response $response): void
     {
-
-        if (password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
+        if(password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
         $token = Token::generateToken(["id" => $this->floor->pickup("user")->getId()], CONFIG["SECRET_KEY"]);
@@ -123,7 +126,7 @@ class selfInfo extends MustBeConnected
 {
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\User $user */
+        /** @var User $user */
         $user = $this->floor->pickup("user");
 
         $response
@@ -131,7 +134,7 @@ class selfInfo extends MustBeConnected
             ->info("user.info")
             ->send(
                 [
-                    "username" => $user->getUsername(), 
+                    "username" => $user->getUsername(),
                     "role" => $user->getRole()->getName()
                 ]
             );
@@ -194,7 +197,7 @@ class deleteUser extends MustBeConnected
  * @PUT{/user/{id}}
  */
 /*
-Entry: 
+Entry:
 {
     "firstname": "John",
     "lastname": "Doe",
@@ -233,7 +236,7 @@ class modifyUserAdmin extends MustBeAdmin
  * @PUT{/user}
  */
 /*
-Entry: 
+Entry:
 {
     "firstname": "John",
     "lastname": "Doe",
