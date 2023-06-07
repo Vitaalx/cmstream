@@ -81,11 +81,11 @@
                 </li>
             </ul>
         </nav>
-        <div id="burgerButton" class="block lg:hidden burger-button" @click="this.toggleMenu()">
+        <div cv-ref="burgerButton" class="block lg:hidden burger-button" @click="this.toggleMenu()">
             <div class="burger-line"></div>
         </div>
     </div>
-    <div id="menuWrapper" class="z-5 menu-wrapper">
+    <div cv-ref="menuWrapper" class="z-5 menu-wrapper">
         <nav>
             <ul>
                 <li>
@@ -149,20 +149,14 @@
 
         methods: {
             toggleMenu(){
-                const burgerButton = document.querySelector("#burgerButton");
-                const menuWrapper = document.querySelector("#menuWrapper");
-
-                burgerButton.classList.toggle("active");
-                menuWrapper.classList.toggle("active");
+                this.$refs.burgerButton.classList.toggle("active");
+                this.$refs.menuWrapper.classList.toggle("active");
                 this.isOpen = !this.isOpen;
             },
 
             closeMenu(){
-                const burgerButton = document.querySelector("#burgerButton");
-                const menuWrapper = document.querySelector("#menuWrapper");
-
-                burgerButton.classList.remove("active");
-                menuWrapper.classList.remove("active");
+                this.$refs.burgerButton.classList.remove("active");
+                this.$refs.menuWrapper.classList.remove("active");
                 this.isOpen = false;
             },
 
