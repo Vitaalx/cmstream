@@ -11,6 +11,8 @@ use Entity\User;
 use Entity\Waiting_validate;
 
 use Services\Back\MailService;
+use Services\MustBeAdmin;
+use Services\MustBeConnected;
 
 /**
  * @POST{/register}
@@ -105,7 +107,7 @@ class login extends Controller
     public function handler(Request $request, Response $response): void
     {
 
-        if(password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
+        if (password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
         $token = Token::generateToken(["id" => $this->floor->pickup("user")->getId()], CONFIG["SECRET_KEY"]);
@@ -120,36 +122,54 @@ class login extends Controller
  *
  * @return void
  */
-class deleteUser extends Controller
+class deleteUserAdmin extends MustBeAdmin
 {
-
     public function checkers(Request $request): array
     {
-        $userId = $request->getParam("id");
         return [
-            ["type/int", $userId],
-            ["user/exist", fn () => $userId, "user"]
+            ["type/int", $request->getParam("id"), "user_delete"],
+            ["user/exist", fn () => $this->floor->pickup("user_delete"), "user_delete"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var User $user */
-        $user = $this->floor->pickup("user");
-        $user->delete();
-        $response->code(204)->info("user.deleted")->send();
+        $this->floor->pickup("user_delete")->delete();
+        $response->code(200)->info("user.deleted")->send();
+    }
+}
+
+/**
+ * @DELETE{/user}
+ * @return void
+ */
+class deleteUser extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $this->floor->pickup("user")->delete();
+        $response->code(200)->info("user.deleted")->send();
     }
 }
 
 /**
  * @PUT{/user/{id}}
  */
-class modifyUser extends Controller
+/*
+Entry: 
+{
+    "firstname": "John",
+    "lastname": "Doe",
+    "username": "jdoe",
+    "password": "jdo123!"
+}
+*/
+class modifyUserAdmin extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getQuery("id"), "user_id"],
+            ["type/int", $request->getParam("id"), "user_id"],
             ["user/exist", fn () => $this->floor->pickup('user_id'), "user"],
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
@@ -160,21 +180,51 @@ class modifyUser extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            /** @var User $user */
-            $user = $this->floor->pickup("user");
 
-            $user->setFirstname($this->floor->pickup("firstname"));
-            $user->setLastname($this->floor->pickup("lastname"));
-            $user->setUsername($this->floor->pickup("username"));
-            $user->setPassword($this->floor->pickup("password"));
+        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
+        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
+        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
+        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
+        $this->floor->pickup("user")->save();
 
-            $user->save();
+        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+    }
+}
 
-            $response->code(200)->info("user.modified")->send(["user" => $user]);
-        } catch (\Exception $e) {
-            $response->code(500)->info("user.not.modified")->send();
-        }
+/**
+ * @PUT{/user}
+ */
+/*
+Entry: 
+{
+    "firstname": "John",
+    "lastname": "Doe",
+    "username": "jdoe",
+    "password": "jdo123!"
+}
+*/
+class modifyUser extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["user/firstname", $request->getBody()["firstname"], "firstname"],
+            ["user/lastname", $request->getBody()["lastname"], "lastname"],
+            ["user/username", $request->getBody()["username"], "username"],
+            ["user/password", $request->getBody()["password"], "password"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+
+        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
+        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
+        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
+        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
+        $this->floor->pickup("user")->save();
+
+        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
     }
 }
 
@@ -209,7 +259,7 @@ class MailValidate extends Controller
         $waiting_user = $this->floor->pickup("waiting_user");
 
         User::insertOne(
-            fn(User $user) => $user
+            fn (User $user) => $user
                 ->setFirstname($waiting_user->getFirstname())
                 ->setLastname($waiting_user->getLastname())
                 ->setUsername($waiting_user->getUsername())
@@ -218,5 +268,46 @@ class MailValidate extends Controller
         );
 
         $response->code(200)->info("user.validated")->send();
+    }
+}
+
+/**
+ * @GET{/api/users}
+ */
+class getUsers extends MustBeAdmin
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(200)->info("users")->send(["users" => User::findMany()]);
+    }
+}
+
+/**
+ * @GET{/api/user/{id}}
+ */
+class getUserAdmin extends MustBeAdmin
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "user_id"],
+            ["user/exist", fn () => $this->floor->pickup("user_id"), "user"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(200)->info("user")->send(["user" => $this->floor->pickup("user")]);
+    }
+}
+
+/**
+ * @GET{/api/user}
+ */
+class getUser extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(200)->info("user")->send(["user" => $this->floor->pickup("user")]);
     }
 }

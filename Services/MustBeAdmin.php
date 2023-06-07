@@ -1,4 +1,5 @@
 <?php
+
 namespace Services;
 
 use Core\OverrideController;
@@ -13,5 +14,10 @@ abstract class MustBeAdmin extends OverrideController
             ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
             ["user/mustBeAdmin", fn () => $this->floor->pickup("user"), "user"]
         ];
+    }
+
+    public function checkers(Request $request): array
+    {
+        return [];
     }
 }
