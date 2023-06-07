@@ -31,9 +31,12 @@ abstract class Controller {
 
     static private function launchCheckers(array $checkers, Floor $floor, Response $response): void
     {
+        $lastChecker = "";
+
         try{
             foreach($checkers as $checker){
                 $function = self::autoLoadChecker($checker[0]);
+                $lastChecker = $function;
                 if(is_callable($checker[1])){
                     $checker[1] = $checker[1]();
                 }
@@ -47,6 +50,7 @@ abstract class Controller {
                 "message" => $th->getMessage(),
                 "file" => $th->getFile(),
                 "line" => $th->getLine(),
+                "checker" => $lastChecker
             ];
             
             $response->code(400)->info("ERROR.BAD_TYPE")->send($data);
@@ -113,6 +117,7 @@ function callChecker(string $checker, mixed $value){
             "message" => $th->getMessage(),
             "file" => $th->getFile(),
             "line" => $th->getLine(),
+            "checker" => $checkerFunction
         ];
         
         Response::getCurrentResponse()->code(400)->info("ERROR.BAD_TYPE")->send($data);

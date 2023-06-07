@@ -1,9 +1,9 @@
-<div 
-class=""
+<div
 :rulled="this.rules.length !== 0"
 text-input
 >
     <input 
+    :name="this.name"
     :type="this.type"
     :value="this.value"
     :placeholder="this.placeholder"
@@ -24,9 +24,10 @@ text-input
         },
         props:{
             value: "",
-            placeholder: "",
+            placeholder: false,
             rules: [],
             type: "text",
+            name: false
         },
         methods: {
             inputed(e){
