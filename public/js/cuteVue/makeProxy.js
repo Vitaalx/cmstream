@@ -23,6 +23,7 @@ export default function makeProxy(properties, template){
     const watch = properties.watch;
     const stores = properties.stores;
     const computed = properties.computed;
+    const staticData = Object.freeze(properties.static);
 
     const proxy = {};
 
@@ -94,6 +95,18 @@ export default function makeProxy(properties, template){
             }
         );
     });
+
+    Object.keys(staticData).forEach(key => {
+        Object.defineProperty(
+            proxy,
+            key,
+            {
+                get: () => {
+                    return staticData[key];
+                }
+            }
+        );
+    })
 
     proxy[__subscribers__] = Object.keys({...data, ...props, ...computed}).reduce((p, c) => {
         p[c] = [];

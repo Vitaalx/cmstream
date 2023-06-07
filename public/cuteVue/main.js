@@ -1,5 +1,6 @@
 import CuteVue, {importer} from "../js/cuteVue/index.js";
 import {createRoute} from "./router/index.js";
+import "./user.js";
 
 export const loaderStore = CuteVue.createStore(
     "loader",

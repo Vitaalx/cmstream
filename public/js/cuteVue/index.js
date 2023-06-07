@@ -28,6 +28,7 @@ function CuteVue(properties){
     properties.components = properties.components || {};
     properties.stores = properties.stores || [];
     properties.computed = properties.computed || {};
+    properties.static = properties.static || {};
 
     this.properties = properties;
     this.template = null;

@@ -115,6 +115,44 @@ class login extends Controller
         $response->code(200)->info("user.logged")->send(["token" => $token]);
     }
 }
+
+/**
+ * @GET{/api/user}
+ */
+class selfInfo extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var \Entity\User $user */
+        $user = $this->floor->pickup("user");
+
+        $response
+            ->code(200)
+            ->info("user.info")
+            ->send(
+                [
+                    "username" => $user->getUsername(), 
+                    "role" => $user->getRole()->getName()
+                ]
+            );
+    }
+}
+
+/**
+ * @GET{/api/logout}
+ */
+class logout extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response
+            ->code(204)
+            ->info("user.logout")
+            ->setCookie("token", null)
+            ->send();
+    }
+}
+
 /**
  * @DELETE{/user/{id}}
  * @Path Path Request

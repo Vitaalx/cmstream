@@ -80,7 +80,7 @@ class Request{
 
     private function setRequestBody()
     {
-        if(isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] === 'application/json')
+        if(isset($_SERVER["CONTENT_TYPE"]) && str_contains($_SERVER["CONTENT_TYPE"], "application/json"))
         {
             $this->requestJsonBody = json_decode(file_get_contents("php://input"), true);
         }
