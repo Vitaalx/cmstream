@@ -8,6 +8,7 @@ use Core\Response;
 
 use Entity\Film;
 use Services\Back\VideoManagerService as VideoManager;
+use Services\MustBeAdmin;
 
 /**
  * @POST{/api/film}
@@ -36,7 +37,7 @@ Entry:
 "category_id": 1
 }
 */
-class createFilm extends Controller
+class createFilm extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -89,7 +90,7 @@ class createFilm extends Controller
  * @param int id
  * @return Response
  */
-class deleteFilm extends Controller
+class deleteFilm extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -101,12 +102,8 @@ class deleteFilm extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $this->floor->pickup("film")->delete();
-            $response->info("film.deleted")->code(204)->send();
-        } catch (\Exception $e) {
-            $response->info("film.error")->code(500)->send();
-        }
+        $this->floor->pickup("film")->delete();
+        $response->info("film.deleted")->code(204)->send();
     }
 }
 
@@ -205,7 +202,7 @@ Entry:
 "category_id": 1
 }
 */
-class updateFilm extends Controller
+class updateFilm extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {

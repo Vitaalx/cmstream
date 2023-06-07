@@ -8,6 +8,7 @@ use Core\Response;
 use Entity\Serie;
 use Entity\Episode;
 use Services\Back\VideoManagerService as VideoManager;
+use Services\MustBeAdmin;
 
 /**
  * @POST{/api/serie}
@@ -31,7 +32,7 @@ Entry:
  "category_id": 1
 }
  */
-class createSerie extends Controller
+class createSerie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -76,7 +77,7 @@ class createSerie extends Controller
  * @param int id
  * @return Response
  */
-class deleteSerie extends Controller
+class deleteSerie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -88,12 +89,8 @@ class deleteSerie extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $this->floor->pickup("serie")->delete();
-            $response->info("serie.deleted")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("serie.error")->code(500)->send();
-        }
+        $this->floor->pickup("serie")->delete();
+        $response->info("serie.deleted")->code(200)->send();
     }
 }
 
@@ -183,7 +180,7 @@ Entry:
  "description": "serie description"
 }
 */
-class updateSerie extends Controller
+class updateSerie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -244,7 +241,7 @@ Entry:
  "season": 1,
 }
 */
-class addEpisodeWhereSerie extends Controller
+class addEpisodeWhereSerie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -392,7 +389,7 @@ class getEpisodesWhereSerie extends Controller
  * @param int id
  * @return Response
  */
-class deleteEpisode extends Controller
+class deleteEpisode extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -438,7 +435,7 @@ Entry:
  "category_id": 1
 }
 */
-class updateEpisodeInfo extends Controller
+class updateEpisodeInfo extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -500,7 +497,7 @@ Entry:
  "season": 1
 }
 */
-class updateEpisode extends Controller
+class updateEpisode extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {

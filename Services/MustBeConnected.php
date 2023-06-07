@@ -1,4 +1,5 @@
 <?php
+
 namespace Services;
 
 use Core\OverrideController;
@@ -12,5 +13,10 @@ abstract class MustBeConnected extends OverrideController
             ["token/check", $request->getCookie("token") ?? "", "payload"],
             ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
         ];
+    }
+
+    public function checkers(Request $request): array
+    {
+        return [];
     }
 }
