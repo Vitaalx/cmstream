@@ -1,0 +1,220 @@
+<div class="max-w-[1130px] min-h-[calc(100vh-60px)] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col justify-center items-center content">
+    <div class="w-[500px] p-[40px] bg-darkblue">
+        <cv-form 
+        cv-if="this.step === 1" class="flex flex-col gap-[20px] step"
+        @submit="nextStep"
+        >
+            <h1 class="text-center text-2xl font-bold">Base de données</h1>
+            <div class="inputs flex flex-col gap-[30px]">
+                <text-input
+                type="text"
+                placeholder="Host"
+                cv-model="form1.dbHost"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="number"
+                placeholder="Port"
+                cv-model="form1.dbPort"
+                :rules="this.portRule"
+                >
+                </text-input>
+                <text-input
+                type="text"
+                placeholder="Nom de la base"
+                cv-model="form1.dbName"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="text"
+                placeholder="Type de connexion"
+                cv-model="form1.dbConType"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="text"
+                placeholder="Nom d'utilisateur"
+                cv-model="form1.dbUserName"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="password"
+                placeholder="Mot de passe"
+                cv-model="form1.dbPassword"
+                :rules="this.passwordRule"
+                >
+                </text-input>
+            </div>
+            <div class="mt-[50px] text-center">
+                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
+            </div>
+        </cv-form>
+        <cv-form 
+        cv-if="this.step === 2" class="flex flex-col gap-[20px] step"
+        @submit="nextStep"
+        >
+            <h1 class="text-center text-2xl font-bold">Application</h1>
+            <div class="inputs flex flex-col gap-[30px]">
+                <text-input
+                type="text"
+                placeholder="Host"
+                cv-model="form2.appHost"
+                :rules="this.textRule"
+                >
+                </text-input>
+                </text-input>
+                <text-input
+                type="text"
+                placeholder="Nom"
+                cv-model="form2.appName"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="password"
+                placeholder="Clé secrète"
+                cv-model="form2.appSecretKey"
+                :rules="this.passwordRule"
+                >
+                </text-input>
+                <text-input
+                type="number"
+                placeholder="Durée de validité du token"
+                cv-model="form2.appDurationToken"
+                :rules="this.portRule"
+                >
+            </div>
+            <div class="mt-[50px] text-center">
+                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
+            </div>
+        </cv-form>
+        <cv-form
+        cv-if="this.step === 3" class="flex flex-col gap-[20px] step"
+        @submit="nextStep"
+        >
+            <h1 class="text-center text-2xl font-bold">Messagerie</h1>
+            <div class="inputs flex flex-col gap-[30px]">
+                <text-input
+                type="text"
+                placeholder="Host"
+                cv-model="form3.mailHost"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="number"
+                placeholder="Port"
+                cv-model="form3.mailPort"
+                :rules="this.portRule"
+                >
+                </text-input>
+                <text-input
+                type="text"
+                placeholder="Nom de l'expéditeur"
+                cv-model="form3.mailExpName"
+                :rules="this.textRule"
+                >
+                </text-input>
+                <text-input
+                type="mail"
+                placeholder="Mail de l'expéditeur"
+                cv-model="form3.mailExpMail"
+                :rules="this.mailRule"
+                >
+                </text-input>
+            </div>
+            <div class="mt-[50px] text-center">
+                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Terminer</button>
+            </div>
+        </cv-form>
+    </div>
+</div>
+
+<script>
+    export default {
+        data: {
+            form1: {
+                dbHost: "",
+                dbPort: "",
+                dbName: "",
+                dbConType: "",
+                dbUserName: "",
+                dbPassword: "",
+            },
+            form2: {
+                appHost: "",
+                appName: "",
+                appSecretKey: "",
+                appDurationToken: "",
+            },
+            form3: {
+                mailHost: "",
+                mailPort: "",
+                mailExpName: "",
+                mailExpMail: "",
+            },
+            step: 1
+        },
+
+        mounted(){
+        },
+
+        computed: {
+            textRule(){
+                return [
+                    (value) => value === "" ? "Ce champ est obligatoire" : true,
+                    (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
+                    (value) => value.includes(" ") ? "Ce champ ne doit pas contenir d'espace" : true
+                ]
+            },
+
+            mailRule(){
+                const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+                return [
+                    (value) => value === "" ? "Ce champ est obligatoire" : true,
+                    (value) => !value.match(mailFormat) ? "Ce champ doit être un mail valide" : true
+                ]
+            },
+
+            portRule(){
+                return [
+                    (value) => value === "" ? "Ce champ est obligatoire" : true,
+                    (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
+                    (value) => value.length > 5 ? "Ce champ ne doit pas contenir plus de 5 caractères" : true
+                ]
+            },
+
+            passwordRule(){
+                return [
+                    (value) => value === "" ? "Ce champ est obligatoire" : true,
+                    (value) => value.length < 8 ? "Ce champ doit contenir au moins 8 caractères" : true,
+                ]
+            }
+        },
+
+        methods: {
+            nextStep(){
+                if(this.step < 3){
+                    this.step++
+                } else {
+                    const formData = {
+                        ...this.form1,
+                        ...this.form2,
+                        ...this.form3
+                    }
+
+                    console.log(formData);
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+
+</style>
