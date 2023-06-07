@@ -74,11 +74,15 @@ createRoute(
     }
 );
 
-const [app, page_loader] = await Promise.all([
+const [app, page_loader, cv_form, text_input] = await Promise.all([
     importer("/public/cuteVue/app.html"),
-    importer("/public/cuteVue/components/page_loader.html")
+    importer("/public/cuteVue/components/page-loader.html"),
+    importer("/public/cuteVue/components/cv-form.html"),
+    importer("/public/cuteVue/components/text-input.html"),
 ]);
 
-CuteVue.component("page_loader", page_loader);
+CuteVue.component("page-loader", page_loader);
+CuteVue.component("cv-form", cv_form);
+CuteVue.component("text-input", text_input);
 
 app.mount("#app");

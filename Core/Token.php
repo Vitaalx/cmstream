@@ -32,6 +32,8 @@ class Token
 
         $signature = base64_decode($signatureEncoded);
 
+        if(isset($header["alg"]) === false) return null;
+
         $calculatedSignature = hash_hmac($header["alg"], $signatureInput, $secretKey, true);
 
         $signatureMatches = hash_equals($calculatedSignature, $signature);

@@ -47,6 +47,7 @@ export default function makeTemplate(el, proxy){
 
     el.getAttributeNames().forEach(attrName => {
         if(attrName.startsWith(":")){
+            if(attrName === ":class" || attrName === ":style" ) return;
             let attr = attrName.slice(1);
             let attrValue = el.getAttribute(attrName);
             obj.objectAttributes[attr] = {
@@ -123,6 +124,14 @@ export default function makeTemplate(el, proxy){
                 obj.show.vars.push(group);
             }
         }
+        else if(attrName === "cv-model"){
+            let attrValue = el.getAttribute(attrName);
+            obj.events.input = `proxy.${attrValue} = $event.target.value`;
+            obj.objectAttributes.value = {
+                script: `proxy.${attrValue}`,
+                vars: [attrValue]
+            };
+        } 
         else if(attrName === "cv-mount"){
             let attrValue = el.getAttribute(attrName);
             obj.mount = attrValue;
