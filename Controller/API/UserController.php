@@ -80,7 +80,7 @@ class register extends Controller
 }
 
 /**
- * @POST{/login}
+ * @POST{/api/login}
  * @Body Json Request
  * @param $email
  * @param $password

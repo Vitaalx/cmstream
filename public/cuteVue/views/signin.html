@@ -1,19 +1,54 @@
 <div class="max-w-[1130px] min-h-[calc(100vh-60px)] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col justify-center items-center gap-[40px] content">
     <h1 class="text-2xl font-bold">Se connecter</h1>
 
-    <form class="w-[500px] h-[300px]">
+    <cv-form 
+    @submit="submited" 
+    class="w-[500px] h-[300px]"
+    >
         <div class="inputs p-[40px] flex flex-col gap-[20px] bg-darkblue">
-            <input type="email" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="email" placeholder="Adresse email">
-            <input type="password" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="password" placeholder="Mot de passe">
+            <text-input
+            type="email"
+            placeholder="Adresse email"
+            cv-model="email"
+            :rules="this.emailRule"
+            ></text-input>
+
+            <text-input
+            type="password" 
+            placeholder="Mot de passe"
+            cv-model="password"
+            ></text-input>
         </div>
+
         <div class="mt-[30px] text-center submit">
-          <button class="px-[20px] py-[10px] rounded bg-skyblue">Se connecter</button>  
+            <button 
+            type="submit" 
+            class="px-[20px] py-[10px] rounded bg-skyblue"
+            >
+                Se connecter
+            </button>  
         </div>
-    </form>
+    </cv-form>
 </div>
 
 <script>
     export default {
+        data: {
+            email: "",
+            password: "",
+        },
+        computed: {
+            emailRule(){
+                return [
+                    (value) => value === "" ? "c'est vide" : true,
+                ];
+            }
+        },
+        methods: {
+            submited(){
+                console.log("test");
+            }
+        },
         mounted(){
             
         },
