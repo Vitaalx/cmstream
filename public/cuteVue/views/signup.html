@@ -1,23 +1,143 @@
 <div class="max-w-[1130px] min-h-[calc(100vh-60px)] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col justify-center items-center gap-[40px] content">
     <h1 class="text-2xl font-bold">Créer un compte</h1>
-
-    <form class="w-[500px] h-[300px]">
+    
+    <cv-form
+    @submit="submit"
+    class="w-[500px]"
+    >
         <div class="inputs p-[40px] flex flex-col gap-[20px] bg-darkblue">
-            <input type="email" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="email" placeholder="Adresse email">
-            <input type="password" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="password" placeholder="Mot de passe">
-            <input type="password" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="password" placeholder="Confirmer le mot de passe">
+            <text-input
+            type="text"
+            placeholder="Nom"
+            cv-model="form.lastname"
+            :rules="this.lastnameRule"
+            class="w-full"
+            ></text-input>
+            
+            <text-input
+            type="text"
+            placeholder="Prénom"
+            cv-model="form.firstname"
+            :rules="this.firstnameRule"
+            class="w-full"
+            ></text-input>
+
+            <text-input
+            type="text"
+            placeholder="Pseudo"
+            cv-model="form.username"
+            :rules="this.usernameRule"
+            class="w-full"
+            ></text-input>
+
+            <text-input
+            type="text"
+            placeholder="Adresse email"
+            cv-model="form.email"
+            :rules="this.emailRule"
+            class="w-full"
+            ></text-input>
+
+            <text-input
+            type="password" 
+            placeholder="Mot de passe"
+            cv-model="form.password"
+            :rules="this.passwordRule"
+            class="w-full"
+            ></text-input>
+
+            <p class="text-center text-[red]" cv-class="{ 'text-[green]': this.success }">{{ this.info }}</p>
         </div>
+
         <div class="mt-[30px] text-center submit">
-          <button class="px-[20px] py-[10px] rounded bg-skyblue">Créer un compte</button>  
+            <button 
+            type="submit" 
+            class="px-[20px] py-[10px] rounded bg-skyblue"
+            >
+                Créer un compte
+            </button>  
         </div>
-    </form>
+    </cv-form>
 </div>
 
 <script>
+    const [impMain, impTaob] = await Promise.all([
+        import("/public/cuteVue/main.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impMain.loaderStore;
+    const taob = impTaob.default;
+
     export default {
+        data: {
+            form: {
+                lastname: "",
+                firstname: "",
+                username: "",
+                email: "",
+                password: ""
+            },
+            info: "",
+            success: false
+        },
+        static: {
+            lastnameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length > 120 ? "Nom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Nom invalide.",
+            ],
+            firstnameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Prénom trop court" : true,
+                (value) => value.length > 60 ? "Prénom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide.",
+            ],
+            usernameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Pseudo trop court" : true,
+                (value) => value.length > 120 ? "Pseudo trop long" : true,
+            ],
+            emailRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length > 100 ? "Email trop long" : true,
+                (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide.",
+            ],
+            passwordRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Mot de passe trop court" : true,
+                (value) => value.length > 255 ? "Mot de passe trop long" : true,
+                (value) => /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value) || "Mot de passe invalide. doit contenir au moins un caractère spécial",
+            ]
+        },
+        methods: {
+            async submit(){
+                let close = loaderStore.push();
+
+                this.info = "";
+
+                await taob.post("/register", { 
+                    firstname: this.form.firstname,
+                    lastname: this.form.lastname,
+                    username: this.form.username,
+                    email: this.form.email,
+                    password: this.form.password 
+                })
+                .s(() => {
+                    this.success = true;
+                    this.info = "Un lien de confirmation vous a été envoyé par email";
+                })
+                .e(() => {
+                    this.info = "Les identifiants sont invalides";
+                })
+                .result;
+
+                close();
+            }
+        },
         mounted(){
             
-        },
+        }
     }
 </script>
 

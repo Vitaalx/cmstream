@@ -15,7 +15,7 @@ use Services\MustBeAdmin;
 use Services\MustBeConnected;
 
 /**
- * @POST{/register}
+ * @POST{/api/register}
  * @Body Json Request
  * @param $firstname
  * @param $lastname
