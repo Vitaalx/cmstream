@@ -12,7 +12,7 @@ use Services\MustBeAdmin;
 use Services\MustBeConnected;
 
 /**
- * @POST{/api/stars/{id}}
+ * @POST{/api/star/{id}}
  * @apiName CreateStar
  * @apiGroup Star
  * @apiVersion 1.0.0
@@ -87,7 +87,7 @@ class starAverage extends Controller
 }
 
 /**
- * @DELETE{/api/stars/delete/{id}}
+ * @DELETE{/api/star/{id}}
  * @apiName DeleteStar
  * @apiGroup Star
  * @apiVersion 1.0.0

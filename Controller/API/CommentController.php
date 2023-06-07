@@ -18,7 +18,6 @@ use Services\MustBeConnected;
  */
 class addComment extends MustBeConnected
 {
-
     public function checkers(Request $request): array
     {
         return [
