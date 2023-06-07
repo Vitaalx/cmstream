@@ -5,6 +5,7 @@ namespace makeRoute;
 require_once __DIR__ . "/../Core/AutoLoader.php";
 require_once __DIR__ . "/scan.php";
 require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/../Core/Controller.php";
 
 $textRoute = '
 
@@ -19,7 +20,7 @@ $routeFileContent = "<?php\nuse Core\Route;";
 
 scan(
     __DIR__ . "/../Controller",
-    function($path){
+    function ($path) {
         $file = fopen($path, "r");
         $fileContent = fread($file, filesize($path));
         fclose($file);
@@ -38,10 +39,10 @@ scan(
             array_shift($class);
             $class = implode("/", $class);
             $comment = $rp->getDocComment();
-            if($comment === false) continue;
-            
+            if ($comment === false) continue;
+
             preg_match_all("/@([a-zA-Z]*){((?:[^{}]+|{(?2)})*)}/", $comment, $match);
-            if($match === null) continue;
+            if ($match === null) continue;
 
             foreach ($match[0] as $key => $value) {
                 $method = strtoupper($match[1][$key]);
@@ -55,7 +56,6 @@ scan(
                 global $routeFileContent;
                 $routeFileContent .= $newRout;
             }
-            
         }
     }
 );
