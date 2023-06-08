@@ -1,0 +1,38 @@
+<div class="w-full min-h-[calc(100vh-60px)] flex justify-center items-center">
+    <h1 class="text-[30px]">{{this.info}}</h1>
+</div>
+
+<script>
+    const [impMain, impTaob] = await Promise.all([
+        import("/public/cuteVue/main.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impMain.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        data: {
+            info: "Compte en cours de validation..."
+        },
+        async mounted(){
+            let close = loaderStore.push();
+
+            await taob.get("/user/validate?token=" + router.query.token)
+            .s(() => router.push("/"))
+            .e(() => {
+                this.info = "Lien de validation de Compte invalide.";
+            })
+            .result;
+            
+            close();
+        },
+        unmounted(){
+            
+        }
+    }
+</script>
+
+<style>
+
+</style>

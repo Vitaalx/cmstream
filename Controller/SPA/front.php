@@ -13,6 +13,7 @@ class index extends IndexHandler{}
 /**
  * @GET{/signin}
  * @GET{/signup}
+ * @GET{/validate}
  */
 class guest extends IndexHandler{
     public function checkers(Request $request): array

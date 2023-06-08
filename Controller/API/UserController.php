@@ -76,7 +76,7 @@ class register extends Controller
             "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
                 "Merci de vous &ecirctre inscrit sur notre site.<br>" .
                 "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "api/user/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -110,12 +110,16 @@ class login extends Controller
     }
     public function handler(Request $request, Response $response): void
     {
-        if(password_verify($this->floor->pickup("password"), $this->floor->pickup("user")->getPassword()) === false) {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        if(password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
-        $token = Token::generateToken(["id" => $this->floor->pickup("user")->getId()], CONFIG["SECRET_KEY"]);
+
+        $token = Token::generateToken(["id" => $user->getId()], CONFIG["SECRET_KEY"]);
         $response->setCookie("token", $token);
-        $response->code(200)->info("user.logged")->send(["token" => $token]);
+        $response->code(204)->info("user.logged")->send();
     }
 }
 
@@ -128,6 +132,8 @@ class selfInfo extends MustBeConnected
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
+        $role = $user->getRole();
+        $role = $role? $role->getName() : null;
 
         $response
             ->code(200)
@@ -135,7 +141,7 @@ class selfInfo extends MustBeConnected
             ->send(
                 [
                     "username" => $user->getUsername(),
-                    "role" => $user->getRole()->getName()
+                    "role" => $role
                 ]
             );
     }
@@ -299,7 +305,7 @@ class MailValidate extends Controller
         /** @var \Entity\Waiting_validate $waiting_user */
         $waiting_user = $this->floor->pickup("waiting_user");
 
-        User::insertOne(
+        $user = User::insertOne(
             fn (User $user) => $user
                 ->setFirstname($waiting_user->getFirstname())
                 ->setLastname($waiting_user->getLastname())
@@ -308,7 +314,12 @@ class MailValidate extends Controller
                 ->setPassword($waiting_user->getPassword())
         );
 
-        $response->code(200)->info("user.validated")->send();
+        $waiting_user->delete();
+
+        $token = Token::generateToken(["id" => $user->getId()], CONFIG["SECRET_KEY"]);
+        $response->setCookie("token", $token);
+
+        $response->code(204)->info("user.logged")->send();
     }
 }
 

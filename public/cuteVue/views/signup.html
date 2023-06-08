@@ -9,7 +9,7 @@
             <text-input
             type="text"
             placeholder="Nom"
-            cv-model="form.lastname"
+            cv-model="lastname"
             :rules="this.lastnameRule"
             class="w-full"
             ></text-input>
@@ -17,7 +17,7 @@
             <text-input
             type="text"
             placeholder="Prénom"
-            cv-model="form.firstname"
+            cv-model="firstname"
             :rules="this.firstnameRule"
             class="w-full"
             ></text-input>
@@ -25,23 +25,25 @@
             <text-input
             type="text"
             placeholder="Pseudo"
-            cv-model="form.username"
+            cv-model="username"
             :rules="this.usernameRule"
             class="w-full"
+            cv-ref="username"
             ></text-input>
 
             <text-input
             type="text"
             placeholder="Adresse email"
-            cv-model="form.email"
+            cv-model="email"
             :rules="this.emailRule"
             class="w-full"
+            cv-ref="email"
             ></text-input>
 
             <text-input
             type="password" 
             placeholder="Mot de passe"
-            cv-model="form.password"
+            cv-model="password"
             :rules="this.passwordRule"
             class="w-full"
             ></text-input>
@@ -53,6 +55,9 @@
             <button 
             type="submit" 
             class="px-[20px] py-[10px] rounded bg-skyblue"
+            cv-class="{
+                'invisible': this.success === true,
+            }"
             >
                 Créer un compte
             </button>  
@@ -71,15 +76,35 @@
 
     export default {
         data: {
-            form: {
-                lastname: "",
-                firstname: "",
-                username: "",
-                email: "",
-                password: ""
-            },
+            lastname: "",
+            firstname: "",
+            username: "",
+            email: "",
+            password: "",
+            
             info: "",
-            success: false
+            success: false,
+
+            alreadyUseEmail: false,
+            alreadyUseUsername: false,
+        },
+        computed: {
+            emailRule(){
+                return [
+                    (value) => this.alreadyUseEmail !== value || "Cette email est déjà utilisais.",
+                    (value) => !!value || "Ce champs est obligatoire.",
+                    (value) => value.length > 100 ? "Email trop long" : true,
+                    (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide.",
+                ];
+            },
+            usernameRule(){
+                return [
+                    (value) => this.alreadyUseUsername !== value || "Ce pseudo est déjà utilisais.",
+                    (value) => !!value || "Ce champs est obligatoire.",
+                    (value) => value.length < 4 ? "Pseudo trop court" : true,
+                    (value) => value.length > 120 ? "Pseudo trop long" : true,
+                ];
+            }
         },
         static: {
             lastnameRule: [
@@ -93,16 +118,6 @@
                 (value) => value.length > 60 ? "Prénom trop long" : true,
                 (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide.",
             ],
-            usernameRule: [
-                (value) => !!value || "Ce champs est obligatoire.",
-                (value) => value.length < 4 ? "Pseudo trop court" : true,
-                (value) => value.length > 120 ? "Pseudo trop long" : true,
-            ],
-            emailRule: [
-                (value) => !!value || "Ce champs est obligatoire.",
-                (value) => value.length > 100 ? "Email trop long" : true,
-                (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide.",
-            ],
             passwordRule: [
                 (value) => !!value || "Ce champs est obligatoire.",
                 (value) => value.length < 4 ? "Mot de passe trop court" : true,
@@ -112,23 +127,34 @@
         },
         methods: {
             async submit(){
+                this.success = false;
                 let close = loaderStore.push();
 
                 this.info = "";
 
                 await taob.post("/register", { 
-                    firstname: this.form.firstname,
-                    lastname: this.form.lastname,
-                    username: this.form.username,
-                    email: this.form.email,
-                    password: this.form.password 
+                    firstname: this.firstname,
+                    lastname: this.lastname,
+                    username: this.username,
+                    email: this.email,
+                    password: this.password 
+                })
+                .info(info => {
+                    if(info === "email.already.used"){
+                        this.alreadyUseEmail = this.email;
+                        this.$refs.email.$validate();
+                    }
+                    else if(info === "username.already.used"){
+                        this.alreadyUseUsername = this.username;
+                        this.$refs.username.$validate();
+                    }
                 })
                 .s(() => {
                     this.success = true;
                     this.info = "Un lien de confirmation vous a été envoyé par email";
                 })
                 .e(() => {
-                    this.info = "Les identifiants sont invalides";
+                    this.info = "Les information sont invalides";
                 })
                 .result;
 

@@ -38,33 +38,43 @@ class Request{
         return $this->requestMethod;
     }
 
-    public function getQuery(string $key)
+    public function getQuery(string $key): ?string
     {
         return $this->requestQuery[$key] ?? null;
     }
 
+    /**
+     * @return string[]
+     */
     public function getQuerys(): array
     {
         return $this->requestQuery;
     }
 
-    public function getParam(string $key)
+    public function getParam(string $key): ?string
     {
         return $this->requestParams[$key] ?? null;
     }
+
+    /**
+     * @return string[]
+     */
     public function getParams(): array
     {
         return $this->requestParams;
     }
 
-    public function getCookies(): array
-    {
-        return $this->cookies;
-    }
-
     public function getCookie(string $key): ?string
     {
         return $this->cookies[$key] ?? null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
     }
 
     public function getBody()

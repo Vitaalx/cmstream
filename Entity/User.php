@@ -193,9 +193,9 @@ class User extends Entity
     /**
      * Get the value of role
      *
-     * @return Role
+     * @return ?Role
      */
-    public function getRole(): Role
+    public function getRole(): ?Role
     {
         return parent::get("role");
     }
@@ -203,11 +203,11 @@ class User extends Entity
     /**
      * Set the value of role
      *
-     * @param string
+     * @param ?Role
      *
      * @return self
      */
-    public function setRole(Role $role): self
+    public function setRole(?Role $role): self
     {
         parent::set("role", $role);
 
