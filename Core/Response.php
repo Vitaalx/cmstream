@@ -91,7 +91,7 @@ class Response{
 
         echo $content;
         
-        exit;
+        throw new SendResponse("send", $this);
     }
     public function sendFile(string $path): void
     {
@@ -106,7 +106,7 @@ class Response{
 
         readfile($path);
 
-        exit;
+        throw new SendResponse("sendFile", $this);
     }
 
     public function render(string $view, string $template, array $params): void
@@ -134,7 +134,8 @@ class Response{
         extract($params);
 
         include $template;
-        exit;
+        
+        throw new SendResponse("render", $this);
     }
 
     public function redirect(string $url){
@@ -239,5 +240,35 @@ class Response{
     static public function getCurrentResponse(): Response
     {
         return self::$currentResponse;
+    }
+}
+
+Class SendResponse extends \Exception{
+    private string $type;
+    private Response $response;
+    public function __construct(string $type, Response $response){
+        fastcgi_finish_request();
+        $this->type = $type;
+        $this->response = $response;
+    }
+
+    /**
+     * Get the value of type
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Get the value of response
+     *
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        return $this->response;
     }
 }

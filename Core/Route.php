@@ -1,14 +1,12 @@
 <?php
 namespace Core;
 
-use Core\Request;
-use Core\Response;;
-
 require __DIR__ . "/Request.php";
 require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
+require __DIR__ . "/Logger.php";
 error_reporting(0);
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
@@ -35,20 +33,24 @@ class Route{
             $response = new Response();
 
             try{
-                new $class($request, $response);
+                try{
+                    new $class($request, $response);
+                    $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
+                }
+                catch(\Throwable $th){
+                    $data = [
+                        "info" => "Internal server error.",
+                        "message" => $th->getMessage(),
+                        "file" => $th->getFile(),
+                        "line" => $th->getLine(),
+                    ];
+    
+                    $response->code(500)->info("ERROR.INTERNAL_SERVER")->send($data);
+                }
             }
-            catch(\Throwable $th){
-                $data = [
-                    "info" => "Internal server error.",
-                    "message" => $th->getMessage(),
-                    "file" => $th->getFile(),
-                    "line" => $th->getLine(),
-                ];
+            catch(SendResponse $sr){
 
-                $response->code(500)->info("ERROR.INTERNAL_SERVER")->send($data);
             }
-
-            $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
         }
     }
 
