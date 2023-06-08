@@ -96,7 +96,7 @@ function exist(int $userId, Floor $floor, Response $response): User
 {
     /** @var User $user */
     $user = User::findFirst(["id" => $userId]);
-    var_dump($user);
+    
     if($user === null) $response->info("user.notfound.id")->code(404)->send();
     return $user;
 }

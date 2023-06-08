@@ -53,7 +53,11 @@ createRoute(
                 {
                     path: "/catalog",
                     view: () => importer("/public/cuteVue/views/catalog.html"),
-                }
+                },
+                {
+                    path: "/validate",
+                    view: () => importer("/public/cuteVue/views/validate.html"),
+                },
             ]
         },
     ],
@@ -62,7 +66,7 @@ createRoute(
         let result = await fetch(path);
         if(result.redirected === true){
             close();
-            return result.url.replace(location.origin, "/");
+            return result.url.replace(location.origin, "");
         }
         else if(result.status === 200) return path;
         else {

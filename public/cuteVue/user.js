@@ -17,11 +17,11 @@ export const userStore =  CuteVue.createStore(
                     this.isConnected = true;
                 });
             },
-            disconnect(){
-                taob.get("/logout");
+            async disconnect(){
                 this.username = "";
                 this.role = "";
                 this.isConnected = false;
+                await taob.get("/logout").result;
             }
         }
     }
