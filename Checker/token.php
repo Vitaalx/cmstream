@@ -4,14 +4,21 @@ namespace checker\token;
 
 use Core\Floor;
 use Core\Response;
-use Core\Token;
+use Services\token\AccessToken;
+use Services\token\EmailToken;
 
-/**
- * @throws \Exception
- */
-function check(string $token, Floor $floor, Response $response): array
+function checkAccessToken(string $token, Floor $floor, Response $response): array
 {
-    $payload = Token::checkToken($token, CONFIG["SECRET_KEY"]);
+    $payload = AccessToken::verify();
+    if ($payload === null) {
+        $response->info("token.invalid")->code(401)->send();
+    }
+    return $payload;
+}
+
+function checkEmailToken(string $token, Floor $floor, Response $response): array
+{
+    $payload = EmailToken::verify();
     if ($payload === null) {
         $response->info("token.invalid")->code(401)->send();
     }

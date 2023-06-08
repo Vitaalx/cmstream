@@ -59,10 +59,17 @@ class Response{
         return $this;
     }
 
-    public function setCookie(string $key, ?string $cookie): Response
+    public function setCookie(
+        string $key, 
+        ?string $cookie, 
+        ?int $duration = 0, 
+        ?string $path = "", 
+        ?string $domain = "", 
+        ?bool $secure = false, 
+        ?bool $httponly = false
+    ): Response
     {
-        $this->cookies[$key] = $cookie;
-
+        $this->cookies[$key] = [$cookie, $duration, $path, $domain, $secure, $httponly];
         return $this;
     }
 
@@ -160,7 +167,7 @@ class Response{
         }
 
         foreach($this->cookies as $key => $value){
-            setcookie($key, $value, 0, "/");
+            setcookie($key, ...$value);
         }
     }
 
