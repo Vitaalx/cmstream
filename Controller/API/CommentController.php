@@ -6,28 +6,24 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 use Entity\Comment;
-
+use Services\MustBeAdmin;
+use Services\MustBeConnected;
 
 /**
  * @POST{/comment}
  * @Body Json Request
  * @param $content
  * @param $video_id
- * @param $user_id
  * @param $status
  */
-class addComment extends Controller
+class addComment extends MustBeConnected
 {
-
     public function checkers(Request $request): array
     {
-        $comment = $request->getBody();
         return [
-            ["type/int", $comment['video'], "videoId"],
-            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
-            ["type/int", $comment['user'], "userId"],
-            ["type/flawless", $comment['content'], "content"],
-            ["user/exist", fn() => $this->floor->pickup("userId"), "user"],
+            ["type/int", $request->getBody()["video_id"], "videoId"],
+            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
+            ["type/flawless", $request->getBody()['content'], "content"],
         ];
     }
 
@@ -57,7 +53,7 @@ class getComments extends Controller
     {
         return [
             ["type/int", $request->getParam("id"), "videoId"],
-            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
+            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
         ];
     }
 
@@ -77,14 +73,14 @@ class getComments extends Controller
  * @DELETE{/comment/{id}}
  * @param $id
  */
-class deleteComment extends Controller
+class deleteComment extends MustBeAdmin
 {
 
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam("id"), "commentId"],
-            ["comment/exist", fn() => $this->floor->pickup("commentId"), "comment"],
+            ["comment/exist", fn () => $this->floor->pickup("commentId"), "comment"],
         ];
     }
 

@@ -59,10 +59,17 @@ class Response{
         return $this;
     }
 
-    public function setCookie(string $key, string $cookie): Response
+    public function setCookie(
+        string $key, 
+        ?string $cookie, 
+        ?int $duration = 0, 
+        ?string $path = "", 
+        ?string $domain = "", 
+        ?bool $secure = false, 
+        ?bool $httponly = false
+    ): Response
     {
-        $this->cookies[$key] = $cookie;
-
+        $this->cookies[$key] = [$cookie, $duration, $path, $domain, $secure, $httponly];
         return $this;
     }
 
@@ -109,13 +116,13 @@ class Response{
         $this->setHeader("view", $view);
         $this->addExpose("view");
 
-        $template = __DIR__ . "/../Template/" . $template . ".php";
+        $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)
         {
             die("Template '" . $template . "' not exist.");
         }
 
-        $view = __DIR__ . "/../View/" . $view . ".php";
+        $view = __DIR__ . "/../Views/" . $view . ".php";
         if(file_exists($view) === false)
         {
             die("View '" . $view . "' not exist.");
@@ -160,7 +167,7 @@ class Response{
         }
 
         foreach($this->cookies as $key => $value){
-            setcookie($key, $value);
+            setcookie($key, ...$value);
         }
     }
 

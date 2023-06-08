@@ -1,0 +1,61 @@
+<div
+:rulled="this.rules.length !== 0"
+text-input
+>
+    <input 
+    :name="this.name"
+    :type="this.type"
+    :value="this.value"
+    :placeholder="this.placeholder"
+    @input="inputed"
+    class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue w-full transition"
+    cv-class="{
+        'border-[red]': this.invalide !== false
+    }"
+    >
+
+    <small class="text-[red]">{{this.invalide || ""}}</small>
+</div>
+
+<script>
+    export default {
+        data: {
+            invalide: false
+        },
+        props:{
+            value: "",
+            placeholder: false,
+            rules: [],
+            type: "text",
+            name: false
+        },
+        methods: {
+            inputed(e){
+                this.$emit("input", e);
+                this.value = e.target.value;
+                if(this.invalide !== false)this.validate();
+            },
+            validate(){
+                for(const rule of this.rules){
+                    let result = rule(this.value);
+                    if(result !== true){
+                        this.invalide = result;
+                        return false;
+                    }
+                }
+
+                if(this.invalide !== false)this.invalide = false;
+                return true;
+            }
+        },
+        mounted(){
+            this.$getElement().$validate = () => this.validate();
+        }
+    }
+</script>
+
+<style>
+    [text-input] .invalide{
+
+    }
+</style>

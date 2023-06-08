@@ -7,6 +7,8 @@ use Core\Request;
 use Core\Response;
 
 use Entity\Watchlist;
+use Services\MustBeAdmin;
+use Services\MustBeConnected;
 
 /**
  * @POST{/api/watchlist/wish}
@@ -21,20 +23,17 @@ use Entity\Watchlist;
 /*
 Entry:
 {
- "user_id": 1
  "film_id": 1
  "serie_id": null
 }
 */
-class addWishWatchlist extends Controller
+class addWishWatchlist extends MustBeConnected
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['user_id'], "user_id"],
             ["type/int", $request->getBody()['film_id'], "film_id"],
             ["type/int", $request->getBody()['series_id'], "series_id"],
-            ["user/exist", fn () => $this->floor->pickup("user_id"), "user"],
             ["film/exist", fn () => $this->floor->pickup("film_id"), "film"],
             ["series/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
             [
@@ -73,7 +72,7 @@ class addWishWatchlist extends Controller
  * @param int user_id
  * @return Response
  */
-class deleteWatchlist extends Controller
+class deleteWatchlistAdmin extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -99,6 +98,27 @@ class deleteWatchlist extends Controller
 }
 
 /**
+ * @DELETE{/api/watchlist}
+ */
+
+class deleteWatchlist extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        try {
+            $watchlist = Watchlist::findMany(["user_id" => $this->floor->pickup("user")->getId()]);
+            if ($watchlist === null) $response->info("watchlist.notfound")->code(404)->send();
+            foreach ($watchlist as $wish) {
+                $wish->delete();
+            }
+            $response->info("watchlist.deleted")->code(200)->send();
+        } catch (\Exception $e) {
+            $response->info("watchlist.error")->code(500)->send();
+        }
+    }
+}
+
+/**
  * @DELETE{/api/watchlist/wish/{id}}
  * @apiName DeleteWatchlist
  * @apiGroup ContentManager/WatchlistController
@@ -108,7 +128,7 @@ class deleteWatchlist extends Controller
  * @param int id
  * @return Response
  */
-class deleteWishWatchlist extends Controller
+class deleteWishWatchlistAdmin extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -120,11 +140,37 @@ class deleteWishWatchlist extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $this->floor->pickup("watchlist")->delete();
-            $response->info("watchlist.deleted")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("watchlist.error")->code(500)->send();
-        }
+        $this->floor->pickup("watchlist")->delete();
+        $response->info("watchlist.deleted")->code(200)->send();
+    }
+}
+
+/**
+ * @DELETE{/api/watchlist/yourwish/{id}}
+ * @apiName DeleteWatchlist
+ * @apiGroup ContentManager/WatchlistController
+ * @apiVersion 1.0.0
+ * @Feature WatchList
+ * @Description Delete a watchlist
+ * @param int id
+ * @return Response
+ */
+class deleteWishWatchlist extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "watch_id"],
+            ["watchlist/isowner", [
+                "user_id" => fn () => $this->floor->pickup("user")->getId(),
+                "watchlist_id" => fn () => $this->floor->pickup("watch_id")
+            ], "watchlist"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $this->floor->pickup("watchlist")->delete();
+        $response->info("watchlist.deleted")->code(200)->send();
     }
 }

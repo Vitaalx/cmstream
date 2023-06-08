@@ -1,22 +1,87 @@
 <div class="max-w-[1130px] min-h-[calc(100vh-60px)] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col justify-center items-center gap-[40px] content">
     <h1 class="text-2xl font-bold">Se connecter</h1>
 
-    <form class="w-[500px] h-[300px]">
-        <div class="inputs p-[40px] flex flex-col gap-[20px] bg-darkblue">
-            <input type="email" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="email" placeholder="Adresse email">
-            <input type="password" class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue form-control" id="password" placeholder="Mot de passe">
+    <cv-form 
+    @submit="submit" 
+    class="w-[500px] h-[300px]"
+    >
+        <div class="inputs p-[40px] flex flex-col gap-[20px] bg-darkblue items-center">
+            <text-input
+            type="text"
+            placeholder="Adresse email"
+            cv-model="form.email"
+            :rules="this.emailRule"
+            class="w-full"
+            ></text-input>
+
+            <text-input
+            type="password" 
+            placeholder="Mot de passe"
+            cv-model="form.password"
+            :rules="this.passwordRule"
+            class="w-full"
+            ></text-input>
+
+            <p class="text-center text-[red]">{{ this.info }}</p>
         </div>
+
         <div class="mt-[30px] text-center submit">
-          <button class="px-[20px] py-[10px] rounded bg-skyblue">Se connecter</button>  
+            <button 
+            type="submit" 
+            class="px-[20px] py-[10px] rounded bg-skyblue"
+            >
+                Se connecter
+            </button>  
         </div>
-    </form>
+    </cv-form>
 </div>
 
 <script>
+    const [impMain, impTaob] = await Promise.all([
+        import("/public/cuteVue/main.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impMain.loaderStore;
+    const taob = impTaob.default;
+
     export default {
+        data: {
+            form: {
+                email: "",
+                password: ""
+            },
+            info: ""
+        },
+        static: {
+            emailRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide.",
+            ],
+            passwordRule: [
+            ]
+        },
+        methods: {
+            async submit(){
+                let close = loaderStore.push();
+
+                this.info = "";
+
+                await taob.post("/login", { email: this.form.email, password: this.form.password })
+                .s(() => {
+                    router.push("/");
+                })
+                .e(() => {
+                    this.info = "Les identifiants sont invalides";
+                })
+                .result;
+
+                close();
+            }
+        },
         mounted(){
             
-        },
+        }
     }
 </script>
 

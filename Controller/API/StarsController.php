@@ -8,9 +8,11 @@ use Core\Response;
 
 use Entity\Star;
 use Entity\Video;
+use Services\MustBeAdmin;
+use Services\MustBeConnected;
 
 /**
- * @POST{/api/stars/{user_id}}
+ * @POST{/api/star/{id}}
  * @apiName CreateStar
  * @apiGroup Star
  * @apiVersion 1.0.0
@@ -25,31 +27,28 @@ use Entity\Video;
 Entry:
 {
     "note": 5,
-    "video_id": 1,
 }
 */
-class createStar extends Controller
+class createStar extends MustBeConnected
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getBody()["note"], "note"],
-            ["type/int", $request->getBody()["video_id"], "video_id"],
-            ["type/int", $request->getParam("user_id"), "user_id"],
+            ["type/int", $request->getParam("id"), "video_id"],
             ["video/exist", fn () => $this->floor->pickup("video_id"), "video"],
-            ["user/exist", fn () => $this->floor->pickup("user_id"), "user"]
+            [
+                "star/notexist", [
+                    "video_id" => fn () => $this->floor->pickup("video")->getId(),
+                    "user_id" => fn () => $this->floor->pickup("user")->getId()
+                ]
+            ],
+            ["star/note", $this->floor->pickup("note"), "note"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $star = Star::findFirst([
-            "video_id" => $this->floor->pickup("video")->getId(),
-            "user_id" => $this->floor->pickup("user")->getId()
-        ]);
-        if ($star !== null) {
-            $response->info("star.exist")->code(400)->send();
-        }
         Star::insertOne([
             "note" => $this->floor->pickup("note"),
             "video_id" => $this->floor->pickup("video")->getId(),
@@ -88,7 +87,7 @@ class starAverage extends Controller
 }
 
 /**
- * @DELETE{/api/stars/delete/{id}}
+ * @DELETE{/api/star/{id}}
  * @apiName DeleteStar
  * @apiGroup Star
  * @apiVersion 1.0.0
@@ -98,13 +97,13 @@ class starAverage extends Controller
  * @param int user_id
  * @return Response
  */
-class deleteStar extends Controller
+class deleteStarAdmin extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam("id"), "star_id"],
-            ["star/exist", fn () => $this->floor->pickup("id"), "star"],
+            ["star/existId", fn () => $this->floor->pickup("id"), "star"],
         ];
     }
 
@@ -147,35 +146,37 @@ class getAllAverageStarsWhereVideos extends Controller
 }
 
 /**
- * @GET{/api/stars/{id}}
+ * @GET{/api/star/{id}}
  * @apiName ReadStar
  * @apiGroup Star
  * @apiVersion 1.0.0
  * @Feature Stars
  * @Description Read a star
  * @param int video_id
- * @param int user_id
  * @return Response
  */
-class getStar extends Controller
+class getYourstar extends MustBeConnected
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()["id"], "star_id"],
-            ["star/exist", fn () => $this->floor->pickup("star_id"), "star"]
+            ["type/int", $request->getParam("id"), "video_id"],
+            ["video/exist", fn () => $this->floor->pickup("video_id"), "video"],
+            ["star/exist", [
+                "video_id" => $this->floor->pickup("video")->getId(),
+                "user_id" => $this->floor->pickup("user")->getId()
+            ], "star"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $star = $this->floor->pickup("star");
-        $response->send(["star" => $star]);
+        $response->send(["star" => $this->floor->pickup("star")]);
     }
 }
 
 /**
- * @PUT{/api/stars}
+ * @PUT{/api/star/{id}}
  * @apiName UpdateStar
  * @apiGroup Star
  * @apiVersion 1.0.0
@@ -190,34 +191,29 @@ class getStar extends Controller
 Entry:
 {
     "note": 5,
-    "video_id": 1,
-    "user_id": 1
 }
 */
-class updateStar extends Controller
+class updateStar extends MustBeConnected
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getBody()["note"], "note"],
-            ["type/int", $request->getBody()["video_id"], "video_id"],
-            ["type/int", $request->getBody()["user_id"], "user_id"],
+            ["type/int", $request->getParam("id"), "video_id"],
             ["video/exist", fn () => $this->floor->pickup("video_id"), "video"],
-            ["user/exist", fn () => $this->floor->pickup("user_id"), "user"]
+            ["star/exist", [
+                "video_id" => $this->floor->pickup("video")->getId(),
+                "user_id" => $this->floor->pickup("user")->getId()
+            ], "star"],
+            ["star/note", fn () => $this->floor->pickup("note"), "note"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $star = Star::findFirst([
-            "video_id" => $this->floor->pickup("video")->getId(),
-            "user_id" => $this->floor->pickup("user")->getId()
-        ]);
-        if ($star === null) {
-            $response->info("star.notexist")->code(400)->send();
-        }
-        $star->setNote($this->floor->pickup("note"));
-        $star->save();
+        $this->floor->pickup("star")->setNote(
+            $this->floor->pickup("note")
+        )->save();
         $response->info("star.updated")->code(200)->send();
     }
 }

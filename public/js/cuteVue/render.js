@@ -53,8 +53,21 @@ export default function render(template, proxy){
     };
 
     Object.entries(template.attributes).forEach(([key, value]) => {
-        el.setAttribute(key, value);
-        if(instance !== undefined && instance[__props__][key] !== undefined)instance[__properties__][key] = value;
+        if(instance !== undefined){
+            if(instance[__props__][key] !== undefined){
+                instance[__properties__][key] = value;
+                instance.$update(key);
+            }
+            else if(key === "class"){
+                let attrValue = el.getAttribute("class");
+                el.setAttribute(key, value + " " + attrValue);
+            }
+            else if(key === "style"){
+                let attrValue = el.getAttribute("style");
+                el.setAttribute(key, value + ";" + attrValue);
+            }
+        }
+        else el.setAttribute(key, value);
     });
 
     Object.entries(template.objectAttributes).forEach(
@@ -67,8 +80,15 @@ export default function render(template, proxy){
             
             let subscriber = () => {
                 let result = attrRender(proxy);
-                if(typeof result === "string" || typeof result === "number")el.setAttribute(key, result);
-                if(instance !== undefined && instance[__props__][key] !== undefined)instance[__properties__][key] = result;
+                if(instance !== undefined && instance[__props__][key] !== undefined){
+                    instance[__properties__][key] = result;
+                    instance.$update(key);
+                }
+                else if(typeof result === "string" || typeof result === "number")el.setAttribute(key, result);
+                else if(typeof result === "boolean"){
+                    if(result) el.setAttribute(key, "");
+                    else el.removeAttribute(key);
+                }
             };
 
             for(let group of value.vars){

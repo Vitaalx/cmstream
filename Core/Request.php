@@ -19,12 +19,12 @@ class Request{
         
         $this->uri = $_SERVER["REQUEST_URI"];
         $this->requestMethod = $_SERVER["REQUEST_METHOD"];
+        $this->requestQuery = $_GET;
         $this->cookies = $_COOKIE;
 
         $this->requestPath = $path;
         $this->info = $info;
         $this->setRequestBody();
-        $this->setQuery();
         $this->setRequestParams($regexPath);
     }
 
@@ -38,33 +38,43 @@ class Request{
         return $this->requestMethod;
     }
 
-    public function getQuery(string $key)
+    public function getQuery(string $key): ?string
     {
         return $this->requestQuery[$key] ?? null;
     }
 
+    /**
+     * @return string[]
+     */
     public function getQuerys(): array
     {
         return $this->requestQuery;
     }
 
-    public function getParam(string $key)
+    public function getParam(string $key): ?string
     {
         return $this->requestParams[$key] ?? null;
     }
+
+    /**
+     * @return string[]
+     */
     public function getParams(): array
     {
         return $this->requestParams;
     }
 
-    public function getCookies(): array
-    {
-        return $this->cookies;
-    }
-
     public function getCookie(string $key): ?string
     {
         return $this->cookies[$key] ?? null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
     }
 
     public function getBody()
@@ -80,7 +90,7 @@ class Request{
 
     private function setRequestBody()
     {
-        if(isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] === 'application/json')
+        if(isset($_SERVER["CONTENT_TYPE"]) && str_contains($_SERVER["CONTENT_TYPE"], "application/json"))
         {
             $this->requestJsonBody = json_decode(file_get_contents("php://input"), true);
         }
@@ -99,19 +109,6 @@ class Request{
             foreach ($groups1 as $k => $key)
             {
                 $this->requestParams[$key] = $groups2[$k][0];
-            }
-        }
-    }
-
-    private function setQuery(){
-        $uri = explode("?", $this->uri);
-
-        if(isset($uri[1]))
-        {
-            $query = urldecode($uri[1]);
-            foreach(explode("&", $query) as $key => $args){
-                $args = explode("=", $args);
-                if($args[0] !== "" && ($args[1] ?? null))$this->requestQuery[$args[0]] = $args[1];
             }
         }
     }

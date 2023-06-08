@@ -1,5 +1,6 @@
 import CuteVue, {importer} from "../js/cuteVue/index.js";
 import {createRoute} from "./router/index.js";
+import "./user.js";
 
 export const loaderStore = CuteVue.createStore(
     "loader",
@@ -52,18 +53,22 @@ createRoute(
                 {
                     path: "/catalog",
                     view: () => importer("/public/cuteVue/views/catalog.html"),
-                }
+                },
+                {
+                    path: "/validate",
+                    view: () => importer("/public/cuteVue/views/validate.html"),
+                },
             ]
         },
     ],
     async (path) => {
         let close = loaderStore.push(path)
         let result = await fetch(path);
-        if(result.status === 200) return path;
-        else if(result.redirected === true){
+        if(result.redirected === true){
             close();
-            return result.url;
+            return result.url.replace(location.origin, "");
         }
+        else if(result.status === 200) return path;
         else {
             close();
             return "/";
@@ -74,11 +79,15 @@ createRoute(
     }
 );
 
-const [app, page_loader] = await Promise.all([
+const [app, page_loader, cv_form, text_input] = await Promise.all([
     importer("/public/cuteVue/app.html"),
-    importer("/public/cuteVue/components/page_loader.html")
+    importer("/public/cuteVue/components/page-loader.html"),
+    importer("/public/cuteVue/components/cv-form.html"),
+    importer("/public/cuteVue/components/text-input.html"),
 ]);
 
-CuteVue.component("page_loader", page_loader);
+CuteVue.component("page-loader", page_loader);
+CuteVue.component("cv-form", cv_form);
+CuteVue.component("text-input", text_input);
 
 app.mount("#app");

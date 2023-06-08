@@ -6,28 +6,26 @@ const proxyRouter = CuteVue.createStore(
         states: {
             beforeFnc: null,
             afterFnc: null,
-            currentPath: null,
             currentLayout: null,
             currentView: null,
             router: [],
             params: {},
+            hash: "",
+            pathname: "",
+            query: {},
         },
         actions: {
             async push(url){
-                let path = url.split("?")[0].split("#")[0];
-
-                path = (
-                    path.startsWith("/") ? 
-                        path : 
-                        "/" + path
-                );
+                url = new URL(url, location.origin)
+                
+                let path = url.pathname;
                 path = (
                     path.endsWith("/") && path.length > 1 ? 
                         path.substring(0, path.length - 1) : 
                         path
                 );
 
-                if(path === this.currentPath) return
+                if(path === this.pathname) return
 
                 let beforePath = await this.beforeFnc(path);
                 if(beforePath !== path){
@@ -52,9 +50,11 @@ const proxyRouter = CuteVue.createStore(
                         }
                         else if(route.view !== this.currentView)updateView = route.view;
 
+                        history.pushState(null, "", url.href.replace(url.origin, ""));
                         this.params = match.groups ?? {};
-                        this.currentPath = path;
-                        history.pushState(null, "", url);
+                        this.pathname = path;
+                        this.hash = url.hash;
+                        this.query = new Proxy(url.searchParams, {get: (target, props) => target.get(props) || undefined});
                         if(updateLayout !== false)this.currentLayout = updateLayout;
                         if(updateView !== false)this.currentView = updateView;
                         await this.afterFnc(path);
@@ -125,8 +125,8 @@ export function createRoute(arr, before = (path) => path, after = () => undefine
     proxyRouter.beforeFnc = before;
     proxyRouter.afterFnc = after;
     window.addEventListener("popstate", (e) => {
-        proxyRouter.push(location.pathname);
+        proxyRouter.push(location.href.replace(location.origin, ""));
     })
     window.router = proxyRouter;
-    window.router.push(location.pathname);
+    window.router.push(location.href.replace(location.origin, ""));
 }

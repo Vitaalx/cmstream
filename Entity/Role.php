@@ -3,30 +3,22 @@
 namespace Entity;
 
 use Core\Entity;
-use Entity\RoleEnum;
 
 class Role extends Entity
 {
     /** @type{int} */
     private int $id;
 
-    /** 
-     * @type{VARCHAR(100)} 
-     * @notnullable{}
-     */
-    private string $title;
-
     /**
      * @many{Entity\User,role}
-     * @groups{users}
      */
-    private array $user;
+    private array $users;
 
     /**
      * @type{VARCHAR(20)}
      * @notnullable{}
      */
-    private String $role;
+    private String $name;
 
     /**
      * @type{Date}
@@ -51,39 +43,24 @@ class Role extends Entity
         return parent::get("id");
     }
 
-    public function setId(int $id): void
+    /**
+     * @return \Entity\User[]
+     */
+    public function getUsers(): array
     {
-        parent::set("id", $id);
+        return parent::get("users");
     }
 
-    public function getTitle(): self
+    public function getName(): String
     {
-        return parent::get("title");
+        return parent::get("name");
     }
 
-    public function setTitle(string $title): void
+    public function setName(String $name): Role
     {
-        parent::set("title", $title);
-    }
+        parent::set("name", $name);
 
-    public function getUser(): User
-    {
-        return parent::get("user");
-    }
-
-    public function setUser(User $user): void
-    {
-        parent::set("user", $user);
-    }
-
-    public function getRole(): String
-    {
-        return parent::get("role");
-    }
-
-    public function setRole(String $role): void
-    {
-        parent::set("role", $role);
+        return $this;
     }
 
     public function getCreatedAt(): string

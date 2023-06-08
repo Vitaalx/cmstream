@@ -5,6 +5,7 @@ namespace checker\user;
 use Core\Floor;
 use Core\Response;
 use Entity\User;
+use Entity\Waiting_validate;
 
 function id(int $id, Floor $floor, Response $response): int
 {
@@ -71,17 +72,36 @@ function existByMail(string $email, Floor $floor, Response $response): User
     return $user;
 }
 
-function mailUsed(string $email, Floor $floor, Response $response): void
+function mailMustBeFree(string $email, Floor $floor, Response $response): void
 {
     /** @var User $user */
     $user = User::findFirst(["email" => $email]);
     if($user !== null) $response->code(409)->info("email.already.used")->send();
+    
+    $user_waiting_validate = Waiting_validate::findFirst(["email" => $email]);
+    if($user_waiting_validate !== null) $response->code(409)->info("email.already.used")->send();
+}
+
+function usernameMustBeFree(string $username, Floor $floor, Response $response): void
+{
+    /** @var User $user */
+    $user = User::findFirst(["username" => $username]);
+    if($user !== null) $response->code(409)->info("username.already.used")->send();
+
+    $user_waiting_validate = Waiting_validate::findFirst(["username" => $username]);
+    if($user_waiting_validate !== null) $response->code(409)->info("username.already.used")->send();
 }
 
 function exist(int $userId, Floor $floor, Response $response): User
 {
     /** @var User $user */
     $user = User::findFirst(["id" => $userId]);
+    
     if($user === null) $response->info("user.notfound.id")->code(404)->send();
     return $user;
+}
+
+function mustBeAdmin(User $user, Floor $floor, Response $response): void
+{
+    if($user->getRole()->getName() !== "admin") $response->info("user.forbidden")->code(403)->send();
 }
