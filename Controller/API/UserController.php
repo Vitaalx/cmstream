@@ -2,7 +2,6 @@
 
 namespace Controller\API\UserController;
 
-use Core\Token;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
@@ -13,6 +12,8 @@ use Entity\Waiting_validate;
 use Services\Back\MailService;
 use Services\MustBeAdmin;
 use Services\MustBeConnected;
+use Services\token\AccessToken;
+use Services\token\EmailToken;
 
 /**
  * @POST{/api/register}
@@ -67,7 +68,7 @@ class register extends Controller
             "password" => password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT),
         ]);
 
-        $token = Token::generateToken(["id" => $waitingUser->getId()], CONFIG["SECRET_KEY"]);
+        $token = EmailToken::generate(["id" => $waitingUser->getId()], true);
 
         MailService::send(
             $this->floor->pickup("email"),
@@ -117,8 +118,7 @@ class login extends Controller
             $response->code(401)->info("wrong.password")->send();
         }
 
-        $token = Token::generateToken(["id" => $user->getId()], CONFIG["SECRET_KEY"]);
-        $response->setCookie("token", $token);
+        AccessToken::generate(["id" => $user->getId()]);
         $response->code(204)->info("user.logged")->send();
     }
 }
@@ -295,7 +295,7 @@ class MailValidate extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["token/check", $request->getQuery("token"), "payload"],
+            ["token/checkEmailToken", $request->getQuery("token"), "payload"],
             ["waiting_validate/existById", fn () => $this->floor->pickup("payload")["id"] ?? null, "waiting_user"]
         ];
     }
@@ -316,8 +316,7 @@ class MailValidate extends Controller
 
         $waiting_user->delete();
 
-        $token = Token::generateToken(["id" => $user->getId()], CONFIG["SECRET_KEY"]);
-        $response->setCookie("token", $token);
+        AccessToken::generate(["id" => $user->getId()]);
 
         $response->code(204)->info("user.logged")->send();
     }

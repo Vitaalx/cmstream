@@ -10,7 +10,7 @@ abstract class MustBeConnected extends OverrideController
     function extendCheckers(Request $request): array
     {
         return [
-            ["token/check", $request->getCookie("token") ?? "", "payload"],
+            ["token/checkAccessToken", $request->getCookie("token") ?? "", "payload"],
             ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
         ];
     }
