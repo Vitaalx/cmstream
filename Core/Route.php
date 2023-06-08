@@ -51,6 +51,8 @@ class Route{
             catch(SendResponse $sr){
 
             }
+
+            exit;
         }
     }
 
