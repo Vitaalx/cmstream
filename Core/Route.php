@@ -49,7 +49,8 @@ class Route{
                 }
             }
             catch(SendResponse $sr){
-
+                $sr->getType(); // type d'envois
+                $sr->getContent(); // contenue envoyer
             }
 
             exit;

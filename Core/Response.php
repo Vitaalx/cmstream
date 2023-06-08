@@ -1,8 +1,6 @@
 <?php
 namespace Core;
 
-use Core\Route;
-
 class Response{
     static private Response $currentResponse;
     private int $code = 200;
@@ -19,6 +17,11 @@ class Response{
     {
         $this->code = $code;
         return $this;
+    }
+
+    public function getCode(): int
+    {
+        return $this->code;
     }
     
     public function setHeader(string $key, $content): Response
@@ -87,11 +90,19 @@ class Response{
 
     public function send(mixed $content = ""): void
     {
-        $this->autoSetHeaders($content);
+        if($this->getHeader("Content-Type") === null){
+            if(gettype($content) === "array" || gettype($content) === "object"){
+                $this->setHeader("Content-Type", "application/json");
+                $content = json_encode($content);
+            }
+            else $this->setHeader("Content-Type", "text/html");
+        }
+
+        $this->autoSetHeaders();
 
         echo $content;
         
-        throw new SendResponse("send");
+        throw new SendResponse("send", $content);
     }
     public function sendFile(string $path): void
     {
@@ -106,7 +117,7 @@ class Response{
 
         readfile($path);
 
-        throw new SendResponse("sendFile");
+        throw new SendResponse("sendFile", $path);
     }
 
     public function render(string $view, string $template, array $params): void
@@ -135,7 +146,7 @@ class Response{
 
         include $template;
         
-        throw new SendResponse("render");
+        throw new SendResponse("render", $view . "@" . $template);
     }
 
     public function redirect(string $url){
@@ -143,18 +154,8 @@ class Response{
         $this->code(303)->info("redirected")->send();
     }
 
-    private function autoSetHeaders(mixed &$content = ""){
+    private function autoSetHeaders(){
         http_response_code($this->code);
-        
-        if(isset($this->headers["Content-Type"]) === false){
-            if(gettype($content) === "array" || gettype($content) === "object"){
-                $this->headers["Content-Type"] = "application/json";
-                $content = json_encode($content);
-            }
-            else{
-                $this->headers["Content-Type"] = "text/html";
-            }
-        }
 
         if(isset($this->info) === true){
             $this->setHeader("aob-info", $this->info);
@@ -245,9 +246,12 @@ class Response{
 
 Class SendResponse extends \Exception{
     private string $type;
-    public function __construct(string $type){
+    private mixed $content;
+    
+    public function __construct(string $type, mixed $content){
         fastcgi_finish_request();
         $this->type = $type;
+        $this->content = $content;
     }
 
     /**
@@ -258,5 +262,15 @@ Class SendResponse extends \Exception{
     public function getType(): string
     {
         return $this->type;
+    }
+
+    /**
+     * Get the value of content
+     *
+     * @return mixed
+     */
+    public function getContent(): mixed
+    {
+        return $this->content;
     }
 }
