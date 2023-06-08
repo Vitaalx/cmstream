@@ -72,4 +72,11 @@ class Role extends Entity
     {
         return parent::get("updated_at");
     }
+
+    public function setUpdatedAt(string $date): self
+    {
+        parent::set("updated_at", $date);
+
+        return $this;
+    }
 }
