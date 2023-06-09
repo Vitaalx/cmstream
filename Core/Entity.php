@@ -194,8 +194,8 @@ abstract class Entity implements \JsonSerializable
     protected function set(string $prop, mixed $value): void
     {
         $prop = self::$reflections[static::class][$prop];
-        if ($prop["entityProp"] !== null && $value !== null) {
-            $this->props[$prop["name"] . "_id"] = $value->getId();
+        if ($prop["entityProp"] !== null){
+            $this->props[$prop["name"] . "_id"] = $value !== null ? $value->getId() : null;
         } else $this->props[$prop["name"]] = $value;
     }
 
