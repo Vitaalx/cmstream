@@ -127,12 +127,19 @@ class Response{
         throw new SendResponse("sendFile", $path);
     }
 
-    public function render(string $view, string $template, array $params): void
+    public function render(string $view, string $template, array $params = []): void
     {
         $this->setHeader("template", $template);
         $this->addExpose("template");
         $this->setHeader("view", $view);
         $this->addExpose("view");
+
+        if($this->getHeader("Content-Type") === null){
+            $this->setHeader(
+                "Content-Type",
+                "text/html"
+            );
+        }
 
         $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)

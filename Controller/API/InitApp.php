@@ -18,7 +18,7 @@ class getInit extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        $response->code(200)->render("init", "none", []);
+        $response->code(200)->render("init", "none");
     }
 }
 
@@ -43,8 +43,7 @@ define("CONFIG_PATH", "./../");
     "MAIL_FROM" : "no-reply-cmstream@mail.com",
     "MAIL_FROM_NAME" : "cmStream",
     "HOST" : "http://localhost:1506/",
-    
-    "title": "trop bg le site",
+    "TITLE": "trop bg le site",
 
     "firstname": "Mathieu",
     "lastname": "Campani",
@@ -72,8 +71,7 @@ class postInit extends Controller
             ["type/string", $request->getBody()["DB_USERNAME"]],
             ["type/string", $request->getBody()["DB_PASSWORD"]],
             ["type/string", $request->getBody()["SECRET_KEY"]],
-
-            ["type/string", $request->getBody()["title"], "title"],
+            ["type/string", $request->getBody()["TITLE"], "title"],
 
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
@@ -102,12 +100,6 @@ class postInit extends Controller
                 }
                 file_put_contents(CONFIG_PATH . CONFIG_FILENAME, $configFile);
             }
-            fclose($file);
-
-            $file = fopen(__DIR__ . "/../../index.html", "a+");
-            $fileContent = fread($file, filesize(__DIR__ . "/../../index.html"));
-            $fileContent = preg_replace("/<title>.*<\/title>/", "<title>" . $this->floor->pickup("title") . "</title>", $fileContent);
-            file_put_contents(__DIR__ . "/../../index.html", $fileContent);
             fclose($file);
 
             $file = fopen(__DIR__ . "/../../html/index.php", "r");
