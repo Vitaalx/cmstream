@@ -20,6 +20,7 @@
 # Deleting migration file
 /migration.sql
 
+logs/*.txt
 # Deleting .env file
 .env
 

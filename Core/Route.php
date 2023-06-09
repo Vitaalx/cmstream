@@ -1,6 +1,8 @@
 <?php
 namespace Core;
 
+use Exception;
+
 require __DIR__ . "/Request.php";
 require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
@@ -27,15 +29,18 @@ class Route{
                 $info["method"] === "*"
             )
         ){
-            $class = self::autoLoadController($info["controller"]);
-
-            $request = new Request(self::$requestPath, $info, $regexPath);
-            $response = new Response();
-
             try{
                 try{
+                    $class = self::autoLoadController($info["controller"]);
+
+                    $request = new Request(self::$requestPath, $info, $regexPath);
+                    $response = new Response();
+
                     new $class($request, $response);
                     $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
+                }
+                catch(SendResponse $sr){
+                    throw $sr;
                 }
                 catch(\Throwable $th){
                     $data = [
@@ -49,8 +54,8 @@ class Route{
                 }
             }
             catch(SendResponse $sr){
-                $sr->getType(); // type d'envois
-                $sr->getContent(); // contenue envoyer
+                if(Response::getCurrentResponse()->getInfo() === "ERROR.INTERNAL_SERVER") Logger::error($sr->getContent());
+                else Logger::auto($sr->getType());
             }
 
             exit;
@@ -75,15 +80,15 @@ class Route{
     {
         if(isset($info["method"]) === false)
         {
-            die("Route " . self::$count . " needs methods");
+            throw new Exception("Route " . self::$count . " needs methods");
         }
         else if(isset($info["path"]) === false)
         {
-            die("Route " . self::$count . " needs path");
+            throw new Exception("Route " . self::$count . " needs path");
         }
         else if(isset($info["controller"]) === false)
         {
-            die("Route " . self::$count . " need controller.");
+            throw new Exception("Route " . self::$count . " need controller.");
         }
     }
 
@@ -101,14 +106,14 @@ class Route{
 
             if(file_exists($path) === false)
             {
-                die("File '" . $path . "' not exist.");
+                throw new Exception("File '" . $path . "' not exist.");
             }
 
             include $path;
 
             if(class_exists($class) === false)
             {
-                die("Class '" . $class . "' not exist.");
+                throw new Exception("Class '" . $class . "' not exist.");
             }
         }
 

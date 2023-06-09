@@ -1,10 +1,12 @@
 <?php
 namespace Core;
 
+use Exception;
+
 class Response{
     static private Response $currentResponse;
     private int $code = 200;
-    private string $info;
+    private ?string $info = null;
     private array $headers = [];
     private array $expose = [];
     private array $cookies = [];
@@ -88,6 +90,11 @@ class Response{
         return $this;
     }
 
+    public function getInfo(): ?string
+    {
+        return $this->info ?? null;
+    }
+
     public function send(mixed $content = ""): void
     {
         if($this->getHeader("Content-Type") === null){
@@ -130,13 +137,13 @@ class Response{
         $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)
         {
-            die("Template '" . $template . "' not exist.");
+            throw new Exception("Template '" . $template . "' not exist.");
         }
 
         $view = __DIR__ . "/../Views/" . $view . ".php";
         if(file_exists($view) === false)
         {
-            die("View '" . $view . "' not exist.");
+            throw new Exception("View '" . $view . "' not exist.");
         }
 
         $this->autoSetHeaders();
@@ -157,7 +164,7 @@ class Response{
     private function autoSetHeaders(){
         http_response_code($this->code);
 
-        if(isset($this->info) === true){
+        if($this->info !== null){
             $this->setHeader("aob-info", $this->info);
             $this->addExpose("aob-info");
         }

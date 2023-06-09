@@ -2,16 +2,36 @@
 
 namespace Core;
 
+use function checker\category\name;
+
 class Logger
 {
-    public static function insert(string $message, string $header): void
+    private static $disabled = false;
+
+    private static function insert(string $message, string $header): void
     {
+        if(self::$disabled === true) return;
+
         error_log(
-            $message,
+            date("h:i:s") . " " 
+            . $header . " " 
+            . Request::getCurrentRequest()->getMethod() . " " 
+            . Request::getCurrentRequest()->getUri() . " "
+            . (Response::getCurrentResponse()->getInfo() ?? "NONE") . " "
+            . Response::getCurrentResponse()->getCode() . " : " 
+            . $message . "\n",
             LOG_ERR,
-            "./../log/prod.txt",
+            "./../logs/" . date("d-m-y") . ".txt",
             $header
         );
+    }
+
+    public static function auto($message): void
+    {
+        $code = Response::getCurrentResponse()->getCode();
+        if($code >= 500)self::error($message);
+        else if($code >= 400)self::warning($message);
+        else if($code >= 200)self::info($message);
     }
 
     public static function info(string $message): void
@@ -34,23 +54,8 @@ class Logger
         self::insert($message, "DEBUG");
     }
 
-    public static function fatal(string $message): void
+    public static function disable(): void
     {
-        self::insert($message, "FATAL");
-    }
-
-    public static function notice(string $message): void
-    {
-        self::insert($message, "NOTICE");
-    }
-
-    public static function entry(string $message): void
-    {
-        self::insert($message, "ENTRY");
-    }
-
-    public static function exit(string $message): void
-    {
-        self::insert($message, "EXIT");
+        self::$disabled = true;
     }
 }
