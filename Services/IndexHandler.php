@@ -10,9 +10,7 @@ abstract class IndexHandler extends OverrideController{
 
     public function extendCheckers(Request $request): array
     {
-        return [
-            ["file/exist", __DIR__ . "/../index.html", "path"]
-        ];
+        return [];
     }
 
     public function checkers(Request $request): array
@@ -23,8 +21,7 @@ abstract class IndexHandler extends OverrideController{
     public function handler(Request $request, Response $response): void
     {
         $response
-        ->setHeader("Content-Type", "text/html")
         ->code($this->code)
-        ->sendFile($this->floor->pickup("path"));
+        ->render("index", "none");
     }
 }

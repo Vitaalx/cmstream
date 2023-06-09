@@ -16,6 +16,7 @@ define(
         'MAIL_HOST' => 'maildev',
         'MAIL_FROM_NAME' => 'cmStream',
         'MAIL_FROM' => 'no-reply-cmstream@mail.com',
-        'HOST' => 'http://localhost:1506/'
+        'HOST' => 'http://localhost:1506/',
+        'TITLE' => 'test'
     ]
 );
