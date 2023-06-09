@@ -1,8 +1,6 @@
 <?php
 namespace Core;
 
-use Exception;
-
 require __DIR__ . "/Request.php";
 require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
@@ -80,15 +78,15 @@ class Route{
     {
         if(isset($info["method"]) === false)
         {
-            throw new Exception("Route " . self::$count . " needs methods");
+            throw new \Exception("Route " . self::$count . " needs methods");
         }
         else if(isset($info["path"]) === false)
         {
-            throw new Exception("Route " . self::$count . " needs path");
+            throw new \Exception("Route " . self::$count . " needs path");
         }
         else if(isset($info["controller"]) === false)
         {
-            throw new Exception("Route " . self::$count . " need controller.");
+            throw new \Exception("Route " . self::$count . " need controller.");
         }
     }
 
@@ -106,14 +104,14 @@ class Route{
 
             if(file_exists($path) === false)
             {
-                throw new Exception("File '" . $path . "' not exist.");
+                throw new \Exception("File '" . $path . "' not exist.");
             }
 
             include $path;
 
             if(class_exists($class) === false)
             {
-                throw new Exception("Class '" . $class . "' not exist.");
+                throw new \Exception("Class '" . $class . "' not exist.");
             }
         }
 

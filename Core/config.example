@@ -4,9 +4,9 @@ define(
     "CONFIG", 
     [
         'DB_HOST' => '{DB_HOST}',
-        'DB_PORT' => '{DB_PORT}',
+        'DB_PORT' => {DB_PORT},
         'APP_NAME' => '{APP_NAME}',
-        'DB_CONNECTION' => '{DB_CONNECTION}',
+        'DB_TYPE' => '{DB_TYPE}',
         'DB_DATABASE' => '{DB_DATABASE}',
         'DB_USERNAME' => '{DB_USERNAME}',
         'DB_PASSWORD' => '{DB_PASSWORD}',
@@ -14,9 +14,7 @@ define(
         'TOKEN_DURATION' => {TOKEN_DURATION},
         'MAIL_PORT' => {MAIL_PORT},
         'MAIL_HOST' => '{MAIL_HOST}',
-        'MAIL_FROM_NAME' => '{MAIL_FROM_NAME}',
         'MAIL_FROM' => '{MAIL_FROM}',
         'HOST' => '{HOST}',
-        'TITLE' => '{TITLE}'
     ]
 );

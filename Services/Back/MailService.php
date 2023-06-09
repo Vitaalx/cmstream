@@ -13,12 +13,12 @@ class MailService
     {
         try {
             $mail = new PHPMailer(true);
-            $mail->SMTPDebug = 2;
+            $mail->SMTPDebug = 0;
             $mail->isSMTP();
             $mail->Host = CONFIG["MAIL_HOST"];
             $mail->Port = CONFIG["MAIL_PORT"];
 
-            $mail->setFrom(CONFIG["MAIL_FROM"], CONFIG["MAIL_FROM_NAME"]);
+            $mail->setFrom(CONFIG["MAIL_FROM"], CONFIG["APP_NAME"]);
             $mail->addAddress($to);
             $mail->isHTML(true);
             $mail->Subject = $subject;

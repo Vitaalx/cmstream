@@ -1,8 +1,6 @@
 <?php
 namespace Core;
 
-use Exception;
-
 class Response{
     static private Response $currentResponse;
     private int $code = 200;
@@ -144,13 +142,13 @@ class Response{
         $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)
         {
-            throw new Exception("Template '" . $template . "' not exist.");
+            throw new \Exception("Template '" . $template . "' not exist.");
         }
 
         $view = __DIR__ . "/../Views/" . $view . ".php";
         if(file_exists($view) === false)
         {
-            throw new Exception("View '" . $view . "' not exist.");
+            throw new \Exception("View '" . $view . "' not exist.");
         }
 
         $this->autoSetHeaders();

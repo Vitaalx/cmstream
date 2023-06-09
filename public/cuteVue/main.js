@@ -1,37 +1,7 @@
 import CuteVue, {importer} from "../js/cuteVue/index.js";
 import {createRoute} from "./router/index.js";
+import {loaderStore} from "./loader.js"
 import "./user.js";
-
-export const loaderStore = CuteVue.createStore(
-    "loader",
-    {
-        states: {
-            list: [],
-            timeouts: [],
-        },
-        actions: {
-            push(id){
-                id = id || (Date.now() + "-" + Math.random());
-                let timeout = setTimeout(() => {
-                    this.list = [...this.list, id];
-                }, 200);
-                this.timeouts.push({id, timeout});
-
-                return () => this.close(id);
-            },
-            close(id){
-                let item = this.timeouts.find(item => item.id === id);
-                clearTimeout(item.timeout);
-                if(this.list.indexOf(id) !== -1){
-                    setTimeout(() => {
-                        this.list = this.list.filter(value => value !== id);
-                    }, 200);
-                }
-                this.timeouts = this.timeouts.filter(item => item.id !== id);
-            }
-        },
-    }
-)
 
 createRoute(
     [

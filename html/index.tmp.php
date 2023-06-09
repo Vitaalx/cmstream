@@ -11,9 +11,37 @@ Route::match([
 
 Route::match([
     "method" => "POST",
-    "path" => "/init",
+    "path" => "/api/init",
     "controller" => "API/InitApp/postInit",
 ]);
+
+// TRY
+
+Route::match([
+    "method" => "POST",
+    "path" => "/api/try/db",
+    "controller" => "API/InitApp/tryDB",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/api/try/app",
+    "controller" => "API/InitApp/tryAppConf",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/api/try/email",
+    "controller" => "API/InitApp/tryEmail",
+]);
+
+Route::match([
+    "method" => "POST",
+    "path" => "/api/try/account",
+    "controller" => "API/InitApp/tryFirstAccount",
+]);
+
+// OTHER
 
 Route::match([
     "method" => "GET",
