@@ -3,12 +3,12 @@
 </div>
 
 <script>
-    const [impMain, impTaob] = await Promise.all([
-        import("/public/cuteVue/main.js"),
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
 
-    const loaderStore = impMain.loaderStore;
+    const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
 
     export default {

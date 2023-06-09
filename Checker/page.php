@@ -8,7 +8,6 @@ use Services\token\AccessToken;
 
 function onlyGuest(?string $token, Floor $floor, Response $response): void
 {
-    if($token === null) return;
     $payload = AccessToken::verify();
     if ($payload === null) return;
     else $response->redirect("/");

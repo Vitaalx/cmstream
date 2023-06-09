@@ -300,7 +300,7 @@ abstract class Entity implements \JsonSerializable
     static public function dataBaseConnection(array $CONFIG): void
     {
         $pdo = new \PDO(
-            $CONFIG["DB_CONNECTION"] .
+            $CONFIG["DB_TYPE"] .
             ":host=" . $CONFIG["DB_HOST"] .
             ";port=" . $CONFIG["DB_PORT"] .
             ";dbname=" . $CONFIG["DB_DATABASE"],
@@ -311,5 +311,5 @@ abstract class Entity implements \JsonSerializable
     }
 }
 
-if(isset(CONFIG["DB_CONNECTION"]) === true)Entity::dataBaseConnection(CONFIG);
+if(isset(CONFIG["DB_HOST"]) === true)Entity::dataBaseConnection(CONFIG);
 

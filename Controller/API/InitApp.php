@@ -8,6 +8,7 @@ use Core\Request;
 use Core\Response;
 use Entity\Role;
 use Entity\User;
+use PHPMailer\PHPMailer;
 
 class getInit extends Controller
 {
@@ -22,28 +23,113 @@ class getInit extends Controller
     }
 }
 
-define("EXAMPLE_FILENAME", "config.example.txt");
-define("EXAMPLE_FILE_PATH", "./../Core/");
-define("CONFIG_FILENAME", "config.php");
-define("CONFIG_PATH", "./../");
+class tryDB extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/string", $request->getBody()["DB_HOST"]],
+            ["type/int", $request->getBody()["DB_PORT"]],
+            ["type/string", $request->getBody()["DB_TYPE"]],
+            ["type/string", $request->getBody()["DB_DATABASE"]],
+            ["type/string", $request->getBody()["DB_USERNAME"]],
+            ["type/string", $request->getBody()["DB_PASSWORD"]]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $body = $request->getBody();
+        Entity::dataBaseConnection($body);
+        $response->code(204)->send();
+    }
+}
+
+class tryAppConf extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/string", $request->getBody()["HOST"], null, "host.error"],
+            ["init/valideHost", $request->getBody()["HOST"], null, "host.error"],
+            ["type/string", $request->getBody()["APP_NAME"], null, "app.name.error"],
+            ["type/string", $request->getBody()["SECRET_KEY"], null, "secret.key.error"],
+            ["type/int", $request->getBody()["TOKEN_DURATION"] ?? 3600, null, "token.duration.error"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(204)->send();
+    }
+}
+
+class tryEmail extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/string", $request->getBody()["MAIL_HOST"], "host"],
+            ["type/int", $request->getBody()["MAIL_PORT"], "port"],
+            ["type/string", $request->getBody()["MAIL_FROM"], "mail"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $mail = new PHPMailer(true);
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = $this->floor->pickup("host");
+        $mail->Port = $this->floor->pickup("port");
+
+        $mail->setFrom($this->floor->pickup("mail"), "test");
+        $mail->addAddress($this->floor->pickup("mail"));
+        $mail->isHTML(true);
+        $mail->Subject = "test";
+        $mail->Body = "test";
+        $mail->send();
+
+        $response->code(204)->send();
+    }
+}
+
+class tryFirstAccount extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["user/firstname", $request->getBody()["firstname"]],
+            ["user/lastname", $request->getBody()["lastname"]],
+            ["user/email", $request->getBody()["email"]],
+            ["user/username", $request->getBody()["username"]],
+            ["user/password", $request->getBody()["password"]]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(204)->send();
+    }
+}
 
 /*
 {
     "DB_HOST" : "database",
     "DB_PORT" : "5432",
-    "APP_NAME" : "cmStream",
-    "DB_CONNECTION" : "pgsql",
+    "DB_TYPE" : "pgsql",
     "DB_DATABASE" : "esgi",
     "DB_USERNAME" : "esgi",
     "DB_PASSWORD" : "Test1234",
+
+    "HOST" : "http://localhost:1506",
+    "APP_NAME" : "cmStream",
     "SECRET_KEY" : "secretKey",
     "TOKEN_DURATION" : 3600,
+
     "MAIL_HOST" : "maildev",
     "MAIL_PORT" : 1025,
     "MAIL_FROM" : "no-reply-cmstream@mail.com",
-    "MAIL_FROM_NAME" : "cmStream",
-    "HOST" : "http://localhost:1506/",
-    "TITLE": "trop bg le site",
 
     "firstname": "Mathieu",
     "lastname": "Campani",
@@ -58,20 +144,21 @@ class postInit extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()["TOKEN_DURATION"] ?? 3600],
-            ["type/int", $request->getBody()["MAIL_PORT"]],
-            ["type/string", $request->getBody()["MAIL_HOST"]],
-            ["type/string", $request->getBody()["MAIL_FROM"]],
-            ["type/string", $request->getBody()["MAIL_FROM_NAME"]],
-            ["type/string", $request->getBody()["HOST"]],
             ["type/string", $request->getBody()["DB_HOST"]],
-            ["type/string", $request->getBody()["APP_NAME"]],
-            ["type/string", $request->getBody()["DB_CONNECTION"]],
+            ["type/int", $request->getBody()["DB_PORT"]],
+            ["type/string", $request->getBody()["DB_TYPE"]],
             ["type/string", $request->getBody()["DB_DATABASE"]],
             ["type/string", $request->getBody()["DB_USERNAME"]],
             ["type/string", $request->getBody()["DB_PASSWORD"]],
+
+            ["type/string", $request->getBody()["HOST"]],
+            ["type/string", $request->getBody()["APP_NAME"]],
             ["type/string", $request->getBody()["SECRET_KEY"]],
-            ["type/string", $request->getBody()["TITLE"], "title"],
+            ["type/int", $request->getBody()["TOKEN_DURATION"] ?? 3600],
+
+            ["type/string", $request->getBody()["MAIL_HOST"]],
+            ["type/int", $request->getBody()["MAIL_PORT"]],
+            ["type/string", $request->getBody()["MAIL_FROM"]],
 
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
@@ -84,21 +171,19 @@ class postInit extends Controller
     {
         $body = $request->getBody();
 
-        try {
-            Entity::dataBaseConnection($body);
-        } catch (\PDOException $e) {
-            $response->code(500)->info("Config.uncreated")->send(["error" => "Connexion à la base de données impossible"]);
-        }
+        Entity::dataBaseConnection($body);
 
         try {
-            $file = fopen(EXAMPLE_FILE_PATH . EXAMPLE_FILENAME, "a+");
+            $defaultConfigPath = __DIR__ . "/../../Core/config.example";
+
+            $file = fopen($defaultConfigPath, "a+");
             if ($file) {
-                $configFile = fread($file, filesize(EXAMPLE_FILE_PATH . EXAMPLE_FILENAME));
+                $configFile = fread($file, filesize($defaultConfigPath));
                 preg_match_all("/{(.*)}/", $configFile, $groups);
                 foreach ($groups[1] as $key => $value) {
                     $configFile = str_replace($groups[0][$key], $body[$value], $configFile);
                 }
-                file_put_contents(CONFIG_PATH . CONFIG_FILENAME, $configFile);
+                file_put_contents(__DIR__ . "/../../config.php", $configFile);
             }
             fclose($file);
 
@@ -129,9 +214,8 @@ class postInit extends Controller
                     ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
             );
 
-            $response->code(204)->info("Config.create")->send();
-
-        } catch (\Throwable $th) {
+        } 
+        catch (\Throwable $th) {
             exec("php " . __DIR__ . "/../../bin/reset.php", $output, $retval);
 
             $data = [
@@ -141,7 +225,9 @@ class postInit extends Controller
                 "line" => $th->getLine(),
             ];
 
-            $response->code(500)->info("Config.uncreated")->send($data);
+            $response->code(500)->info("config.uncreated")->send($data);
         }
+
+        $response->code(204)->info("config.create")->send();
     }
 }

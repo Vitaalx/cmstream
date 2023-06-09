@@ -154,10 +154,11 @@ class logout extends MustBeConnected
 {
     public function handler(Request $request, Response $response): void
     {
+        AccessToken::delete();
+        
         $response
             ->code(204)
             ->info("user.logout")
-            ->setCookie("token", null)
             ->send();
     }
 }

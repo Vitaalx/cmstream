@@ -159,11 +159,11 @@
 </header>
 
 <script>
-    const [impMain, impTaob] = await Promise.all([
-        import("/public/cuteVue/main.js")
+    const [impLoader] = await Promise.all([
+        import("/public/cuteVue/loader.js")
     ]);
 
-    const loaderStore = impMain.loaderStore;
+    const loaderStore = impLoader.loaderStore;
 
     export default {
         data: {
