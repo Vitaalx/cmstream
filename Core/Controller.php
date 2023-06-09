@@ -4,6 +4,7 @@ namespace Core;
 use Core\Request;
 use Core\Floor;
 use Core\Response;
+use Exception;
 
 abstract class Controller {
     protected Floor $floor;
@@ -71,14 +72,14 @@ abstract class Controller {
             
             if(file_exists($path) === false)
             {
-                die("File '" . $path . "' not exist.");
+                throw new Exception("File '" . $path . "' not exist.");
             }
 
             include $path;
 
             if(function_exists($function) === false)
             {
-                die("Function '" . $function . "' not exist.");
+                throw new Exception("Function '" . $function . "' not exist.");
             }
         }
 

@@ -3,6 +3,7 @@ namespace Controller\handlers;
 
 use Core\Controller;
 use Core\LiteController;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
 use Services\IndexHandler;
@@ -18,6 +19,8 @@ class assets extends Controller{
 
     public function handler(Request $request, Response $response): void
     {
+        Logger::disable();
+        
         $response
         ->code(200)
         ->sendFile(

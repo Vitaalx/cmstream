@@ -1,14 +1,14 @@
 <?php
 namespace Core;
 
-use Core\Request;
-use Core\Response;;
+use Exception;
 
 require __DIR__ . "/Request.php";
 require __DIR__ . "/Controller.php";
 require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
+require __DIR__ . "/Logger.php";
 error_reporting(0);
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
@@ -29,26 +29,36 @@ class Route{
                 $info["method"] === "*"
             )
         ){
-            $class = self::autoLoadController($info["controller"]);
-
-            $request = new Request(self::$requestPath, $info, $regexPath);
-            $response = new Response();
-
             try{
-                new $class($request, $response);
-            }
-            catch(\Throwable $th){
-                $data = [
-                    "info" => "Internal server error.",
-                    "message" => $th->getMessage(),
-                    "file" => $th->getFile(),
-                    "line" => $th->getLine(),
-                ];
+                try{
+                    $class = self::autoLoadController($info["controller"]);
 
-                $response->code(500)->info("ERROR.INTERNAL_SERVER")->send($data);
+                    $request = new Request(self::$requestPath, $info, $regexPath);
+                    $response = new Response();
+
+                    new $class($request, $response);
+                    $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
+                }
+                catch(SendResponse $sr){
+                    throw $sr;
+                }
+                catch(\Throwable $th){
+                    $data = [
+                        "info" => "Internal server error.",
+                        "message" => $th->getMessage(),
+                        "file" => $th->getFile(),
+                        "line" => $th->getLine(),
+                    ];
+    
+                    $response->code(500)->info("ERROR.INTERNAL_SERVER")->send($data);
+                }
+            }
+            catch(SendResponse $sr){
+                if(Response::getCurrentResponse()->getInfo() === "ERROR.INTERNAL_SERVER") Logger::error($sr->getContent());
+                else Logger::auto($sr->getType());
             }
 
-            $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
+            exit;
         }
     }
 
@@ -70,15 +80,15 @@ class Route{
     {
         if(isset($info["method"]) === false)
         {
-            die("Route " . self::$count . " needs methods");
+            throw new Exception("Route " . self::$count . " needs methods");
         }
         else if(isset($info["path"]) === false)
         {
-            die("Route " . self::$count . " needs path");
+            throw new Exception("Route " . self::$count . " needs path");
         }
         else if(isset($info["controller"]) === false)
         {
-            die("Route " . self::$count . " need controller.");
+            throw new Exception("Route " . self::$count . " need controller.");
         }
     }
 
@@ -96,14 +106,14 @@ class Route{
 
             if(file_exists($path) === false)
             {
-                die("File '" . $path . "' not exist.");
+                throw new Exception("File '" . $path . "' not exist.");
             }
 
             include $path;
 
             if(class_exists($class) === false)
             {
-                die("Class '" . $class . "' not exist.");
+                throw new Exception("Class '" . $class . "' not exist.");
             }
         }
 
