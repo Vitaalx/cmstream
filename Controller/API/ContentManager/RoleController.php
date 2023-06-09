@@ -177,7 +177,7 @@ class unsetRole extends MustBeAdmin
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
-        $user->getRole()->delete();
+        $user->setRole(null);
         date_default_timezone_set('Europe/Paris');
         $user->setUpdatedAt(date("Y-m-d H:i:s"));
         $user->save();
