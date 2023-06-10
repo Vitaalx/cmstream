@@ -1,7 +1,10 @@
 <div class="max-w-[1130px] min-h-[calc(100vh-60px)] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col justify-center items-center content">
+    <page-loader></page-loader>
+
     <div class="w-[500px] p-[40px] bg-darkblue">
         <cv-form 
-        cv-if="this.step === 1" class="flex flex-col gap-[20px] step"
+        cv-if="this.step === 1" 
+        class="flex flex-col gap-[20px] step"
         @submit="nextStep"
         >
             <h1 class="text-center text-2xl font-bold">Base de données</h1>
@@ -9,42 +12,47 @@
                 <text-input
                 type="text"
                 placeholder="Host"
-                cv-model="form1.dbHost"
+                cv-model="DB_HOST"
                 :rules="this.textRule"
                 >
                 </text-input>
+
                 <text-input
                 type="number"
                 placeholder="Port"
-                cv-model="form1.dbPort"
+                cv-model="DB_PORT"
                 :rules="this.portRule"
                 >
                 </text-input>
-                <text-input
-                type="text"
-                placeholder="Nom de la base"
-                cv-model="form1.dbName"
-                :rules="this.textRule"
-                >
-                </text-input>
+                
                 <text-input
                 type="text"
                 placeholder="Type de connexion"
-                cv-model="form1.dbConType"
+                cv-model="DB_TYPE"
                 :rules="this.textRule"
                 >
                 </text-input>
+
+                <text-input
+                type="text"
+                placeholder="Nom de la base"
+                cv-model="DB_DATABASE"
+                :rules="this.textRule"
+                >
+                </text-input>
+
                 <text-input
                 type="text"
                 placeholder="Nom d'utilisateur"
-                cv-model="form1.dbUserName"
+                cv-model="DB_USERNAME"
                 :rules="this.textRule"
                 >
                 </text-input>
+
                 <text-input
                 type="password"
                 placeholder="Mot de passe"
-                cv-model="form1.dbPassword"
+                cv-model="DB_PASSWORD"
                 :rules="this.passwordRule"
                 >
                 </text-input>
@@ -53,8 +61,10 @@
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
             </div>
         </cv-form>
+
         <cv-form 
-        cv-if="this.step === 2" class="flex flex-col gap-[20px] step"
+        cv-if="this.step === 2" 
+        class="flex flex-col gap-[20px] step"
         @submit="nextStep"
         >
             <h1 class="text-center text-2xl font-bold">Application</h1>
@@ -62,29 +72,29 @@
                 <text-input
                 type="text"
                 placeholder="Host"
-                cv-model="form2.appHost"
-                :rules="this.textRule"
+                cv-model="HOST"
+                :rules="this.hostRule"
                 >
                 </text-input>
                 </text-input>
                 <text-input
                 type="text"
                 placeholder="Nom"
-                cv-model="form2.appName"
+                cv-model="APP_NAME"
                 :rules="this.textRule"
                 >
                 </text-input>
                 <text-input
                 type="password"
                 placeholder="Clé secrète"
-                cv-model="form2.appSecretKey"
+                cv-model="SECRET_KEY"
                 :rules="this.passwordRule"
                 >
                 </text-input>
                 <text-input
                 type="number"
                 placeholder="Durée de validité du token"
-                cv-model="form2.appDurationToken"
+                cv-model="TOKEN_DURATION"
                 :rules="this.portRule"
                 >
             </div>
@@ -92,123 +102,338 @@
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
             </div>
         </cv-form>
+
         <cv-form
-        cv-if="this.step === 3" class="flex flex-col gap-[20px] step"
+        cv-if="this.step === 3"
+        class="flex flex-col gap-[20px] step"
         @submit="nextStep"
         >
             <h1 class="text-center text-2xl font-bold">Messagerie</h1>
+
             <div class="inputs flex flex-col gap-[30px]">
                 <text-input
                 type="text"
                 placeholder="Host"
-                cv-model="form3.mailHost"
+                cv-model="MAIL_HOST"
                 :rules="this.textRule"
                 >
                 </text-input>
+
                 <text-input
                 type="number"
                 placeholder="Port"
-                cv-model="form3.mailPort"
+                cv-model="MAIL_PORT"
                 :rules="this.portRule"
                 >
                 </text-input>
-                <text-input
-                type="text"
-                placeholder="Nom de l'expéditeur"
-                cv-model="form3.mailExpName"
-                :rules="this.textRule"
-                >
-                </text-input>
+
                 <text-input
                 type="mail"
                 placeholder="Mail de l'expéditeur"
-                cv-model="form3.mailExpMail"
+                cv-model="MAIL_FROM"
                 :rules="this.mailRule"
                 >
                 </text-input>
             </div>
             <div class="mt-[50px] text-center">
-                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Terminer</button>
+                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
             </div>
         </cv-form>
+
+        <cv-form
+        cv-if="this.step === 4"
+        class="flex flex-col gap-[20px] step"
+        @submit="nextStep"
+        >
+            <h1 class="text-center text-2xl font-bold">Compte Admin</h1>
+
+            <text-input
+            type="text"
+            placeholder="Nom"
+            cv-model="lastname"
+            :rules="this.lastnameRule"
+            class="w-full"
+            ></text-input>
+            
+            <text-input
+            type="text"
+            placeholder="Prénom"
+            cv-model="firstname"
+            :rules="this.firstnameRule"
+            class="w-full"
+            ></text-input>
+
+            <text-input
+            type="text"
+            placeholder="Pseudo"
+            cv-model="username"
+            :rules="this.usernameRule"
+            class="w-full"
+            cv-ref="username"
+            ></text-input>
+
+            <text-input
+            type="text"
+            placeholder="Adresse email"
+            cv-model="email"
+            :rules="this.mailRule"
+            class="w-full"
+            cv-ref="email"
+            ></text-input>
+
+            <text-input
+            type="password" 
+            placeholder="Mot de passe"
+            cv-model="password"
+            :rules="this.passwordUserRule"
+            class="w-full"
+            ></text-input>
+
+            <div class="mt-[50px] text-center">
+                <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Créer mon compte</button>
+            </div>
+        </cv-form>
+        
+        <h1 class="w-full text-center text-[30px]">{{this.title}}</h1>
+
+        <p class="text-[red] mt-[10px] w-full text-center">{{ this.info }}</p>
     </div>
 </div>
 
 <script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+    
     export default {
         data: {
-            form1: {
-                dbHost: "",
-                dbPort: "",
-                dbName: "",
-                dbConType: "",
-                dbUserName: "",
-                dbPassword: "",
-            },
-            form2: {
-                appHost: "",
-                appName: "",
-                appSecretKey: "",
-                appDurationToken: "",
-            },
-            form3: {
-                mailHost: "",
-                mailPort: "",
-                mailExpName: "",
-                mailExpMail: "",
-            },
-            step: 1
+            DB_HOST: "",
+            DB_PORT: "",
+            DB_DATABASE: "",
+            DB_TYPE: "pgsql",
+            DB_USERNAME: "",
+            DB_PASSWORD: "",
+            
+            HOST: "",
+            APP_NAME: "",
+            SECRET_KEY: "",
+            TOKEN_DURATION: 3600,
+
+            MAIL_HOST: "",
+            MAIL_PORT: "",
+            MAIL_FROM: "",
+
+            firstname: "",
+            lastname: "",
+            username: "",
+            email: "",
+            password: "",
+
+            step: 1,
+            info: "",
+            title: "",
         },
 
-        mounted(){
-        },
+        static: {
+            textRule: [
+                (value) => value === "" ? "Ce champ est obligatoire" : true,
+                (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
+                (value) => value.includes(" ") ? "Ce champ ne doit pas contenir d'espace" : true
+            ],
 
-        computed: {
-            textRule(){
-                return [
-                    (value) => value === "" ? "Ce champ est obligatoire" : true,
-                    (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
-                    (value) => value.includes(" ") ? "Ce champ ne doit pas contenir d'espace" : true
-                ]
-            },
+            mailRule: [
+                (value) => value === "" ? "Ce champ est obligatoire" : true,
+                (value) => !value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) ? "Ce champ doit être un mail valide" : true
+            ],
 
-            mailRule(){
-                const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            portRule: [
+                (value) => value === "" ? "Ce champ est obligatoire" : true,
+                (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
+                (value) => value.length > 5 ? "Ce champ ne doit pas contenir plus de 5 caractères" : true
+            ],
 
-                return [
-                    (value) => value === "" ? "Ce champ est obligatoire" : true,
-                    (value) => !value.match(mailFormat) ? "Ce champ doit être un mail valide" : true
-                ]
-            },
+            passwordRule: [
+                (value) => value === "" ? "Ce champ est obligatoire" : true,
+                (value) => value.length < 8 ? "Ce champ doit contenir au moins 8 caractères" : true,
+            ],
 
-            portRule(){
-                return [
-                    (value) => value === "" ? "Ce champ est obligatoire" : true,
-                    (value) => value.length < 2 ? "Ce champ doit contenir au moins 2 caractères" : true,
-                    (value) => value.length > 5 ? "Ce champ ne doit pas contenir plus de 5 caractères" : true
-                ]
-            },
+            hostRule: [
+                (value) => value === "" ? "Ce champ est obligatoire" : true,
+                (value) => !value.startsWith("https://") && !value.startsWith("http://") ? "La valeur de ce champ doit commencer par 'https://' ou 'http://'." : true,
+                (value) => !value.match(/^(https:\/\/|http:\/\/)[a-z0-9.:]+$/) ? "Ce champ n'est pas valide." : true
+            ],
 
-            passwordRule(){
-                return [
-                    (value) => value === "" ? "Ce champ est obligatoire" : true,
-                    (value) => value.length < 8 ? "Ce champ doit contenir au moins 8 caractères" : true,
-                ]
-            }
+            passwordUserRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Mot de passe trop court" : true,
+                (value) => value.length > 255 ? "Mot de passe trop long" : true,
+                (value) => /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value) || "Mot de passe invalide. doit contenir au moins un caractère spécial",
+            ],
+
+            lastnameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length > 120 ? "Nom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Nom invalide.",
+            ],
+
+            firstnameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Prénom trop court" : true,
+                (value) => value.length > 60 ? "Prénom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide.",
+            ],
+
+            usernameRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 4 ? "Pseudo trop court" : true,
+                (value) => value.length > 120 ? "Pseudo trop long" : true,
+            ]
         },
 
         methods: {
-            nextStep(){
-                if(this.step < 3){
-                    this.step++
-                } else {
-                    const formData = {
-                        ...this.form1,
-                        ...this.form2,
-                        ...this.form3
-                    }
+            async nextStep(){
+                if(this.step === 1){
+                    let close = loaderStore.push();
 
-                    console.log(formData);
+                    await taob.post(
+                        "/try/db",
+                        {
+                            DB_HOST: this.DB_HOST,
+                            DB_PORT: this.DB_PORT,
+                            DB_DATABASE: this.DB_DATABASE,
+                            DB_TYPE: this.DB_TYPE,
+                            DB_USERNAME: this.DB_USERNAME,
+                            DB_PASSWORD: this.DB_PASSWORD,
+                        }
+                    )
+                    .s(() => {
+                        this.step++;
+                        this.info = "";
+                    })
+                    .e(() => {
+                        this.info = "La connexion à la base donnée a échoué."
+                    })
+                    .result;
+
+                    close();
+                }
+                else if(this.step === 2){
+                    let close = loaderStore.push();
+
+                    await taob.post(
+                        "/try/app",
+                        {
+                            HOST: this.HOST,
+                            APP_NAME: this.APP_NAME,
+                            SECRET_KEY: this.SECRET_KEY,
+                            TOKEN_DURATION: this.TOKEN_DURATION ?? null,
+                        }
+                    )
+                    .info(i => {
+                        if(i === "host.error")this.info = "L'host n'est pas valide.";
+                        else if(i === "app.name.error")this.info = "Le nom de l'application n'est pas valide.";
+                        else if(i === "secret.key.error")this.info = "La clé secrète n'est pas valide.";
+                        else if(i === "token.duration.error")this.info = "La durée n'est pas valide.";
+                    })
+                    .s(() => {
+                        this.step++;
+                        this.info = "";
+                    })
+                    .result;
+
+                    close();
+                }
+                else if(this.step === 3){
+                    let close = loaderStore.push();
+
+                    await taob.post(
+                        "/try/email",
+                        {
+                            MAIL_HOST: this.MAIL_HOST,
+                            MAIL_PORT: this.MAIL_PORT,
+                            MAIL_FROM: this.MAIL_FROM,
+                        }
+                    )
+                    .s(() => {
+                        this.step++;
+                        this.info = "";
+                    })
+                    .e(() => {
+                        this.info = "La connexion au serveur de mail a échoué."
+                    })
+                    .result;
+
+                    close();
+                }
+                else if(this.step === 4){
+                    let close = loaderStore.push();
+
+                    await taob.post(
+                        "/try/account",
+                        {
+                            firstname: this.firstname,
+                            lastname: this.lastname,
+                            username: this.username,
+                            email: this.email,
+                            password: this.password 
+                        }
+                    )
+                    .s(() => {
+                        this.step++;
+                        this.info = "";
+                        this.nextStep();
+                    })
+                    .e(() => {
+                        this.info = "Une erreur est survenue lors de la vérification des champs."
+                    })
+                    .result;
+
+                    close();
+                }
+                else {
+                    this.title = "Initialisation en cours...";
+
+                    let close = loaderStore.push();
+
+                    await taob.post(
+                        "/init",
+                        {
+                            DB_HOST: this.DB_HOST,
+                            DB_PORT: this.DB_PORT,
+                            DB_DATABASE: this.DB_DATABASE,
+                            DB_TYPE: this.DB_TYPE,
+                            DB_USERNAME: this.DB_USERNAME,
+                            DB_PASSWORD: this.DB_PASSWORD,
+                            
+                            HOST: this.HOST,
+                            APP_NAME: this.APP_NAME,
+                            SECRET_KEY: this.SECRET_KEY,
+                            TOKEN_DURATION: this.TOKEN_DURATION ?? null,
+
+                            MAIL_HOST: this.MAIL_HOST,
+                            MAIL_PORT: this.MAIL_PORT,
+                            MAIL_FROM: this.MAIL_FROM,
+
+                            firstname: this.firstname,
+                            lastname: this.lastname,
+                            username: this.username,
+                            email: this.email,
+                            password: this.password 
+                        }
+                    )
+                    .s(() => {
+                        location.href = "/";
+                    })
+                    .e(data => {
+                        this.title = "Une erreur est survenue lors de l'initialisation."
+                    })
+                    .result;
+
+                    close();
                 }
             }
         }

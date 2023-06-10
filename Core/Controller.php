@@ -4,6 +4,7 @@ namespace Core;
 use Core\Request;
 use Core\Floor;
 use Core\Response;
+use Exception;
 
 abstract class Controller {
     protected Floor $floor;
@@ -32,11 +33,13 @@ abstract class Controller {
     static private function launchCheckers(array $checkers, Floor $floor, Response $response): void
     {
         $lastChecker = "";
+        $lastInfo = null;
 
         try{
             foreach($checkers as $checker){
                 $function = self::autoLoadChecker($checker[0]);
                 $lastChecker = $function;
+                $lastInfo = $checker[3] ?? null;
                 if(is_callable($checker[1])){
                     $checker[1] = $checker[1]();
                 }
@@ -53,7 +56,7 @@ abstract class Controller {
                 "checker" => $lastChecker
             ];
             
-            $response->code(400)->info("ERROR.BAD_TYPE")->send($data);
+            $response->code(400)->info($lastInfo ?? "ERROR.BAD_TYPE")->send($data);
         }
     }
 
@@ -71,14 +74,14 @@ abstract class Controller {
             
             if(file_exists($path) === false)
             {
-                die("File '" . $path . "' not exist.");
+                throw new Exception("File '" . $path . "' not exist.");
             }
 
             include $path;
 
             if(function_exists($function) === false)
             {
-                die("Function '" . $function . "' not exist.");
+                throw new Exception("Function '" . $function . "' not exist.");
             }
         }
 

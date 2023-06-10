@@ -194,9 +194,8 @@ abstract class Entity implements \JsonSerializable
     protected function set(string $prop, mixed $value): void
     {
         $prop = self::$reflections[static::class][$prop];
-
-        if ($prop["entityProp"] !== null) {
-            $this->props[$prop["name"] . "_id"] = $value->getId();
+        if ($prop["entityProp"] !== null){
+            $this->props[$prop["name"] . "_id"] = $value !== null ? $value->getId() : null;
         } else $this->props[$prop["name"]] = $value;
     }
 
@@ -301,7 +300,7 @@ abstract class Entity implements \JsonSerializable
     static public function dataBaseConnection(array $CONFIG): void
     {
         $pdo = new \PDO(
-            $CONFIG["DB_CONNECTION"] .
+            $CONFIG["DB_TYPE"] .
             ":host=" . $CONFIG["DB_HOST"] .
             ";port=" . $CONFIG["DB_PORT"] .
             ";dbname=" . $CONFIG["DB_DATABASE"],
@@ -312,5 +311,5 @@ abstract class Entity implements \JsonSerializable
     }
 }
 
-if(isset(CONFIG["DB_CONNECTION"]) === true)Entity::dataBaseConnection(CONFIG);
+if(isset(CONFIG["DB_HOST"]) === true)Entity::dataBaseConnection(CONFIG);
 

@@ -92,7 +92,13 @@ abstract class Token
     {
         if(Request::getCurrentRequest()->getCookie(static::name()) === null) return false;
         else {
-            Response::getCurrentResponse()->setCookie(static::name(), null);
+            Response::getCurrentResponse()->setCookie(
+                static::name(), 
+                null, 
+                -1,
+                static::path(),
+                static::domain()
+            );
             return true;
         }
     }

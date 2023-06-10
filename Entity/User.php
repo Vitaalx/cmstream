@@ -42,6 +42,9 @@ class User extends Entity
      */
     private string $password;
 
+    /**
+     * @groups{userRole}
+     */
     private Role $role;
 
     /**
@@ -232,5 +235,17 @@ class User extends Entity
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
+    }
+
+    /**
+     * Get the value of updated_at
+     *
+     * @return User
+     */
+    public function setUpdatedAt(string $date): self
+    {
+        parent::set("updated_at", $date);
+
+        return $this;
     }
 }

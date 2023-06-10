@@ -1,12 +1,10 @@
 <?php
 namespace Core;
 
-use Core\Route;
-
 class Response{
     static private Response $currentResponse;
     private int $code = 200;
-    private string $info;
+    private ?string $info = null;
     private array $headers = [];
     private array $expose = [];
     private array $cookies = [];
@@ -19,6 +17,11 @@ class Response{
     {
         $this->code = $code;
         return $this;
+    }
+
+    public function getCode(): int
+    {
+        return $this->code;
     }
     
     public function setHeader(string $key, $content): Response
@@ -85,13 +88,26 @@ class Response{
         return $this;
     }
 
+    public function getInfo(): ?string
+    {
+        return $this->info ?? null;
+    }
+
     public function send(mixed $content = ""): void
     {
-        $this->autoSetHeaders($content);
+        if($this->getHeader("Content-Type") === null){
+            if(gettype($content) === "array" || gettype($content) === "object"){
+                $this->setHeader("Content-Type", "application/json");
+                $content = json_encode($content);
+            }
+            else $this->setHeader("Content-Type", "text/html");
+        }
+
+        $this->autoSetHeaders();
 
         echo $content;
         
-        exit;
+        throw new SendResponse("send", $content);
     }
     public function sendFile(string $path): void
     {
@@ -106,26 +122,33 @@ class Response{
 
         readfile($path);
 
-        exit;
+        throw new SendResponse("sendFile", $path);
     }
 
-    public function render(string $view, string $template, array $params): void
+    public function render(string $view, string $template, array $params = []): void
     {
         $this->setHeader("template", $template);
         $this->addExpose("template");
         $this->setHeader("view", $view);
         $this->addExpose("view");
 
+        if($this->getHeader("Content-Type") === null){
+            $this->setHeader(
+                "Content-Type",
+                "text/html"
+            );
+        }
+
         $template = __DIR__ . "/../Templates/" . $template . ".php";
         if(file_exists($template) === false)
         {
-            die("Template '" . $template . "' not exist.");
+            throw new \Exception("Template '" . $template . "' not exist.");
         }
 
         $view = __DIR__ . "/../Views/" . $view . ".php";
         if(file_exists($view) === false)
         {
-            die("View '" . $view . "' not exist.");
+            throw new \Exception("View '" . $view . "' not exist.");
         }
 
         $this->autoSetHeaders();
@@ -134,7 +157,8 @@ class Response{
         extract($params);
 
         include $template;
-        exit;
+        
+        throw new SendResponse("render", $view . "@" . $template);
     }
 
     public function redirect(string $url){
@@ -142,20 +166,10 @@ class Response{
         $this->code(303)->info("redirected")->send();
     }
 
-    private function autoSetHeaders(mixed &$content = ""){
+    private function autoSetHeaders(){
         http_response_code($this->code);
-        
-        if(isset($this->headers["Content-Type"]) === false){
-            if(gettype($content) === "array" || gettype($content) === "object"){
-                $this->headers["Content-Type"] = "application/json";
-                $content = json_encode($content);
-            }
-            else{
-                $this->headers["Content-Type"] = "text/html";
-            }
-        }
 
-        if(isset($this->info) === true){
+        if($this->info !== null){
             $this->setHeader("aob-info", $this->info);
             $this->addExpose("aob-info");
         }
@@ -239,5 +253,36 @@ class Response{
     static public function getCurrentResponse(): Response
     {
         return self::$currentResponse;
+    }
+}
+
+Class SendResponse extends \Exception{
+    private string $type;
+    private mixed $content;
+    
+    public function __construct(string $type, mixed $content){
+        fastcgi_finish_request();
+        $this->type = $type;
+        $this->content = $content;
+    }
+
+    /**
+     * Get the value of type
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Get the value of content
+     *
+     * @return mixed
+     */
+    public function getContent(): mixed
+    {
+        return $this->content;
     }
 }
