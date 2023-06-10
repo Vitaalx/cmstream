@@ -51,7 +51,8 @@ class register extends Controller
     }
 
     //TODO fonction check permettant de vérifier si l'email est joignable
-    public function check($email) {
+    public function check($email)
+    {
         $result = FALSE;
     }
 
@@ -77,7 +78,7 @@ class register extends Controller
             "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
                 "Merci de vous &ecirctre inscrit sur notre site.<br>" .
                 "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -114,7 +115,7 @@ class login extends Controller
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        if(password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
+        if (password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
 
@@ -133,7 +134,7 @@ class selfInfo extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
         $role = $user->getRole();
-        $role = $role? $role->getName() : null;
+        $role = $role ? $role->getName() : null;
 
         $response
             ->code(200)
@@ -156,7 +157,7 @@ class logout extends MustBeConnected
     public function handler(Request $request, Response $response): void
     {
         AccessToken::delete();
-        
+
         $response
             ->code(204)
             ->info("user.logout")
@@ -210,7 +211,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUserAdmin extends MustBeAdmin
@@ -223,20 +223,20 @@ class modifyUserAdmin extends MustBeAdmin
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/password", $request->getBody()["password"], "password"]
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
 
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
-
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
     }
 }
 
@@ -249,7 +249,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUser extends MustBeConnected
@@ -260,20 +259,111 @@ class modifyUser extends MustBeConnected
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/password", $request->getBody()["password"], "password"]
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
 
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
+    }
+}
 
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+/**
+ * @PUT{/user/password}
+ * @apiName CMStream
+ * @param string email
+ *
+ * @return Response
+ */
+/*
+Entry:
+{
+    "email" : "jdoe@gmail.com",
+    "password" : "Jdo123!
+}
+*/
+class resetPassword extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["user/existByEmail", $request->getBody()["email"], "user"],
+            ["type/string", $request->getBody()["password"], "password"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $waitingUser = Waiting_validate::insertOne(
+            fn (Waiting_validate $waiting_validate) => $waiting_validate
+                ->setFirstname($user->getFirstname())
+                ->setLastname($user->getLastname())
+                ->setUsername($user->getUsername())
+                ->setEmail($user->getEmail())
+                ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
+        );
+
+        $token = EmailToken::generate(["id" => $waitingUser->getId()], true);
+
+        MailService::send(
+            $this->floor->pickup("email"),
+            "Validation de votre compte",
+
+            "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
+                "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
+                "<a href='" . CONFIG["HOST"] . "api/password/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
+                "Cordialement,<br>" .
+                "L'&eacutequipe de notre site."
+        );
+
+        $response->code(200)->info("send.email")->send();
+    }
+}
+
+/**
+ * @GET{/api/password/validate}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Description validate new password
+ * @param string token
+ * @return Response
+ */
+class PasswordValidate extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["token/checkEmailToken", $request->getQuery("token"), "payload"],
+            ["waiting_validate/existById", fn () => $this->floor->pickup("payload")["id"] ?? null, "waiting_user"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var \Entity\Waiting_validate $waiting_user */
+        $waiting_user = $this->floor->pickup("waiting_user");
+
+        $user = User::findFirst(
+            [
+                "firstname" => $waiting_user->getFirstname(),
+                "lastname" => $waiting_user->getLastname(),
+                "username" => $waiting_user->getUsername(),
+                "email" => $waiting_user->getEmail()
+            ]
+        );
+        $user->setPassword($waiting_user->getPassword());
+        $waiting_user->delete();
+
+        $response->code(200)->info("user.updated")->send();
     }
 }
 
