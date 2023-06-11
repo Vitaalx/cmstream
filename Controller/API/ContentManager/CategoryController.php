@@ -6,45 +6,46 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
+use Core\SendResponse;
 use Entity\Category;
+use Entity\Video;
 use Services\MustBeAdmin;
 
 /**
  * @POST{/api/category}
- * @apiName CreateCategory
+ * @apiName AddCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Create a category
- * @param string categorie_name
+ * @Description Add a category
+ * @param string category_name
  * @return Response
  */
 /*
  Entry:
  {
-  "categorie_name": "Category name"
+  "category_name": "Category name"
  }
 */
-class createCategory extends MustBeAdmin
+class addCategory extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/string", $request->getBody()['categorie_name'], "category_name"],
+            ["type/string", $request->getBody()['category_name'], "category_name"],
             ["category/name", fn () => $this->floor->pickup("category_name"), "category_name"],
             ["category/notexist", fn () => $this->floor->pickup("category_name")]
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            Category::insertOne(["title" => $this->floor->pickup("category_name")]);
-
-            $response->info("category.created")->code(201)->send();
-        } catch (\Exception $e) {
-            $response->info("category.error")->code(500)->send();
-        }
+        /** @var Category $category */
+        $category = Category::insertOne(["title" => $this->floor->pickup("category_name")]);
+        $response->info("category.created")->code(201)->send(["category" => $category]);
     }
 }
 
@@ -68,11 +69,15 @@ class deleteCategory extends MustBeAdmin
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
+        /** @var Category $category */
         $category = $this->floor->pickup("category");
         $category->delete();
-        $response->info("category.deleted")->code(200)->send();
+        $response->info("category.deleted")->code(204)->send();
     }
 }
 
@@ -94,18 +99,15 @@ class getCategories extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $categories = Category::findMany();
-            $response->send(["categories" => $categories]);
-        } catch (\Exception $e) {
-            $response->info("category.error")->code(500)->send();
-        }
+        /** @var Category[] $categories */
+        $categories = Category::findMany();
+        $response->code(200)->info("categories.get")->send(["categories" => $categories]);
     }
 }
 
 /**
  * @GET{/api/contents/category/{id}}
- * @apiName GetAllContentWhereCategory
+ * @apiName getContentsByCategory
  * @apiGroup ContentManager/CategoryController
  * @apiVersion 1.0.0
  * @Feature ContentManager
@@ -113,7 +115,7 @@ class getCategories extends Controller
  * @param int id
  * @return Response
  */
-class getAllContentWhereCategory extends Controller
+class getContentsByCategory extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -123,43 +125,42 @@ class getAllContentWhereCategory extends Controller
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $videos = $this->floor->pickup("category")->getVideos();
-            $content = [];
-            foreach ($videos as $video) {
-                if ($video->getFilm() != null) {
-                    $film = $video->getFilm();
-                    $content[] = [
-                        "id_film" => $film->getId(),
-                        "title" => $film->getVideo()->getTitle(),
-                        "description" => $film->getVideo()->getDescription(),
-                        "created_at" => $film->getCreatedAt(),
-                        "updated_at" => $film->getUpdatedAt()
-                    ];
-                } else if ($video->getSeries() != null) {
-                    $episodes = $video->getSeries();
-                    foreach ($episodes as $episode) {
-                        if (!in_array($episode->getTitle(), array_column($content, "title"))) {
-                            $content[] = [
-                                "id_serie" => $episode->getId(),
-                                "title" => $episode->getTitle(),
-                                "image" => $episode->getImage(),
-                                "created_at" => $episode->getCreatedAt(),
-                                "updated_at" => $episode->getUpdatedAt()
-                            ];
-                        }
+        /** @var Video $videos */
+        $videos = $this->floor->pickup("category")->getVideos();
+        $contents = [];
+        foreach ($videos as $video) {
+            if ($video->getMovie() != null) {
+                $movie = $video->getMovie();
+                $contents[] = [
+                    "id_movie" => $movie->getId(),
+                    "title" => $movie->getVideo()->getTitle(),
+                    "description" => $movie->getVideo()->getDescription(),
+                    "created_at" => $movie->getCreatedAt(),
+                    "updated_at" => $movie->getUpdatedAt()
+                ];
+            } else if ($video->getSeries() != null) {
+                $episodes = $video->getSeries();
+                foreach ($episodes as $episode) {
+                    if (!in_array($episode->getTitle(), array_column($contents, "title"))) {
+                        $contents[] = [
+                            "id_serie" => $episode->getId(),
+                            "title" => $episode->getTitle(),
+                            "image" => $episode->getImage(),
+                            "created_at" => $episode->getCreatedAt(),
+                            "updated_at" => $episode->getUpdatedAt()
+                        ];
                     }
-                } else {
-                    throw new \Exception("Video not found");
                 }
+            } else {
+                $response->code(404)->info("video.notfound")->send();
             }
-
-            $response->send(["content" => $content]);
-        } catch (\Exception $e) {
-            $response->info("category.error")->code(500)->send();
         }
+        $response->code(200)->info("contents.get")->send(["contents" => $contents]);
     }
 }
 /**
@@ -192,17 +193,16 @@ class updateCategory extends MustBeAdmin
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $category = $this->floor->pickup("category");
-            $category->setTitle($this->floor->pickup("category_name"));
-            $category->setUpdatedAt(date("Y-m-d H:i:s"));
-            $category->save();
-
-            $response->info("category.updated")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("category.error")->code(500)->send();
-        }
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
+        $category->setTitle($this->floor->pickup("category_name"));
+        $category->setUpdatedAt(date("Y-m-d H:i:s"));
+        $category->save();
+        $response->code(200)->info("category.updated")->send();
     }
 }

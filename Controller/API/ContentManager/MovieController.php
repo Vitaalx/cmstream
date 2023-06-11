@@ -1,22 +1,24 @@
 <?php
 
-namespace Controller\API\ContentManager\FilmController;
+namespace Controller\API\ContentManager\MovieController;
 
 use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Entity\Film;
+use Core\SendResponse;
+use Entity\Movie;
+use Entity\Video;
 use Services\Back\VideoManagerService as VideoManager;
 use Services\MustBeAdmin;
 
 /**
- * @POST{/api/film}
- * @apiName CreateFilm
- * @apiGroup ContentManager/FilmController
+ * @POST{/api/movie}
+ * @apiName CreateMovie
+ * @apiGroup ContentManager/MovieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Create a film
+ * @Description Create a movie
  * @param array url
  * @param string title_video
  * @param string description
@@ -37,7 +39,7 @@ Entry:
 "category_id": 1
 }
 */
-class createFilm extends MustBeAdmin
+class createMovie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
@@ -54,133 +56,138 @@ class createFilm extends MustBeAdmin
         ];
     }
 
+    /**
+     * @throws SendResponse
+     * @throws \Exception
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            /** @var Video $video */
-            $video = VideoManager::createVideo(
-                $this->floor->pickup("video/url"),
-                $this->floor->pickup("title_video"),
-                $this->floor->pickup("description")
-            );
-            if ($video === null) {
-                $response->info("video.error")->code(500)->send();
-            }
-
-            Film::insertOne([
-                "video_id" => $video->getId(),
-                "image" => $this->floor->pickup("video/image"),
-                "category_id" => $this->floor->pickup("category")->getId()
-            ]);
-
-            $response->info("film.created")->code(201)->send();
-        } catch (\Exception $e) {
-            $response->info("film.error")->code(500)->send();
+        /** @var Video $video */
+        $video = VideoManager::createVideo(
+            $this->floor->pickup("video/url"),
+            $this->floor->pickup("title_video"),
+            $this->floor->pickup("description")
+        );
+        if (empty($video)) {
+            $response->code(500)->info("video.error")->send();
         }
+        /** @var Movie $movie */
+        $movie = Movie::insertOne([
+            "video_id" => $video->getId(),
+            "image" => $this->floor->pickup("video/image"),
+            "category_id" => $this->floor->pickup("category")->getId()
+        ]);
+
+        $response->code(201)->info("movie.created")->send(["movie" => $movie]);
     }
 }
 
 /**
- * @DELETE{/api/film/{id}}
- * @apiName DeleteFilm
- * @apiGroup ContentManager/FilmController
+ * @DELETE{/api/movie/{id}}
+ * @apiName DeleteMovie
+ * @apiGroup ContentManager/MovieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Delete a film
+ * @Description Delete a movie
  * @param int id
  * @return Response
  */
-class deleteFilm extends MustBeAdmin
+class deleteMovie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('id'), "film_id"],
-            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
+            ["type/int", $request->getParam('id'), "movie_id"],
+            ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"]
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        $this->floor->pickup("film")->delete();
-        $response->info("film.deleted")->code(204)->send();
+        $this->floor->pickup("movie")->delete();
+        $response->info("movie.deleted")->code(204)->send();
     }
 }
 
 /**
- * @GET{/api/film/{id}}
- * @apiName GetFilm
- * @apiGroup ContentManager/FilmController
+ * @GET{/api/movie/{id}}
+ * @apiName GetMovie
+ * @apiGroup ContentManager/MovieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get a film
+ * @Description Get a movie
  * @param int id
  * @return Response
  */
-class getFilm extends Controller
+class getMovie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('id'), "film_id"],
-            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"]
+            ["type/int", $request->getParam('id'), "movie_id"],
+            ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"]
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        $film = [];
-        $film[] = $this->floor->pickup("film");
-        $film[] = $this->floor->pickup("film")->getVideo();
+        /** @var Movie $movie */
+        $movie = [];
+        $movie[] = $this->floor->pickup("movie");
+        $movie[] = $this->floor->pickup("movie")->getVideo();
 
-        $response->send(["film" => $film]);
+        $response->code(200)->info("movie.get")->send(["movie" => $movie]);
     }
 }
 
 /**
- * @GET{/api/films/}
- * @apiName GetFilms
- * @apiGroup ContentManager/FilmController
+ * @GET{/api/movies}
+ * @apiName GetMovies
+ * @apiGroup ContentManager/MovieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Get films
+ * @Description Get movies
  * @return Response
  */
-class getAllFilms extends Controller
+class getMovies extends Controller
 {
     public function checkers(Request $request): array
     {
         return [];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $films = Film::findMany();
-            if ($films === null) $response->info("film.notfound")->code(404)->send();
-
-            $films = array_map(function ($film) {
-                return [
-                    "id" => $film->getId(),
-                    "video" => $film->getVideo(),
-                    "image" => $film->getImage()
-                ];
-            }, $films);
-
-            $response->send(["films" => $films]);
-        } catch (\Exception $e) {
-            $response->info("film.error")->code(500)->send();
-        }
+        /** @var Movie[] $movies */
+        $movies = Movie::findMany();
+        if (empty($movies)) $response->info("movies.notfound")->code(404)->send();
+        $movies = array_map(function ($movie) {
+            return [
+                "id" => $movie->getId(),
+                "video" => $movie->getVideo(),
+                "image" => $movie->getImage()
+            ];
+        }, $movies);
+        $response->code(200)->info("movies.get")->send(["movies" => $movies]);
     }
 }
 
 /**
- * @PUT{/api/film/{id}}
- * @apiName UpdateFilm
- * @apiGroup ContentManager/FilmController
+ * @PUT{/api/movie/{id}}
+ * @apiName UpdateMovie
+ * @apiGroup ContentManager/MovieController
  * @apiVersion 1.0.0
  * @Feature ContentManager
- * @Description Update a film
+ * @Description Update a movie
  * @param int id
  * @param array url
  * @param string title_video
@@ -202,13 +209,13 @@ Entry:
 "category_id": 1
 }
 */
-class updateFilm extends MustBeAdmin
+class updateMovie extends MustBeAdmin
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('id'), "film_id"],
-            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"],
+            ["type/int", $request->getParam('id'), "movie_id"],
+            ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"],
             ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
@@ -221,22 +228,22 @@ class updateFilm extends MustBeAdmin
         ];
     }
 
+    /**
+     * @throws SendResponse
+     */
     public function handler(Request $request, Response $response): void
     {
-        try {
-            VideoManager::updateVideo(
-                $this->floor->pickup("film")->getVideo()->getId(),
-                $this->floor->pickup("title_video"),
-                $this->floor->pickup("description")
-            );
+        VideoManager::updateVideo(
+            $this->floor->pickup("movie")->getVideo()->getId(),
+            $this->floor->pickup("title_video"),
+            $this->floor->pickup("description")
+        );
+        /** @var Movie $movie */
+        $movie = $this->floor->pickup("movie");
+        $movie->setImage($this->floor->pickup("image"));
+        $movie->setUpdatedAt(date("Y-m-d H:i:s"));
+        $movie->save();
 
-            $this->floor->pickup("film")->setImage($this->floor->pickup("image"));
-            $this->floor->pickup("film")->setUpdatedAt(date("Y-m-d H:i:s"));
-            $this->floor->pickup("film")->save();
-
-            $response->info("film.updated")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("film.error")->code(500)->send();
-        }
+        $response->info("movie.updated")->code(200)->send();
     }
 }

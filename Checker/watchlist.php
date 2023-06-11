@@ -10,7 +10,7 @@ use Entity\Watchlist;
 function notexist(array $content, Floor $floor, Response $response): void
 {
     $watchlist = Watchlist::findFirst([
-        "film_id" => $content['film'],
+        "movie_id" => $content['movie'],
         "serie_id" => $content['serie'],
         "user_id" => $content['user']
     ]);

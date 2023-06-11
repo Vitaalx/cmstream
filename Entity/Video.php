@@ -40,11 +40,11 @@ class Video extends Entity
     private array $stars;
 
     /**
-     * @many{Entity\Film,video}
-     * @groups{film}
+     * @many{Entity\Movie,video}
+     * @groups{movie}
      * @cascade{}
      */
-    private array $film;
+    private array $movie;
 
     /**
      * @many{Entity\Episode,video}
@@ -144,9 +144,9 @@ class Video extends Entity
         return $this;
     }
 
-    public function getFilm(): array
+    public function getMovie(): array
     {
-        return parent::get("film");
+        return parent::get("movie");
     }
 
     public function getEpisodes(): array
