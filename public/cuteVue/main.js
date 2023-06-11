@@ -36,9 +36,19 @@ createRoute(
                     path: "/reset-password",
                     view: () => importer("/public/cuteVue/views/reset-password.html"),
                 },
-            ]
+            ],
+        },
+        {
+            layout: () => importer("/public/cuteVue/layouts/admin.html"),
+            children: [
+                {
+                    path: "/admin",
+                    view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
+                },
+            ],
         },
     ],
+
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
         let result = await fetch(path);
