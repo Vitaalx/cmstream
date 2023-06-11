@@ -49,7 +49,6 @@ createRoute(
         },
     ],
 
-
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
         let result = await fetch(path);
