@@ -17,6 +17,7 @@ class index extends IndexHandler{}
  * @GET{/signup}
  * @GET{/validate}
  * @GET{/forgot-password}
+ * @GET{/admin} // TODO: move to connected class when admin panel will be ready
  */
 class guest extends IndexHandler{
     public function checkers(Request $request): array
