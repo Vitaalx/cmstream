@@ -28,9 +28,19 @@ createRoute(
                     path: "/validate",
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
-            ]
+            ],
+        },
+        {
+            layout: () => importer("/public/cuteVue/layouts/admin.html"),
+            children: [
+                {
+                    path: "/admin",
+                    view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
+                },
+            ],
         },
     ],
+
     async (path) => {
         let close = loaderStore.push(path)
         let result = await fetch(path);
