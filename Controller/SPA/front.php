@@ -14,7 +14,6 @@ class index extends IndexHandler{}
  * @GET{/signin}
  * @GET{/signup}
  * @GET{/validate}
- * @GET{/admin} // TODO: move to connected class when admin panel will be ready
  */
 class guest extends IndexHandler{
     public function checkers(Request $request): array
@@ -33,6 +32,20 @@ class connected extends IndexHandler{
     {
         return [
             ["page/onlyConnected", $request->getCookie("token") ?? ""]
+        ];
+    }
+}
+
+/**
+ * @GET{/admin}
+ */
+class admin extends IndexHandler{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["token/checkAccessToken", $request->getCookie("token") ?? "", "payload"],
+            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
+            ["user/mustBeAdmin", fn () => $this->floor->pickup("user"), "user"]
         ];
     }
 }
