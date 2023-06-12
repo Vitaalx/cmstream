@@ -3,6 +3,7 @@
 namespace checker\page;
 
 use Core\Floor;
+use Core\Logger;
 use Core\Response;
 use Services\token\AccessToken;
 

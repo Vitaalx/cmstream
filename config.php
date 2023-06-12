@@ -15,6 +15,6 @@ define(
         'MAIL_PORT' => 1025,
         'MAIL_HOST' => 'maildev',
         'MAIL_FROM' => 'no-reply-cmstream@mail.com',
-        'HOST' => 'http://192.168.1.3:1509',
+        'HOST' => 'http://192.168.1.3:1506',
     ]
 );

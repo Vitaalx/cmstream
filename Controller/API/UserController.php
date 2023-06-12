@@ -77,7 +77,7 @@ class register extends Controller
             "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
                 "Merci de vous &ecirctre inscrit sur notre site.<br>" .
                 "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -277,7 +277,7 @@ class modifyUser extends MustBeConnected
 }
 
 /**
- * @GET{/api/user/validate}
+ * @POST{/api/user/validate}
  * @apiName CMStream
  * @apiGroup User
  * @Feature mail
@@ -296,7 +296,7 @@ class MailValidate extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["token/checkEmailToken", $request->getQuery("token"), "payload"],
+            ["token/checkEmailToken", $request->getBody()["token"] ?? null, "payload"],
             ["waiting_validate/existById", fn () => $this->floor->pickup("payload")["id"] ?? null, "waiting_user"]
         ];
     }
@@ -347,17 +347,6 @@ class getUserAdmin extends MustBeAdmin
         ];
     }
 
-    public function handler(Request $request, Response $response): void
-    {
-        $response->code(200)->info("user")->send(["user" => $this->floor->pickup("user")]);
-    }
-}
-
-/**
- * @GET{/api/user}
- */
-class getUser extends MustBeConnected
-{
     public function handler(Request $request, Response $response): void
     {
         $response->code(200)->info("user")->send(["user" => $this->floor->pickup("user")]);
