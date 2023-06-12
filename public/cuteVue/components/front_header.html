@@ -68,10 +68,13 @@
                                     <span class="mdi mdi-account-circle text-[40px]"></span>
                                     <span class="font-semibold">Username</span>
                                 </div>
-
                                 <div class="h-[2px] bg-darkblue separator"></div>
 
                                 <div class="options">
+                                    <router_link cv-if="this.role === 'admin'" href="admin" class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
+                                        <span class="mdi mdi-security text-[24px]"></span>
+                                        <span>Accéder au dashboard</span>
+                                    </router_link>
                                     <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue notifications">
                                         <span class="mdi mdi-bell-outline text-[24px]"></span>
                                         <span>Notifications</span>
@@ -189,6 +192,7 @@
 
         mounted() {
             window.addEventListener("resize", this.resized);
+            console.log(this.role);
         },
 
         unmounted() {
@@ -198,7 +202,7 @@
         stores: [
             {
                 name: "user",
-                states: ["isConnected"],
+                states: ["isConnected", "role"],
                 actions: ["disconnect"]
             }
         ]
