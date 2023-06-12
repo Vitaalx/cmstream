@@ -17,8 +17,7 @@
         },
         async mounted(){
             let close = loaderStore.push();
-
-            await taob.get("/user/validate?token=" + router.query.token)
+            await taob.post("/user/validate", {token: router.query.token.replace(" ", "+")})
             .s(() => router.push("/"))
             .e(() => {
                 this.info = "Lien de validation de Compte invalide.";
