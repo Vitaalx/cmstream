@@ -5,7 +5,7 @@ namespace Controller\API\UserController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
-
+use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
 
@@ -14,6 +14,7 @@ use Services\MustBeAdmin;
 use Services\MustBeConnected;
 use Services\token\AccessToken;
 use Services\token\EmailToken;
+use Services\token\ResetToken;
 
 /**
  * @POST{/api/register}
@@ -294,8 +295,11 @@ class resetPassword extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["user/existByEmail", $request->getBody()["email"], "user"],
+            ["type/string", $request->getBody()["email"], "email"],
+            ["user/email", fn () => $this->floor->pickup("email"), "email"],
+            ["user/existByEmail", fn () => $this->floor->pickup("email"), "user"],
             ["type/string", $request->getBody()["password"], "password"],
+            ["user/password", fn () => $this->floor->pickup("password"), "password"]
         ];
     }
 
@@ -303,22 +307,19 @@ class resetPassword extends Controller
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
-        $waitingUser = Waiting_validate::insertOne(
-            fn (Waiting_validate $waiting_validate) => $waiting_validate
-                ->setFirstname($user->getFirstname())
-                ->setLastname($user->getLastname())
-                ->setUsername($user->getUsername())
-                ->setEmail($user->getEmail())
+        $resetPassword = Reset_Password::insertOne(
+            fn (Reset_Password $resetPassword) => $resetPassword
+                ->setUser($user)
                 ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
         );
 
-        $token = EmailToken::generate(["id" => $waitingUser->getId()], true);
+        $token = resetToken::generate(["id" => $user->getId()], true);
 
         MailService::send(
-            $this->floor->pickup("email"),
+            $user->getEmail(),
             "Validation de votre compte",
 
-            "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
+            "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
                 "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
                 "<a href='" . CONFIG["HOST"] . "api/password/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
@@ -342,26 +343,18 @@ class PasswordValidate extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["token/checkEmailToken", $request->getQuery("token"), "payload"],
-            ["waiting_validate/existById", fn () => $this->floor->pickup("payload")["id"] ?? null, "waiting_user"]
+            ["token/checkResetToken", $request->getQuery("token"), "payload"],
+            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Waiting_validate $waiting_user */
-        $waiting_user = $this->floor->pickup("waiting_user");
-
-        $user = User::findFirst(
-            [
-                "firstname" => $waiting_user->getFirstname(),
-                "lastname" => $waiting_user->getLastname(),
-                "username" => $waiting_user->getUsername(),
-                "email" => $waiting_user->getEmail()
-            ]
-        );
-        $user->setPassword($waiting_user->getPassword());
-        $waiting_user->delete();
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $reset = Reset_Password::findFirst(["user_id" => $user->getId()]);
+        $user->setPassword($reset->getPassword());
+        $reset->delete();
 
         $response->code(200)->info("user.updated")->send();
     }
