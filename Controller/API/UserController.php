@@ -277,7 +277,7 @@ class modifyUser extends MustBeConnected
 }
 
 /**
- * @PUT{/user/password}
+ * @POST{/api/user/password}
  * @apiName CMStream
  * @param string email
  *
@@ -285,21 +285,16 @@ class modifyUser extends MustBeConnected
  */
 /*
 Entry:
-{
-    "email" : "jdoe@gmail.com",
-    "password" : "Jdo123!
-}
 */
-class resetPassword extends Controller
+class mailResetPassword extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/string", $request->getBody()["email"], "email"],
             ["user/email", fn () => $this->floor->pickup("email"), "email"],
-            ["user/existByEmail", fn () => $this->floor->pickup("email"), "user"],
-            ["type/string", $request->getBody()["password"], "password"],
-            ["user/password", fn () => $this->floor->pickup("password"), "password"]
+            ["user/existByMail", fn () => $this->floor->pickup("email"), "user"],
+            ["reset_password/mustNotExist", fn () => $this->floor->pickup("user")]
         ];
     }
 
@@ -307,21 +302,20 @@ class resetPassword extends Controller
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
+
         $resetPassword = Reset_Password::insertOne(
             fn (Reset_Password $resetPassword) => $resetPassword
                 ->setUser($user)
-                ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
         );
 
-        $token = resetToken::generate(["id" => $user->getId()], true);
+        $token = resetToken::generate(["id" => $resetPassword->getId()], true);
 
         MailService::send(
             $user->getEmail(),
-            "Validation de votre compte",
-
+            "Récupération de mot de passe",
             "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
                 "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "api/password/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/reset-password?token=" . $token . "'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -331,32 +325,34 @@ class resetPassword extends Controller
 }
 
 /**
- * @GET{/api/password/validate}
+ * @POST{/api/user/password/validate}
  * @apiName CMStream
  * @apiGroup User
  * @Description validate new password
  * @param string token
  * @return Response
  */
-class PasswordValidate extends Controller
+class resetPasswordValidate extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["token/checkResetToken", $request->getQuery("token"), "payload"],
-            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
+            ["token/checkResetToken", $request->getBody()["token"], "payload"],
+            ["reset_password/exist", fn () => $this->floor->pickup("payload")["id"], "reset_password"],
+            ["user/password", $request->getBody()["password"], "password"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var User $user */
-        $user = $this->floor->pickup("user");
-        $reset = Reset_Password::findFirst(["user_id" => $user->getId()]);
-        $user->setPassword($reset->getPassword());
-        $reset->delete();
-
-        $response->code(200)->info("user.updated")->send();
+        /** @var Reset_Password $resetPassword */
+        $resetPassword = $this->floor->pickup("reset_password");
+        $user = $resetPassword->getUser();
+        $user->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT));
+        $user->save();
+        $resetPassword->delete();
+        AccessToken::generate(["id" => $user->getId()]);
+        $response->code(200)->info("user.logged")->send();
     }
 }
 

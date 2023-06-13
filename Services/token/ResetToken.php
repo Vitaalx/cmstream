@@ -6,11 +6,6 @@ use Core\Token;
 
 class ResetToken extends Token
 {
-    static protected function name(): string
-    {
-        return "ResetToken";
-    }
-
     static protected function duration(): ?int
     {
         return null;

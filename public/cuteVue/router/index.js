@@ -16,7 +16,7 @@ const proxyRouter = CuteVue.createStore(
         },
         actions: {
             async push(url){
-                url = new URL(url, location.origin)
+                url = new URL(url, location.origin);
                 
                 let path = url.pathname;
                 path = (
@@ -27,8 +27,8 @@ const proxyRouter = CuteVue.createStore(
 
                 if(path === this.pathname) return
 
-                let beforePath = await this.beforeFnc(path);
-                if(beforePath !== path){
+                let beforePath = await this.beforeFnc(path + url.search);
+                if(beforePath.startsWith(path) === false){
                     this.push(beforePath);
                     return;
                 }
@@ -62,7 +62,7 @@ const proxyRouter = CuteVue.createStore(
 
                         if(updateLayout !== false)this.currentLayout = updateLayout;
                         if(updateView !== false)this.currentView = updateView;
-                        await this.afterFnc(path);
+                        await this.afterFnc(path + url.search);
                         break;
                     }
                 }

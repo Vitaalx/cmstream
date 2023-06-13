@@ -29,7 +29,7 @@ function checkEmailToken(string $token, Floor $floor, Response $response): array
 
 function checkResetToken(string $token, Floor $floor, Response $response): array
 {
-    $payload = ResetToken::verify();
+    $payload = ResetToken::verify($token);
     if ($payload === null) {
         $response->info("token.invalid")->code(401)->send();
     }
