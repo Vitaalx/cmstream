@@ -4,9 +4,17 @@ namespace Core;
 
 abstract class Token
 {
-    abstract protected static function name(): string;
     abstract protected static function duration(): ?int;
     abstract protected static function secretKey(): string;
+
+    protected static function name(): string
+    {
+        $name = explode("\\", static::class);
+        $name = array_pop($name);
+        $name = strtolower(preg_replace(["/([a-z\d])([A-Z])/", "/([^_])([A-Z][a-z])/"], "$1_$2", $name));
+        
+        return $name;
+    }
 
     protected static function path(): string
     {
@@ -33,7 +41,8 @@ abstract class Token
         $header = base64_encode(json_encode([
             'alg' => 'SHA256',
             'typ' => 'JWT',
-            'expiresIn' => static::duration()
+            'expiresIn' => static::duration(),
+            'name' => self::name()
         ]));
 
         $payload = base64_encode(json_encode($payload + ["iat" => time()]));
@@ -44,7 +53,7 @@ abstract class Token
         
         if($generateOnly === false){
             Response::getCurrentResponse()->setCookie(
-                static::name(), 
+                self::name(), 
                 $token, 
                 0,
                 static::path(),
@@ -59,8 +68,8 @@ abstract class Token
 
     public static function verify(string $token = null): ?array
     {
-        $token = $token ?? Request::getCurrentRequest()->getCookie(static::name());
-
+        $token = $token ?? Request::getCurrentRequest()->getCookie(self::name());
+        
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
 
         $header = json_decode(base64_decode($headerEncoded), true);
@@ -70,7 +79,7 @@ abstract class Token
 
         $signature = base64_decode($signatureEncoded);
 
-        if(isset($header["alg"]) === false) return null;
+        if(isset($header["alg"]) === false || $header["name"] !== self::name()) return null;
 
         $calculatedSignature = hash_hmac($header["alg"], $signatureInput, static::secretKey(), true);
 
@@ -90,10 +99,10 @@ abstract class Token
 
     public static function delete(): bool
     {
-        if(Request::getCurrentRequest()->getCookie(static::name()) === null) return false;
+        if(Request::getCurrentRequest()->getCookie(self::name()) === null) return false;
         else {
             Response::getCurrentResponse()->setCookie(
-                static::name(), 
+                self::name(), 
                 null, 
                 -1,
                 static::path(),

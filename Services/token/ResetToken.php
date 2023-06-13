@@ -1,14 +1,16 @@
 <?php
 
 namespace Services\token;
+
 use Core\Token;
 
-class AccessToken extends Token{
+class ResetToken extends Token
+{
     static protected function duration(): ?int
     {
-        return CONFIG["TOKEN_DURATION"];
+        return null;
     }
-    
+
     static protected function secretKey(): string
     {
         return CONFIG["SECRET_KEY"];

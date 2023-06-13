@@ -1,6 +1,7 @@
 <?php
 namespace Services;
 
+use Core\Logger;
 use Core\OverrideController;
 use Core\Request;
 use Core\Response;

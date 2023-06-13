@@ -7,7 +7,9 @@ require __DIR__ . "/Floor.php";
 require __DIR__ . "/Response.php";
 require __DIR__ . "/AutoLoader.php";
 require __DIR__ . "/Logger.php";
+
 error_reporting(0);
+
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
 
@@ -26,7 +28,8 @@ class Route{
                 $info["method"] === $_SERVER["REQUEST_METHOD"] ||
                 $info["method"] === "*"
             )
-        ){
+        )
+        {  
             try{
                 try{
                     $class = self::autoLoadController($info["controller"]);
@@ -41,14 +44,15 @@ class Route{
                     throw $sr;
                 }
                 catch(\Throwable $th){
-                    $data = [
+                    $response
+                    ->code(500)
+                    ->info("ERROR.INTERNAL_SERVER")
+                    ->send([
                         "info" => "Internal server error.",
                         "message" => $th->getMessage(),
                         "file" => $th->getFile(),
                         "line" => $th->getLine(),
-                    ];
-    
-                    $response->code(500)->info("ERROR.INTERNAL_SERVER")->send($data);
+                    ]);
                 }
             }
             catch(SendResponse $sr){
@@ -131,3 +135,18 @@ function callController(string $controller){
     $controllerClass = Route::autoLoadController($controller);
     return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
 }
+
+function error_handler(){
+    $error = error_get_last();
+    Response::getCurrentResponse()
+    ->code(500)
+    ->info("ERROR.INTERNAL_SERVER")
+    ->send([
+        "info" => "Internal server error.",
+        "message" => $error["message"],
+        "file" => $error["file"],
+        "line" => $error["line"],
+    ]);
+}
+
+register_shutdown_function("Core\\error_handler");

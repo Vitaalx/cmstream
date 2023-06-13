@@ -4,7 +4,7 @@ namespace Entity;
 
 use Core\Entity;
 
-class Film extends Entity
+class Movie extends Entity
 {
     /** @type{int} */
     private int $id;

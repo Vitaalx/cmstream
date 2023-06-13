@@ -23,7 +23,7 @@ use Services\MustBeConnected;
 /*
 Entry:
 {
- "film_id": 1
+ "movie_id": 1
  "serie_id": null
 }
 */
@@ -32,14 +32,14 @@ class addWishWatchlist extends MustBeConnected
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['film_id'], "film_id"],
+            ["type/int", $request->getBody()['movie_id'], "movie_id"],
             ["type/int", $request->getBody()['series_id'], "series_id"],
-            ["film/exist", fn () => $this->floor->pickup("film_id"), "film"],
+            ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"],
             ["series/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
             [
                 "watchlist/notexist", [
                     "user" => fn () => $this->floor->pickup("user")->getId(),
-                    "film" => fn () => $this->floor->pickup("film")->getId(),
+                    "movie" => fn () => $this->floor->pickup("movie")->getId(),
                     "serie" => fn () => $this->floor->pickup("serie")->getId(),
                 ]
             ]
@@ -48,17 +48,13 @@ class addWishWatchlist extends MustBeConnected
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            Watchlist::insertOne([
-                "user_id" => $this->floor->pickup("user")->getId(),
-                "film_id" => $this->floor->pickup("film")->getId(),
-                "series_id" => $this->floor->pickup("serie")->getId()
-            ]);
-
-            $response->info("wish.created")->code(201)->send();
-        } catch (\Exception $e) {
-            $response->info("wish.error")->code(500)->send();
-        }
+        /** @var Watchlist $wish */
+        $wish = Watchlist::insertOne([
+            "user_id" => $this->floor->pickup("user")->getId(),
+            "movie_id" => $this->floor->pickup("movie")->getId(),
+            "series_id" => $this->floor->pickup("serie")->getId()
+        ]);
+        $response->info("wish.created")->code(201)->send(["wish" => $wish]);
     }
 }
 
@@ -84,16 +80,13 @@ class deleteWatchlistAdmin extends MustBeAdmin
 
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $watchlist = Watchlist::findMany(["user_id" => $this->floor->pickup("user")->getId()]);
-            if ($watchlist === null) $response->info("watchlist.notfound")->code(404)->send();
-            foreach ($watchlist as $wish) {
-                $wish->delete();
-            }
-            $response->info("watchlist.deleted")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("watchlist.error")->code(500)->send();
+        /** @var Watchlist $watchlist */
+        $watchlist = Watchlist::findMany(["user_id" => $this->floor->pickup("user")->getId()]);
+        if (empty($watchlist)) $response->info("watchlist.notfound")->code(404)->send();
+        foreach ($watchlist as $wish) {
+            $wish->delete();
         }
+        $response->info("watchlist.deleted")->code(200)->send();
     }
 }
 
@@ -105,16 +98,13 @@ class deleteWatchlist extends MustBeConnected
 {
     public function handler(Request $request, Response $response): void
     {
-        try {
-            $watchlist = Watchlist::findMany(["user_id" => $this->floor->pickup("user")->getId()]);
-            if ($watchlist === null) $response->info("watchlist.notfound")->code(404)->send();
-            foreach ($watchlist as $wish) {
-                $wish->delete();
-            }
-            $response->info("watchlist.deleted")->code(200)->send();
-        } catch (\Exception $e) {
-            $response->info("watchlist.error")->code(500)->send();
+        /** @var Watchlist $watchlist */
+        $watchlist = Watchlist::findMany(["user_id" => $this->floor->pickup("user")->getId()]);
+        if (empty($watchlist)) $response->info("watchlist.notfound")->code(404)->send();
+        foreach ($watchlist as $wish) {
+            $wish->delete();
         }
+        $response->info("watchlist.deleted")->code(200)->send();
     }
 }
 
@@ -140,8 +130,10 @@ class deleteWishWatchlistAdmin extends MustBeAdmin
 
     public function handler(Request $request, Response $response): void
     {
-        $this->floor->pickup("watchlist")->delete();
-        $response->info("watchlist.deleted")->code(200)->send();
+        /** @var Watchlist $watchlist */
+        $watchlist = $this->floor->pickup("watchlist");
+        $watchlist->delete();
+        $response->info("watchlist.deleted")->code(204)->send();
     }
 }
 
@@ -170,7 +162,9 @@ class deleteWishWatchlist extends MustBeConnected
 
     public function handler(Request $request, Response $response): void
     {
-        $this->floor->pickup("watchlist")->delete();
-        $response->info("watchlist.deleted")->code(200)->send();
+        /** @var Watchlist $watchlist */
+        $watchlist = $this->floor->pickup("watchlist");
+        $watchlist->delete();
+        $response->info("watchlist.deleted")->code(204)->send();
     }
 }

@@ -9,7 +9,7 @@ class Watchlist extends Entity
     /** @type{int} */
     private int $id;
 
-    private Film $film;
+    private Movie $movie;
 
     private Serie $serie;
 
@@ -108,23 +108,23 @@ class Watchlist extends Entity
     }
 
     /**
-     * Get the value of film
+     * Get the value of movie
      */
 
-    public function getFilm(): Film
+    public function getMovie(): Movie
     {
-        return parent::get("film");
+        return parent::get("movie");
     }
 
     /**
-     * Set the value of film
+     * Set the value of movie
      *
      * @return  self
      */
 
-    public function setFilm(Film $film): self
+    public function setMovie(Movie $movie): self
     {
-        parent::set("film", $film);
+        parent::set("movie", $movie);
 
         return $this;
     }
