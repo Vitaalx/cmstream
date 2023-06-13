@@ -54,7 +54,12 @@ const proxyRouter = CuteVue.createStore(
                         this.params = match.groups ?? {};
                         this.pathname = path;
                         this.hash = url.hash;
-                        this.query = new Proxy(url.searchParams, {get: (target, props) => target.get(props) || undefined});
+                        let query = {};
+                        for(const [key, value] of url.searchParams.entries()){
+                            query[key] = value;
+                        }
+                        this.query = query;
+
                         if(updateLayout !== false)this.currentLayout = updateLayout;
                         if(updateView !== false)this.currentView = updateView;
                         await this.afterFnc(path);

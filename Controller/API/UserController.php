@@ -141,7 +141,8 @@ class selfInfo extends MustBeConnected
             ->send(
                 [
                     "username" => $user->getUsername(),
-                    "role" => $role
+                    "role" => $role,
+                    "userId" => $user->getId()
                 ]
             );
     }
