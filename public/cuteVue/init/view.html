@@ -189,12 +189,25 @@
             class="w-full"
             ></text-input>
 
+            <text-input
+            type="password" 
+            placeholder="Confirmez mot de passe"
+            cv-model="cpassword"
+            :rules="this.cpasswordUserRule"
+            :always-rule="true"
+            class="w-full"
+            ></text-input>
+
             <div class="mt-[50px] text-center">
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Créer mon compte</button>
             </div>
         </cv-form>
         
-        <h1 class="w-full text-center text-[30px]">{{this.title}}</h1>
+        <cv-form @submit="nextStep" cv-if="this.step === 5" class="flex flex-col items-center gap-[10px]">
+            <h1 class="w-full text-center text-[30px]">{{this.title}}</h1>
+
+            <button cv-if="this.info !== ''" type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Réessayer</button>
+        </cv-form>
 
         <p class="text-[red] mt-[10px] w-full text-center">{{ this.info }}</p>
     </div>
@@ -232,10 +245,19 @@
             username: "",
             email: "",
             password: "",
+            cpassword: "",
 
             step: 1,
             info: "",
             title: "",
+        },
+
+        computed: {
+            cpasswordUserRule(){
+                return [
+                    (value) => this.password === this.cpassword || "Les mots de passe conresponde pas.",
+                ];
+            }
         },
 
         static: {
@@ -396,6 +418,7 @@
                 }
                 else {
                     this.title = "Initialisation en cours...";
+                    this.info =  "";
 
                     let close = loaderStore.push();
 
@@ -429,7 +452,8 @@
                         location.href = "/";
                     })
                     .e(data => {
-                        this.title = "Une erreur est survenue lors de l'initialisation."
+                        this.title = "Une erreur est survenue lors de l'initialisation.";
+                        this.info = data.message;
                     })
                     .result;
 
