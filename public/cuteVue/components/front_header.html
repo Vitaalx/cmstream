@@ -1,4 +1,4 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)]">
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
     <div class="flex items-center justify-center gap-[30px] left">
         <router_link href="/" class="h-full pr-[10px] flex items-center logo" @click="this.displayOptionsMenu = false">
             <img src="/public/img/icons/logo.svg" alt="CMStream logo">
@@ -42,6 +42,7 @@
                         class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless" 
                         cv-class="{ 'bg-blackless': this.displayOptionsMenu }" 
                         @click="this.displayOptionsMenu = !this.displayOptionsMenu"
+                        cv-ref="buttonOptionsMenu"
                         >
                             <span class="mdi mdi-account-circle text-[24px]" cv-class="{ 'text-white': this.displayOptionsMenu }"></span>
                             <span cv-if="!this.displayOptionsMenu" class="mdi mdi-triangle-small-down"></span>
@@ -51,6 +52,7 @@
                         <div 
                         cv-if="this.displayOptionsMenu" 
                         class="absolute top-[60px] right-0 w-[280px] bg-blackless account-options"
+                        cv-ref="optionsMenu"
                         >
                             <div cv-if="!this.isConnected" class="py-4 flex flex-col gap-4">
                                 <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptionsMenu = false">
@@ -66,7 +68,7 @@
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
                                 <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:bg-darkblue user">
                                     <span class="mdi mdi-account-circle text-[40px]"></span>
-                                    <span class="font-semibold">Username</span>
+                                    <span class="font-semibold">{{this.username}}</span>
                                 </div>
                                 <div class="h-[2px] bg-darkblue separator"></div>
 
@@ -181,6 +183,27 @@
                 if(window.innerWidth > 1024) this.displayOptionsMenu = false;
                 else this.displayNaveBar = false;
             },
+            autoClose(e){
+                if(this.displayOptionsMenu === true){
+                    let rectButtonOptionsMenu = this.$refs.buttonOptionsMenu.getBoundingClientRect();
+                    let rectOptionsMenu = this.$refs.optionsMenu.getBoundingClientRect();
+
+                    if(
+                        (
+                            e.clientX > rectButtonOptionsMenu.right ||
+                            e.clientX < rectButtonOptionsMenu.left ||
+                            e.clientY > rectButtonOptionsMenu.bottom ||
+                            e.clientY < rectButtonOptionsMenu.top
+                        ) &&
+                        (
+                            e.clientX > rectOptionsMenu.right ||
+                            e.clientX < rectOptionsMenu.left ||
+                            e.clientY > rectOptionsMenu.bottom ||
+                            e.clientY < rectOptionsMenu.top
+                        )
+                    ) this.displayOptionsMenu = false;
+                }
+            },
             async toDisconnect(){
                 let close = loaderStore.push();
 
@@ -192,17 +215,18 @@
 
         mounted() {
             window.addEventListener("resize", this.resized);
-            console.log(this.role);
+            window.addEventListener("click", this.autoClose);
         },
 
         unmounted() {
             window.removeEventListener("resize", this.resized);
+            window.removeEventListener("click", this.autoClose);
         },
 
         stores: [
             {
                 name: "user",
-                states: ["isConnected", "role"],
+                states: ["isConnected", "role", "username"],
                 actions: ["disconnect"]
             }
         ]
