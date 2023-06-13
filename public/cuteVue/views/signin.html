@@ -9,7 +9,7 @@
             <text-input
             type="text"
             placeholder="Adresse email"
-            cv-model="form.email"
+            cv-model="email"
             :rules="this.emailRule"
             class="w-full"
             ></text-input>
@@ -17,7 +17,7 @@
             <text-input
             type="password" 
             placeholder="Mot de passe"
-            cv-model="form.password"
+            cv-model="password"
             :rules="this.passwordRule"
             class="w-full"
             ></text-input>
@@ -47,10 +47,9 @@
 
     export default {
         data: {
-            form: {
-                email: "",
-                password: ""
-            },
+            email: "",
+            password: "",
+
             info: ""
         },
         static: {
@@ -67,7 +66,7 @@
 
                 this.info = "";
 
-                await taob.post("/login", { email: this.form.email, password: this.form.password })
+                await taob.post("/login", { email: this.email, password: this.password })
                 .s(() => {
                     router.push("/");
                 })
