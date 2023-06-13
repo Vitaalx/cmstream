@@ -5,7 +5,7 @@ namespace Controller\API\UserController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
-
+use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
 
@@ -14,6 +14,7 @@ use Services\MustBeAdmin;
 use Services\MustBeConnected;
 use Services\token\AccessToken;
 use Services\token\EmailToken;
+use Services\token\ResetToken;
 
 /**
  * @POST{/api/register}
@@ -51,7 +52,8 @@ class register extends Controller
     }
 
     //TODO fonction check permettant de vérifier si l'email est joignable
-    public function check($email) {
+    public function check($email)
+    {
         $result = FALSE;
     }
 
@@ -77,7 +79,7 @@ class register extends Controller
             "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
                 "Merci de vous &ecirctre inscrit sur notre site.<br>" .
                 "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -114,7 +116,7 @@ class login extends Controller
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        if(password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
+        if (password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
 
@@ -133,7 +135,7 @@ class selfInfo extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
         $role = $user->getRole();
-        $role = $role? $role->getName() : null;
+        $role = $role ? $role->getName() : null;
 
         $response
             ->code(200)
@@ -156,7 +158,7 @@ class logout extends MustBeConnected
     public function handler(Request $request, Response $response): void
     {
         AccessToken::delete();
-        
+
         $response
             ->code(204)
             ->info("user.logout")
@@ -210,7 +212,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUserAdmin extends MustBeAdmin
@@ -223,20 +224,20 @@ class modifyUserAdmin extends MustBeAdmin
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/password", $request->getBody()["password"], "password"]
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
 
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
-
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
     }
 }
 
@@ -249,7 +250,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUser extends MustBeConnected
@@ -260,20 +260,103 @@ class modifyUser extends MustBeConnected
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/password", $request->getBody()["password"], "password"]
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
 
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
+    }
+}
 
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+/**
+ * @PUT{/user/password}
+ * @apiName CMStream
+ * @param string email
+ *
+ * @return Response
+ */
+/*
+Entry:
+{
+    "email" : "jdoe@gmail.com",
+    "password" : "Jdo123!
+}
+*/
+class resetPassword extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/string", $request->getBody()["email"], "email"],
+            ["user/email", fn () => $this->floor->pickup("email"), "email"],
+            ["user/existByEmail", fn () => $this->floor->pickup("email"), "user"],
+            ["type/string", $request->getBody()["password"], "password"],
+            ["user/password", fn () => $this->floor->pickup("password"), "password"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $resetPassword = Reset_Password::insertOne(
+            fn (Reset_Password $resetPassword) => $resetPassword
+                ->setUser($user)
+                ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
+        );
+
+        $token = resetToken::generate(["id" => $user->getId()], true);
+
+        MailService::send(
+            $user->getEmail(),
+            "Validation de votre compte",
+
+            "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
+                "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
+                "<a href='" . CONFIG["HOST"] . "api/password/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
+                "Cordialement,<br>" .
+                "L'&eacutequipe de notre site."
+        );
+
+        $response->code(200)->info("send.email")->send();
+    }
+}
+
+/**
+ * @GET{/api/password/validate}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Description validate new password
+ * @param string token
+ * @return Response
+ */
+class PasswordValidate extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["token/checkResetToken", $request->getQuery("token"), "payload"],
+            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $reset = Reset_Password::findFirst(["user_id" => $user->getId()]);
+        $user->setPassword($reset->getPassword());
+        $reset->delete();
+
+        $response->code(200)->info("user.updated")->send();
     }
 }
 
