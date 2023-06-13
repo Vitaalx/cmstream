@@ -45,9 +45,19 @@
             placeholder="Mot de passe"
             cv-model="password"
             :rules="this.passwordRule"
+            :always-rule="true"
             class="w-full"
             ></text-input>
 
+            <text-input
+            type="password" 
+            placeholder="Confirmez mot de passe"
+            cv-model="cpassword"
+            :rules="this.cpasswordRule"
+            :always-rule="true"
+            class="w-full"
+            ></text-input>
+            
             <p class="text-center text-[red]" cv-class="{ 'text-[green]': this.success }">{{ this.info }}</p>
         </div>
 
@@ -81,6 +91,7 @@
             username: "",
             email: "",
             password: "",
+            cpassword: "",
             
             info: "",
             success: false,
@@ -104,6 +115,11 @@
                     (value) => value.length < 4 ? "Pseudo trop court" : true,
                     (value) => value.length > 120 ? "Pseudo trop long" : true,
                 ];
+            },
+            cpasswordRule(){
+                return [
+                    (value) => this.password === this.cpassword || "Les mots de passe conresponde pas.",
+                ];
             }
         },
         static: {
@@ -123,7 +139,7 @@
                 (value) => value.length < 4 ? "Mot de passe trop court" : true,
                 (value) => value.length > 255 ? "Mot de passe trop long" : true,
                 (value) => /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value) || "Mot de passe invalide. doit contenir au moins un caractère spécial",
-            ]
+            ],
         },
         methods: {
             async submit(){

@@ -27,13 +27,13 @@ text-input
             placeholder: false,
             rules: [],
             type: "text",
-            name: false
+            name: false,
+            "always-rule": false
         },
         methods: {
             inputed(e){
                 this.$emit("input", e);
-                this.value = e.target.value;
-                if(this.invalide !== false)this.validate();
+                if(this.invalide !== false || this["always-rule"] === true)setTimeout(this.validate);
             },
             validate(){
                 for(const rule of this.rules){
