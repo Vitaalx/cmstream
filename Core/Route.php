@@ -138,7 +138,6 @@ function callController(string $controller){
 
 function error_handler(){
     $error = error_get_last();
-    Logger::debug("test");
     Response::getCurrentResponse()
     ->code(500)
     ->info("ERROR.INTERNAL_SERVER")

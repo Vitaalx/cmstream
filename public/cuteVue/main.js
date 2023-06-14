@@ -28,6 +28,14 @@ createRoute(
                     path: "/validate",
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
+                {
+                    path: "/forgot-password",
+                    view: () => importer("/public/cuteVue/views/forgot-password.html"),
+                },
+                {
+                    path: "/reset-password",
+                    view: () => importer("/public/cuteVue/views/reset-password.html"),
+                },
             ],
         },
         {
@@ -40,9 +48,8 @@ createRoute(
             ],
         },
     ],
-
     async (path) => {
-        let close = loaderStore.push(path)
+        let close = loaderStore.push(path.split("?")[0]);
         let result = await fetch(path);
         if(result.redirected === true){
             close();
@@ -55,7 +62,7 @@ createRoute(
         }
     },
     (path) => {
-        loaderStore.close(path);
+        loaderStore.close(path.split("?")[0]);
     }
 );
 
