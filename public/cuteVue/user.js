@@ -7,6 +7,7 @@ export const userStore =  CuteVue.createStore(
         states: {
             username: "",
             role: "",
+            userId: -1,
             isConnected: false,
         },
         actions: {
@@ -14,6 +15,7 @@ export const userStore =  CuteVue.createStore(
                 taob.get("/user").s(data => {
                     this.role = data.role;
                     this.username = data.username;
+                    this.userId = data.userId;
                     this.isConnected = true;
                 });
             },

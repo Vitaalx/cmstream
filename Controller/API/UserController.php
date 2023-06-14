@@ -5,7 +5,7 @@ namespace Controller\API\UserController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
-
+use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
 
@@ -14,6 +14,7 @@ use Services\MustBeAdmin;
 use Services\MustBeConnected;
 use Services\token\AccessToken;
 use Services\token\EmailToken;
+use Services\token\ResetToken;
 
 /**
  * @POST{/api/register}
@@ -51,7 +52,8 @@ class register extends Controller
     }
 
     //TODO fonction check permettant de vérifier si l'email est joignable
-    public function check($email) {
+    public function check($email)
+    {
         $result = FALSE;
     }
 
@@ -77,7 +79,7 @@ class register extends Controller
             "Bonjour " . $this->floor->pickup("firstname") . " " . $this->floor->pickup("lastname") . ",<br><br>" .
                 "Merci de vous &ecirctre inscrit sur notre site.<br>" .
                 "Pour valider votre compte, veuillez cliquer sur le lien suivant :<br><br>" .
-                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token ."'>Valider mon compte</a><br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/validate?token=" . $token . "'>Valider mon compte</a><br><br>" .
                 "Cordialement,<br>" .
                 "L'&eacutequipe de notre site."
         );
@@ -114,7 +116,7 @@ class login extends Controller
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        if(password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
+        if (password_verify($this->floor->pickup("password"), $user->getPassword()) === false) {
             $response->code(401)->info("wrong.password")->send();
         }
 
@@ -133,7 +135,7 @@ class selfInfo extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
         $role = $user->getRole();
-        $role = $role? $role->getName() : null;
+        $role = $role ? $role->getName() : null;
 
         $response
             ->code(200)
@@ -141,7 +143,8 @@ class selfInfo extends MustBeConnected
             ->send(
                 [
                     "username" => $user->getUsername(),
-                    "role" => $role
+                    "role" => $role,
+                    "userId" => $user->getId()
                 ]
             );
     }
@@ -155,7 +158,7 @@ class logout extends MustBeConnected
     public function handler(Request $request, Response $response): void
     {
         AccessToken::delete();
-        
+
         $response
             ->code(204)
             ->info("user.logout")
@@ -209,7 +212,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUserAdmin extends MustBeAdmin
@@ -222,20 +224,20 @@ class modifyUserAdmin extends MustBeAdmin
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/password", $request->getBody()["password"], "password"]
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
 
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
-
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
     }
 }
 
@@ -248,7 +250,6 @@ Entry:
     "firstname": "John",
     "lastname": "Doe",
     "username": "jdoe",
-    "password": "jdo123!"
 }
 */
 class modifyUser extends MustBeConnected
@@ -259,20 +260,99 @@ class modifyUser extends MustBeConnected
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
+            ["user/usernameMustBeFree", fn () => $this->floor->pickup('username'), "username"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user->setFirstname($this->floor->pickup("firstname"));
+        $user->setLastname($this->floor->pickup("lastname"));
+        $user->setUsername($this->floor->pickup("username"));
+        $user->save();
+
+        $response->code(200)->info("user.modified")->send(["user" => $user]);
+    }
+}
+
+/**
+ * @POST{/api/user/password}
+ * @apiName CMStream
+ * @param string email
+ *
+ * @return Response
+ */
+/*
+Entry:
+*/
+class mailResetPassword extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/string", $request->getBody()["email"], "email"],
+            ["user/email", fn () => $this->floor->pickup("email"), "email"],
+            ["user/existByMail", fn () => $this->floor->pickup("email"), "user"],
+            ["reset_password/mustNotExist", fn () => $this->floor->pickup("user")]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        $resetPassword = Reset_Password::insertOne(
+            fn (Reset_Password $resetPassword) => $resetPassword
+                ->setUser($user)
+        );
+
+        $token = resetToken::generate(["id" => $resetPassword->getId()], true);
+
+        MailService::send(
+            $user->getEmail(),
+            "Récupération de mot de passe",
+            "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
+                "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
+                "<a href='" . CONFIG["HOST"] . "/reset-password?token=" . $token . "'>Valider mon compte</a><br><br>" .
+                "Cordialement,<br>" .
+                "L'&eacutequipe de notre site."
+        );
+
+        $response->code(200)->info("send.email")->send();
+    }
+}
+
+/**
+ * @POST{/api/user/password/validate}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Description validate new password
+ * @param string token
+ * @return Response
+ */
+class resetPasswordValidate extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["token/checkResetToken", $request->getBody()["token"], "payload"],
+            ["reset_password/exist", fn () => $this->floor->pickup("payload")["id"], "reset_password"],
             ["user/password", $request->getBody()["password"], "password"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-
-        $this->floor->pickup("user")->setFirstname($this->floor->pickup("firstname"));
-        $this->floor->pickup("user")->setLastname($this->floor->pickup("lastname"));
-        $this->floor->pickup("user")->setUsername($this->floor->pickup("username"));
-        $this->floor->pickup("user")->setPassword($this->floor->pickup("password"));
-        $this->floor->pickup("user")->save();
-
-        $response->code(200)->info("user.modified")->send(["user" => $this->floor->pickup("user")]);
+        /** @var Reset_Password $resetPassword */
+        $resetPassword = $this->floor->pickup("reset_password");
+        $user = $resetPassword->getUser();
+        $user->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT));
+        $user->save();
+        $resetPassword->delete();
+        AccessToken::generate(["id" => $user->getId()]);
+        $response->code(200)->info("user.logged")->send();
     }
 }
 
