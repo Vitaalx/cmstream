@@ -20,6 +20,8 @@
                         grey: "#A0A0A0",
                         whiteless: "#DADADA",
                         white: "#FFF",
+                        adminblack: "#23252B",
+                        adminblacker: "#141519"
                     },
                 }
             },
