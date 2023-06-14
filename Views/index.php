@@ -21,7 +21,9 @@
                         whiteless: "#DADADA",
                         white: "#FFF",
                         adminblack: "#23252B",
-                        adminblacker: "#141519"
+                        adminblacker: "#141519",
+                        lightgrey: "#F5F5F9",
+                        pinkred: "#DD1533",
                     },
                 }
             },

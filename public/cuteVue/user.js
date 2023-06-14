@@ -9,6 +9,8 @@ export const userStore =  CuteVue.createStore(
             role: "",
             userId: -1,
             permissions: [],
+            lastname: "",
+            firstname: "",
             isConnected: false,
         },
         actions: {
@@ -18,6 +20,8 @@ export const userStore =  CuteVue.createStore(
                     this.username = data.username;
                     this.userId = data.userId;
                     this.permissions = data.permissions.map(p => p.name);
+                    this.lastname = data.lastname;
+                    this.firstname = data.firstname;
                     this.isConnected = true;
                 });
             },
