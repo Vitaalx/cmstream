@@ -1,5 +1,8 @@
-<header class="fixed bg-white h-[100px] border-b-[1px] w-full text-black px-[60px] py-[30px] flex items-center justify-between">
-    <div class="flex items-center"><span class="text-[32px] font-bold ml-[250px]">Hello, {{ this.username }}</span><img src="/public/img/icons/hello-admin.png" alt="Hello Admin" class="ml-[10px]"></div>
+<header class="fixed bg-white h-[100px] border-b-[1px] w-[calc(100vw-250px)] text-black ml-[250px] px-[60px] py-[30px] flex items-center justify-between">
+    <div class="flex items-center gap-[5px]">
+        <span class="text-[32px] font-bold">Hello, {{ this.username }}</span>
+        <img src="/public/img/icons/hello-admin.png" alt="Hello Admin" class="ml-[10px]">
+    </div>
     <div class="profile-picture h-[60px] w-[60px] rounded-full flex items-center justify-center">
         <span class="text-white font-bold tracking-wide">{{ this.getFirstLetters() }}</span>
     </div>
