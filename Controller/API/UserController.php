@@ -135,6 +135,7 @@ class selfInfo extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
         $role = $user->getRole();
+        $permissions = $role ? $role->getPermissions() : [];
         $role = $role ? $role->getName() : null;
 
         $response
@@ -144,7 +145,8 @@ class selfInfo extends MustBeConnected
                 [
                     "username" => $user->getUsername(),
                     "role" => $role,
-                    "userId" => $user->getId()
+                    "userId" => $user->getId(),
+                    "permissions" => $permissions
                 ]
             );
     }
