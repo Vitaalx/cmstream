@@ -66,9 +66,9 @@
                             </div>
 
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
-                                <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:bg-darkblue user">
+                                <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless user">
                                     <span class="mdi mdi-account-circle text-[40px]"></span>
-                                    <span class="font-semibold">{{this.username}}</span>
+                                    <span class="font-semibold">{{ this.username }}</span>
                                 </div>
                                 <div class="h-[2px] bg-darkblue separator"></div>
 
@@ -77,20 +77,20 @@
                                         <span class="mdi mdi-security text-[24px]"></span>
                                         <span>Accéder au dashboard</span>
                                     </router_link>
-                                    <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue notifications">
+                                    <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
                                         <span class="mdi mdi-bell-outline text-[24px]"></span>
                                         <span>Notifications</span>
                                     </div>
-                                    <div class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
+                                    <router_link href="account" class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
                                         <span class="mdi mdi-account text-[24px]"></span>
                                         <span>Paramètres du compte</span>
-                                    </div>
+                                    </router_link>
                                 </div>
 
                                 <div class="h-[2px] bg-darkblue separator"></div>
 
                                 <div 
-                                class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue disconnect" 
+                                class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer disconnect" 
                                 @click="this.displayOptionsMenu = false; this.toDisconnect()"
                                 >
                                     <span class="mdi mdi-logout text-[24px]"></span>
@@ -123,9 +123,9 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <router_link href="catalog" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Catalogue
-                    </a>
+                    </router_link>
                 </li>
                 <li>
                     <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
@@ -154,8 +154,23 @@
                 </li>
                 <li>
                     <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
-                        Connexion
+                        Notifications
                     </a>
+                </li>
+                <li cv-if="this.isConnected">
+                    <router_link href="account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Paramètres du compte
+                    </router_link>
+                </li>
+                <li cv-if="!this.isConnected">
+                    <router_link href="signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Se connecter
+                    </router_link>
+                </li>
+                <li cv-if="this.isConnected">
+                    <router_link href="signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                        Se déconnecter
+                    </router_link>
                 </li>
             </ul>
         </nav>
