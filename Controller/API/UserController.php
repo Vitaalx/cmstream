@@ -146,7 +146,8 @@ class selfInfo extends MustBeConnected
                     "role" => $role,
                     "userId" => $user->getId(),
                     "lastname" => $user->getLastname(),
-                    "firstname" => $user->getFirstname()
+                    "firstname" => $user->getFirstname(),
+                    "email" => $user->getEmail()
                 ]
             );
     }

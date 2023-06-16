@@ -10,6 +10,7 @@ export const userStore =  CuteVue.createStore(
             userId: -1,
             lastname: "",
             firstname: "",
+            email: "",
             isConnected: false,
         },
         actions: {
@@ -20,6 +21,7 @@ export const userStore =  CuteVue.createStore(
                     this.userId = data.userId;
                     this.lastname = data.lastname;
                     this.firstname = data.firstname;
+                    this.email = data.email;
                     this.isConnected = true;
                 });
             },

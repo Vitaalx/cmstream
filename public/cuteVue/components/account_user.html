@@ -1,0 +1,67 @@
+<div class="mb-[30px] flex items-center gap-[32px] color-white">
+    <div class="avatar">
+        <img cv-if="this.avatar" src="this.avatar" class="w-[120px] h-[120px] rounded-full" alt="avatar">
+        <div cv-if="!this.avatar" cv-style="{ 'background-color': this.setRandomColor() }" class="w-[120px] h-[120px] flex items-center justify-center text-3xl rounded-full" alt="avatar">{{ this.getFirstLetters() }}</div>
+    </div>
+
+    <span class="text-2xl font-bold username">Bienvenue {{ this.username }} !</span>
+</div>
+
+<script>
+    export default {
+        props: {
+            title: "",
+            subtitle: ""
+        },
+
+        methods: {
+            getFirstLetters() {
+                return this.firstname[0] + this.lastname[0];
+            },
+            isColorTooLight(color) {
+                // Convert hex color to RGB
+                const r = parseInt(color.substr(1, 2), 16);
+                const g = parseInt(color.substr(3, 2), 16);
+                const b = parseInt(color.substr(5, 2), 16);
+                // Calculate the luminosity according to the appropriate formula (e.g. Luma)
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                // Define the brightness threshold from which the color is considered too bright
+                const lightnessThreshold = 150;
+
+                return brightness > lightnessThreshold;
+            },
+            setRandomColor() {
+                const excludedColors = ["000000"];
+                let randomColor;
+                let isColorTooLight = true;
+
+                while (isColorTooLight) {
+                    randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                    
+                    if (!excludedColors.includes(randomColor)) {
+                        isColorTooLight = this.isColorTooLight(randomColor);
+                    }
+                }
+
+                const avatar = this.$refs.genAvatar;
+
+                return `#${randomColor}`;
+            }
+        },
+
+        mounted(){
+            this.setRandomColor();
+        },
+
+        stores: [
+            {
+                name: "user",
+                states: ["firstname", "lastname", "username", "avatar", "email"], // TODO: add avatar, email
+                actions: []
+            },
+        ]
+    }
+</script>
+
+<style>
+</style>
