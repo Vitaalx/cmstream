@@ -39,7 +39,9 @@ class resetPassword extends IndexHandler{
 }
 
 /**
- * 
+ * @GET{/account}
+ * @GET{/account/email}
+ * @GET{/account/password}
  */
 class connected extends IndexHandler{
     public function checkers(Request $request): array

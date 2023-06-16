@@ -29,6 +29,18 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
                 {
+                    path: "/account",
+                    view: () => importer("/public/cuteVue/views/account/infos.html"),
+                },
+                {
+                    path: "/account/email",
+                    view: () => importer("/public/cuteVue/views/account/email.html"),
+                },
+                {
+                    path: "/account/password",
+                    view: () => importer("/public/cuteVue/views/account/password.html"),
+                },
+                {
                     path: "/forgot-password",
                     view: () => importer("/public/cuteVue/views/forgot-password.html"),
                 },
