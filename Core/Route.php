@@ -30,26 +30,13 @@ class Route{
             )
         )
         {  
-            try{
-                $request = new Request(self::$requestPath, $info, $regexPath);
-                $response = new Response();
+            $request = new Request(self::$requestPath, $info, $regexPath);
+            $response = new Response();
 
-                $class = self::autoLoadController($info["controller"]);
+            $class = self::autoLoadController($info["controller"]);
 
-                new $class($request, $response);
-                $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
-            }
-            catch(\Throwable $th){
-                $response
-                ->code(500)
-                ->info("ERROR.INTERNAL_SERVER")
-                ->send([
-                    "info" => "Internal server error.",
-                    "message" => $th->getMessage(),
-                    "file" => $th->getFile(),
-                    "line" => $th->getLine(),
-                ]);
-            }
+            new $class($request, $response);
+            $response->code(503)->info("ERROR.NO_SEND_RESPONSE")->send();
 
             exit;
         }
@@ -130,7 +117,9 @@ function callController(string $controller){
 function error_handler(){
     $error = error_get_last();
     if($error === null) return;
-    Response::getCurrentResponse()
+    Logger::debug($error["message"]);
+    $response = new Response();
+    $response
     ->code(500)
     ->info("ERROR.INTERNAL_SERVER")
     ->send([
