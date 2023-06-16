@@ -102,43 +102,43 @@
         computed: {
             emailRule(){
                 return [
-                    (value) => this.alreadyUseEmail !== value || "Cette email est déjà utilisais.",
-                    (value) => !!value || "Ce champs est obligatoire.",
+                    (value) => this.alreadyUseEmail !== value || "Cette email est déjà utilisé",
+                    (value) => !!value || "Ce champs est obligatoire",
                     (value) => value.length > 100 ? "Email trop long" : true,
-                    (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide.",
+                    (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide",
                 ];
             },
             usernameRule(){
                 return [
-                    (value) => this.alreadyUseUsername !== value || "Ce pseudo est déjà utilisais.",
-                    (value) => !!value || "Ce champs est obligatoire.",
+                    (value) => this.alreadyUseUsername !== value || "Ce pseudo est déjà utilisé",
+                    (value) => !!value || "Ce champs est obligatoire",
                     (value) => value.length < 4 ? "Pseudo trop court" : true,
                     (value) => value.length > 120 ? "Pseudo trop long" : true,
                 ];
             },
             cpasswordRule(){
                 return [
-                    (value) => this.password === this.cpassword || "Les mots de passe conresponde pas.",
+                    (value) => this.password === this.cpassword || "Les mots de passe conrespondent pas",
                 ];
             }
         },
         static: {
             lastnameRule: [
-                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => !!value || "Ce champs est obligatoire",
                 (value) => value.length > 120 ? "Nom trop long" : true,
-                (value) => /^[a-zA-Z]+$/.test(value) || "Nom invalide.",
+                (value) => /^[a-zA-Z]+$/.test(value) || "Nom invalide",
             ],
             firstnameRule: [
-                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => !!value || "Ce champs est obligatoire",
                 (value) => value.length < 4 ? "Prénom trop court" : true,
                 (value) => value.length > 60 ? "Prénom trop long" : true,
-                (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide.",
+                (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide",
             ],
             passwordRule: [
-                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => !!value || "Ce champs est obligatoire",
                 (value) => value.length < 4 ? "Mot de passe trop court" : true,
                 (value) => value.length > 255 ? "Mot de passe trop long" : true,
-                (value) => /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value) || "Mot de passe invalide. doit contenir au moins un caractère spécial",
+                (value) => /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value) || "Mot de passe invalide. Doit contenir au moins un caractère spécial",
             ],
         },
         methods: {
@@ -170,7 +170,7 @@
                     this.info = "Un lien de confirmation vous a été envoyé par email";
                 })
                 .e(() => {
-                    this.info = "Les information sont invalides";
+                    this.info = "Les informations sont invalides";
                 })
                 .result;
 
