@@ -106,8 +106,10 @@ class Response{
         $this->autoSetHeaders();
 
         echo $content;
-        
-        throw new SendResponse("send", $content);
+
+        fastcgi_finish_request();
+        Logger::auto("send");
+        exit;
     }
     public function sendFile(string $path): void
     {
@@ -122,7 +124,9 @@ class Response{
 
         readfile($path);
 
-        throw new SendResponse("sendFile", $path);
+        fastcgi_finish_request();
+        Logger::auto("sendFile");
+        exit;
     }
 
     public function render(string $view, string $template, array $params = []): void
@@ -158,7 +162,9 @@ class Response{
 
         include $template;
         
-        throw new SendResponse("render", $view . "@" . $template);
+        fastcgi_finish_request();
+        Logger::auto("sendFile");
+        exit;
     }
 
     public function redirect(string $url){
@@ -253,36 +259,5 @@ class Response{
     static public function getCurrentResponse(): Response
     {
         return self::$currentResponse;
-    }
-}
-
-Class SendResponse extends \Exception{
-    private string $type;
-    private mixed $content;
-    
-    public function __construct(string $type, mixed $content){
-        fastcgi_finish_request();
-        $this->type = $type;
-        $this->content = $content;
-    }
-
-    /**
-     * Get the value of type
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * Get the value of content
-     *
-     * @return mixed
-     */
-    public function getContent(): mixed
-    {
-        return $this->content;
     }
 }
