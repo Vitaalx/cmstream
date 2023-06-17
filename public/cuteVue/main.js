@@ -59,7 +59,7 @@ createRoute(
                 },
                 {
                     path: "admin/users",
-                    view: () => importer("/public/cuteVue/views/admin/admin-users.html"),
+                    view: () => importer("/public/cuteVue/views/admin/users.html"),
                 },
             ],
         },

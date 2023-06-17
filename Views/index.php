@@ -26,6 +26,7 @@
                         adminblacker: "#141519",
                         lightgrey: "#F5F5F9",
                         pinkred: "#DD1533",
+                        pinkredhover: "#dd1533ca",
                     },
                 }
             },
