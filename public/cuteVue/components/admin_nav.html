@@ -9,12 +9,20 @@
             <ul>
                 <li class="text-whiteless hover:text-white hover:bg-adminblacker"
                     cv-class="{
-                        'border-l-4 border-white-500': this.setActiveLink('/admin/userlist')
+                        'border-l-4 border-white-500': this.pathname === '/admin'
                     }"
                 >
-                    <router_link href="admin/users"
-                                 class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer"
-                    >
+                    <router_link href="admin" class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
+                        <span class="mdi mdi-view-dashboard"></span>
+                        Dashboard
+                    </router_link>
+                </li>
+                <li class="text-whiteless hover:text-white hover:bg-adminblacker"
+                    cv-class="{
+                        'border-l-4 border-white-500': this.pathname === '/admin/users'
+                    }"
+                >
+                    <router_link href="admin/users" class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
                         <span class="mdi mdi-account-group text-[18px]"></span>
                         Liste des utilisateurs
                     </router_link>
@@ -37,13 +45,19 @@
         props: {},
 
         methods: {
-            setActiveLink(href) {
-                return window.location.pathname === href;
-            }
+
         },
 
         mounted() {
-        }
+
+        },
+
+        stores: [
+            {
+                name: "router",
+                states: ["pathname"]
+            }
+        ]
     }
 </script>
 
