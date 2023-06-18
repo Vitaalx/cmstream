@@ -172,7 +172,7 @@ class logout extends MustBeConnected
 }
 
 /**
- * @DELETE{/user/{id}}
+ * @DELETE{/api/user/{id}}
  * @Path Path Request
  * @param $userId
  *

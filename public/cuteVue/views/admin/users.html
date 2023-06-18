@@ -1,6 +1,6 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
     <span cv-if="this.users.length === 0">Aucun utilisateur trouvé.</span>
-    <delete_modal :show="this.isDeleteModalOpen"></delete_modal>
+    <delete_modal :show="this.isDeleteModalOpen" :userid="this.userId" @ondelete="refresh"></delete_modal>
     <user_edit_modal :show="this.isOpenedModal"></user_edit_modal>
 
     <div class="table w-full" cv-if="this.users.length !== 0">
@@ -18,11 +18,11 @@
         <table class="table-content w-full text-left border-2 rounded-t-[8px]">
             <thead class="bg-whitesmoke">
                 <tr>
-                    <th class="p-[22px]">Prénom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px]">Nom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px]">Username<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px]">Email<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px]">Rôle<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByFirstname()">Prénom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByLastname()">Nom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByUsername()">Username<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByEmail()">Email<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                    <th class="p-[22px] cursor-pointer hover:bg-white">Rôle<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
                     <th class="p-[22px]">Actions</th>
                 </tr>
             </thead>
@@ -35,13 +35,14 @@
                     <td class="p-[22px]">{{ this.user.email }}</td>
                     <td class="p-[22px]">{{ this.user.role === undefined ? "utilisateur" : this.user.role.name }}</td>
                     <td class="p-[22px]">
-                        <span class="mdi mdi-trash-can-outline text-2xl cursor-pointer" @click="this.openDeleteModal()"></span>
-                        <span class="mdi mdi-pencil-outline text-2xl ml-[14px] cursor-pointer" @click="this.openEditModal()"></span>
+                        {{this.user.id}}
+                        <span class="mdi mdi-trash-can-outline text-2xl cursor-pointer" @click="this.openDeleteModal(this.user.id);"></span>
+                        <span class="mdi mdi-pencil-outline text-2xl ml-[14px] cursor-pointer" @click="this.openEditModal(this.user.id)"></span>
                     </td>
                 </tr>
             </tbody>
         </table>
-        
+
         <div class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
             <button @click="this.previousPage()" class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
             <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
@@ -70,6 +71,7 @@
         },
         data: {
             users: [],
+            userId: null,
             currentPageNumber: 1,
             maxPage: 10,
             isOpenedModal: false,
@@ -85,6 +87,34 @@
 
                 close();
             },
+            sortByFirstname() {
+                this.users = this.users.sort((a, b) => {
+                    if (a.firstname < b.firstname) return -1;
+                    if (a.firstname > b.firstname) return 1;
+                    return 0;
+                });
+            },
+            sortByLastname() {
+                this.users = this.users.sort((a, b) => {
+                    if (a.lastname < b.lastname) return -1;
+                    if (a.lastname > b.lastname) return 1;
+                    return 0;
+                });
+            },
+            sortByUsername() {
+                this.users = this.users.sort((a, b) => {
+                    if (a.username < b.username) return -1;
+                    if (a.username > b.username) return 1;
+                    return 0;
+                });
+            },
+            sortByEmail() {
+                this.users = this.users.sort((a, b) => {
+                    if (a.email < b.email) return -1;
+                    if (a.email > b.email) return 1;
+                    return 0;
+                });
+            },
             previousPage() {
                 if (this.currentPageNumber === 1) return;
                 this.currentPageNumber--;
@@ -93,17 +123,23 @@
                 if (this.currentPageNumber === this.maxPage) return;
                 this.currentPageNumber++;
             },
-            openEditModal() {
+            openEditModal(userId) {
+                this.userId = userId;
                 this.isOpenedModal = true;
             },
             closeEditModal() {
                 this.isOpenedModal = false;
             },
-            openDeleteModal() {
+            openDeleteModal(userId) {
+                this.userId = userId;
                 this.isDeleteModalOpen = true;
             },
             closeDeleteModal() {
                 this.isDeleteModalOpen = false;
+            },
+            refresh() {
+                console.log("refresh");
+                this.getUsers();
             }
         },
         mounted() {

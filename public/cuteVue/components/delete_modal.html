@@ -5,24 +5,39 @@ cv-show="this.show"
         <span class="my-[-16.5px] text-[60px] text-pinkred mdi mdi-alert-circle-outline"></span>
         <p class="text-center message">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
         <div class="flex gap-[10px] buttons">
-            <button @click="this.deleteUser()" class="w-[100px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
+            <button @click="this.deleteUser()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
     </div>
 </div>
 
 <script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
     export default {
         props: {
-            show: false
+            show: false,
+            userid: ""
         },
         methods: {
             closeModal() {
                 this.show = false;
             },
-            deleteUser() {
-                // delete user
+            async deleteUser() {
+                let close = loaderStore.push();
+
+                //TODO : A reactiver pour delete réellement l'utilisateur
+                //await taob.delete("/user/" + this.userid).result;
+
+                this.$emit("ondelete");
+
                 this.closeModal();
+
+                close();
             }
         },
         mounted() {
