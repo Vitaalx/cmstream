@@ -45,7 +45,7 @@ export default function makeProxy(properties, template){
         },
         $refs: {},
         $emit: (name, arg) => {
-            if(proxy[__element__].$events[name] === proxy[__element__].$selfEvents[name]) return;
+            if(proxy[__element__].$events[name] === undefined) return;
             return proxy[__element__].$events[name](arg);
         },
         $destroy: () => proxy[__element__].$destroy(),
