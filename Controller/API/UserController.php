@@ -8,7 +8,7 @@ use Core\Response;
 use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
-
+use Services\Access\AccessUserEditor;
 use Services\Back\MailService;
 use Services\MustBeAdmin;
 use Services\MustBeConnected;
@@ -408,11 +408,35 @@ class MailValidate extends Controller
 /**
  * @GET{/api/users}
  */
-class getUsers extends MustBeAdmin
+class getUsers extends AccessUserEditor
 {
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("name") ?? "", "name"]
+        ];
+    }
+
     public function handler(Request $request, Response $response): void
     {
-        $response->code(200)->info("users")->send(["users" => User::findMany()]);
+        $page = $this->floor->pickup("page");
+        $name = $this->floor->pickup("name");
+        $number = 5;
+
+        $response
+        ->code(200)
+        ->info("users")
+        ->send([
+            "users" => User::findMany(
+                [
+                    "username" => [
+                        "\$CTN" => $name
+                    ]
+                ], 
+                ["OFFSET" => $number * $page, "LIMIT" => $number]
+            )
+        ]);
     }
 }
 
