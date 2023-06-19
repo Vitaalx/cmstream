@@ -78,8 +78,6 @@ class QueryBuilder {
                 $not = implode(" AND ", $not);
                 array_push($wheres, $not);
             }
-            else if($key === "\$GT") array_push($wheres, $value[0] . " > " . $value[1]);
-            else if($key === "\$GTE") array_push($wheres, $value[0] . " >= " . $value[1]);
             else{
                 $where = $key . " " . $operator . " ";
 
@@ -93,12 +91,15 @@ class QueryBuilder {
                     $where = $key . ($operator === "="? " IS NULL" : " IS NOT NULL");
                 }
                 else if(gettype($value) === "array"){
-                    $where = [];
-                    foreach ($value as $value) {
-                        $w = self::arrayToArrayWhere(["$key" => $value], $operator);
-                        array_push($where, $w[0]);
+                    foreach ($value as $k => $v) {
+                        if($k === "\$CTN") $where = $key . " LIKE '%$v%'";
+                        else if($k === "\$SW") $where = $key . " LIKE '$v%'";
+                        else if($k === "\$EW") $where = $key . " LIKE '%$v'";
+                        else if($k === "\$GT") array_push($wheres, $key . " > " . $v);
+                        else if($k === "\$GTE") array_push($wheres, $key . " >= " . $v);
+                        else if($k === "\$LT") array_push($wheres, $key . " < " . $v);
+                        else if($k === "\$LTE") array_push($wheres, $key . " <= " . $v);
                     }
-                    $where = implode(" AND ", $where);
                 }
 
                 array_push($wheres, $where);

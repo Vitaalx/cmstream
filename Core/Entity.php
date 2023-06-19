@@ -227,12 +227,12 @@ abstract class Entity implements \JsonSerializable
         return $this->props[$prop["name"]];
     }
 
-    static public function findFirst(array $where = []): ?static
+    static public function findFirst(array $where = [], array $options = []): ?static
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where) . " LIMIT 1";
+        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options) . " LIMIT 1";
         $result = self::$db->prepare($sqlRequest);
         $result->execute();
         $result = $result->fetchAll(\PDO::FETCH_ASSOC);
@@ -247,12 +247,12 @@ abstract class Entity implements \JsonSerializable
     /**
      *  @return static[]
      */
-    static public function findMany(array $where = []): array
+    static public function findMany(array $where = [], array $options = []): array
     {
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where);
+        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options);
         $result = self::$db->prepare($sqlRequest);
         $result->execute();
         $result = $result->fetchAll(\PDO::FETCH_ASSOC);
