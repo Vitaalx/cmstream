@@ -1,0 +1,49 @@
+<aside>
+    <nav>
+        <ul>
+            <li class="px-[12px] py-[10px] hover:bg-darkblue"
+                cv-class="{
+                    'text-skyblue': this.pathname === '/account'
+                }"
+            >
+                <router_link class="inline-block w-full h-full" href="account">Mes informations</router_link>
+            </li>
+            <li class="px-[12px] py-[10px] hover:bg-darkblue"
+                cv-class="{
+                    'text-skyblue': this.pathname === '/account/email'
+                }"
+            >
+                <router_link class="inline-block w-full h-full" href="account/email">Changer l'adresse email</router_link>
+            </li>
+            <li class="px-[12px] py-[10px] hover:bg-darkblue"
+                cv-class="{
+                    'text-skyblue': this.pathname === '/account/password'
+                }"
+            >
+                <router_link class="inline-block w-full h-full" href="account/password">Changer de mot de passe</router_link>
+            </li>
+        </ul>
+    </nav>
+</aside>
+
+<script>
+    export default {
+        methods: {
+
+        },
+
+        mounted(){
+
+        },
+
+        stores: [
+            {
+                name: "router",
+                states: ["pathname"]
+            }
+        ]
+    }
+</script>
+
+<style>
+</style>

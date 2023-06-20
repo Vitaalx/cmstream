@@ -39,13 +39,29 @@ class resetPassword extends IndexHandler{
 }
 
 /**
- * 
+ * @GET{/account}
+ * @GET{/account/email}
+ * @GET{/account/password}
  */
 class connected extends IndexHandler{
     public function checkers(Request $request): array
     {
         return [
             ["page/onlyConnected", $request->getCookie("token") ?? ""]
+        ];
+    }
+}
+
+/**
+ * @GET{/admin}
+ */
+class admin extends IndexHandler{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["token/checkAccessToken", $request->getCookie("token") ?? "", "payload"],
+            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
+            ["user/mustBeAdmin", fn () => $this->floor->pickup("user"), "user"]
         ];
     }
 }

@@ -20,6 +20,10 @@
                         grey: "#A0A0A0",
                         whiteless: "#DADADA",
                         white: "#FFF",
+                        adminblack: "#23252B",
+                        adminblacker: "#141519",
+                        lightgrey: "#F5F5F9",
+                        pinkred: "#DD1533",
                     },
                 }
             },

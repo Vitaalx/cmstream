@@ -7,6 +7,7 @@ text-input
     :type="this.type"
     :value="this.value"
     :placeholder="this.placeholder"
+    :disabled="this.disabled"
     @input="inputed"
     class="bg-transparent border-b-[2px] py-[5px] focus:outline-none focus:border-skyblue w-full transition"
     cv-class="{
@@ -27,6 +28,7 @@ text-input
             placeholder: false,
             rules: [],
             type: "text",
+            disabled: false,
             name: false,
             "always-rule": false
         },
