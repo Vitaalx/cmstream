@@ -251,8 +251,13 @@ export default function render(template, proxy){
                     }
                 )`);
 
+                let oldResult = undefined;
                 let subscriber = () => {
                     let result = cdn(proxy);
+
+                    if(!!result === !!oldResult && oldResult !== undefined)return;
+                    else oldResult = result;
+
                     if(result){
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);
