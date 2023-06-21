@@ -1,45 +1,52 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-    <span cv-if="this.users.length === 0">Aucun utilisateur trouvé.</span>
-    <delete_modal :show="this.isDeleteModalOpen" :userid="this.userId" @ondelete="refresh"></delete_modal>
-    <user_edit_modal :show="this.isOpenedModal"></user_edit_modal>
+    <span cv-if="this.displayedUsers.length === 0">Aucun utilisateur trouvé.</span>
+    <delete_modal :show="this.isDeleteModalOpen" :userid="this.userId" :users="this.displayedUsers" @ondelete="refresh"></delete_modal>
+    <user_edit_modal :show="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
+                     :currentlastname="this.currentLastname" :currentusername="this.currentUsername"
+                     @onedit="refresh"></user_edit_modal>
 
-    <div class="table w-full" cv-if="this.users.length !== 0">
-        <div class="table-header w-full flex justify-between items-center">
-            <button class="px-[20px] py-[10px] rounded-[8px] bg-midblue text-white mb-[20px] flex items-center">
-                <span class="mdi mdi-plus text-2xl"></span>Ajouter un utilisateur
-            </button>
-
+    <div class="table w-full" cv-if="this.displayedUsers.length !== 0">
+        <div class="table-header w-full flex justify-between items-center mb-[20px]">
             <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
                 <span class="mdi mdi-magnify text-xl mr-[10px]"></span>
-                <input class="focus:outline-none" type="text" placeholder="Rechercher">
+                <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
+                <span class="cursor-pointer" @click="this.filterUsers()">OK</span>
+                <span class="mdi mdi-close-circle-outline cursor-pointer text-xl ml-[8px]"
+                      @click="this.resetUsers()"></span>
             </div>
         </div>
 
         <table class="table-content w-full text-left border-2 rounded-t-[8px]">
             <thead class="bg-whitesmoke">
-                <tr>
-                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByFirstname()">Prénom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByLastname()">Nom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByUsername()">Username<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByEmail()">Email<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px] cursor-pointer hover:bg-white">Rôle<span class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                    <th class="p-[22px]">Actions</th>
-                </tr>
+            <tr>
+                <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByFirstname()">Prénom<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByLastname()">Nom<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByUsername()">Username<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer hover:bg-white" @click="this.sortByEmail()">Email<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer hover:bg-white">Rôle<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px]">Actions</th>
+            </tr>
             </thead>
 
             <tbody>
-                <tr class="border-2" cv-for="user of this.users">
-                    <td class="p-[22px]">{{ this.user.firstname }}</td>
-                    <td class="p-[22px]">{{ this.user.lastname }}</td>
-                    <td class="p-[22px]">{{ this.user.username }}</td>
-                    <td class="p-[22px]">{{ this.user.email }}</td>
-                    <td class="p-[22px]">{{ this.user.role === undefined ? "utilisateur" : this.user.role.name }}</td>
-                    <td class="p-[22px]">
-                        {{this.user.id}}
-                        <span class="mdi mdi-trash-can-outline text-2xl cursor-pointer" @click="this.openDeleteModal(this.user.id);"></span>
-                        <span class="mdi mdi-pencil-outline text-2xl ml-[14px] cursor-pointer" @click="this.openEditModal(this.user.id)"></span>
-                    </td>
-                </tr>
+            <tr class="border-2" cv-for="user of this.displayedUsers">
+                <td class="p-[22px]">{{ this.user.firstname }}</td>
+                <td class="p-[22px]">{{ this.user.lastname }}</td>
+                <td class="p-[22px]">{{ this.user.username }}</td>
+                <td class="p-[22px]">{{ this.user.email }}</td>
+                <td class="p-[22px]">{{ this.user.role === null ? "utilisateur" : this.user.role.name }}</td>
+                <td class="p-[22px]">
+                    <span class="mdi mdi-trash-can-outline text-2xl cursor-pointer"
+                          @click="this.openDeleteModal(this.user.id);"></span>
+                    <span class="mdi mdi-pencil-outline text-2xl ml-[14px] cursor-pointer"
+                          @click="this.openEditModal(this.user)"></span>
+                </td>
+            </tr>
             </tbody>
         </table>
 
@@ -70,61 +77,114 @@
             user_edit_modal
         },
         data: {
+            displayedUsers: [],
             users: [],
+            userFiltered: [],
             userId: null,
             currentPageNumber: 1,
-            maxPage: 10,
+            maxPage: null,
             isOpenedModal: false,
-            isDeleteModalOpen: false
+            currentFirstname: "",
+            currentLastname: "",
+            currentUsername: "",
+            isDeleteModalOpen: false,
+            search: "",
+            nbTotalUsers: null,
+            limitToDisplay: 5
         },
         methods: {
+            async getUsersWithPaging(page, count = false) {
+                let close = loaderStore.push();
+
+                await taob.get(`users?page=${page - 1}`).s(data => {
+                    this.users = data.users;
+                }).result;
+
+                this.displayedUsers = this.users;
+
+                if (count) {
+                    await taob.get("users/count").s(data => {
+                        this.nbTotalUsers = data.count;
+                    }).result;
+
+                    this.getNbPages();
+                }
+
+                close();
+            },
             async getUsers() {
                 let close = loaderStore.push();
 
-                await taob.get("/users").s(data => {
+                await taob.get(`users`).s(data => {
                     this.users = data.users;
                 }).result;
+
+                if (this.users.length % this.limitToDisplay === 0 ) this.currentPageNumber--;
+
+                await taob.get("users/count").s(data => {
+                    this.nbTotalUsers = data.count;
+                }).result;
+
+                this.getNbPages();
+
+                this.displayedUsers = this.users;
+
+                close();
+            },
+            async searchUsers(val) {
+                let close = loaderStore.push();
+
+                await taob.get(`users?name=${val}`).s(data => {
+                    this.userFiltered = data.users;
+                }).result;
+
+                this.filterUsers();
 
                 close();
             },
             sortByFirstname() {
-                this.users = this.users.sort((a, b) => {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
                     if (a.firstname < b.firstname) return -1;
                     if (a.firstname > b.firstname) return 1;
                     return 0;
                 });
             },
             sortByLastname() {
-                this.users = this.users.sort((a, b) => {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
                     if (a.lastname < b.lastname) return -1;
                     if (a.lastname > b.lastname) return 1;
                     return 0;
                 });
             },
             sortByUsername() {
-                this.users = this.users.sort((a, b) => {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
                     if (a.username < b.username) return -1;
                     if (a.username > b.username) return 1;
                     return 0;
                 });
             },
             sortByEmail() {
-                this.users = this.users.sort((a, b) => {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
                     if (a.email < b.email) return -1;
                     if (a.email > b.email) return 1;
                     return 0;
                 });
             },
-            previousPage() {
+            async previousPage() {
                 if (this.currentPageNumber === 1) return;
                 this.currentPageNumber--;
+                await this.getUsersWithPaging(this.currentPageNumber);
             },
-            nextPage() {
+            async nextPage() {
                 if (this.currentPageNumber === this.maxPage) return;
                 this.currentPageNumber++;
+                await this.getUsersWithPaging(this.currentPageNumber);
             },
-            openEditModal(userId) {
-                this.userId = userId;
+            openEditModal(user) {
+                this.userId = user.id;
+                this.currentFirstname = user.firstname;
+                this.currentLastname = user.lastname;
+                this.currentUsername = user.username;
                 this.isOpenedModal = true;
             },
             closeEditModal() {
@@ -138,12 +198,31 @@
                 this.isDeleteModalOpen = false;
             },
             refresh() {
-                console.log("refresh");
                 this.getUsers();
+            },
+            filterUsers() {
+                this.displayedUsers = this.userFiltered;
+            },
+            resetUsers() {
+                this.search = "";
+                this.displayedUsers = this.users;
+            },
+            getNbPages() {
+                this.maxPage = Math.ceil(this.nbTotalUsers / this.limitToDisplay);
+            }
+        },
+        watch: {
+            search: function (val) {
+                if (val === "") {
+                    this.resetUsers();
+                    return;
+                }
+                this.searchUsers(val);
+
             }
         },
         mounted() {
-            this.getUsers();
+            this.getUsersWithPaging(this.currentPageNumber, true);
         }
     }
 </script>

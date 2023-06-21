@@ -250,7 +250,8 @@ class User extends Entity
         return $this;
     }
 
-    public function hasPermission(Permissions $permissionName){
+    public function hasPermission(Permissions $permissionName): bool
+    {
         $permissionName = $permissionName->value;
         $role = $this->getRole();
         if($role === null) return false;

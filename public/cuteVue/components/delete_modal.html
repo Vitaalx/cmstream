@@ -8,6 +8,7 @@ cv-show="this.show"
             <button @click="this.deleteUser()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
+        <p class="text-center text-[red]">{{ this.info }}</p>
     </div>
 </div>
 
@@ -19,9 +20,13 @@ cv-show="this.show"
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
     export default {
+        data: {
+            info: ""
+        },
         props: {
             show: false,
-            userid: ""
+            userid: "",
+            users: []
         },
         methods: {
             closeModal() {
@@ -30,8 +35,7 @@ cv-show="this.show"
             async deleteUser() {
                 let close = loaderStore.push();
 
-                //TODO : A reactiver pour delete réellement l'utilisateur
-                //await taob.delete("/user/" + this.userid).result;
+                await taob.delete("/user/" + this.userid).info(info => console.log(info)).result;
 
                 this.$emit("ondelete");
 
