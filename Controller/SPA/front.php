@@ -4,6 +4,7 @@ namespace Controller\SPA\front;
 use Core\Logger;
 use Services\IndexHandler;
 use Core\Request;
+use Services\Permissions;
 
 /**
  * @GET{/}
@@ -59,9 +60,8 @@ class admin extends IndexHandler{
     public function checkers(Request $request): array
     {
         return [
-            ["token/checkAccessToken", $request->getCookie("token") ?? "", "payload"],
-            ["user/exist", fn () => $this->floor->pickup("payload")["id"], "user"],
-            ["user/mustBeAdmin", fn () => $this->floor->pickup("user"), "user"]
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard]
         ];
     }
 }
