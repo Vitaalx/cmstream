@@ -179,7 +179,7 @@ class logout extends MustBeConnected
  *
  * @return void
  */
-class deleteUserAdmin extends MustBeAdmin
+class deleteUserAdmin extends AccessUserEditor
 {
     public function checkers(Request $request): array
     {
@@ -210,7 +210,7 @@ class deleteUser extends MustBeConnected
 }
 
 /**
- * @PUT{/api:/user/{id}}
+ * @PUT{/api/user/{id}}
  */
 /*
 Entry:
@@ -221,7 +221,7 @@ Entry:
 }
 */
 
-class modifyUserAdmin extends MustBeAdmin
+class modifyUserAdmin extends AccessUserEditor
 {
     public function checkers(Request $request): array
     {
@@ -326,7 +326,7 @@ class mailResetPassword extends Controller
             $user->getEmail(),
             "Récupération de mot de passe",
             "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
-            "Pour valider votre nouveay mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
+            "Pour valider votre nouveau mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
             "<a href='" . CONFIG["HOST"] . "/reset-password?token=" . $token . "'>Valider mon compte</a><br><br>" .
             "Cordialement,<br>" .
             "L'&eacutequipe de notre site."
@@ -442,7 +442,7 @@ class getUsers extends AccessUserEditor
                     "\$CTN" => $name
                 ]
             ],
-            ["OFFSET" => $number * $page, "LIMIT" => $number]
+            ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
 
         User::groups("userRole");

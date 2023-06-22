@@ -44,7 +44,7 @@
     export default {
         data: {
             user: null,
-            info: ""
+            info: "",
         },
         props: {
             show: false,
@@ -70,11 +70,9 @@
                     if (info === "user.modified") this.info = "L'utilisateur à bien été modifié.";
                 }).result;
 
-                this.$emit("onedit");
+                this.$emit("onedit", "edit");
 
-                setTimeout(() => {
-                    this.closeModal();
-                }, 2000);
+                this.closeModal();
 
                 close();
             }

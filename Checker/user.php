@@ -35,6 +35,7 @@ function lastname(string $lastname, Floor $floor, Response $response): string
 function firstname(string $firstname, Floor $floor, Response $response): string
 {
     $firstname = trim($firstname);
+    $firstname = strtolower($firstname);
     $firstname = ucfirst($firstname);
     if (strlen($firstname) < 4 || strlen($firstname) > 60) {
         $response->info("user.firstname")->code(400)->send();

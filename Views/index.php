@@ -19,6 +19,7 @@
                         midblue: "#000AFF",
                         skyblue: "#5499C7",
                         grey: "#A0A0A0",
+                        darkgrey: "#797979",
                         whitesmoke: "#F9FAFB",
                         whiteless: "#DADADA",
                         white: "#FFF",

@@ -25,8 +25,7 @@ cv-show="this.show"
         },
         props: {
             show: false,
-            userid: "",
-            users: []
+            userid: ""
         },
         methods: {
             closeModal() {
@@ -37,7 +36,7 @@ cv-show="this.show"
 
                 await taob.delete("/user/" + this.userid).info(info => console.log(info)).result;
 
-                this.$emit("ondelete");
+                this.$emit("ondelete", "delete");
 
                 this.closeModal();
 
