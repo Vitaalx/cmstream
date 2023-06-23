@@ -184,8 +184,8 @@
             closeDeleteModal() {
                 this.isDeleteModalOpen = false;
             },
-            async refresh(treatment) {
-                if (treatment === "delete") {
+            async refresh(action) {
+                if (action === "delete") {
                     if (this.displayedUsers.length === 1 && this.currentPageNumber > 1) {
                         this.currentPageNumber--;
                     }
