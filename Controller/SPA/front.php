@@ -55,6 +55,7 @@ class connected extends IndexHandler{
 
 /**
  * @GET{/admin}
+ * @GET{/admin/users}
  */
 class admin extends IndexHandler{
     public function checkers(Request $request): array

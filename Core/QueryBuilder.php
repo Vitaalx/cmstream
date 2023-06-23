@@ -144,10 +144,10 @@ class QueryBuilder {
                 $orderOptions = [];
 
                 foreach ($value as $v) {
-                    array_push($orderOptions, $v[1] . " " . $v[0]);
+                    $orderOptions[] = $v;
                 }
 
-                array_push($options, "ORDER BY " . implode(", ", $orderOptions));
+                $options[] = "ORDER BY " . implode(", ", $orderOptions);
             }
             else if($key === "RETURNING") array_push($options, "RETURNING " . implode(", ", $value));
             else array_push($options, $key . " " . $value);

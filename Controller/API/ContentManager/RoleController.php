@@ -9,9 +9,8 @@ use Core\Response;
 
 use Entity\Role;
 use Entity\User;
-use PHPMailer\Exception;
+use Services\Access\AccessRoleEditor;
 use Services\MustBeAdmin;
-use Services\MustBeConnected;
 
 
 /**
@@ -21,7 +20,7 @@ use Services\MustBeConnected;
  *
  * @return $role
  */
-class addRole extends MustBeAdmin
+class addRole extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
@@ -81,7 +80,7 @@ class setRole extends MustBeAdmin
  *
  * @return $role
  */
-class getRoles extends MustBeAdmin
+class getRoles extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
@@ -105,7 +104,7 @@ class getRoles extends MustBeAdmin
  *
  * @return void
  */
-class modifyRole extends MustBeAdmin
+class modifyRole extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
@@ -136,7 +135,7 @@ class modifyRole extends MustBeAdmin
  *
  * @return void
  */
-class deleteRole extends MustBeAdmin
+class deleteRole extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
