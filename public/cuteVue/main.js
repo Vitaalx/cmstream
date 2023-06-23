@@ -63,7 +63,7 @@ createRoute(
 
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
-        let result = await fetch(path);
+        let result = await fetch(path, {headers: {"Page-Access": "true"}});
         if(result.redirected === true){
             close();
             return result.url.replace(location.origin, "");

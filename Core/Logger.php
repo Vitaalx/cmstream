@@ -10,6 +10,14 @@ class Logger
     {
         if(self::$disabled === true) return;
 
+        if(gettype($message) === "array"){
+            $result = "";
+            foreach($message as $key => $value){
+                $result .= "$key: $value, ";
+            }
+            $message = $result;
+        }
+
         error_log(
             date("h:i:s") . " " 
             . $header . " " 
