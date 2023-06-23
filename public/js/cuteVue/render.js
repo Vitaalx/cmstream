@@ -89,6 +89,7 @@ export default function render(template, proxy){
                     if(result) el.setAttribute(key, "");
                     else el.removeAttribute(key);
                 }
+                if(key === "value")el.value = result;
             };
 
             for(let group of value.vars){
