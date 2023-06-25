@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Services\Permissions;
 
 class Role extends Entity
 {
@@ -13,6 +14,12 @@ class Role extends Entity
      * @many{Entity\User,role}
      */
     private array $users;
+
+    /**
+     * @many{Entity\Permission,role}
+     * @cascade{}
+     */
+    private array $permissions;
 
     /**
      * @type{VARCHAR(20)}
@@ -78,5 +85,45 @@ class Role extends Entity
         parent::set("updated_at", $date);
 
         return $this;
+    }
+
+    /**
+     * Get the value of permissions
+     *
+     * @return \Entity\Permission[]
+     */
+    public function getPermissions(): array
+    {
+        return parent::get("permissions");
+    }
+
+    public function addPermission(Permissions $permissionName){
+        $perm = Permission::findFirst([
+            "role_id" => parent::get("id"),
+            "name" => $permissionName->value
+        ]);
+        if($perm === null) Permission::insertOne(
+            fn (Permission $permission) => $permission
+                ->setName($permissionName)
+                ->setRole($this)
+        );
+    }
+
+    public function removePermission(Permissions $permissionName){
+        $permissionName = $permissionName->value;
+        $perm = Permission::findFirst([
+            "role_id" => parent::get("id"),
+            "name" => $permissionName
+        ]);
+        if($perm !== null) $perm->delete();
+    }
+
+    public function hasPermission(Permissions $permissionName){
+        $permissionName = $permissionName->value;
+        $perm = Permission::findFirst([
+            "role_id" => parent::get("id"),
+            "name" => $permissionName
+        ]);
+        return !!$perm;
     }
 }

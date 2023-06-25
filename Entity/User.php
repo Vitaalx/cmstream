@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Services\Permissions;
 
 class User extends Entity
 {
@@ -247,5 +248,17 @@ class User extends Entity
         parent::set("updated_at", $date);
 
         return $this;
+    }
+
+    public function hasPermission(Permissions $permissionName): bool
+    {
+        $permissionName = $permissionName->value;
+        $role = $this->getRole();
+        if($role === null) return false;
+        $perm = Permission::findFirst([
+            "role_id" => $role->getId(),
+            "name" => $permissionName
+        ]);
+        return !!$perm;
     }
 }

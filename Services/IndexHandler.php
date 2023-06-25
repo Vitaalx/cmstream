@@ -21,6 +21,8 @@ abstract class IndexHandler extends OverrideController{
 
     public function handler(Request $request, Response $response): void
     {
+        if($request->getHeader("Page-Access") !== null)$response->code($this->code)->send();
+
         $response
         ->code($this->code)
         ->render("index", "none");

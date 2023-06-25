@@ -69,6 +69,8 @@ abstract class Token
     public static function verify(string $token = null): ?array
     {
         $token = $token ?? Request::getCurrentRequest()->getCookie(self::name());
+
+        if($token === null) return null;
         
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $token);
 

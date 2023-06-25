@@ -1,0 +1,36 @@
+<div class="bg-darkblue w-full max-w-[800px] account-content">
+    <div class="max-w-[420px] mx-auto py-[40px] account-settings">
+        <div class="mb-[48px] header">
+            <h2 class="mb-[16px] text-2xl text-center font-bold">{{ this.title }}</h2>
+            <p class="text-center">{{ this.subtitle }}</p>
+        </div>
+        <slot></slot>
+    </div>
+</div>
+
+<script>
+    export default {
+        props: {
+            title: "",
+            subtitle: ""
+        },
+
+        methods: {
+
+        },
+
+        mounted(){
+
+        },
+
+        stores: [
+            {
+                name: "router",
+                states: ["pathname"]
+            }
+        ]
+    }
+</script>
+
+<style>
+</style>

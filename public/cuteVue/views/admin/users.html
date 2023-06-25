@@ -1,0 +1,217 @@
+<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <span cv-if="this.displayedUsers.length === 0">Aucun utilisateur trouvé.</span>
+    <delete_modal :show="this.isDeleteModalOpen" :userid="this.userId"
+                  @ondelete="refresh"></delete_modal>
+    <user_edit_modal :show="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
+                     :currentlastname="this.currentLastname" :currentusername="this.currentUsername"
+                     @onedit="refresh"></user_edit_modal>
+
+    <div class="table w-full">
+        <div class="table-header w-full flex flex-col justify-between items-start mb-[10px]">
+            <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
+                <span class="mdi mdi-magnify text-xl mr-[10px]"></span>
+                <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
+            </div>
+            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
+        </div>
+
+        <table class="table-content w-full text-left border-2 rounded-t-[8px]" cv-if="this.displayedUsers.length !== 0">
+            <thead class="bg-whitesmoke">
+            <tr>
+                <th class="p-[22px] cursor-pointer" @click="this.sortByFirstname()">Prénom<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer" @click="this.sortByLastname()">Nom<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer" @click="this.sortByUsername()">Username<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer" @click="this.sortByEmail()">Email<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px] cursor-pointer">Rôle<span
+                        class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
+                <th class="p-[22px]">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr class="border-2" cv-for="user of this.displayedUsers">
+                <td class="p-[22px]">{{ this.user.firstname }}</td>
+                <td class="p-[22px]">{{ this.user.lastname }}</td>
+                <td class="p-[22px]">{{ this.user.username }}</td>
+                <td class="p-[22px]">{{ this.user.email }}</td>
+                <td class="p-[22px]">{{ this.user.role === null ? "utilisateur" : this.user.role.name }}</td>
+                <td class="p-[22px]">
+                    <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer"
+                          @click="this.openDeleteModal(this.user.id);"></span>
+                    <span class="mdi mdi-pencil-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                          @click="this.openEditModal(this.user)"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
+            <button @click="this.previousPage()" class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
+            <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
+            <button @click="this.nextPage()" class="px-[20px] py-[10px] border rounded-[8px]">Suivant</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    const [delete_modal, user_edit_modal] = await Promise.all([
+        importer('/public/cuteVue/components/delete_modal.html'),
+        importer('/public/cuteVue/components/user_edit_modal.html')
+    ]);
+
+    export default {
+        components: {
+            delete_modal,
+            user_edit_modal
+        },
+        data: {
+            displayedUsers: [],
+            users: [],
+            userFiltered: [],
+            userId: null,
+            currentPageNumber: 1,
+            maxPage: 0,
+            isOpenedModal: false,
+            currentFirstname: "",
+            currentLastname: "",
+            currentUsername: "",
+            isDeleteModalOpen: false,
+            search: "",
+            nbTotalUsers: 0,
+            limitToDisplay: 5,
+            searchInfo: ""
+        },
+        methods: {
+            async getUsersWithPaging(page, count = false) {
+                let close = loaderStore.push();
+
+                await taob.get(`users?page=${page - 1}`).s(data => {
+                    this.users = data.users;
+                }).result;
+
+                this.displayedUsers = this.users;
+
+                if (count) {
+                    await taob.get("users/count").s(data => {
+                        this.nbTotalUsers = data.count;
+                    }).result;
+
+                    this.getNbPages();
+                }
+
+                close();
+            },
+            async searchUsers(val) {
+                let close = loaderStore.push();
+
+                await taob.get(`users?name=${val}`).s(data => {
+                    this.userFiltered = data.users;
+                }).result;
+
+                if (this.userFiltered.length > 0) {
+                    this.searchInfo = "";
+                    this.displayedUsers = this.userFiltered;
+                } else {
+                    this.searchInfo = "Aucun résultat trouvé pour cette recherche.";
+                    this.displayedUsers = this.users;
+                }
+
+                close();
+            },
+            sortByFirstname() {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
+                    if (a.firstname < b.firstname) return -1;
+                    if (a.firstname > b.firstname) return 1;
+                    return 0;
+                });
+            },
+            sortByLastname() {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
+                    if (a.lastname < b.lastname) return -1;
+                    if (a.lastname > b.lastname) return 1;
+                    return 0;
+                });
+            },
+            sortByUsername() {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
+                    if (a.username < b.username) return -1;
+                    if (a.username > b.username) return 1;
+                    return 0;
+                });
+            },
+            sortByEmail() {
+                this.displayedUsers = this.displayedUsers.sort((a, b) => {
+                    if (a.email < b.email) return -1;
+                    if (a.email > b.email) return 1;
+                    return 0;
+                });
+            },
+            async previousPage() {
+                if (this.currentPageNumber === 1) return;
+                this.currentPageNumber--;
+                await this.getUsersWithPaging(this.currentPageNumber);
+            },
+            async nextPage() {
+                if (this.currentPageNumber === this.maxPage) return;
+                this.currentPageNumber++;
+                await this.getUsersWithPaging(this.currentPageNumber);
+            },
+            openEditModal(user) {
+                this.userId = user.id;
+                this.currentFirstname = user.firstname;
+                this.currentLastname = user.lastname;
+                this.currentUsername = user.username;
+                this.isOpenedModal = true;
+            },
+            closeEditModal() {
+                this.isOpenedModal = false;
+            },
+            openDeleteModal(userId) {
+                this.userId = userId;
+                this.isDeleteModalOpen = true;
+            },
+            closeDeleteModal() {
+                this.isDeleteModalOpen = false;
+            },
+            async refresh(action) {
+                if (action === "delete") {
+                    if (this.displayedUsers.length === 1 && this.currentPageNumber > 1) {
+                        this.currentPageNumber--;
+                    }
+                }
+                await this.getUsersWithPaging(this.currentPageNumber, true);
+            },
+            getNbPages() {
+                this.maxPage = Math.ceil(this.nbTotalUsers / this.limitToDisplay);
+            }
+        },
+        watch: {
+            search(val) {
+                if (val === "") {
+                    this.searchInfo = "";
+                    this.displayedUsers = this.users;
+                    return;
+                }
+                this.searchUsers(val);
+            }
+        },
+        mounted() {
+            this.getUsersWithPaging(this.currentPageNumber, true);
+        }
+    }
+</script>
+
+<style>
+
+</style>

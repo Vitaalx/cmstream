@@ -1,0 +1,60 @@
+<header class="fixed bg-white h-[100px] border-b-[1px] w-[calc(100vw-250px)] text-black ml-[250px] px-[60px] py-[30px] flex items-center justify-between">
+    <div class="flex items-center gap-[5px]">
+        <span class="text-[32px] font-bold">Salut, {{ this.username }}</span>
+        <img src="/public/img/icons/hello-admin.png" alt="Hello Admin" class="ml-[10px]">
+    </div>
+    <div cv-ref="genAvatar" class="h-[60px] bg-[rgb(12,159,120)] w-[60px] rounded-full flex items-center justify-center">
+        <span class="text-white font-bold tracking-wide">{{ this.getFirstLetters() }}</span>
+    </div>
+</header>
+<script>
+    export default {
+        data: {
+            displayOptionsMenu: false,
+            displayNaveBar: false,
+        },
+        methods: {
+            getFirstLetters() {
+                return this.firstname[0] + this.lastname[0];
+            },
+            isColorTooLight(r,g,b) {
+                // Calculate the luminosity according to the appropriate formula (e.g. Luma)
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                // Define the brightness threshold from which the color is considered too bright
+                const lightnessThreshold = 150;
+
+                return brightness > lightnessThreshold;
+            },
+            setRandomColor() {
+                let randomColor;
+                let r,g,b;
+                let isColorTooLight = true;
+
+                while (isColorTooLight) {
+                    r = Math.floor(Math.random() * 255).toString();
+                    g = Math.floor(Math.random() * 255).toString();
+                    b = Math.floor(Math.random() * 255).toString();
+                    isColorTooLight = this.isColorTooLight(r,g,b);
+                }
+                const avatar = this.$refs.genAvatar;
+
+                randomColor = r + "," + b + "," + g;
+
+                avatar.classList.add(`bg-[rgb(${randomColor})]`);
+            }
+        },
+        mounted(){
+            this.setRandomColor();
+        },
+        stores: [
+            {
+                name: "user",
+                states: ["firstname", "lastname", "username"],
+                actions: []
+            }
+        ]
+    }
+</script>
+
+<style>
+</style>

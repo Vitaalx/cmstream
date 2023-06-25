@@ -89,6 +89,7 @@ export default function render(template, proxy){
                     if(result) el.setAttribute(key, "");
                     else el.removeAttribute(key);
                 }
+                if(key === "value")el.value = result;
             };
 
             for(let group of value.vars){
@@ -150,7 +151,6 @@ export default function render(template, proxy){
     }
     
     el.$events = el.$events || {};
-    el.$selfEvents = el.$selfEvents || {};
     Object.entries(template.events).forEach(([key, value]) => {
         const fnc = typeof proxy[value] === "function" ?
             proxy[value] :
@@ -164,15 +164,14 @@ export default function render(template, proxy){
             fnc :
             (e) => fnc(e, proxy);
 
-        if(el.$events[key] === undefined){
+        if(el.$events[key] === undefined && instance === undefined){
             el.addEventListener(
                 key,
                 fncEvent
             );
-            el.$selfEvents[key] = fncEvent;
         }
 
-        el.$events[key] = fncEvent;
+        else el.$events[key] = fncEvent;
     });
 
     if(template.ref !== undefined && !(proxy.$refs[template.ref] instanceof Array)){
@@ -253,8 +252,13 @@ export default function render(template, proxy){
                     }
                 )`);
 
+                let oldResult = undefined;
                 let subscriber = () => {
                     let result = cdn(proxy);
+
+                    if(!!result === !!oldResult && oldResult !== undefined)return;
+                    else oldResult = result;
+
                     if(result){
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);

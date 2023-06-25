@@ -12,6 +12,7 @@ class Request{
     private $requestBody;
     private array $info;
     private array $cookies;
+    private array $headers;
 
     public function __construct(string $path, array $info, string $regexPath)
     {
@@ -21,6 +22,7 @@ class Request{
         $this->requestMethod = $_SERVER["REQUEST_METHOD"];
         $this->requestQuery = $_GET;
         $this->cookies = $_COOKIE;
+        $this->headers = getallheaders();
 
         $this->requestPath = $path;
         $this->info = $info;
@@ -75,6 +77,19 @@ class Request{
     public function getCookies(): array
     {
         return $this->cookies;
+    }
+
+    public function getHeader(string $key): ?string
+    {
+        return $this->headers[$key] ?? null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
     }
 
     public function getBody()

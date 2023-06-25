@@ -4,8 +4,10 @@ namespace Controller\API\InitApp;
 
 use Core\Controller;
 use Core\Entity;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
+use Services\Permissions;
 use Entity\Role;
 use Entity\User;
 use PHPMailer\PHPMailer;
@@ -203,6 +205,14 @@ class postInit extends Controller
                 fn (Role $role) => $role
                     ->setName("admin") 
             );
+
+            $role->addPermission(Permissions::AccessDashboard);
+            $role->addPermission(Permissions::RoleEditor);
+            $role->addPermission(Permissions::CommentsManager);
+            $role->addPermission(Permissions::ContentsManager);
+            $role->addPermission(Permissions::StatsViewer);
+            $role->addPermission(Permissions::UserEditor);
+            $role->addPermission(Permissions::ConfigEditor);
             
             User::insertOne(
                 fn (User $user) => $user

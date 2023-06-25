@@ -29,6 +29,18 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
                 {
+                    path: "/account",
+                    view: () => importer("/public/cuteVue/views/account/infos.html"),
+                },
+                {
+                    path: "/account/email",
+                    view: () => importer("/public/cuteVue/views/account/email.html"),
+                },
+                {
+                    path: "/account/password",
+                    view: () => importer("/public/cuteVue/views/account/password.html"),
+                },
+                {
                     path: "/forgot-password",
                     view: () => importer("/public/cuteVue/views/forgot-password.html"),
                 },
@@ -36,12 +48,26 @@ createRoute(
                     path: "/reset-password",
                     view: () => importer("/public/cuteVue/views/reset-password.html"),
                 },
-            ]
+            ],
+        },
+        {
+            layout: () => importer("/public/cuteVue/layouts/admin.html"),
+            children: [
+                {
+                    path: "/admin",
+                    view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
+                },
+                {
+                    path: "admin/users",
+                    view: () => importer("/public/cuteVue/views/admin/users.html"),
+                },
+            ],
         },
     ],
+
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
-        let result = await fetch(path);
+        let result = await fetch(path, {headers: {"Page-Access": "true"}});
         if(result.redirected === true){
             close();
             return result.url.replace(location.origin, "");

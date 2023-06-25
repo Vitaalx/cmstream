@@ -8,7 +8,14 @@ export const userStore =  CuteVue.createStore(
             username: "",
             role: "",
             userId: -1,
+            lastname: "",
+            firstname: "",
+            permissions: [],
+            lastname: "",
+            firstname: "",
+            email: "",
             isConnected: false,
+            avatarColor: ""
         },
         actions: {
             async connect(){
@@ -16,6 +23,12 @@ export const userStore =  CuteVue.createStore(
                     this.role = data.role;
                     this.username = data.username;
                     this.userId = data.userId;
+                    this.lastname = data.lastname;
+                    this.firstname = data.firstname;
+                    this.permissions = data.permissions.map(p => p.name);
+                    this.lastname = data.lastname;
+                    this.firstname = data.firstname;
+                    this.email = data.email;
                     this.isConnected = true;
                 });
             },
@@ -24,6 +37,37 @@ export const userStore =  CuteVue.createStore(
                 this.role = "";
                 this.isConnected = false;
                 await taob.get("/logout").result;
+            }
+        },
+        computed: {
+            randomColor() {
+                const excludedColors = [
+                  [255, 255, 255], // Blanc
+                  [0, 0, 0], // Noir
+                ];
+                const lightnessThreshold = 150;
+                let randomColor = [];
+                let isColorInvalid = true;
+              
+                while (isColorInvalid) {
+                  randomColor = [
+                    Math.floor(Math.random() * 256),
+                    Math.floor(Math.random() * 256),
+                    Math.floor(Math.random() * 256),
+                  ];
+              
+                  const brightness = (randomColor[0] * 299 + randomColor[1] * 587 + randomColor[2] * 114) / 1000;
+              
+                  const isExcludedColor = excludedColors.some(color =>
+                    color[0] === randomColor[0] &&
+                    color[1] === randomColor[1] &&
+                    color[2] === randomColor[2]
+                  );
+              
+                  isColorInvalid = brightness > lightnessThreshold || isExcludedColor;
+                }
+              
+                this.avatarColor = `rgb(${randomColor.join(",")})`;
             }
         }
     }

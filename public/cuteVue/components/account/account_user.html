@@ -1,0 +1,37 @@
+<div class="mb-[30px] flex items-center gap-[32px] color-white">
+    <div class="avatar">
+        <img cv-if="this.avatar" src="this.avatar" class="w-[120px] h-[120px] rounded-full" alt="avatar">
+        <div cv-if="!this.avatar" cv-style="{ 'background-color': this.avatarColor }" class="w-[120px] h-[120px] flex items-center justify-center text-3xl rounded-full" alt="avatar">{{ this.getFirstLetters() }}</div>
+    </div>
+
+    <span class="text-2xl font-bold username">Bienvenue {{ this.username }} !</span>
+</div>
+
+<script>
+    export default {
+        props: {
+            title: "",
+            subtitle: ""
+        },
+
+        methods: {
+            getFirstLetters() {
+                return this.firstname[0] + this.lastname[0];
+            },
+        },
+
+        mounted(){
+        },
+
+        stores: [
+            {
+                name: "user",
+                states: ["firstname", "lastname", "username", "email", "avatar", "avatarColor"], // TODO: add avatar
+                actions: []
+            },
+        ]
+    }
+</script>
+
+<style>
+</style>

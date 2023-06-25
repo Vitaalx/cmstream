@@ -10,6 +10,14 @@ class Logger
     {
         if(self::$disabled === true) return;
 
+        if(gettype($message) === "array"){
+            $result = "";
+            foreach($message as $key => $value){
+                $result .= "$key: $value, ";
+            }
+            $message = $result;
+        }
+
         error_log(
             date("h:i:s") . " " 
             . $header . " " 
@@ -24,7 +32,7 @@ class Logger
         );
     }
 
-    public static function auto($message): void
+    public static function auto(mixed $message): void
     {
         $code = Response::getCurrentResponse()->getCode();
         if($code >= 500)self::error($message);
