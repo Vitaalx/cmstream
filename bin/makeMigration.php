@@ -7,6 +7,7 @@ require_once __DIR__ . "/scan.php";
 require_once __DIR__ . "/../config.php";
 
 use Core\Entity;
+use Core\QueryBuilder;
 
 $sqlFiles = [];
 
@@ -85,7 +86,7 @@ scan(
         $propsName = [];
 
         try{
-            $result = Entity::getDb()->prepare(replace("tableExist", ["tableName" => $prefixedEntityName]));
+            $result = QueryBuilder::getDb()->prepare(replace("tableExist", ["tableName" => $prefixedEntityName]));
             $result->execute();
             $result->fetch();
             $exist = true;
@@ -208,7 +209,7 @@ scan(
                 if(isset($columnType) === false) 
                     die("The props '{$prop->getName()}' of Entity '{$entityName}' ah not @type.");
                 
-                $result = Entity::getDb()
+                $result = QueryBuilder::getDb()
                 ->prepare(
                     replace(
                         "columnExist", 
@@ -330,7 +331,7 @@ scan(
                 array_push($propsName, $columnName);
             }
 
-            $result = Entity::getDb()
+            $result = QueryBuilder::getDb()
             ->prepare(
                 replace(
                     "showColumns", 
@@ -359,7 +360,7 @@ scan(
     }
 );
 
-$result = Entity::getDb()
+$result = QueryBuilder::getDb()
 ->prepare(
     replace(
         "showTables", 
