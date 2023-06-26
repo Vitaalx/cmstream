@@ -11,8 +11,6 @@ export const userStore =  CuteVue.createStore(
             lastname: "",
             firstname: "",
             permissions: [],
-            lastname: "",
-            firstname: "",
             email: "",
             isConnected: false,
             avatarColor: ""
@@ -26,8 +24,6 @@ export const userStore =  CuteVue.createStore(
                     this.lastname = data.lastname;
                     this.firstname = data.firstname;
                     this.permissions = data.permissions.map(p => p.name);
-                    this.lastname = data.lastname;
-                    this.firstname = data.firstname;
                     this.email = data.email;
                     this.isConnected = true;
                 });
@@ -35,6 +31,11 @@ export const userStore =  CuteVue.createStore(
             async disconnect(){
                 this.username = "";
                 this.role = "";
+                this.lastname = "";
+                this.firstname = "";
+                this.permissions = [];
+                this.email = "";
+                this.userId = "";
                 this.isConnected = false;
                 await taob.get("/logout").result;
             }

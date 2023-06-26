@@ -72,7 +72,11 @@ createRoute(
             close();
             return result.url.replace(location.origin, "");
         }
-        else if(result.status === 200) return path;
+        else if(result.status === 200){
+            let appName = result.headers.get("App-Name");
+            if(document.title !== appName) document.title = appName;
+            return path;
+        }
         else {
             close();
             return "/";

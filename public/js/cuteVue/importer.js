@@ -11,6 +11,11 @@ export default async function importer(path){
         let result = await fetch(path, {method: "GET"});
         result = await result.text();
 
+        result = result.replace(
+            /<(?:$^|[ ]*)([a-zA-Z0-9_-]+)([^>]*)\/>/g,
+            (match, tagName, attr) => `<${tagName+attr}></${tagName}>`
+        );
+
         const page = new DOMParser()
         .parseFromString(
             result, 
