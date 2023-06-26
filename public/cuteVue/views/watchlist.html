@@ -1,0 +1,61 @@
+<div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 content">
+    <h1 class="mb-[40px] text-2xl font-bold">Mes lists</h1>
+
+    <div class="mb-[30px] flex justify-center gap-4 alphabet">
+        <ul class="flex items-center gap-[30px]">
+            <li>
+                <span
+                class="pb-[5px] text-xl cursor-pointer"
+                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'watchlist' }"
+                @click="this.showedList = 'watchlist'"
+                >Watchlist
+            </span>
+            </li>
+
+            <li>
+                <span
+                class="pb-[5px] text-xl cursor-pointer"
+                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'historical' }"
+                @click="this.showedList = 'historical'"
+                >Historique
+            </span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div cv-if="this.showedList === 'watchlist'" class="watchlist">
+            watchlist
+        </div>
+
+        <div cv-if="this.showedList === 'historical'" class="historical">
+            <show_card_small></show_card_small>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [show_card_small] = await Promise.all([
+        importer('/public/cuteVue/components/show_card_small.html')
+    ]);
+
+    export default {
+        components: {
+            show_card_small,
+        },
+
+        data: {
+            showedList: 'watchlist',
+        },
+
+        mounted(){
+        },
+
+        methods: {
+        }
+    }
+</script>
+
+<style>
+
+</style>
