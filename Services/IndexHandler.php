@@ -9,6 +9,8 @@ use Core\Response;
 abstract class IndexHandler extends OverrideController{
     public int $code = 200;
 
+    public string $appName = CONFIG["APP_NAME"];
+
     public function extendCheckers(Request $request): array
     {
         return [];
@@ -21,10 +23,16 @@ abstract class IndexHandler extends OverrideController{
 
     public function handler(Request $request, Response $response): void
     {
-        if($request->getHeader("Page-Access") !== null)$response->code($this->code)->send();
+        if($request->getHeader("Page-Access") !== null){
+            $response
+            ->code($this->code)
+            ->setHeader("App-Name", $this->appName)
+            ->addExpose("App-Name")
+            ->send();
+        }
 
         $response
         ->code($this->code)
-        ->render("index", "none");
+        ->render("index", "none", ["appName" => $this->appName]);
     }
 }
