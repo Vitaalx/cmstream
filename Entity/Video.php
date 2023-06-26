@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Core\QueryBuilder;
 
 class Video extends Entity
 {
@@ -156,7 +157,7 @@ class Video extends Entity
 
     public function AvgStars(): int
     {
-        $req = $this->getDb()->prepare("SELECT AVG(note) FROM _star WHERE video_id = :video");
+        $req = QueryBuilder::getDb()->prepare("SELECT AVG(note) FROM _star WHERE video_id = :video");
         $req->execute([
             "video" => $this->getId()
         ]);

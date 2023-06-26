@@ -6,7 +6,7 @@ require_once __DIR__ . "/../Core/AutoLoader.php";
 require_once __DIR__ . "/scan.php";
 require_once __DIR__ . "/../config.php";
 
-use Core\Entity;
+use Core\QueryBuilder;
 
 $path = __DIR__ . "/../migration.sql";
 
@@ -17,7 +17,7 @@ if(filesize($path) !== 0){
 
     foreach($lines as $line){
         if(!$line)continue;
-        $result = Entity::getDb()->query($line);
+        $result = QueryBuilder::getDb()->query($line);
     }
 
     fclose($file);

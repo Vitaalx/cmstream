@@ -5,7 +5,6 @@ namespace Core;
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable
 {
-    static private \PDO $db;
     static private array $groups = [];
     private static array $reflections = [];
     private array $props = [];
@@ -162,17 +161,13 @@ abstract class Entity implements \JsonSerializable
 
         if(count($props) === 0) return;
         else if (array_key_exists("id", $this->props) === false) {
-            $sqlRequest = QueryBuilder::createInsertRequest($currentEntityName, $props, ["RETURNING" => $returning]);
-            $result = self::$db->prepare($sqlRequest);
-            $result->execute();
-            $result = $result->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $request = QueryBuilder::createInsertRequest($currentEntityName, $props, ["RETURNING" => $returning]);
+            $result = $request->fetchAll(\PDO::FETCH_ASSOC)[0];
             foreach ($result as $key => $value) {
                 $this->props[$key] = $value;
             }
         } else {
-            $sqlRequest = QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
-            $result = self::$db->prepare($sqlRequest);
-            $result->execute();
+            QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
         }
 
         $this->propsChange = [];
@@ -181,11 +176,8 @@ abstract class Entity implements \JsonSerializable
     public function delete(): bool
     {
         $currentEntityName = "_" . $this->entityName;
-
-        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->props["id"]]);
-        $result = self::$db->prepare($sqlRequest);
         try {
-            $result->execute();
+            QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->props["id"]]);
         } catch (\Throwable $th) {
             return false;
         }
@@ -232,10 +224,10 @@ abstract class Entity implements \JsonSerializable
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options) . " LIMIT 1";
-        $result = self::$db->prepare($sqlRequest);
-        $result->execute();
-        $result = $result->fetchAll(\PDO::FETCH_ASSOC);
+        if(isset($options["LIMIT"]) === false) $options["LIMIT"] = 1;
+
+        $request = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options);
+        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
 
         if (count($result) === 0) return null;
 
@@ -252,10 +244,8 @@ abstract class Entity implements \JsonSerializable
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options);
-        $result = self::$db->prepare($sqlRequest);
-        $result->execute();
-        $result = $result->fetchAll(\PDO::FETCH_ASSOC);
+        $request = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options);
+        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($result as $key => $value) {
             $result[$key] = new static($value);
@@ -285,10 +275,8 @@ abstract class Entity implements \JsonSerializable
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createDeleteRequest($currentEntityName, $where);
-        $result = self::$db->prepare($sqlRequest);
         try {
-            $result->execute();
+            QueryBuilder::createDeleteRequest($currentEntityName, $where);
         } catch (\Throwable $th) {
             return false;
         }
@@ -301,10 +289,8 @@ abstract class Entity implements \JsonSerializable
         $currentEntityName = explode("\\", static::class);
         $currentEntityName = "_" . array_pop($currentEntityName);
 
-        $sqlRequest = QueryBuilder::createCountRequest($currentEntityName, $where);
-        $result = self::$db->prepare($sqlRequest);
-        $result->execute();
-        $result = $result->fetchColumn();
+        $request = QueryBuilder::createCountRequest($currentEntityName, $where);
+        $result = $request->fetchColumn();
 
         return $result;
     }
@@ -313,25 +299,4 @@ abstract class Entity implements \JsonSerializable
     {
         self::$groups = $groups;
     }
-
-    static public function getDb() : \PDO
-    {
-        return self::$db;
-    }
-
-    static public function dataBaseConnection(array $CONFIG): void
-    {
-        $pdo = new \PDO(
-            $CONFIG["DB_TYPE"] .
-            ":host=" . $CONFIG["DB_HOST"] .
-            ";port=" . $CONFIG["DB_PORT"] .
-            ";dbname=" . $CONFIG["DB_DATABASE"],
-            $CONFIG["DB_USERNAME"],
-            $CONFIG["DB_PASSWORD"]
-        );
-        self::$db = $pdo;
-    }
 }
-
-if(isset(CONFIG["DB_HOST"]) === true)Entity::dataBaseConnection(CONFIG);
-
