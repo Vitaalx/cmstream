@@ -5,6 +5,7 @@ namespace Controller\API\InitApp;
 use Core\Controller;
 use Core\Entity;
 use Core\Logger;
+use Core\QueryBuilder;
 use Core\Request;
 use Core\Response;
 use Services\Permissions;
@@ -42,7 +43,7 @@ class tryDB extends Controller
     public function handler(Request $request, Response $response): void
     {
         $body = $request->getBody();
-        Entity::dataBaseConnection($body);
+        QueryBuilder::dataBaseConnection($body);
         $response->code(204)->send();
     }
 }
@@ -173,7 +174,7 @@ class postInit extends Controller
     {
         $body = $request->getBody();
 
-        Entity::dataBaseConnection($body);
+        QueryBuilder::dataBaseConnection($body);
 
         try {
             $defaultConfigPath = __DIR__ . "/../../Core/config.example";
