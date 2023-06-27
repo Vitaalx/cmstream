@@ -39,7 +39,7 @@ class addComment extends MustBeConnected
             "content" => $this->floor->pickup("content"),
             "video" => $this->floor->pickup("video"),
             "user" => $user->getId(),
-            "status" => 1,
+            "status" => 0,
         ]);
 
         //Comment::groups("commentVideo", "commentAuthor");
