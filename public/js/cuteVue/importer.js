@@ -26,7 +26,7 @@ export default async function importer(path){
         if(page.body.children[2].getAttribute("unscope") === null){
             page.body.children[2].textContent = page.body.children[2].textContent.replace(
                 /(?:$^|[ ]*)([@a-zA-Z0-9.\[\]\-_ >:()*,]+)(?:$^|[ \n]*)\{/g, 
-                (match, selector) => `[scope="${scope}"] ${selector},[scope="${scope}"]${selector}{`
+                (match, selector) => `[cv-${scope}] ${selector},[cv-${scope}]${selector}{`
             );
         }
 
@@ -40,7 +40,7 @@ export default async function importer(path){
         )`);
         let properties = await fnc();
         properties.el = page.body.children[0];
-        properties.el.setAttribute("scope", scope);
+        properties.el.setAttribute("cv-" + scope, "");
         let component = new CuteVue(properties);
         resolve(component);
         return component;

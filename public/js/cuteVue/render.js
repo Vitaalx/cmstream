@@ -70,12 +70,13 @@ export default function render(template, proxy){
             }
             else if(key === "class"){
                 let attrValue = el.getAttribute("class");
-                el.setAttribute(key, value + " " + attrValue);
+                el.setAttribute(key, value + " " + (attrValue ?? ""));
             }
             else if(key === "style"){
                 let attrValue = el.getAttribute("style");
-                el.setAttribute(key, value + ";" + attrValue);
+                el.setAttribute(key, value + ";" + (attrValue ?? ""));
             }
+            else if(typeof value === "string" || typeof value === "number")el.setAttribute(key, value);
         }
         else el.setAttribute(key, value);
     });
