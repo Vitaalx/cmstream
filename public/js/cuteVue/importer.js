@@ -25,7 +25,7 @@ export default async function importer(path){
         
         if(page.body.children[2].getAttribute("unscope") === null){
             page.body.children[2].textContent = page.body.children[2].textContent.replace(
-                /(?:$^|[ ]*)([a-zA-Z0-9.\[\]\-_ >:()*,]*)(?:$^|[ \n]*)\{/g, 
+                /(?:$^|[ ]*)([@a-zA-Z0-9.\[\]\-_ >:()*,]+)(?:$^|[ \n]*)\{/g, 
                 (match, selector) => `[scope="${scope}"] ${selector},[scope="${scope}"]${selector}{`
             );
         }

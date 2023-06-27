@@ -31,6 +31,14 @@ export default function render(template, proxy){
     else{
         let component = instance;
         instance = makeProxy(component.properties, component.template);
+
+        Object.entries(template.attributes).forEach(([key, value]) =>{
+            if(instance[__props__][key] !== undefined)instance[__properties__][key] = value;
+        });
+        Object.entries(template.objectAttributes).forEach(([key, value]) =>{
+            if(instance[__props__][key] !== undefined)instance[__properties__][key] = eval(/* js */`(function anonymous(proxy){return ${value.script}})`)(proxy);
+        });
+
         instance[__element__] = render(component.template, instance);
         instance[__parent__] = proxy;
         el = instance[__element__];
