@@ -81,6 +81,18 @@ createRoute(
                     path: "admin/roles",
                     view: () => importer("/public/cuteVue/views/admin/roles.html"),
                 },
+                {
+                    path: "admin/category",
+                    view: () => importer("/public/cuteVue/views/admin/category.html"),
+                },
+                {
+                    path: "admin/serie",
+                    view: () => importer("/public/cuteVue/views/admin/serie.html"),
+                },
+                {
+                    path: "admin/movie",
+                    view: () => importer("/public/cuteVue/views/admin/movie.html"),
+                }
             ],
         },
     ],
