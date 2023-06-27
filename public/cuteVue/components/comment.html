@@ -1,0 +1,50 @@
+<div class="w-full flex gap-[20px] user-comment">
+    <div class="avatar">
+        <span class="mdi mdi-account-circle block mt-[-15px] text-[48px]"></span>
+    </div>
+    <div
+    class="flex-1 flex flex-col comment-ctnr" 
+    >
+        <text-input
+        type="text"
+        value="lorem ipsum dolor sit amet, consectetur adipiscing elit." 
+        disabled
+        class="w-full comment"
+        ></text-input>
+
+        <button 
+        @click="this.report()"
+        class="flex items-center gap-[4px] rounded text-sm text-grey hover:text-white report"
+        >
+        <span class="mdi mdi-alert-octagon"></span>
+        Signaler le commentaire
+        </button> 
+    </div>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        methods: {
+            report(){
+                alert("Commentaire signalé");
+            }
+        },
+
+        mounted(){
+        }
+    }
+</script>
+
+<style>
+    .comment > input {
+        border: none !important;
+    }
+</style>
