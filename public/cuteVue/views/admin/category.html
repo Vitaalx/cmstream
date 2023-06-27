@@ -1,0 +1,64 @@
+<div>
+    <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+        <div class="lg:items-center lg:justify-between">
+            <span class="text-[24px] font-bold mb-[20px]">Créer catégorie</span>
+            <cv-form @submit="submitCategory" class="flex align-center gap-[10px]">
+                <text-input
+                class="mb-[20px] w-[400px]"
+                type="text"
+                placeholder="Titre de la catégorie"
+                cv-model="titleCategory"
+                :rules="this.titleRule"
+                />
+                <button type="submit" class="px-[20px] py-[10px] border rounded-[8px]">Ajouter</button>
+            </cv-form>
+            <span class="text-[10px] text-[red]">{{ this.info }}</span>
+        </div>
+        <div class="lg:items-center lg:justify-between">
+            <span class="text-[24px] font-bold mb-[20px]">Liste des catégories</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+            import("/public/cuteVue/loader.js"),
+            import("/public/cuteVue/taob.js")
+        ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        data: {
+            titleCategory: "",
+            info: "",
+        },
+        static: {
+            titleRule: [
+                (value) => !!value || "Le titre est requis",
+                (value) => (value && value.length <= 10) || "Le titre doit contenir moins de 10 caractères",
+                (value) => /^[a-zA-Z0-9 ]+$/.test(value) || "Le titre ne doit contenir que des lettres et des chiffres",
+            ],
+        },
+        methods: {
+            async submitCategory() {
+                let close = loaderStore.push();
+                await taob.post("/category", {
+                    category_name: this.titleCategory,
+                }).s(() => {
+                    this.info = "Catégorie ajoutée avec succès";
+                }).e((error) => {
+                    this.info = "Erreur lors de l'ajout de la catégorie";
+                }).result;
+                close();
+            },
+        },
+        mounted() {
+        }
+
+    }
+</script>
+
+<style>
+</style>
