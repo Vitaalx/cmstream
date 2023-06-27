@@ -15,12 +15,21 @@ export default async function importer(path){
             /<(?:$^|[ ]*)([a-zA-Z0-9_-]+)([^>]*)\/>/g,
             (match, tagName, attr) => `<${tagName+attr}></${tagName}>`
         );
+        let scope = Math.round(Math.random() * 10000) + "-" + Date.now();
 
         const page = new DOMParser()
         .parseFromString(
             result, 
             "text/html"
         );
+        
+        if(page.body.children[2].getAttribute("unscope") === null){
+            page.body.children[2].textContent = page.body.children[2].textContent.replace(
+                /(?:$^|[ ]*)([a-zA-Z0-9.\[\]\-_ >:()*,]*)(?:$^|[ \n]*)\{/g, 
+                (match, selector) => `[scope="${scope}"] ${selector},[scope="${scope}"]${selector}{`
+            );
+        }
+
         document.head.appendChild(page.body.children[2]);
         let script = page.body.children[1].innerHTML.replace(/export[ ]*default/i, "return ");
 
@@ -32,6 +41,7 @@ export default async function importer(path){
 
         let properties = await fnc();
         properties.el = page.body.children[0];
+        properties.el.setAttribute("scope", scope);
         let component = new CuteVue(properties);
         resolve(component);
         return component;
