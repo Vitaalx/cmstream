@@ -17,48 +17,22 @@
 </script>
 
 <style>
-    select {
-        /* Reset Select */
-        appearance: none;
+    .select {
+		appearance: none;
         outline: 0;
         border: 0;
-        box-shadow: none;
-        /* Personalize */
-        padding: 20px 10px;
-        color: #fff;
-        background-color: #23252b;
-        background-image: none;
-        cursor: pointer;
-    }
+        padding: 10px 20px;
+		background: url("/public/img/icons/select-arrow-down.svg") no-repeat;
+		background-size: 25px 25px;
+		background-position: right 16px center;
+        background-color: #23252B;
+		padding-right: 50px;
+	}
 
-    /* Remove IE arrow */
-    select::-ms-expand {
-        display: none;
-    }
-
-    /* Custom Select wrapper */
-    .select {
-        position: relative;
-        display: flex;
-        width: 200px;
-        border-radius: .25em;
-        overflow: hidden;
-    }
-
-    /* Arrow */
-    /* .select::after {
-        content: '\25BC';
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 1em;
-        background-color: #34495e;
-        transition: .25s all ease;
-        pointer-events: none;
-    } */
-
-    /* Transition */
-    select:hover::after {
-        color: #f39c12;
+    .select:focus {
+        background: url("/public/img/icons/select-arrow-up.svg") no-repeat;
+        background-size: 25px 25px;
+        background-position: right 16px center;
+        background-color: #23252B;
     }
 </style>

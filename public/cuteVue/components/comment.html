@@ -5,9 +5,12 @@
     <div
     class="flex-1 flex flex-col comment-ctnr" 
     >
+        <span>{{ this.comm.username }}</span>    
+
         <text-input
         type="text"
-        value="lorem ipsum dolor sit amet, consectetur adipiscing elit." 
+        :value="this.comm.content"
+        :border="false"
         disabled
         class="w-full comment"
         ></text-input>
@@ -32,13 +35,28 @@
     const taob = impTaob.default;
 
     export default {
+        props: {
+            comment: {}
+        },
+
+        data: {
+            comm: {},
+        },
+
         methods: {
+            setComment(){
+                this.comm = {
+                    content: this.comment.content,
+                    username: this.comment.user.username
+                }
+            },
             report(){
                 alert("Commentaire signalé");
             }
         },
 
         mounted(){
+            this.setComment();
         }
     }
 </script>

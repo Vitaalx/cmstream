@@ -27,23 +27,25 @@
         </div>
 
         <div class="comments-section">
-            <add_comment class="mb-[40px]" />
+            <add_comment @add-comment="refreshComment" class="mb-[40px]" />
 
-            <div class="flex flex-col gap-[20px] comments">
-                <comment />
-                <comment />
-                <comment />
-                <comment />
+            <div cv-if="this.comments.length" class="flex flex-col gap-[20px] comments">
+                <comment cv-for="comment of this.comments" :comment="this.comment" />
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const [add_comment, comment] = await Promise.all([
+    const [impLoader, impTaob, add_comment, comment] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/add_comment.html'),
         importer('/public/cuteVue/components/comment.html')
     ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
 
     export default {
         components: {
@@ -111,11 +113,36 @@
                     text: "Episode 12",
                     value: 12,
                 }
-            ]
+            ],
+            comments: []
+        },
+
+        methods: {
+            async getComments(){
+                let close = loaderStore.push();
+                
+                this.success = false;
+                await taob.get("/comments/1")
+                .s((data) => {
+                    this.success = true;
+                    this.comments = data;
+                })
+                .e(() => {
+                    alert("Une erreur est survenue");
+                })
+                .result;
+
+                close();
+            },
+
+            async refreshComment(comment){
+                this.comments.push(comment);
+                this.$update("comments");
+            },
         },
 
         mounted(){
-            
+            this.getComments();
         },
         
         unmounted(){
