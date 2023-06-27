@@ -25,8 +25,8 @@ class addComment extends MustBeConnected
         return [
             ["type/int", $request->getBody()["video_id"], "videoId"],
             ["type/int", $request->getBody()["user_id"], "userId"],
-            ["user/exist", $this->floor->pickup("userId"), "user"],
-            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
+            ["user/exist", fn() => $this->floor->pickup("userId"), "user"],
+            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
             ["type/flawless", $request->getBody()['content'], "content"],
         ];
     }
@@ -35,12 +35,14 @@ class addComment extends MustBeConnected
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
-        $commentToInsert = Comment::insertOne([
-            "content" => $this->floor->pickup("content"),
-            "video" => $this->floor->pickup("video"),
-            "user" => $user->getId(),
-            "status" => 0,
-        ]);
+        /** @var Video $video */
+        $video = $this->floor->pickup("video");
+        $commentToInsert = Comment::insertOne(
+            fn(Comment $comment) => $comment
+                ->setVideo($video)
+                ->setUser($user)
+                ->setContent($this->floor->pickup("content"))
+        );
 
         //Comment::groups("commentVideo", "commentAuthor");
 
@@ -59,7 +61,7 @@ class getComments extends Controller
     {
         return [
             ["type/int", $request->getParam("id"), "videoId"],
-            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
+            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
         ];
     }
 
@@ -86,7 +88,7 @@ class deleteComment extends MustBeAdmin
     {
         return [
             ["type/int", $request->getParam("id"), "commentId"],
-            ["comment/exist", fn () => $this->floor->pickup("commentId"), "comment"],
+            ["comment/exist", fn() => $this->floor->pickup("commentId"), "comment"],
         ];
     }
 
