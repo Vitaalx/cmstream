@@ -9,7 +9,7 @@
         <text-input
         type="text"
         placeholder="Ajouter un commentaire..."
-        cv-model="comment"
+        cv-model="content"
         :rules="this.commentRule"
         class="w-full"
         ></text-input>
@@ -34,7 +34,8 @@
 
     export default {
         data: {
-            comment: ""
+            content: "",
+            success: false
         },
 
         static: {
@@ -45,58 +46,47 @@
 
         methods: {
             async submit(){
-                console.log(this.comment);
+                let close = loaderStore.push();
+
+                this.success = false;
+
+                const comment = {
+                    content: this.content, // TODO: change video_id and user_id
+                    video_id: 1,
+                    user_id: 3,
+                    status: 1,
+                    user: {
+                        username: this.username
+                    }
+                }
+
+                await taob.post("/comment", comment)
+                .s(() => {
+                    this.success = true;
+                    this.$emit("add-comment", comment);
+                    this.content = "";
+                })
+                .e(() => {
+                    alert("Une erreur est survenue");
+                })
+                .result;
+
+                close();
             }
         },
 
         mounted(){
-        }
+        },
+
+        stores: [
+            {
+                name: "user",
+                states: ["username"],
+            }
+        ]
     }
 </script>
 
 <style>
-    select {
-        /* Reset Select */
-        appearance: none;
-        outline: 0;
-        border: 0;
-        box-shadow: none;
-        /* Personalize */
-        padding: 16px;
-        color: #fff;
-        background-color: #23252b;
-        background-image: none;
-        cursor: pointer;
-    }
-
-    /* Remove IE arrow */
-    select::-ms-expand {
-        display: none;
-    }
-
-    /* Custom Select wrapper */
-    .select {
-        position: relative;
-        display: flex;
-        width: 200px;
-        border-radius: .25em;
-        overflow: hidden;
-    }
-
-    /* Arrow */
-    /* .select::after {
-        content: '\25BC';
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 1em;
-        background-color: #34495e;
-        transition: .25s all ease;
-        pointer-events: none;
-    } */
-
-    /* Transition */
-    select:hover::after {
-        color: #f39c12;
-    }
+    
 </style>

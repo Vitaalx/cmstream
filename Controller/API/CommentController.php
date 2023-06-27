@@ -42,6 +42,7 @@ class addComment extends MustBeConnected
                 ->setVideo($video)
                 ->setUser($user)
                 ->setContent($this->floor->pickup("content"))
+                ->setStatus(1)
         );
 
         //Comment::groups("commentVideo", "commentAuthor");
