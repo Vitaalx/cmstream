@@ -13,6 +13,7 @@ const {
     __mount__,
     __props__,
     __properties__,
+    __launchSubscribers__
 } = symbol;
 
 export default function render(template, proxy){
@@ -55,8 +56,9 @@ export default function render(template, proxy){
     Object.entries(template.attributes).forEach(([key, value]) => {
         if(instance !== undefined){
             if(instance[__props__][key] !== undefined){
+                let oldValue = instance[__properties__][key];
                 instance[__properties__][key] = value;
-                instance.$update(key);
+                instance[__launchSubscribers__](key, value, oldValue);
             }
             else if(key === "class"){
                 let attrValue = el.getAttribute("class");
@@ -81,8 +83,9 @@ export default function render(template, proxy){
             let subscriber = () => {
                 let result = attrRender(proxy);
                 if(instance !== undefined && instance[__props__][key] !== undefined){
+                    let oldValue = instance[__properties__][key];
                     instance[__properties__][key] = result;
-                    instance.$update(key);
+                    instance[__launchSubscribers__](key, result, oldValue);
                 }
                 else if(typeof result === "string" || typeof result === "number")el.setAttribute(key, result);
                 else if(typeof result === "boolean"){
