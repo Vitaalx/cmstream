@@ -9,6 +9,7 @@ use Services\Permissions;
 /**
  * @GET{/}
  * @GET{/catalog}
+ * @GET{/video}
  */
 class index extends IndexHandler{}
 
