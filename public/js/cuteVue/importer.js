@@ -38,7 +38,6 @@ export default async function importer(path){
                 ${script};
             }
         )`);
-
         let properties = await fnc();
         properties.el = page.body.children[0];
         properties.el.setAttribute("scope", scope);

@@ -191,7 +191,13 @@ class deleteUserAdmin extends AccessUserEditor
 
     public function handler(Request $request, Response $response): void
     {
-        $this->floor->pickup("user_delete")->delete();
+        /** @var User $user */
+        $user = $this->floor->pickup("user_delete");
+        $role = $user->getRole();
+        if (($role !== null && $role->getId() === 1) || $user->getId() !== 1) {
+            $response->code(403)->info("user.cant.delete.admin")->send();
+        }
+        $user->delete();
         $response->code(200)->info("user.deleted")->send();
     }
 }

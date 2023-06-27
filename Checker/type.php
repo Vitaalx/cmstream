@@ -7,6 +7,10 @@ function string(string $string): string
     return $string;
 }
 
+function arrayCheck (array $array): array {
+    return $array;
+}
+
 function flawless(string $string): string
 {
     return htmlspecialchars($string);
