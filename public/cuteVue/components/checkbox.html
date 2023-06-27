@@ -1,0 +1,15 @@
+<input type="checkbox" @click="clicked" :checked="this.value" cv-ref="checkbox">
+<script>
+    export default {
+        props: {
+            value: false
+        },
+        methods: {
+            clicked(e) {
+                this.$emit("input", {target:{value: e.target.checked}});
+            }
+        }
+    }
+</script>
+
+<style></style>

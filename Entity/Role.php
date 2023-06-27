@@ -18,6 +18,7 @@ class Role extends Entity
     /**
      * @many{Entity\Permission,role}
      * @cascade{}
+     * @groups{rolePermission}
      */
     private array $permissions;
 
@@ -90,14 +91,15 @@ class Role extends Entity
     /**
      * Get the value of permissions
      *
-     * @return \Entity\Permission[]
+     * @return Permission[]
      */
     public function getPermissions(): array
     {
         return parent::get("permissions");
     }
 
-    public function addPermission(Permissions $permissionName){
+    public function addPermission(Permissions $permissionName): void
+    {
         $perm = Permission::findFirst([
             "role_id" => parent::get("id"),
             "name" => $permissionName->value
@@ -109,7 +111,8 @@ class Role extends Entity
         );
     }
 
-    public function removePermission(Permissions $permissionName){
+    public function removePermission(Permissions $permissionName): void
+    {
         $permissionName = $permissionName->value;
         $perm = Permission::findFirst([
             "role_id" => parent::get("id"),
@@ -118,7 +121,8 @@ class Role extends Entity
         if($perm !== null) $perm->delete();
     }
 
-    public function hasPermission(Permissions $permissionName){
+    public function hasPermission(Permissions $permissionName): bool
+    {
         $permissionName = $permissionName->value;
         $perm = Permission::findFirst([
             "role_id" => parent::get("id"),

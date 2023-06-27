@@ -61,6 +61,10 @@ createRoute(
                     path: "admin/users",
                     view: () => importer("/public/cuteVue/views/admin/users.html"),
                 },
+                {
+                    path: "admin/roles",
+                    view: () => importer("/public/cuteVue/views/admin/roles.html"),
+                },
             ],
         },
     ],
@@ -87,15 +91,17 @@ createRoute(
     }
 );
 
-const [app, page_loader, cv_form, text_input] = await Promise.all([
+const [app, page_loader, cv_form, text_input, checkbox] = await Promise.all([
     importer("/public/cuteVue/app.html"),
     importer("/public/cuteVue/components/page-loader.html"),
     importer("/public/cuteVue/components/cv-form.html"),
     importer("/public/cuteVue/components/text-input.html"),
+    importer("/public/cuteVue/components/checkbox.html")
 ]);
 
 CuteVue.component("page-loader", page_loader);
 CuteVue.component("cv-form", cv_form);
 CuteVue.component("text-input", text_input);
+CuteVue.component("checkbox", checkbox);
 
 app.mount("#app");

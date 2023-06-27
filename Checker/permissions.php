@@ -6,6 +6,15 @@ use Core\Response;
 use Entity\User;
 use Services\Permissions;
 
+function exist(array $permissions, Floor $floor, Response $response): array
+{
+    foreach ($permissions as $permission) {
+        if (Permissions::exist($permission) === false) {
+            $response->info("permission.notfound")->code(404)->send();
+        }
+    }
+    return $permissions;
+}
 function roleEditor(User $user, Floor $floor, Response $response){
     if($user->hasPermission(Permissions::RoleEditor) === false){
         $response->code(401)->info("permission.unauthorized.role_editor")->send();

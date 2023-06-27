@@ -1,4 +1,5 @@
 <?php
+
 namespace Controller\SPA\front;
 
 use Core\Logger;
@@ -10,7 +11,9 @@ use Services\Permissions;
  * @GET{/}
  * @GET{/catalog}
  */
-class index extends IndexHandler{}
+class index extends IndexHandler
+{
+}
 
 /**
  * @GET{/signin}
@@ -18,7 +21,8 @@ class index extends IndexHandler{}
  * @GET{/validate}
  * @GET{/forgot-password}
  */
-class guest extends IndexHandler{
+class guest extends IndexHandler
+{
     public function checkers(Request $request): array
     {
         return [
@@ -30,7 +34,8 @@ class guest extends IndexHandler{
 /**
  * @GET{/reset-password}
  */
-class resetPassword extends IndexHandler{
+class resetPassword extends IndexHandler
+{
     public function checkers(Request $request): array
     {
         return [
@@ -44,7 +49,8 @@ class resetPassword extends IndexHandler{
  * @GET{/account/email}
  * @GET{/account/password}
  */
-class connected extends IndexHandler{
+class connected extends IndexHandler
+{
     public function checkers(Request $request): array
     {
         return [
@@ -55,14 +61,45 @@ class connected extends IndexHandler{
 
 /**
  * @GET{/admin}
- * @GET{/admin/users}
  */
-class admin extends IndexHandler{
+class admin extends IndexHandler
+{
     public function checkers(Request $request): array
     {
         return [
             ["page/onlyConnected", "", "user"],
-            ["page/mustHavePermission", Permissions::AccessDashboard]
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::StatsViewer]
+        ];
+    }
+}
+
+/**
+ * @GET{/admin/users}
+ */
+class adminUser extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::UserEditor]
+        ];
+    }
+}
+
+/**
+ * @GET{/admin/roles}
+ */
+class adminRole extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::RoleEditor]
         ];
     }
 }

@@ -41,5 +41,5 @@ function admin(int $id, Floor $floor, Response $response): void
     /** @var Role $role */
     $role = Role::findFirst(["id" => $id]);
     if($role === null) $response->info("role.notfound")->code(404)->send();
-    if($role->getName() === "admin") $response->info("role.cantdeleteadmin")->code(403)->send();
+    if($role->getId() === 1) $response->info("role.protected.admin")->code(403)->send();
 }

@@ -38,6 +38,10 @@ export const userStore =  CuteVue.createStore(
                 this.userId = "";
                 this.isConnected = false;
                 await taob.get("/logout").result;
+            },
+            hasPermission(permissionName) {
+              return this.permissions.indexOf(permissionName) !== -1;
+
             }
         },
         computed: {
