@@ -6,11 +6,13 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 use Entity\Comment;
+use Entity\User;
+use Entity\Video;
 use Services\MustBeAdmin;
 use Services\MustBeConnected;
 
 /**
- * @POST{/comment}
+ * @POST{/api/comment}
  * @Body Json Request
  * @param $content
  * @param $video_id
@@ -22,6 +24,8 @@ class addComment extends MustBeConnected
     {
         return [
             ["type/int", $request->getBody()["video_id"], "videoId"],
+            ["type/int", $request->getBody()["user_id"], "userId"],
+            ["user/exist", $this->floor->pickup("userId"), "user"],
             ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
             ["type/flawless", $request->getBody()['content'], "content"],
         ];
@@ -29,11 +33,13 @@ class addComment extends MustBeConnected
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
         $commentToInsert = Comment::insertOne([
             "content" => $this->floor->pickup("content"),
             "video" => $this->floor->pickup("video"),
-            "user" => $this->floor->pickup("user"),
-            "status" => 1,
+            "user" => $user->getId(),
+            "status" => 0,
         ]);
 
         //Comment::groups("commentVideo", "commentAuthor");
@@ -43,7 +49,7 @@ class addComment extends MustBeConnected
 }
 
 /**
- * @GET{/comments/{id}}
+ * @GET{/api/comments/{id}}
  * @param $videoId
  */
 class getComments extends Controller
@@ -59,7 +65,7 @@ class getComments extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Video $video */
+        /** @var Video $video */
         $video = $this->floor->pickup("video");
 
         $comments = Comment::findMany(["video_id" => $video->getId(), "status" => 1]);
@@ -70,7 +76,7 @@ class getComments extends Controller
 }
 
 /**
- * @DELETE{/comment/{id}}
+ * @DELETE{/api/comment/{id}}
  * @param $id
  */
 class deleteComment extends MustBeAdmin
