@@ -45,7 +45,7 @@ class addCategory extends MustBeAdmin
     {
         /** @var Category $category */
         $category = Category::insertOne(["title" => $this->floor->pickup("category_name")]);
-        $response->info("category.created")->code(201)->send(["category" => $category]);
+        $response->info("category.created")->code(201)->send($category);
     }
 }
 
