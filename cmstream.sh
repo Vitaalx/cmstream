@@ -18,4 +18,5 @@ else
     printf "${START}${GREEN}- doMigation${END}\n"
     printf "${START}${RED}- makeRoute${END}\n"
     printf "${START}${RED}- reset${END}\n"
+    printf "${START}${BLUE}- runDataFixture${END}\n"
 fi
