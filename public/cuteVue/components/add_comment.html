@@ -1,0 +1,102 @@
+<div class="w-full flex gap-[20px] add-comment">
+    <div class="avatar">
+        <span class="mdi mdi-account-circle block mt-[-15px] text-[48px]"></span>
+    </div>
+    <cv-form 
+    class="flex-1 flex flex-col items-end comment"
+    @submit="submit" 
+    >
+        <text-input
+        type="text"
+        placeholder="Ajouter un commentaire..."
+        cv-model="comment"
+        :rules="this.commentRule"
+        class="w-full"
+        ></text-input>
+
+        <button 
+        type="submit" 
+        class="mt-[30px] px-[20px] py-[10px] rounded bg-darkblue submit"
+        >
+        Commenter
+        </button> 
+    </cv-form>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        data: {
+            comment: ""
+        },
+
+        static: {
+            commentRule: [
+                (value) => !!value || "Ce champs est obligatoire",
+            ]
+        },
+
+        methods: {
+            async submit(){
+                console.log(this.comment);
+            }
+        },
+
+        mounted(){
+        }
+    }
+</script>
+
+<style>
+    select {
+        /* Reset Select */
+        appearance: none;
+        outline: 0;
+        border: 0;
+        box-shadow: none;
+        /* Personalize */
+        padding: 16px;
+        color: #fff;
+        background-color: #23252b;
+        background-image: none;
+        cursor: pointer;
+    }
+
+    /* Remove IE arrow */
+    select::-ms-expand {
+        display: none;
+    }
+
+    /* Custom Select wrapper */
+    .select {
+        position: relative;
+        display: flex;
+        width: 200px;
+        border-radius: .25em;
+        overflow: hidden;
+    }
+
+    /* Arrow */
+    /* .select::after {
+        content: '\25BC';
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 1em;
+        background-color: #34495e;
+        transition: .25s all ease;
+        pointer-events: none;
+    } */
+
+    /* Transition */
+    select:hover::after {
+        color: #f39c12;
+    }
+</style>
