@@ -25,6 +25,10 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/catalog.html"),
                 },
                 {
+                    path: "/video",
+                    view: () => importer("/public/cuteVue/views/video.html"),
+                },
+                {
                     path: "/validate",
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
@@ -91,17 +95,21 @@ createRoute(
     }
 );
 
-const [app, page_loader, cv_form, text_input, checkbox_input] = await Promise.all([
+const [app, page_loader, cv_form, text_input, textarea_input, checkbox_input, select_input] = await Promise.all([
     importer("/public/cuteVue/app.html"),
     importer("/public/cuteVue/components/page-loader.html"),
     importer("/public/cuteVue/components/cv-form.html"),
     importer("/public/cuteVue/components/inputs/text-input.html"),
-    importer("/public/cuteVue/components/inputs/checkbox-input.html")
+    importer("/public/cuteVue/components/inputs/textarea-input.html"),
+    importer("/public/cuteVue/components/inputs/checkbox-input.html"),
+    importer("/public/cuteVue/components/inputs/select-input.html")
 ]);
 
 CuteVue.component("page-loader", page_loader);
 CuteVue.component("cv-form", cv_form);
 CuteVue.component("text-input", text_input);
+CuteVue.component("textarea-input", textarea_input);
 CuteVue.component("checkbox-input", checkbox_input);
+CuteVue.component("select-input", select_input);
 
 app.mount("#app");
