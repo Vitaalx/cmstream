@@ -12,7 +12,7 @@
             cv-model="lastname"
             :rules="this.lastnameRule"
             class="w-full"
-            ></text-input>
+            />
             
             <text-input
             type="text"
@@ -20,7 +20,7 @@
             cv-model="firstname"
             :rules="this.firstnameRule"
             class="w-full"
-            ></text-input>
+            />
 
             <text-input
             type="text"
@@ -29,7 +29,7 @@
             :rules="this.usernameRule"
             class="w-full"
             cv-ref="username"
-            ></text-input>
+            />
 
             <text-input
             type="text"
@@ -38,7 +38,7 @@
             :rules="this.emailRule"
             class="w-full"
             cv-ref="email"
-            ></text-input>
+            />
 
             <text-input
             type="password" 
@@ -47,7 +47,7 @@
             :rules="this.passwordRule"
             :always-rule="true"
             class="w-full"
-            ></text-input>
+            />
 
             <text-input
             type="password" 
@@ -56,7 +56,7 @@
             :rules="this.cpasswordRule"
             :always-rule="true"
             class="w-full"
-            ></text-input>
+            />
             
             <p class="text-center text-[red]" cv-class="{ 'text-[green]': this.success }">{{ this.info }}</p>
         </div>

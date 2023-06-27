@@ -1,7 +1,7 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
     <span cv-if="this.displayedUsers.length === 0">Aucun utilisateur trouvé.</span>
-    <delete_modal :show="this.isDeleteModalOpen" :userid="this.userId"
-                  @ondelete="refresh"></delete_modal>
+    <user_delete_modal :show="this.isDeleteModalOpen" :userid="this.userId"
+                  @ondelete="refresh"></user_delete_modal>
     <user_edit_modal :show="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
                      :currentlastname="this.currentLastname" :currentusername="this.currentUsername"
                      @onedit="refresh"></user_edit_modal>
@@ -65,14 +65,14 @@
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
 
-    const [delete_modal, user_edit_modal] = await Promise.all([
-        importer('/public/cuteVue/components/delete_modal.html'),
-        importer('/public/cuteVue/components/user_edit_modal.html')
+    const [user_delete_modal, user_edit_modal] = await Promise.all([
+        importer('/public/cuteVue/components/modals/user_delete_modal.html'),
+        importer('/public/cuteVue/components/modals/user_edit_modal.html')
     ]);
 
     export default {
         components: {
-            delete_modal,
+            user_delete_modal,
             user_edit_modal
         },
         data: {
