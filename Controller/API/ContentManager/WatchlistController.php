@@ -52,7 +52,7 @@ class addWishWatchlist extends MustBeConnected
         $wish = Watchlist::insertOne([
             "user_id" => $this->floor->pickup("user")->getId(),
             "movie_id" => $this->floor->pickup("movie")->getId(),
-            "series_id" => $this->floor->pickup("serie")->getId()
+            "serie_id" => $this->floor->pickup("serie")->getId()
         ]);
         $response->info("wish.created")->code(201)->send(["wish" => $wish]);
     }
