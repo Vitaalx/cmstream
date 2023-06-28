@@ -13,7 +13,7 @@
         <div class="show-content">
             <select-input :options="this.seasons" />
 
-            <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-[40px] episodes">
+            <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
                 <episode_card cv-for="episode in this.episodes" />
             </div>
         </div>
@@ -22,7 +22,7 @@
 
 <script>
     const [episode_card] = await Promise.all([
-        importer('/public/cuteVue/components/episode_card.html')
+        importer('/public/cuteVue/components/cards/episode_card.html')
     ]);
 
     export default {

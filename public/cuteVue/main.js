@@ -37,12 +37,8 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/show.html"),
                 },
                 {
-                    path: "/watchlist",
-                    view: () => importer("/public/cuteVue/views/watchlist.html"),
-                },
-                {
-                    path: "/watchlist",
-                    view: () => importer("/public/cuteVue/views/watchlist.html"),
+                    path: "/lists",
+                    view: () => importer("/public/cuteVue/views/lists.html"),
                 },
                 {
                     path: "/validate",
