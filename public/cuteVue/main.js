@@ -21,6 +21,10 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/signin.html"),
                 },
                 {
+                    path: "/validate",
+                    view: () => importer("/public/cuteVue/views/validate.html"),
+                },
+                {
                     path: "/catalog",
                     view: () => importer("/public/cuteVue/views/catalog.html"),
                 },
@@ -31,6 +35,10 @@ createRoute(
                 {
                     path: "/show",
                     view: () => importer("/public/cuteVue/views/show.html"),
+                },
+                {
+                    path: "/lists",
+                    view: () => importer("/public/cuteVue/views/lists.html"),
                 },
                 {
                     path: "/validate",

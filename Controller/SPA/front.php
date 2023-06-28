@@ -47,6 +47,7 @@ class resetPassword extends IndexHandler
 }
 
 /**
+ * @GET{/lists}
  * @GET{/account}
  * @GET{/account/email}
  * @GET{/account/password}

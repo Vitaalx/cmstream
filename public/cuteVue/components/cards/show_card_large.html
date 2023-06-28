@@ -1,16 +1,16 @@
-<router_link href="#" class="h-[130px] flex gap-[20px] show-card">
-    <div class="grow-0 shrink-0 basis-[230px] thumbnail">
-        <img src="/public/img/thumbnails/unloaded-large.png" alt="show title">
+<router_link href="#" class="h-[135px] flex gap-[20px] show-card">
+    <div class="grow-0 shrink-0 basis-[240px] object-cover thumbnail">
+        <img src="/public/img/thumbnails/unloaded-large.png" class="w-full h-full" alt="show title">
     </div>
     <div class="content flex flex-col justify-center gap-[10px]">
         <h3 class="text-bold show-title">Show title</h3>
-        <p class="text-sm  show-description">
+        <p class="text-sm show-description">
             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Culpa praesentium libero cum aut soluta, error quisquam mollitia, odit ab impedit corporis, sint minus iste. Sunt possimus vitae atque saepe sed?
         </p>
-        <div class="mt-[10px] text-xs tags">
-            <span class="p-1 rounded tag tag-1">tag1</span>
-            <span class="p-1 rounded tag tag-2">tag2</span>
-            <span class="p-1 rounded tag tag-3">tag3</span>
+        <div class="mt-[5px] text-xs tags">
+            <span class="inline-block p-1 rounded tag tag-1">tag1</span>
+            <span class="inline-block p-1 rounded tag tag-2">tag2</span>
+            <span class="inline-block p-1 rounded tag tag-3">tag3</span>
         </div>
     </div>
 </router_link>
@@ -25,12 +25,7 @@
     }
 </script>
 
-<style unscope>
-    .show-card:hover .show-title,
-    .show-card:hover .show-description {
-        color: #5499C7;
-    }
-
+<style>
     .tag-1 {
         background-color: #F5B041;
     }
@@ -43,7 +38,7 @@
         background-color: #58D68D;
     }
 
-    p {
+    .show-description {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
