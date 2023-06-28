@@ -40,9 +40,8 @@ class addRole extends AccessRoleEditor
 }
 
 /**
- * @POST{/api/role/user}
- * @Body Json Request
- * @param $name
+ * @POST{/api/role/{role_id}/user/{user_id}}
+ * @param $role_id
  * @param $user_id
  *
  * @return $role
@@ -52,9 +51,9 @@ class setRole extends AccessRoleEditor
     public function checkers(Request $request): array
     {
         return [
-            ["type/string", $request->getBody()["name"], "name"],
-            ["role/existByName", fn () => $this->floor->pickup("name"), "role"],
-            ["type/int", $request->getBody()["user_id"], "user_id"],
+            ["type/int", $request->getParam("role_id"), "role_id"],
+            ["role/exist", fn () => $this->floor->pickup("role_id"), "role"],
+            ["type/int", $request->getParam("user_id"), "user_id"],
             ["user/exist", fn () => $this->floor->pickup("user_id"), "user"]
         ];
     }
@@ -65,12 +64,13 @@ class setRole extends AccessRoleEditor
         $user = $this->floor->pickup("user");
         /** @var Role $role */
         $role = $this->floor->pickup("role");
+        if($user->getId() === 1) $response->info("user.protected.admin")->code(403)->send();
         $user->setRole($role);
         date_default_timezone_set('Europe/Paris');
         $user->setUpdatedAt(date("Y-m-d H:i:s"));
         $user::groups("userRole");
         $user->save();
-        $response->code(200)->info("user.role.added")->send(["user" => $user]);
+        $response->code(204)->info("user.role.added")->send();
     }
 }
 
@@ -190,6 +190,12 @@ class deleteRole extends AccessRoleEditor
     {
         /** @var Role $role */
         $role = $this->floor->pickup("role");
+        /** @var User $users */
+        $users = $role->getUsers();
+        foreach ($users as $user) {
+            $user->setRole(null);
+            $user->save();
+        }
         $role->delete();
         $response->code(200)->info("role.deleted")->send();
     }
@@ -208,7 +214,7 @@ class unsetRole extends AccessRoleEditor
         return [
             ["type/int" , $request->getParam("id"), "id"],
             ["user/exist", fn () => $this->floor->pickup("id"), "user"],
-            ["role/hasRole", fn () => $this->floor->pickup("id")]
+            ["user/hasRole", fn () => $this->floor->pickup("id")]
         ];
     }
 
@@ -216,10 +222,11 @@ class unsetRole extends AccessRoleEditor
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
+        if($user->getId() === 1) $response->info("user.protected.admin")->code(403)->send();
         $user->setRole(null);
         date_default_timezone_set('Europe/Paris');
         $user->setUpdatedAt(date("Y-m-d H:i:s"));
         $user->save();
-        $response->code(200)->info("role.removed")->send();
+        $response->code(204)->info("role.removed")->send();
     }
 }
