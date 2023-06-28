@@ -8,7 +8,7 @@ use Core\Response;
 
 use Entity\History;
 
-use Services\MustBeAdmin;
+use Services\Access\AccessContentsManager;
 use Services\MustBeConnected;
 
 /**
@@ -73,7 +73,7 @@ class getHistory extends MustBeConnected
  * @param int id
  * @return Response
  */
-class deleteHistory extends MustBeAdmin
+class deleteHistory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -98,7 +98,7 @@ class deleteHistory extends MustBeAdmin
  * @Description get history of user
  * @return Response
  */
-class getHistoryById extends MustBeAdmin
+class getHistoryById extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {

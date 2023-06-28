@@ -7,7 +7,7 @@ use Core\Request;
 use Core\Response;
 
 use Entity\Watchlist;
-use Services\MustBeAdmin;
+use Services\Access\AccessContentsManager;
 use Services\MustBeConnected;
 
 /**
@@ -68,7 +68,7 @@ class addWishWatchlist extends MustBeConnected
  * @param int user_id
  * @return Response
  */
-class deleteWatchlistAdmin extends MustBeAdmin
+class deleteWatchlistAdmin extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -118,7 +118,7 @@ class deleteWatchlist extends MustBeConnected
  * @param int id
  * @return Response
  */
-class deleteWishWatchlistAdmin extends MustBeAdmin
+class deleteWishWatchlistAdmin extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {

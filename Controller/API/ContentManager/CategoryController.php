@@ -9,7 +9,7 @@ use Core\Response;
 use Core\SendResponse;
 use Entity\Category;
 use Entity\Video;
-use Services\MustBeAdmin;
+use Services\Access\AccessContentsManager;
 
 /**
  * @POST{/api/category}
@@ -27,7 +27,7 @@ use Services\MustBeAdmin;
   "category_name": "Category name"
  }
 */
-class addCategory extends MustBeAdmin
+class addCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -59,7 +59,7 @@ class addCategory extends MustBeAdmin
  * @param int id
  * @return Response
  */
-class deleteCategory extends MustBeAdmin
+class deleteCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -194,7 +194,7 @@ Entry:
 "category_name": "Category name"
 }
 */
-class updateCategory extends MustBeAdmin
+class updateCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
