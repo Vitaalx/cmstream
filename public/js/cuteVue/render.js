@@ -122,11 +122,15 @@ export default function render(template, proxy){
             }
         )`);
 
+        let oldValue = [];
         let subscriber = () => {
-            Object.entries(classRender(proxy)).forEach(([key, value]) => {
+            let newClass = Object.entries(classRender(proxy));
+            newClass.forEach(([key, value], index) => {
                 if(value) el.classList.add(...key.split(" "));
                 else el.classList.remove(...key.split(" "));
+                if(oldValue[index] !== undefined && key !== oldValue[index][0]) el.classList.remove(oldValue[index][0]);
             });
+            oldValue = newClass;
         };
 
         for(let group of template.class.vars){

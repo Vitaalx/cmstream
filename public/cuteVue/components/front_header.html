@@ -67,12 +67,6 @@
                             </div>
 
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
-                                <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless user">
-                                    <span class="mdi mdi-account-circle text-[40px]"></span>
-                                    <span class="font-semibold">{{ this.username }}</span>
-                                </div>
-                                <div class="h-[2px] bg-darkblue separator"></div>
-
                                 <div class="options">
                                     <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="admin" class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
                                         <span class="mdi mdi-security text-[24px]"></span>
