@@ -1,0 +1,89 @@
+<div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 content">
+    <h1 class="mb-[40px] text-2xl font-bold">Mes lists</h1>
+
+    <div class="mb-[30px] flex justify-center gap-4 alphabet">
+        <ul class="flex items-center gap-[30px]">
+            <li>
+                <span
+                class="pb-[5px] text-xl cursor-pointer"
+                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'watchlist' }"
+                @click="this.showedList = 'watchlist'"
+                >Watchlist
+            </span>
+            </li>
+
+            <li>
+                <span
+                class="pb-[5px] text-xl cursor-pointer"
+                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'historical' }"
+                @click="this.showedList = 'historical'"
+                >Historique
+            </span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div cv-if="this.showedList === 'watchlist'" class="watchlist">
+            <div cv-if="!this.whatchlist.length" class="flex flex-col gap-[30px] empty-watchlist">
+                <p>Vous avez rien dans votre watchlist...</p>
+
+                <router_link href="catalog" class="flex items-center gap-[5px] hover:text-skyblue">
+                    Parcourir le catalogue
+                    <span class="mdi mdi-arrow-right-bold mb-[-3px]"></span>
+                </router_link>
+            </div>
+
+            <div cv-if="this.whatchlist.length" class="shows">
+                <div class="flex flex-col gap-[40px]">
+                    <show_card_large cv-for="show in this.whatchlist" />
+                </div>
+            </div>
+        </div>
+
+        <div cv-if="this.showedList === 'historical'" class="historical">
+            <div cv-if="!this.historical.length" class="flex flex-col gap-[30px] empty-historical">
+                <p>Vous n'avez rien regardé...</p>
+
+                <router_link href="catalog" class="flex items-center gap-[5px] hover:text-skyblue">
+                    Parcourir le catalogue
+                    <span class="mdi mdi-arrow-right-bold mb-[-3px]"></span>
+                </router_link>
+            </div>
+            
+            <div cv-if="this.historical.length" class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
+                <episode_card cv-for="episode in this.historical" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [show_card_large, episode_card] = await Promise.all([
+        importer('/public/cuteVue/components/cards/show_card_large.html'),
+        importer('/public/cuteVue/components/cards/episode_card.html')
+    ]);
+
+    export default {
+        components: {
+            show_card_large,
+            episode_card
+        },
+
+        data: {
+            showedList: 'watchlist',
+            whatchlist: [1],
+            historical: [1, 2, 3, 4]
+        },
+
+        mounted(){
+        },
+
+        methods: {
+        }
+    }
+</script>
+
+<style>
+
+</style>
