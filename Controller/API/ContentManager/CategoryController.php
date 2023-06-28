@@ -94,14 +94,28 @@ class getCategories extends Controller
 {
     public function checkers(Request $request): array
     {
-        return [];
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("name") ?? "", "name"],
+        ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        $page = $this->floor->pickup("page");
+        $name = $this->floor->pickup("name");
+        $number = 5;
+
         /** @var Category[] $categories */
-        $categories = Category::findMany();
-        $response->code(200)->info("categories.get")->send(["categories" => $categories]);
+        $categories = Category::findMany(
+            [
+                "title" => [
+                    "\$CTN" => $name
+                ]
+            ],
+            ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
+        );
+        $response->code(200)->info("categories.get")->send($categories);
     }
 }
 
@@ -204,5 +218,22 @@ class updateCategory extends MustBeAdmin
         $category->setUpdatedAt(date("Y-m-d H:i:s"));
         $category->save();
         $response->code(200)->info("category.updated")->send();
+    }
+}
+
+/**
+ * @GET{/api/categories/count}
+ */
+class getCountCategories extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $count = Category::count();
+        $response->code(200)->info("categories.count")->send($count);
     }
 }
