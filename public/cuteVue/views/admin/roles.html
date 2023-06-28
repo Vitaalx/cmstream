@@ -2,65 +2,96 @@
     <div class="table w-full">
         <div class="table-header w-full flex flex-col justify-between items-start mb-[10px]">
             <cv-form @submit="addRole">
-            <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
-                <input type="text" cv-model="addedRole" class="focus:outline-none" placeholder="Nouveau rôle"><button cv-class="{ 'cursor-not-allowed text-grey': !this.addedRole }" :disabled="!this.addedRole">Ajouter</button>
-            </div>
+                <div class="border rounded-[8px] px-[20px] py-[10px] flex items-center">
+                    <input type="text" cv-model="addedRole" class="focus:outline-none" placeholder="Nouveau rôle">
+                    
+                    <button cv-class="{ 'cursor-not-allowed text-grey': !this.addedRole }" :disabled="!this.addedRole">Ajouter</button>
+                </div>
             </cv-form>
-            <p class="mt-[10px] text-pinkred">{{ this.info }}</p>
+
+            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.info }}</p>
         </div>
+
         <table class="table-content w-full border-2 rounded-t-[8px]">
             <thead class="bg-whitesmoke">
-            <tr>
-                <th class="p-[22px] text-left">Nom</th>
-                <th class="p-[22px]">Access Dashboard</th>
-                <th class="p-[22px]">Role Editor</th>
-                <th class="p-[22px]">Comments Manager</th>
-                <th class="p-[22px]">Contents Manager</th>
-                <th class="p-[22px]">Stats Viewer</th>
-                <th class="p-[22px]">User Editor</th>
-                <th class="p-[22px]">Config Editor</th>
-                <th class="p-[22px]">Actions</th>
-            </tr>
+                <tr>
+                    <th class="p-[22px] text-left">Nom</th>
+
+                    <th class="p-[22px]">Access Dashboard</th>
+
+                    <th class="p-[22px]">Role Editor</th>
+
+                    <th class="p-[22px]">Comments Manager</th>
+
+                    <th class="p-[22px]">Contents Manager</th>
+
+                    <th class="p-[22px]">Stats Viewer</th>
+
+                    <th class="p-[22px]">User Editor</th>
+
+                    <th class="p-[22px]">Config Editor</th>
+
+                    <th class="p-[22px]">Actions</th>
+                </tr>
             </thead>
 
             <tbody>
-            <tr class="border-2" cv-for="role of this.roles">
-                <td class="p-[22px] text-left">{{ this.role.name }}</td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('access_dashboard') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="accessDashboardEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('role_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="roleEditorEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('comments_manager') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="commentsManagerEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('contents_manager') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="contentsManagerEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('stats_viewer') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="statsViewerEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('user_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="userEditorEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" cv-model="configEditorEdited" :checked="this.role.permissions.indexOf('config_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
-                    <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="configEditorEdited" />
-                </td>
-                <td class="p-[22px] text-center">
-                    <span class="mdi mdi-square-edit-outline text-2xl text-adminblack cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.isEditable(this.role)"></span>
-                    <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.deleteRole(this.role)"></span>
-                    <span class="mdi mdi-check text-2xl text-[green] cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.editRole(this.role.id)"></span>
-                    <span class="mdi mdi-close text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.isEditable(this.role)"></span>
-                </td>
-            </tr>
+                <tr class="border-2" cv-for="role of this.roles">
+                    <td class="p-[22px] text-left">{{ this.role.name }}</td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('access_dashboard') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="accessDashboardEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('role_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="roleEditorEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('comments_manager') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="commentsManagerEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('contents_manager') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="contentsManagerEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('stats_viewer') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="statsViewerEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" :checked="this.role.permissions.indexOf('user_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="userEditorEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <input cv-if="this.isEditMode === false || this.role.id !== this.roleId" type="checkbox" cv-model="configEditorEdited" :checked="this.role.permissions.indexOf('config_editor') !== -1" :disabled="this.isEditMode === false || this.role.id !== this.roleId">
+                        
+                        <checkbox-input cv-if="this.isEditMode === true && this.role.id === this.roleId" cv-model="configEditorEdited" />
+                    </td>
+
+                    <td class="p-[22px] text-center">
+                        <span class="mdi mdi-square-edit-outline text-2xl text-adminblack cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.isEditable(this.role)"></span>
+
+                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.deleteRole(this.role)"></span>
+                        
+                        <span class="mdi mdi-check text-2xl text-[green] cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.editRole(this.role.id)"></span>
+                        
+                        <span class="mdi mdi-close text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.isEditable(this.role)"></span>
+                    </td>
+
+                </tr>
             </tbody>
         </table>
     </div>

@@ -66,7 +66,7 @@
     const [impLoader, impTaob, delete_category_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js"),
-        importer("/public/cuteVue/components/delete_category_modal.html")
+        importer("/public/cuteVue/components/modals/delete_category_modal.html")
     ]);
 
     const loaderStore = impLoader.loaderStore;
