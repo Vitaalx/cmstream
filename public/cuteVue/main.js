@@ -41,6 +41,10 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/watchlist.html"),
                 },
                 {
+                    path: "/watchlist",
+                    view: () => importer("/public/cuteVue/views/watchlist.html"),
+                }
+                {
                     path: "/validate",
                     view: () => importer("/public/cuteVue/views/validate.html"),
                 },
