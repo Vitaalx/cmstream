@@ -6,7 +6,6 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Core\SendResponse;
 use Entity\Movie;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
@@ -56,10 +55,6 @@ class createMovie extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     * @throws \Exception
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Video $video */
@@ -102,9 +97,6 @@ class deleteMovie extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         $this->floor->pickup("movie")->delete();
@@ -132,9 +124,6 @@ class getMovie extends Controller
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Movie $movie */
@@ -162,9 +151,6 @@ class getMovies extends Controller
         return [];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Movie[] $movies */
@@ -228,9 +214,6 @@ class updateMovie extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         VideoManager::updateVideo(

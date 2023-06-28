@@ -21,7 +21,7 @@
                 </div>
                 <div cv-if="this.hasPermission('role_editor')" class="flex flex-col items-start m-[5px] w-full">
                     <label>Rôles</label>
-                    <select-input :roles="this.roles" cv-model="roleIdToEdit" :currentroleid="this.currentroleid" :currentrolename="this.currentrolename"></select-input>
+                    <select-input-role :roles="this.roles" cv-model="roleIdToEdit" :currentroleid="this.currentroleid" :currentrolename="this.currentrolename"></select-input-role>
                 </div>
                 <div class="mt-[30px] text-center submit text-white">
                     <button
@@ -109,6 +109,7 @@
                         });
                     }
                     this.roles = data.roles;
+                    console.log(this.roles);
                 }).result;
 
                 close();

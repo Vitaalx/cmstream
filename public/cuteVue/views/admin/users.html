@@ -1,8 +1,9 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
     <span cv-if="this.displayedUsers.length === 0">Aucun utilisateur trouvé.</span>
-    <user_delete_modal :show="this.isDeleteModalOpen" :userid="this.userId"
+    <user_delete_modal cv-if="this.isDeleteModalOpen" :userid="this.userId"
+                  @close="this.isDeleteModalOpen = false"
                   @ondelete="refresh"></user_delete_modal>
-    <user_edit_modal :show="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
+    <user_edit_modal cv-if="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
                      :currentlastname="this.currentLastname" :currentusername="this.currentUsername"
                      :currentrolename="this.currentRoleName" :currentroleid="this.currentRoleId"
                      @close="this.isOpenedModal = false"

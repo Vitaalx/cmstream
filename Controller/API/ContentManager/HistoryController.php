@@ -2,7 +2,6 @@
 
 namespace Controller\API\ContentManager;
 
-use Core\Controller;
 use Core\Request;
 use Core\Response;
 

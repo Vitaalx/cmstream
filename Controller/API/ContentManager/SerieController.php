@@ -5,7 +5,6 @@ namespace Controller\API\ContentManager\SerieController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
-use Core\SendResponse;
 use Entity\Serie;
 use Entity\Episode;
 use Entity\Video;
@@ -52,9 +51,6 @@ class createSerie extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Serie $serie */
@@ -511,7 +507,6 @@ class updateEpisode extends AccessContentsManager
     }
 }
 
-// TODO
 class getSerieByName extends Controller
 {
     public function checkers(Request $request): array

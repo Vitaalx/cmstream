@@ -6,7 +6,6 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Core\SendResponse;
 use Entity\Category;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
@@ -38,9 +37,6 @@ class addCategory extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
@@ -69,9 +65,6 @@ class deleteCategory extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
@@ -139,9 +132,6 @@ class getContentsByCategory extends Controller
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Video $videos */
@@ -207,9 +197,6 @@ class updateCategory extends AccessContentsManager
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
