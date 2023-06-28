@@ -66,4 +66,4 @@ export const userStore =  CuteVue.createStore(
 
 userStore.connect();
 taob.setHookInfo("user.logged", () => userStore.connect());
-taob.setHookInfo("token.invalid", () => window.location.href = "/");
+// taob.setHookInfo("token.invalid", () => window.location.href = "/");
