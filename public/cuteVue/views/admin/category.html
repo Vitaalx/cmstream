@@ -1,60 +1,69 @@
-<div>
-    <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-        <div class="lg:items-center lg:justify-between">
-            <span class="text-[24px] font-bold mb-[20px]">Créer catégorie</span>
-            <cv-form @submit="submitCategory" class="flex align-center gap-[10px]">
-                <text-input class="mb-[20px] w-[400px]" type="text" placeholder="Titre de la catégorie"
-                    cv-model="titleCategory" :rules="this.titleRule" />
-                <button type="submit" class="px-[20px] py-[10px] border rounded-[8px]">Ajouter</button>
-            </cv-form>
-            <span class="text-[10px] text-[red]">{{ this.info }}</span>
-        </div>
-        <div class="lg:items-center lg:justify-between">
-            <span class="text-[24px] font-bold mb-[20px]">Liste des catégories</span>
-            <delete_category_dialog @ondelete="refresh" :category_id="this.selectCategory"
-                cv-if="this.dialogDeleteCategory" @close="this.dialogDeleteCategory = false"/>
-            <span class="text-[18px] font-bold gap-[30px] text-[red]" cv-if="this.displayedCategories.length < 1">Aucune
-                category enregistrée</span>
-            <div class="gap-[30px]">
-                <table class="table-content w-full text-left border-2 rounded-t-[8px]">
-                    <thead class="bg-whitesmoke">
-                        <tr>
-                            <th class="p-[22px] cursor-pointer" @click="this.sortById()">ID<span
-                                    class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                            <th class="p-[22px] cursor-pointer" @click="this.sortByName()">Nom<span
-                                    class="mdi mdi-arrow-down-thick ml-[8px]"></span></th>
-                            <th class="p-[22px]">Actions</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        <tr class="border-2" cv-for="category of this.displayedCategories">
-                            <td class="p-[22px]">{{ this.category.id }}</td>
-                            <td class="p-[22px]">{{ this.category.title }}</td>
-                            <td class="p-[22px]">
-                                <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer"
-                                    @click="this.deleteCategory(this.category.id);"></span>
-                                <span
-                                    class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                                    @click="this.editCategory(this.cateogory)"></span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div
-                    class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
-                    <button @click="this.previousPage()"
-                        class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
-                    <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
-                    <button @click="this.nextPage()" class="px-[20px] py-[10px] border rounded-[8px]">Suivant</button>
+<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <delete_category_modal @ondelete="refresh" :category_id="this.selectCategory"
+    cv-if="this.dialogDeleteCategory" @close="this.dialogDeleteCategory = false" @delete-category="this.refresh()"
+    />
+
+    <div class="table w-full">
+        <div class="table-header w-full flex flex-col justify-between items-start mb-[10px]">
+            <cv-form @submit="addCategory" class="flex align-center gap-[10px]">
+                <div class="border rounded-[8px] px-[20px] py-[10px] flex items-center">
+                    <input type="text" cv-model="addedCategory" class="focus:outline-none" placeholder="Nouvelle catégorie">
+                    
+                    <button cv-class="{ 'cursor-not-allowed text-grey': !this.addedCategory }" :disabled="!this.addedCategory">Ajouter</button>
                 </div>
-            </div>
+            </cv-form>
+
+            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.info }}</p>
+        </div>
+
+         <table class="table-content w-full text-left border-2 rounded-t-[8px]">
+            <thead class="bg-whitesmoke">
+                <tr>
+                    <th class="p-[22px] cursor-pointer" @click="this.sortById()">
+                        ID <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                    </th>
+
+                    <th class="p-[22px] cursor-pointer" @click="this.sortByName()">
+                        Nom <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                    </th>
+
+                    <th class="p-[22px]">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr class="border-2" cv-for="category of this.displayedCategories">
+                    <td class="p-[22px]">{{ this.category.id }}</td>
+
+                    <td class="p-[22px]">{{ this.category.title }}</td>
+
+                    <td class="p-[22px]">
+                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer"
+                        @click="this.deleteCategory(this.category.id);">
+                        </span>
+
+                        <span
+                        class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                        @click="this.editCategory(this.cateogory)">
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
+            <button @click="this.previousPage()" class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
+
+            <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
+
+            <button @click="this.nextPage()" class="px-[20px] py-[10px] border rounded-[8px]">Suivant</button>
         </div>
     </div>
 </div>
 
 <script>
-    const [impLoader, impTaob, delete_category_dialog] = await Promise.all([
+    const [impLoader, impTaob, delete_category_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js"),
         importer("/public/cuteVue/components/delete_category_modal.html")
@@ -65,10 +74,10 @@
 
     export default {
         components: {
-            delete_category_dialog,
+            delete_category_modal,
         },
         data: {
-            titleCategory: "",
+            addedCategory: "",
             info: "",
             currentPageNumber: 1,
             maxPage: 0,
@@ -86,15 +95,20 @@
             ],
         },
         methods: {
-            async submitCategory() {
+            async addCategory() {
+                if(this.addedCategory.trim() === "") return;
+
                 let close = loaderStore.push();
+
                 await taob.post("/category", {
-                    category_name: this.titleCategory,
-                }).s(() => {
-                    this.info = "Catégorie ajoutée avec succès";
-                }).e((error) => {
+                    category_name: this.addedCategory,
+                }).s(this.refresh)
+                .e((error) => {
                     this.info = "Erreur lors de l'ajout de la catégorie";
                 }).result;
+
+                this.addedCategory = "";
+
                 close();
             },
             sortById() {
@@ -110,7 +124,6 @@
             async previousPage() {
                 if (this.currentPageNumber > 1) {
                     this.currentPageNumber--;
-                    this.refresh();
                 }
             },
             async nextPage() {
@@ -121,34 +134,40 @@
             },
             async getCategories(page) {
                 let close = loaderStore.push();
+
                 // get categories per page
                 await taob.get(`/categories?page=${page - 1}`).s((response) => {
                     this.displayedCategories = response;
                 }).e((error) => {
                     this.info = "Erreur lors de la récupération des catégories";
                 }).result;
+
                 close();
             },
             async deleteCategory(id) {
                 this.selectCategory = id;
                 this.dialogDeleteCategory = true;
+                this.refresh();
             },
             async editCategory(category) { // TODO
                 let close = loaderStore.push();
-                await this.refresh();
+
+                this.refresh();
                 close();
             },
-            async refresh() {
+            refresh() {
                 this.getCategories(this.currentPageNumber);
                 this.countCategories();
             },
             async countCategories() {
                 let close = loaderStore.push();
+
                 await taob.get('/categories/count').s((response) => {
                     this.maxPage = Math.ceil(response / this.nbCategoriesPerPage);
                 }).e((error) => {
                     this.info = "Erreur lors de la récupération du nombres catégories";
                 }).result;
+
                 close();
             }
         },
@@ -156,9 +175,9 @@
             this.getCategories(this.currentPageNumber);
             this.countCategories();
         }
-
     }
 </script>
 
 <style>
+    
 </style>
