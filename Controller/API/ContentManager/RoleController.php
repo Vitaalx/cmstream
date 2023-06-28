@@ -24,7 +24,8 @@ class addRole extends AccessRoleEditor
     {
         return [
             ["type/string", $request->getBody()["name"], "name"],
-            ["role/alreadyExistByName", fn () => $request->getBody()["name"], "name"]
+            ["type/notEmpty", fn () => $this->floor->pickup("name")],
+            ["role/alreadyExistByName", fn () => $this->floor->pickup("name")],
         ];
     }
 
@@ -32,7 +33,7 @@ class addRole extends AccessRoleEditor
     {
         /** @var Role $role */
         $role = Role::insertOne([
-            "name" => $request->getBody()["name"]
+            "name" => $this->floor->pickup("name")
         ]);
         $response->code(200)->info("role.created")->send(["role" => $role]);
     }
