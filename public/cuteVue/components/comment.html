@@ -5,15 +5,15 @@
     <div
     class="flex-1 flex flex-col comment-ctnr" 
     >
-        <span>{{ this.comm.username }}</span>    
+        <div class="mb-[10px] flex items-center gap-[5px] header">
+            <span class="text-lg font-bold">{{ this.comm.username }}</span>
 
-        <text-input
-        type="text"
-        :value="this.comm.content"
-        :border="false"
-        disabled
-        class="w-full comment"
-        ></text-input>
+            <span class="text-xs text-grey">posté le {{ this.comm.date }}</span>
+        </div>
+        
+        <div class="mb-[5px] content">
+            <p class="w-full comment">{{ this.comm.content }}</p>
+        </div>
 
         <button 
         @click="this.report()"
@@ -44,11 +44,23 @@
         },
 
         methods: {
+            dateFormater(date){
+                const parts = date.split("-");
+                const year = parts[0];
+                const month = parts[1];
+                const day = parts[2];
+
+                return day + "/" + month + "/" + year;
+            },
+            
             setComment(){
                 this.comm = {
                     content: this.comment.content,
-                    username: this.comment.user.username
-                }
+                    username: this.comment.user.username,
+                    date: this.dateFormater(this.comment.created_at)
+                };
+
+                console.log(this.comm);
             },
             report(){
                 alert("Commentaire signalé");
