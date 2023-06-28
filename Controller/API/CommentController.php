@@ -72,7 +72,8 @@ class getComments extends Controller
         $video = $this->floor->pickup("video");
 
         $comments = Comment::findMany(["video_id" => $video->getId(), "status" => 1]);
-        Comment::groups("commentAuthor");
+        Comment::groups("commentAuthor", "dateProps");
+
 
         $response->code(200)->info("comments.get")->send($comments);
     }
