@@ -1,8 +1,6 @@
 <header class="fixed bg-white h-[100px] border-b-[1px] w-[calc(100vw-250px)] text-black ml-[250px] px-[60px] py-[30px] flex items-center justify-between">
-    <div class="flex items-center gap-[5px]">
-        <span class="text-[32px] font-bold">Salut, {{ this.username }}</span>
-
-        <img src="/public/img/icons/hello-admin.png" alt="Hello Admin" class="ml-[10px]">
+    <div class="welcome">
+        <span class="text-[32px] font-bold">Salut, {{ this.username }} ! 👋</span>
     </div>
 
     <div class="w-[60px] h-[60px] rounded-full flex items-center justify-center text-white font-bold avatar" cv-style="{ 'background-color': this.avatarColor }">{{ this.getFirstLetters }}</div>
