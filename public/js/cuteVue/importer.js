@@ -12,8 +12,8 @@ export default async function importer(path){
         result = await result.text();
 
         result = result.replace(
-            /<(?:$^|[ ]*)([a-zA-Z0-9_-]+)([^>]*)\/>/g,
-            (match, tagName, attr) => `<${tagName+attr}></${tagName}>`
+            /<(?:$^|[ ]*)([a-zA-Z0-9_-]+)(?:^$|[ \n\t\r]*)((?:(?:[0-9a-zA-Z-:@_]+(?:^$|[ ]*)=(?:^$|[ ]*)"[^"]*")(?:^$|[ \n\t\r]*))*)\/>/g,
+            (match, tagName, attr) => `<${tagName} ${attr}></${tagName}>`
         );
         let scope = Math.round(Math.random() * 10000) + "-" + Date.now();
 
