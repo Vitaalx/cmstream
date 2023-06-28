@@ -9,8 +9,8 @@ use Core\Response;
 use Core\SendResponse;
 use Entity\Movie;
 use Entity\Video;
+use Services\Access\AccessContentsManager;
 use Services\Back\VideoManagerService as VideoManager;
-use Services\MustBeAdmin;
 
 /**
  * @POST{/api/movie}
@@ -39,7 +39,7 @@ Entry:
 "category_id": 1
 }
 */
-class createMovie extends MustBeAdmin
+class createMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -92,7 +92,7 @@ class createMovie extends MustBeAdmin
  * @param int id
  * @return Response
  */
-class deleteMovie extends MustBeAdmin
+class deleteMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -209,7 +209,7 @@ Entry:
 "category_id": 1
 }
 */
-class updateMovie extends MustBeAdmin
+class updateMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {

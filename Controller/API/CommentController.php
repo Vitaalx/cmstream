@@ -8,7 +8,7 @@ use Core\Response;
 use Entity\Comment;
 use Entity\User;
 use Entity\Video;
-use Services\MustBeAdmin;
+use Services\Access\AccessCommentsManager;
 use Services\MustBeConnected;
 
 /**
@@ -25,8 +25,8 @@ class addComment extends MustBeConnected
         return [
             ["type/int", $request->getBody()["video_id"], "videoId"],
             ["type/int", $request->getBody()["user_id"], "userId"],
-            ["user/exist", fn() => $this->floor->pickup("userId"), "user"],
-            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
+            ["user/exist", fn () => $this->floor->pickup("userId"), "user"],
+            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
             ["type/flawless", $request->getBody()['content'], "content"],
         ];
     }
@@ -38,7 +38,7 @@ class addComment extends MustBeConnected
         /** @var Video $video */
         $video = $this->floor->pickup("video");
         $commentToInsert = Comment::insertOne(
-            fn(Comment $comment) => $comment
+            fn (Comment $comment) => $comment
                 ->setVideo($video)
                 ->setUser($user)
                 ->setContent($this->floor->pickup("content"))
@@ -62,7 +62,7 @@ class getComments extends Controller
     {
         return [
             ["type/int", $request->getParam("id"), "videoId"],
-            ["video/exist", fn() => $this->floor->pickup("videoId"), "video"],
+            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
         ];
     }
 
@@ -83,14 +83,14 @@ class getComments extends Controller
  * @DELETE{/api/comment/{id}}
  * @param $id
  */
-class deleteComment extends MustBeAdmin
+class deleteComment extends AccessCommentsManager
 {
 
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam("id"), "commentId"],
-            ["comment/exist", fn() => $this->floor->pickup("commentId"), "comment"],
+            ["comment/exist", fn () => $this->floor->pickup("commentId"), "comment"],
         ];
     }
 
