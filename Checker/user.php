@@ -103,6 +103,13 @@ function exist(int $userId, Floor $floor, Response $response): User
     return $user;
 }
 
+function hasRole(int $userId, Floor $floor, Response $response): void
+{
+    /** @var User $user */
+    $user = User::findFirst(["id" => $userId]);
+    if($user->getRole() === null) $response->info("user.no.role")->code(409)->send();
+}
+
 function mustBeAdmin(User $user, Floor $floor, Response $response): void
 {
     if($user->getRole() === null || ($user->getRole()->getName() !== "admin")) $response->info("user.forbidden")->code(403)->send();

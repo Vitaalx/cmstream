@@ -4,6 +4,8 @@
                   @ondelete="refresh"></user_delete_modal>
     <user_edit_modal :show="this.isOpenedModal" :userid="this.userId" :currentfirstname="this.currentFirstname"
                      :currentlastname="this.currentLastname" :currentusername="this.currentUsername"
+                     :currentrolename="this.currentRoleName" :currentroleid="this.currentRoleId"
+                     @close="this.isOpenedModal = false"
                      @onedit="refresh"></user_edit_modal>
 
     <div class="table w-full">
@@ -86,6 +88,8 @@
             currentFirstname: "",
             currentLastname: "",
             currentUsername: "",
+            currentRoleName: "",
+            currentRoleId: null,
             isDeleteModalOpen: false,
             search: "",
             nbTotalUsers: 0,
@@ -172,6 +176,8 @@
                 this.currentFirstname = user.firstname;
                 this.currentLastname = user.lastname;
                 this.currentUsername = user.username;
+                this.currentRoleName = user.role === null ? "utilisateur" : user.role.name;
+                this.currentRoleId = user.role === null ? "utilisateur" : user.role.id;
                 this.isOpenedModal = true;
             },
             closeEditModal() {

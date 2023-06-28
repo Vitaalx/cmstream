@@ -1,5 +1,4 @@
 <div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay"
-cv-show="this.show"
 >
     <div class="relative w-[400px] h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
         <span class="my-[-16.5px] text-[60px] text-pinkred mdi mdi-alert-circle-outline"></span>
@@ -24,17 +23,18 @@ cv-show="this.show"
             info: ""
         },
         props: {
-            show: false,
             userid: ""
         },
         methods: {
             closeModal() {
-                this.show = false;
+                this.$emit("close");
             },
             async deleteUser() {
                 let close = loaderStore.push();
 
-                await taob.delete("/user/" + this.userid).info(info => console.log(info)).result;
+                await taob.delete("/user/" + this.userid).info(info => {
+                    console.log(info);
+                }).result;
 
                 this.$emit("ondelete", "delete");
 
