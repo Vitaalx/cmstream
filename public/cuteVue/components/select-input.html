@@ -1,0 +1,38 @@
+<select class="select">
+    <option cv-for="option of this.options" :value="this.option.value">{{ this.option.text }}</option>
+</select>
+
+<script>
+    export default {
+        props: {
+            options: []
+        },
+        data: {
+        },
+        methods: {
+        },
+        mounted(){
+        }
+    }
+</script>
+
+<style>
+    .select {
+		appearance: none;
+        outline: 0;
+        border: 0;
+        padding: 10px 20px;
+		background: url("/public/img/icons/select-arrow-down.svg") no-repeat;
+		background-size: 25px 25px;
+		background-position: right 16px center;
+        background-color: #23252B;
+		padding-right: 50px;
+	}
+
+    .select:focus {
+        background: url("/public/img/icons/select-arrow-up.svg") no-repeat;
+        background-size: 25px 25px;
+        background-position: right 16px center;
+        background-color: #23252B;
+    }
+</style>

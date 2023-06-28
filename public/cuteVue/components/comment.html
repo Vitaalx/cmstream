@@ -1,0 +1,80 @@
+<div class="w-full flex gap-[20px] user-comment">
+    <div class="avatar">
+        <span class="mdi mdi-account-circle block mt-[-15px] text-[48px]"></span>
+    </div>
+    <div
+    class="flex-1 flex flex-col comment-ctnr" 
+    >
+        <div class="mb-[10px] flex items-center gap-[5px] header">
+            <span class="text-lg font-bold">{{ this.comm.username }}</span>
+
+            <span class="text-xs text-grey">posté le {{ this.comm.date }}</span>
+        </div>
+        
+        <div class="mb-[5px] content">
+            <p class="w-full comment">{{ this.comm.content }}</p>
+        </div>
+
+        <button 
+        @click="this.report()"
+        class="flex items-center gap-[4px] rounded text-sm text-grey hover:text-white report"
+        >
+        <span class="mdi mdi-alert-octagon"></span>
+        Signaler le commentaire
+        </button> 
+    </div>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        props: {
+            comment: {}
+        },
+
+        data: {
+            comm: {},
+        },
+
+        methods: {
+            dateFormater(date){
+                const parts = date.split("-");
+                const year = parts[0];
+                const month = parts[1];
+                const day = parts[2];
+
+                return day + "/" + month + "/" + year;
+            },
+            
+            setComment(){
+                this.comm = {
+                    content: this.comment.content,
+                    username: this.comment.user.username,
+                    date: this.dateFormater(this.comment.created_at)
+                };
+
+                console.log(this.comm);
+            },
+            report(){
+                alert("Commentaire signalé");
+            }
+        },
+
+        mounted(){
+            this.setComment();
+        }
+    }
+</script>
+
+<style>
+    .comment > input {
+        border: none !important;
+    }
+</style>
