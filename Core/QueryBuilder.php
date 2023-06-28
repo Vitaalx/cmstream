@@ -28,6 +28,9 @@ class QueryBuilder {
             if(gettype($value) === "NULL"){
                 $value = "NULL";
             }
+            else if(gettype($value) === "boolean"){
+                $value = ($value? " TRUE" : " FALSE");
+            }
             array_push($vs, "?");
             array_push($values, $value);
         }
@@ -105,6 +108,10 @@ class QueryBuilder {
                 
                 if(gettype($value) === "NULL"){
                     $where = $key . ($operator === "="? " IS NULL" : " IS NOT NULL");
+                    array_push($wheres, $where);
+                }
+                else if(gettype($value) === "boolean"){
+                    $where = $key . " " . $operator . ($value? " TRUE" : " FALSE");
                     array_push($wheres, $where);
                 }
                 else if(gettype($value) === "array"){

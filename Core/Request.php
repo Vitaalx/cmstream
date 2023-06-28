@@ -135,6 +135,6 @@ class Request{
      */
     public static function getCurrentRequest(): Request
     {
-        return self::$currentRequest;
+        return self::$currentRequest ?? new Request(explode("?", $_SERVER["REQUEST_URI"])[0], ["path" => "/"], "//");
     }
 }

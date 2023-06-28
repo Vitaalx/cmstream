@@ -10,6 +10,33 @@ require __DIR__ . "/Logger.php";
 
 error_reporting(0);
 
+function callController(string $controller){
+    $controllerClass = Route::autoLoadController($controller);
+    return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
+}
+
+function error_handler(){
+    $error = error_get_last();
+    if($error === null) return;
+    Logger::error($error["message"]);
+    $response = new Response();
+    $response
+    ->code(500)
+    ->info("ERROR.INTERNAL_SERVER")
+    ->send([
+        "info" => "Internal server error.",
+        "message" => $error["message"],
+        "file" => $error["file"],
+        "line" => $error["line"],
+    ]);
+}
+
+register_shutdown_function("Core\\error_handler");
+
+set_error_handler("Core\\error_handler", E_COMPILE_ERROR);
+set_error_handler("Core\\error_handler", E_CORE_ERROR);
+set_error_handler("Core\\error_handler", E_ERROR);
+
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
 
@@ -102,36 +129,17 @@ class Route{
 
     static function initRoute(): void
     {
+        if(isset(CONFIG["HOST"]) && $_SERVER["REMOTE_ADDR"] !== "localhost"){
+            $configHost = preg_replace("/http:\/\/|https:\/\//", "", CONFIG["HOST"]);
+            $configHost = preg_replace("/:[0-9]*/", "", $configHost);
+            $host = preg_replace("/:[0-9]*/", "", $_SERVER["HTTP_HOST"]);
+            if(strtolower($host) !== strtolower($configHost)){
+                Response::getCurrentResponse()->code(401)->send();
+            }
+        }
         $uri = explode("?", $_SERVER["REQUEST_URI"]);
         self::$requestPath = $uri[0] === "/" ? "/" : rtrim($uri[0], "/");
     }
 }
 
 Route::initRoute();
-
-function callController(string $controller){
-    $controllerClass = Route::autoLoadController($controller);
-    return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
-}
-
-function error_handler(){
-    $error = error_get_last();
-    if($error === null) return;
-    Logger::debug($error["message"]);
-    $response = new Response();
-    $response
-    ->code(500)
-    ->info("ERROR.INTERNAL_SERVER")
-    ->send([
-        "info" => "Internal server error.",
-        "message" => $error["message"],
-        "file" => $error["file"],
-        "line" => $error["line"],
-    ]);
-}
-
-register_shutdown_function("Core\\error_handler");
-
-set_error_handler("Core\\error_handler", E_COMPILE_ERROR);
-set_error_handler("Core\\error_handler", E_CORE_ERROR);
-set_error_handler("Core\\error_handler", E_ERROR);

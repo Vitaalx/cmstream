@@ -17,6 +17,9 @@ class Logger
             }
             $message = $result;
         }
+        else if(gettype($message) === "boolean"){
+            $message = $message ? "true" : "false";
+        }
 
         error_log(
             date("h:i:s") . " " 

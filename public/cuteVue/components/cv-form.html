@@ -9,7 +9,7 @@ cv-ref="form"
     export default {
         methods: {
             submited(e){
-                e.preventDefault();
+                e?.preventDefault?.();
                 let submit = true;
                 for(const element of this.$refs.form.querySelectorAll("[rulled]")){
                     if(element.$validate() === false) submit = false;

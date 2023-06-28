@@ -10,7 +10,6 @@ use Entity\User;
 use Entity\Waiting_validate;
 use Services\Access\AccessUserEditor;
 use Services\Back\MailService;
-use Services\MustBeAdmin;
 use Services\MustBeConnected;
 use Services\token\AccessToken;
 use Services\token\EmailToken;
@@ -258,17 +257,8 @@ class modifyUserAdmin extends AccessUserEditor
 }
 
 /**
- * @PUT{/user}
+ * @PUT{/api/user}
  */
-/*
-Entry:
-{
-    "firstname": "John",
-    "lastname": "Doe",
-    "username": "jdoe",
-}
-*/
-
 class modifyUser extends MustBeConnected
 {
     public function checkers(Request $request): array
@@ -277,13 +267,20 @@ class modifyUser extends MustBeConnected
             ["user/firstname", $request->getBody()["firstname"], "firstname"],
             ["user/lastname", $request->getBody()["lastname"], "lastname"],
             ["user/username", $request->getBody()["username"], "username"],
-            ["user/usernameMustBeFree", fn() => $this->floor->pickup('username'), "username"]
+            ["user/usernameMustBeFree", fn() => $this->floor->pickup('username'), "userByUsername"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var User $userByUsername */
+        $userByUsername = $this->floor->pickup("userByUsername");
+
         /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        if($userByUsername !== null && $userByUsername->getId() !== $user->getId()) $response->code(409)->info("username.already.used")->send();
+
         $user->setFirstname($this->floor->pickup("firstname"));
         $user->setLastname($this->floor->pickup("lastname"));
         $user->setUsername($this->floor->pickup("username"));
@@ -312,7 +309,7 @@ class mailResetPassword extends Controller
             ["type/string", $request->getBody()["email"], "email"],
             ["user/email", fn() => $this->floor->pickup("email"), "email"],
             ["user/existByMail", fn() => $this->floor->pickup("email"), "user"],
-            ["reset_password/mustNotExist", fn() => $this->floor->pickup("user")]
+            ["reset_password/mustNotExistOrExpire", fn() => $this->floor->pickup("user")]
         ];
     }
 
@@ -482,11 +479,12 @@ class getUsersCount extends AccessUserEditor
 /**
  * @GET{/api/user/{id}}
  */
-class getUserAdmin extends MustBeAdmin
+class getUserAdmin extends AccessUserEditor
 {
     public function checkers(Request $request): array
     {
         return [
+            [],
             ["type/int", $request->getParam("id"), "user_id"],
             ["user/exist", fn() => $this->floor->pickup("user_id"), "user"]
         ];

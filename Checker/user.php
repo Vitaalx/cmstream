@@ -83,15 +83,15 @@ function mailMustBeFree(string $email, Floor $floor, Response $response): void
     if($user_waiting_validate !== null) $response->code(409)->info("email.already.used")->send();
 }
 
-function usernameMustBeFree(string $username, Floor $floor, Response $response): User|Waiting_validate|null
+function usernameMustBeFree(string $username, Floor $floor, Response $response): ?User
 {
     $userReturned = null;
     /** @var User $user */
     $user = User::findFirst(["username" => $username]);
-    if($user !== null) $userReturned =  $user;
+    if($user !== null) $userReturned = $user;
 
     $user_waiting_validate = Waiting_validate::findFirst(["username" => $username]);
-    if($user_waiting_validate !== null) $userReturned = $user_waiting_validate;
+    if($user_waiting_validate !== null) $response->code(409)->info("username.already.used")->send();
     return $userReturned;
 }
 

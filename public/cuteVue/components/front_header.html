@@ -38,13 +38,14 @@
                 </li>
                 <li class="relative h-full">
                     <div class="relative h-full">
-                        <div 
+                        <div
                         class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless" 
                         cv-class="{ 'bg-blackless': this.displayOptionsMenu }" 
                         @click="this.displayOptionsMenu = !this.displayOptionsMenu"
                         cv-ref="buttonOptionsMenu"
                         >
-                            <span class="mdi mdi-account-circle text-[24px]" cv-class="{ 'text-white': this.displayOptionsMenu }"></span>
+                            <icon cv-if="!this.isConnected" name="account-circle" class="text-[24px]"/>
+                            <user-image cv-if="this.isConnected" size="24"/>
                             <span cv-if="!this.displayOptionsMenu" class="mdi mdi-triangle-small-down"></span>
                             <span cv-if="this.displayOptionsMenu" class="mdi mdi-triangle-small-up text-white"></span>
                         </div>
@@ -179,13 +180,18 @@
 </header>
 
 <script>
-    const [impLoader] = await Promise.all([
-        import("/public/cuteVue/loader.js")
+    const [impLoader, user_image] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        importer('/public/cuteVue/components/account/user-image.html'),
     ]);
 
     const loaderStore = impLoader.loaderStore;
 
     export default {
+        components: {
+            "user-image": user_image,
+        },
+
         data: {
             displayOptionsMenu: false,
             displayNaveBar: false,

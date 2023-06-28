@@ -260,6 +260,7 @@ scan(
                             ) ||
                             (
                                 gettype($result[0]["column_default"]) === "string" &&
+                                $result[0]["column_default"] !== $default &&
                                 explode("::", $result[0]["column_default"])[0] !== $default
                             )
                         ) && 

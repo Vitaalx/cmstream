@@ -258,6 +258,6 @@ class Response{
      */
     static public function getCurrentResponse(): Response
     {
-        return self::$currentResponse;
+        return self::$currentResponse ?? new Response();
     }
 }

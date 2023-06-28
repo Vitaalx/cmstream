@@ -1,0 +1,248 @@
+<div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 pb-[30px]">
+    <div class="flex flex-col items-center">
+        
+        <div class="mb-[30px] flex items-center gap-[32px] color-white">
+            <user-image size="120"/>
+        
+            <span class="text-2xl font-bold username">Bienvenue {{ this.username }} !</span>
+        </div>
+
+        <cv-form @submit="submited" cv-ref="form" class="p-[40px] bg-darkblue lg:w-[70%] flex flex-col gap-[30px]">
+            <text-input
+            name="lastname"
+            type="text"
+            class="w-full"
+            cv-model="ln"
+            label="Nom"
+            :disabled="this.editing !== 'ln'"
+            :rules="this.lastnameRule"
+            >
+                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                    <icon 
+                    cv-show="this.editing !== 'ln'"
+                    @click="this.editing = 'ln';" 
+                    class="cursor-pointer" 
+                    name="pen"
+                    />
+
+                    <icon 
+                    cv-show="this.editing === 'ln'"
+                    @click="init"
+                    class="cursor-pointer" 
+                    name="close"
+                    />
+
+                    <icon 
+                    cv-show="this.editing === 'ln'"
+                    @click="this.$refs.form.$instance.submited()"
+                    class="cursor-pointer" 
+                    name="check"
+                    />
+                </div>
+            </text-input>
+
+            <text-input
+            name="firstname"
+            type="text"
+            class="w-full"
+            cv-model="fn"
+            label="Prénom"
+            :disabled="this.editing !== 'fn'"
+            :rules="this.firstnameRule"
+            >
+                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                    <icon 
+                    cv-show="this.editing !== 'fn'"
+                    @click="this.editing = 'fn';" 
+                    class="cursor-pointer" 
+                    name="pen"
+                    />
+
+                    <icon 
+                    cv-show="this.editing === 'fn'"
+                    @click="init"
+                    class="cursor-pointer" 
+                    name="close"
+                    />
+
+                    <icon 
+                    cv-show="this.editing === 'fn'"
+                    @click="this.$refs.form.$instance.submited()"
+                    class="cursor-pointer" 
+                    name="check"
+                    />
+                </div>
+            </text-input>
+
+            <text-input
+            name="username"
+            type="text"
+            class="w-full"
+            cv-model="p"
+            label="Pseudo"
+            :disabled="this.editing !== 'p'"
+            :rules="this.usernameRule"
+            cv-ref="username"
+            >
+                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                    <icon 
+                    cv-show="this.editing !== 'p'"
+                    @click="this.editing = 'p';" 
+                    class="cursor-pointer" 
+                    name="pen"
+                    />
+
+                    <icon
+                    cv-show="this.editing === 'p'"
+                    @click="init"
+                    class="cursor-pointer" 
+                    name="close"
+                    />
+
+                    <icon
+                    cv-show="this.editing === 'p'"
+                    @click="this.$refs.form.$instance.submited()"
+                    class="cursor-pointer" 
+                    name="check"
+                    />
+                </div>
+            </text-input>
+
+            <button
+            type="button"
+            @click="changePassWord"
+            class="px-[20px] py-[10px] rounded bg-skyblue self-center"
+            cv-show="this.success === false"
+            >
+                Changer de mot de pass
+            </button>
+
+            <span cv-show="this.info" class="text-[red] self-center" cv-class="{ 'text-[green]': this.success }">
+                {{this.info}}
+            </span>
+        </cv-form>
+    </div>
+</div>
+
+<script>
+    const [user_image, impLoader, impTaob] = await Promise.all([
+        importer('/public/cuteVue/components/account/user-image.html'),
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js"),
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        components: {
+            "user-image": user_image,
+        },
+
+        data: {
+            fn: "",
+            ln: "",
+            p: "",
+
+            editing: false,
+            alreadyUseUsername: false,
+            info: "",
+            success: false,
+        },
+
+        computed: {
+            usernameRule(){
+                return [
+                    (value) => this.alreadyUseUsername !== value || "Ce pseudo est déjà utilisé",
+                    (value) => !!value || "Ce champs est obligatoire",
+                    (value) => value.length < 4 ? "Pseudo trop court" : true,
+                    (value) => value.length > 120 ? "Pseudo trop long" : true,
+                ];
+            },
+        },
+
+        static: {
+            lastnameRule: [
+                (value) => !!value || "Ce champs est obligatoire",
+                (value) => value.length > 120 ? "Nom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Nom invalide",
+            ],
+            firstnameRule: [
+                (value) => !!value || "Ce champs est obligatoire",
+                (value) => value.length < 4 ? "Prénom trop court" : true,
+                (value) => value.length > 60 ? "Prénom trop long" : true,
+                (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide",
+            ],
+        },
+
+        watch: {
+            editing(n, o){
+                if(o !== false){
+                    this.init();
+                    this.$refs.form.$instance.submited();
+                }
+            }
+        }, 
+        
+        methods: {
+            init(){
+                this.fn = this.firstname;
+                this.ln = this.lastname;
+                this.p = this.username;
+
+                if(this.editing !== false)this.editing = false;
+            },
+            async submited(){
+                let close = loaderStore.push();
+
+                await taob.put("/user", {firstname: this.fn, lastname: this.ln, username: this.p})
+                .info(info => {
+                    if(info === "username.already.used"){
+                        this.alreadyUseUsername = this.p;
+                        this.$refs.username.$validate();
+                    }
+                })
+                .s(async () => {
+                    await this.connect();
+                    this.init();
+                })
+                .result;
+
+                close();
+            }, 
+            async changePassWord(){
+                let close = loaderStore.push();
+
+                await taob.post("/user/password", { email: this.email})
+                .info(info => {
+                    if(info === "Reset_Password.already.use") this.info = "Une demande a déjà étais envoyer.";
+                    else if(info === "user.notfound.mail") this.info = "Aucun utilisateur est associé à cette adresse Email.";
+                    else this.info = "Champ invalide.";
+                })
+                .s(() => {
+                    this.success = true;
+                    this.info = "Un mail de confirmation vous a été envoyé.";
+                })
+                .result;
+
+                close();
+            }
+        },
+
+        mounted(){
+            this.init();
+        },
+
+        stores: [
+            {
+                name: "user",
+                states: ["firstname", "lastname", "username", "avatar", "email"], // TODO: add avatar, email
+                actions: ["connect"]
+            },
+        ],
+    }
+</script>
+
+<style>
+
+</style>

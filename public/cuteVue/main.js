@@ -1,6 +1,6 @@
-import CuteVue, {importer} from "../js/cuteVue/index.js";
-import {createRoute} from "./router/index.js";
-import {loaderStore} from "./loader.js"
+import CuteVue, { importer } from "../js/cuteVue/index.js";
+import { createRoute } from "./router/index.js";
+import { loaderStore } from "./loader.js"
 import "./user.js";
 
 createRoute(
@@ -38,7 +38,7 @@ createRoute(
                 },
                 {
                     path: "/account",
-                    view: () => importer("/public/cuteVue/views/account/infos.html"),
+                    view: () => importer("/public/cuteVue/views/account.html"),
                 },
                 {
                     path: "/account/email",
@@ -79,14 +79,14 @@ createRoute(
 
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
-        let result = await fetch(path, {headers: {"Page-Access": "true"}});
-        if(result.redirected === true){
+        let result = await fetch(path, { headers: { "Page-Access": "true" } });
+        if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");
         }
-        else if(result.status === 200){
+        else if (result.status === 200) {
             let appName = result.headers.get("App-Name");
-            if(document.title !== appName) document.title = appName;
+            if (document.title !== appName) document.title = appName;
             return path;
         }
         else {
@@ -99,13 +99,14 @@ createRoute(
     }
 );
 
-const [app, page_loader, cv_form, text_input, checkbox_input, select_input] = await Promise.all([
+const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon] = await Promise.all([
     importer("/public/cuteVue/app.html"),
     importer("/public/cuteVue/components/page-loader.html"),
     importer("/public/cuteVue/components/cv-form.html"),
     importer("/public/cuteVue/components/inputs/text-input.html"),
     importer("/public/cuteVue/components/inputs/checkbox-input.html"),
-    importer("/public/cuteVue/components/inputs/select-input.html")
+    importer("/public/cuteVue/components/inputs/select-input.html"),
+    importer("/public/cuteVue/components/icon.html"),
 ]);
 
 CuteVue.component("page-loader", page_loader);
@@ -113,5 +114,6 @@ CuteVue.component("cv-form", cv_form);
 CuteVue.component("text-input", text_input);
 CuteVue.component("checkbox-input", checkbox_input);
 CuteVue.component("select-input", select_input);
+CuteVue.component("icon", icon);
 
 app.mount("#app");
