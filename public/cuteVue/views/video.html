@@ -8,8 +8,8 @@
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
             <div class="flex gap-[20px] player-otions">
-                <select-input :options="this.players" />
-                <select-input :options="this.episodes" />
+                <select-input class="w-[100px]" label="Player" :items="this.players" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentPlayer" />
+                <select-input class="w-[100px]" label="Épisode" :items="this.episodes" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentEpisode" />
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
@@ -114,7 +114,9 @@
                     value: 12,
                 }
             ],
-            comments: []
+            currentPlayer: "player1",
+            currentEpisode: 1,
+            comments: [],
         },
 
         methods: {

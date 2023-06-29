@@ -1,7 +1,11 @@
 
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-    <delete_category_modal @ondelete="refresh" :category_id="this.selectCategory"
-    cv-if="this.dialogDeleteCategory" @close="this.dialogDeleteCategory = false" @delete-category="this.refresh()"
+    <delete_category_modal :category_id="this.selectCategory" cv-if="this.dialogDeleteCategory" 
+    @close="this.dialogDeleteCategory = false" @delete-category="refresh"
+    />
+    <edit_category_modal :category_id="this.selectCategory" 
+    cv-if="this.dialogEditCategory" @close="this.dialogEditCategory = false"
+    :currentName="this.nameSelectedCategory" @edit-category="refresh"
     />
 
     <div class="table w-full">
@@ -45,7 +49,7 @@
 
                         <span
                         class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                        @click="this.editCategory(this.cateogory)">
+                        @click="this.editCategory(this.category.id, this.category.title)">
                         </span>
                     </td>
                 </tr>
@@ -63,10 +67,11 @@
 </div>
 
 <script>
-    const [impLoader, impTaob, delete_category_modal] = await Promise.all([
+    const [impLoader, impTaob, delete_category_modal, edit_category_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js"),
-        importer("/public/cuteVue/components/modals/delete_category_modal.html")
+        importer("/public/cuteVue/components/modals/delete_category_modal.html"),
+        importer("/public/cuteVue/components/modals/edit_category_modal.html"),
     ]);
 
     const loaderStore = impLoader.loaderStore;
@@ -75,6 +80,7 @@
     export default {
         components: {
             delete_category_modal,
+            edit_category_modal
         },
         data: {
             addedCategory: "",
@@ -85,7 +91,9 @@
             nbCategoriesPerPage: 5,
             categories: [],
             dialogDeleteCategory: false,
+            dialogEditCategory: false,
             selectCategory: null,
+            nameSelectedCategory: "",
         },
         static: {
             titleRule: [
@@ -124,6 +132,7 @@
             async previousPage() {
                 if (this.currentPageNumber > 1) {
                     this.currentPageNumber--;
+                    this.refresh();
                 }
             },
             async nextPage() {
@@ -132,38 +141,42 @@
                     this.refresh();
                 }
             },
-            async getCategories(page) {
+            async getCategories(page, count = false) {
                 let close = loaderStore.push();
 
                 // get categories per page
-                await taob.get(`/categories?page=${page - 1}`).s((response) => {
-                    this.displayedCategories = response;
+                await taob.get(`/categories?page=${page - 1}`).s((data) => {
+                    this.displayedCategories = data;
                 }).e((error) => {
                     this.info = "Erreur lors de la récupération des catégories";
                 }).result;
+                if (count) {
+                    this.countCategories();
+                }
 
                 close();
             },
-            async deleteCategory(id) {
+            deleteCategory(id) {
                 this.selectCategory = id;
                 this.dialogDeleteCategory = true;
-                this.refresh();
             },
-            async editCategory(category) { // TODO
-                let close = loaderStore.push();
-
-                this.refresh();
-                close();
+            editCategory(category_id, category_name) {
+                this.selectCategory = category_id;
+                this.nameSelectedCategory = category_name;
+                this.dialogEditCategory = true;
             },
-            refresh() {
-                this.getCategories(this.currentPageNumber);
-                this.countCategories();
+            async refresh(action) {
+                if (action === "delete") {
+                    this.getCategories(this.currentPageNumber, true);
+                } else {
+                    this.getCategories(this.currentPageNumber);
+                }
             },
             async countCategories() {
                 let close = loaderStore.push();
 
-                await taob.get('/categories/count').s((response) => {
-                    this.maxPage = Math.ceil(response / this.nbCategoriesPerPage);
+                await taob.get('/categories/count').s((data) => {
+                    this.maxPage = Math.ceil(data / this.nbCategoriesPerPage);
                 }).e((error) => {
                     this.info = "Erreur lors de la récupération du nombres catégories";
                 }).result;
@@ -172,8 +185,7 @@
             }
         },
         mounted() {
-            this.getCategories(this.currentPageNumber);
-            this.countCategories();
+            this.getCategories(this.currentPageNumber, true);
         }
     }
 </script>
