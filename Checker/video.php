@@ -48,6 +48,12 @@ function image(string $image, Floor $floor, Response $response): string
 function exist(int $videoId, Floor $floor, Response $response): Video
 {
     $video = Video::findFirst(["id" => $videoId]);
-    if($video === null) $response->info("video.notfound")->code(404)->send();
+    if ($video === null) $response->info("video.notfound")->code(404)->send();
     return $video;
+}
+
+function notexist(int $videoId, Floor $floor, Response $response): void
+{
+    $video = Video::findFirst(["id" => $videoId]);
+    if ($video !== null) $response->info("video.exist")->code(409)->send();
 }

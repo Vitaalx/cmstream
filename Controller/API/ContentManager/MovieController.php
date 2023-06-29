@@ -28,10 +28,6 @@ use Services\Back\VideoManagerService as VideoManager;
 /*
 Entry:
 {
-"url": [
-"https://www.youtube.com/watch?v=1",
-"https://www.youtube.com/watch?v=2"
-],
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
@@ -43,14 +39,13 @@ class createMovie extends AccessContentsManager
     public function checkers(Request $request): array
     {
         return [
-            ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $request->getBody()['description'], "description"],
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
-            ["type/int", $request->getBody()['category'], "category_id"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
             ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
@@ -59,7 +54,6 @@ class createMovie extends AccessContentsManager
     {
         /** @var Video $video */
         $video = VideoManager::createVideo(
-            $this->floor->pickup("video/url"),
             $this->floor->pickup("title_video"),
             $this->floor->pickup("description")
         );
@@ -73,7 +67,7 @@ class createMovie extends AccessContentsManager
             "category_id" => $this->floor->pickup("category")->getId()
         ]);
 
-        $response->code(201)->info("movie.created")->send(["movie" => $movie]);
+        $response->code(201)->info("movie.created")->send(["movie" => $movie, "video" => $video]);
     }
 }
 
@@ -131,7 +125,7 @@ class getMovie extends Controller
         $movie[] = $this->floor->pickup("movie");
         $movie[] = $this->floor->pickup("movie")->getVideo();
 
-        $response->code(200)->info("movie.get")->send(["movie" => $movie]);
+        $response->code(200)->info("movie.get")->send($movie);
     }
 }
 
@@ -185,10 +179,6 @@ class getMovies extends Controller
 /*
 Entry:
 {
-"url": [
-"https://www.youtube.com/watch?v=1",
-"https://www.youtube.com/watch?v=2"
-],
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
@@ -202,7 +192,6 @@ class updateMovie extends AccessContentsManager
         return [
             ["type/int", $request->getParam('id'), "movie_id"],
             ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"],
-            ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $request->getBody()['description'], "description"],
