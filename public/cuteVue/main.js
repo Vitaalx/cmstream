@@ -2,6 +2,7 @@ import CuteVue, { importer } from "../js/cuteVue/index.js";
 import { createRoute } from "./router/index.js";
 import { loaderStore } from "./loader.js"
 import "./user.js";
+import "./toast.js";
 
 createRoute(
     [
