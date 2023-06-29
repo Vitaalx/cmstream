@@ -53,11 +53,11 @@ class="relative"
         </div>
 
         <div 
-        class="absolute left-0 w-full bg-[white] top-[calc(100%+10px)] flex flex-col gap-[5px] max-h-[200px] overflow-y-auto"
+        class="absolute left-0 w-full border-x-[1px] border-b-[1px] bg-[white] top-[calc(100%+2px)] overflow-y-auto max-h-[300px] flex flex-col gap-[5px] max-h-[200px] overflow-y-auto"
         cv-show="this.isFocus"
         >
             <div
-            class="text-[black] hover:bg-skyblue hover:text-[white]"
+            class="text-[black] p-[5px] bg-[white] z-10 hover:bg-skyblue hover:text-[white]"
             cv-for="item of Object.entries(this.items)"
             @click="this.selected(this.item[0])"
             >
@@ -120,7 +120,6 @@ class="relative"
             },
             validate(){
                 if(this.disabled === true) return true;
-
                 for(const rule of this.rules){
                     let result = rule(this.value);
                     if(result !== true){
@@ -136,6 +135,7 @@ class="relative"
         mounted(){
             this.$getElement().$validate = () => this.validate();
             this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+            this.$getElement().$validate = () => this.validate();
         }
     }
 </script>

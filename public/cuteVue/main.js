@@ -96,6 +96,10 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/dashboard/movies.html"),
                 },
                 {
+                    path: "/dashboard/add-content",
+                    view: () => importer("/public/cuteVue/views/admin/add-content.html"),
+                },
+                {
                     path: "/dashboard/config-app",
                     view: () => importer("/public/cuteVue/views/dashboard/config-app.html"),
                 },
@@ -114,11 +118,11 @@ createRoute(
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
         let {response: result} = await taob.get(
-            path, 
+            path,
             {
                 headers: {
                     "Page-Access": "true"
-                }, 
+                },
                 disabledPrefix: true,
             },
             {

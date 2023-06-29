@@ -99,7 +99,6 @@ class getCategories extends Controller
         $name = $this->floor->pickup("name");
         $number = 5;
 
-        /** @var Category[] $categories */
         $categories = Category::findMany(
             [
                 "title" => [

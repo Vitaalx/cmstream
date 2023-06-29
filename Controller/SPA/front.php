@@ -129,7 +129,7 @@ class adminConfig extends IndexHandler
 /**
  * @GET{/dashboard/comments}
  */
-class dashboradManager extends IndexHandler
+class dashboardManager extends IndexHandler
 {
     public function checkers(Request $request): array
     {
@@ -137,6 +137,24 @@ class dashboradManager extends IndexHandler
             ["page/onlyConnected", "", "user"],
             ["page/mustHavePermission", Permissions::AccessDashboard],
             ["page/mustHavePermission", Permissions::CommentsManager],
+        ];
+    }
+}
+
+/**
+ * @GET{/admin/add-content}
+ * @GET{/admin/category}
+ * @GET{/admin/serie}
+ * @GET{/admin/movie}
+ */
+class adminContent extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::ContentsManager]
         ];
     }
 }
