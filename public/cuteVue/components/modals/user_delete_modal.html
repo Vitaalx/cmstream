@@ -32,11 +32,11 @@
             async deleteUser() {
                 let close = loaderStore.push();
 
-                await taob.delete("/user/" + this.userid).info(info => {
+                await taob.delete("/user/" + this.userid)
+                    .s(() => this.$emit("ondelete", "delete"))
+                    .info(info => {
                     console.log(info);
                 }).result;
-
-                this.$emit("ondelete", "delete");
 
                 this.closeModal();
 

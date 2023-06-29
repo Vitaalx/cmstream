@@ -86,12 +86,12 @@
                     firstname: this.currentfirstname,
                     lastname: this.currentlastname,
                     username: this.currentusername
-                }).info(info => {
-                    if (info === "username.already.used") this.info = "Le pseudo est déjà utilisé.";
-                    if (info === "user.modified") this.info = "L'utilisateur à bien été modifié.";
+                })
+                    .s(() => this.$emit("onedit", "edit"))
+                    .info(info => {
+                        if (info === "username.already.used") this.info = "Le pseudo est déjà utilisé.";
+                        if (info === "user.modified") this.info = "L'utilisateur à bien été modifié.";
                 }).result;
-
-                this.$emit("onedit", "edit");
 
                 this.closeModal();
 
