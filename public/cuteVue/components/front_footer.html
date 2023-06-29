@@ -5,7 +5,7 @@
                 <h2 class="text-xl font-bold leading-normal mt-0 mb-2 text-white">Navigation</h2>
                 <ul>
                     <li>
-                        <a class="text-sm text-whiteless hover:text-white" href="#">Catalogue</a>
+                        <router_link href="catalog" class="text-sm text-whiteless hover:text-white">Catalogue</router_link>
                     </li>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">Boutique</a>
@@ -20,25 +20,25 @@
                 <ul>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <span class="mdi mdi-facebook"></span>
+                            <icon name="facebook"/>
                             Facebook
                         </a>
                     </li>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <span class="mdi mdi-twitter"></span>
+                            <icon name="twitter"/>
                             Twitter
                         </a>
                     </li>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <span class="mdi mdi-instagram"></span>
+                            <icon name="instagram"/>
                             Instagram
                         </a>
                     </li>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <span class="mdi mdi-youtube"></span>
+                            <icon name="youtube"/>
                             Youtube
                         </a>
                     </li>
@@ -48,16 +48,16 @@
                 <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Compte</h2>
                 <ul>
                     <li cv-if="!this.connected">
-                        <a class="text-sm text-whiteless hover:text-white" href="#">Créer un compte</a>
+                        <router_link href="signup" class="text-sm text-whiteless hover:text-white">Céer un compte</router_link>
                     </li>
                     <li cv-if="!this.connected">
-                        <a class="text-sm text-whiteless hover:text-white" href="#">Se connecter</a>
+                        <router_link href="signin" class="text-sm text-whiteless hover:text-white">Se connecter</router_link>
                     </li>
                     <li cv-if="this.connected">
-                        <a class="text-sm text-whiteless hover:text-white" href="#">Mes watchlists</a>
+                        <router_link href="lists" class="text-sm text-whiteless hover:text-white">Mes lists</router_link>
                     </li>
                     <li cv-if="this.connected">
-                        <a class="text-sm text-whiteless hover:text-white" href="#">Paramètres du compte</a>
+                        <router_link href="account" class="text-sm text-whiteless hover:text-white">Se Paramètre du compte</router_link>
                     </li>
                 </ul>
             </nav>
@@ -74,10 +74,6 @@
         data: {
             connected: true,
         },
-
-        props: {},
-
-        methods: {},
     }
 </script>
 

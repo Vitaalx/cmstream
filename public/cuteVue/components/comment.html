@@ -1,6 +1,6 @@
 <div class="w-full flex gap-[20px] user-comment">
     <div class="avatar">
-        <span class="mdi mdi-account-circle block mt-[-15px] text-[48px]"></span>
+        <icon name="account-circle block mt-[-15px]" class="text-[48px]"/>
     </div>
     <div
     class="flex-1 flex flex-col comment-ctnr" 
@@ -19,7 +19,7 @@
         @click="this.report()"
         class="flex items-center gap-[4px] rounded text-sm text-grey hover:text-white report"
         >
-        <span class="mdi mdi-alert-octagon"></span>
+        <icon name="alert-octagon"/>
         Signaler le commentaire
         </button> 
     </div>
@@ -38,11 +38,9 @@
         props: {
             comment: {}
         },
-
         data: {
             comm: {},
         },
-
         methods: {
             dateFormater(date){
                 const parts = date.split("-");
@@ -52,7 +50,6 @@
 
                 return day + "/" + month + "/" + year;
             },
-            
             setComment(){
                 this.comm = {
                     content: this.comment.content,
@@ -64,7 +61,6 @@
                 alert("Commentaire signalé");
             }
         },
-
         mounted(){
             this.setComment();
         }
@@ -72,7 +68,5 @@
 </script>
 
 <style>
-    .comment > input {
-        border: none !important;
-    }
+
 </style>
