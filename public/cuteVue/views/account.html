@@ -116,10 +116,6 @@
             >
                 Changer de mot de pass
             </button>
-
-            <span cv-show="this.info" class="text-[red] self-center" cv-class="{ 'text-[green]': this.success }">
-                {{this.info}}
-            </span>
         </cv-form>
     </div>
 </div>
@@ -146,7 +142,6 @@
 
             editing: false,
             alreadyUseUsername: false,
-            info: "",
             success: false,
         },
 
@@ -203,6 +198,7 @@
                     }
                 })
                 .s(async () => {
+                    this.pushToast("successful", "Les modification on bien etais prie en compte.");
                     await this.connect();
                     this.init();
                 })
@@ -215,13 +211,13 @@
 
                 await taob.post("/user/password", { email: this.email})
                 .info(info => {
-                    if(info === "Reset_Password.already.use") this.info = "Une demande a déjà étais envoyer.";
-                    else if(info === "user.notfound.mail") this.info = "Aucun utilisateur est associé à cette adresse Email.";
-                    else this.info = "Champ invalide.";
+                    if(info === "Reset_Password.already.use") this.pushToast("error", "Une demande a déjà étais envoyer.");
+                    else if(info === "user.notfound.mail") this.pushToast("error", "Aucun utilisateur est associé à cette adresse Email.");
+                    else this.pushToast("error", "Champ invalide.");
                 })
                 .s(() => {
                     this.success = true;
-                    this.info = "Un mail de confirmation vous a été envoyé.";
+                    this.pushToast("successful", "Un mail de confirmation vous a été envoyé.");
                 })
                 .result;
 
@@ -239,6 +235,10 @@
                 states: ["firstname", "lastname", "username", "avatar", "email"], // TODO: add avatar, email
                 actions: ["connect"]
             },
+            {
+                name: "toast",
+                actions: ["pushToast"],
+            }
         ],
     }
 </script>
