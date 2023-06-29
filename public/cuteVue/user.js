@@ -1,5 +1,6 @@
 import CuteVue from "../js/cuteVue/index.js";
 import taob from "./taob.js";
+import { toastStore } from "./toast.js";  
 
 export const userStore =  CuteVue.createStore(
     "user",
@@ -66,4 +67,4 @@ export const userStore =  CuteVue.createStore(
 
 userStore.connect();
 taob.setHookInfo("user.logged", () => userStore.connect());
-// taob.setHookInfo("token.invalid", () => window.location.href = "/");
+taob.setHookInfo("token.invalid", () => toastStore.pushToast("error", "Votre session a expiré, veuillez vous reconnecter."));

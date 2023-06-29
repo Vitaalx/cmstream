@@ -92,17 +92,14 @@
 </div>
 
 <script>
-    const [impLoader, impTaob] = await Promise.all([
+    const [impLoader, impTaob, user_delete_modal, user_edit_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
-        import("/public/cuteVue/taob.js")
-    ]);
-    const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
-
-    const [user_delete_modal, user_edit_modal] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/modals/user_delete_modal.html'),
         importer('/public/cuteVue/components/modals/user_edit_modal.html')
     ]);
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
 
     export default {
         components: {
@@ -208,8 +205,8 @@
                 this.currentFirstname = user.firstname;
                 this.currentLastname = user.lastname;
                 this.currentUsername = user.username;
-                this.currentRoleName = user.role === null ? "utilisateur" : user.role.name;
-                this.currentRoleId = user.role === null ? "utilisateur" : user.role.id;
+                this.currentRoleName = user.role === null ? null : user.role.name;
+                this.currentRoleId = user.role === null ? null : user.role.id;
                 this.isOpenedModal = true;
             },
             closeEditModal() {

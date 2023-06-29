@@ -1,4 +1,11 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+
+    <delete_role_modal
+    cv-if="this.isDeleteModalOpen" :roleid="this.roleId"
+    @close="this.isDeleteModalOpen = false"
+    @delete-role="refresh"
+    />
+
     <div class="table w-full">
         <div class="table-header w-full flex flex-col justify-between items-start mb-[10px]">
             <cv-form @submit="addRole">
@@ -8,8 +15,6 @@
                     <button cv-class="{ 'cursor-not-allowed text-grey': !this.addedRole }" :disabled="!this.addedRole">Ajouter</button>
                 </div>
             </cv-form>
-
-            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.info }}</p>
         </div>
 
         <table class="table-content w-full border-2 rounded-t-[8px]">
@@ -84,7 +89,7 @@
                     <td class="p-[22px] text-center">
                         <span class="mdi mdi-square-edit-outline text-2xl text-adminblack cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.isEditable(this.role)"></span>
 
-                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.deleteRole(this.role)"></span>
+                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.openDeleteModal(this.role.id)"></span>
                         
                         <span class="mdi mdi-check text-2xl text-[green] cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.editRole(this.role.id)"></span>
                         
@@ -97,13 +102,18 @@
     </div>
 </div>
 <script>
-    const [impLoader, impTaob] = await Promise.all([
+    const [impLoader, impTaob, delete_role_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
-        import("/public/cuteVue/taob.js")
+        import("/public/cuteVue/taob.js"),
+        importer('/public/cuteVue/components/modals/delete_role_modal.html')
     ]);
+
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
     export default {
+        components: {
+            delete_role_modal
+        },
         data: {
             roles: [],
             roleId: null,
@@ -116,7 +126,7 @@
             userEditorEdited: false,
             configEditorEdited: false,
             addedRole: "",
-            info: ""
+            isDeleteModalOpen: false
         },
         methods: {
             async getRoles() {
@@ -173,12 +183,12 @@
 
                 await taob.put('role/' + this.roleId + '/permissions', {
                     permissions: permissions
-                }).s(data => {
+                }).s(async () => {
                     this.isEditMode = false;
                     this.resetEditData();
                     this.getRoles();
                 }).info(info => {
-                    if (info === "role.protected.admin") this.info = "Vous ne pouvez pas editer le rôle administrateur.";
+                    if (info === "role.protected.admin") this.pushToast("error", "Le rôle admin ne peut pas être modifié.");
                 }).result;
 
                 close();
@@ -190,28 +200,33 @@
 
                 await taob.post('role', {
                     name: this.addedRole
-                }).s(this.getRoles).result
+                }).s(async () => {
+                    this.pushToast("successfull", "Le rôle à bien été ajouté.");
+                    this.getRoles();
+                }).result
 
                 this.addedRole = "";
 
                 close();
             },
-            async deleteRole(role) {
-                let close = loaderStore.push();
-
-                await taob.delete('role/' + role.id)
-                    .s(this.getRoles)
-                    .info(info => {
-                        if(info === "role.protected.admin") this.info = "Vous ne pouvez pas supprimer le rôle administrateur."
-                }).result
-
-                close();
+            openDeleteModal(roleId) {
+                this.roleId = roleId;
+                this.isDeleteModalOpen = true;
+            },
+            async refresh(action) {
+                this.getRoles();
             }
         },
 
         mounted(){
             this.getRoles();
         },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
     }
 </script>
 <style></style>

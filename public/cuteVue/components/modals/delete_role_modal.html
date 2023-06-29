@@ -2,10 +2,10 @@
     <div class="relative w-[400px] h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
         <span class="my-[-16.5px] text-[60px] text-pinkred mdi mdi-alert-circle-outline"></span>
 
-        <p class="text-center message">Êtes-vous sûr de vouloir supprimer cet catégorie ?</p>
+        <p class="text-center message">Êtes-vous sûr de vouloir supprimer ce rôle ?</p>
 
         <div class="flex gap-[10px] buttons">
-            <button @click="this.deleteCategory()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
+            <button @click="this.deleteRole()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
 
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
@@ -23,19 +23,19 @@
     
     export default {
         props: {
-            category_id: ""
+            roleid: ""
         },
         methods: {
             closeModal() {
                 this.$emit("close");
             },
-            async deleteCategory() {
+            async deleteRole() {
                 let close = loaderStore.push();
 
-                await taob.delete("/category/" + this.category_id)
+                await taob.delete("role/" + this.roleid)
                 .s(async () => {
-                    this.$emit("delete-category", "delete")
-                    this.pushToast("successfull", "La catégorie à bien été supprimée.");
+                    this.$emit("delete-role", "delete")
+                    this.pushToast("successfull", "Le rôle à bien été supprimé.");
                 })
                 .info(info => console.log(info)).result;
 
