@@ -39,7 +39,7 @@
                 let close = loaderStore.push();
 
                 await taob.delete("/category/" + this.category_id)
-                .s(() =>this.$emit("delete-category"))
+                .s(() => this.$emit("delete-category", "delete"))
                 .info(info => console.log(info)).result;
 
                 this.closeModal();
