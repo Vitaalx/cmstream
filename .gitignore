@@ -26,3 +26,4 @@ logs/*.txt
 .env
 
 generate.index.php
+generate.methods.php

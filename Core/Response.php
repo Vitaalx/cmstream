@@ -180,7 +180,14 @@ class Response{
             $this->addExpose("aob-info");
         }
 
-        $this->setHeader("access-control-expose-headers", implode(", ", $this->expose));
+        if(isset(CONFIG["HOST"])){
+            $this->setHeader("Access-Control-Allow-Origin", CONFIG["HOST"]);
+        }
+        if(defined("METHODS") && isset(METHODS[Route::getInfo()["path"]])){
+            $this->setHeader("Access-Control-Allow-Methods", implode(", ", METHODS[Route::getInfo()["path"]]));
+        }
+
+        if(count($this->expose) !== 0)$this->setHeader("Access-Control-Expose-Headers", implode(", ", $this->expose));
 
         foreach($this->headers as $key => $value){
             header("{$key}: {$value}");

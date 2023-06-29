@@ -1,5 +1,6 @@
 <?php
 # ROUTE CMSTREAM
+require __DIR__ . "/generate.methods.php";
 require __DIR__ . "/../Core/Route.php";
 use Core\Route;
 

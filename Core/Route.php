@@ -43,6 +43,7 @@ else define("CONFIG", []);
 class Route{
     static private string $requestPath;
     static private int $count = 0;
+    static private array $info;
 
     static public function match(array $info): void
     {
@@ -57,7 +58,8 @@ class Route{
             )
         )
         {  
-            $request = new Request(self::$requestPath, $info, $regexPath);
+            self::$info = $info;
+            $request = new Request(self::$requestPath, $regexPath);
             $response = new Response();
 
             $class = self::autoLoadController($info["controller"]);
@@ -127,14 +129,16 @@ class Route{
         return $class;
     }
 
+    static function getInfo(){
+        return self::$info ?? ["path" => "BEFORE_MATCH"];
+    }
+
     static function initRoute(): void
     {
-        if(isset(CONFIG["HOST"]) && $_SERVER["REMOTE_ADDR"] !== "localhost"){
-            $configHost = preg_replace("/http:\/\/|https:\/\//", "", CONFIG["HOST"]);
-            $configHost = preg_replace("/:[0-9]*/", "", $configHost);
-            $host = preg_replace("/:[0-9]*/", "", $_SERVER["HTTP_HOST"]);
-            if(strtolower($host) !== strtolower($configHost)){
-                Response::getCurrentResponse()->code(401)->send();
+        $origin = getallheaders()["Origin"] ?? null;
+        if($_SERVER["REQUEST_METHOD"] === "OPTIONS" && isset(CONFIG["HOST"]) && $origin !== null){
+            if(preg_match("/" . CONFIG["HOST"] . "/", $origin) === false){
+                Response::getCurrentResponse()->code(400)->send();
             }
         }
         $uri = explode("?", $_SERVER["REQUEST_URI"]);
