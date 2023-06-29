@@ -10,11 +10,10 @@ class Request{
     private array $requestParams;
     private array $requestJsonBody;
     private $requestBody;
-    private array $info;
     private array $cookies;
     private array $headers;
 
-    public function __construct(string $path, array $info, string $regexPath)
+    public function __construct(string $path, string $regexPath)
     {
         self::$currentRequest = $this;
         
@@ -25,7 +24,6 @@ class Request{
         $this->headers = getallheaders();
 
         $this->requestPath = $path;
-        $this->info = $info;
         $this->setRequestBody();
         $this->setRequestParams($regexPath);
     }
@@ -113,7 +111,7 @@ class Request{
     }
 
     private function setRequestParams(string $regexPath){
-        preg_match_all('/{([^\/]*)}/', $this->info["path"], $groups1);
+        preg_match_all('/{([^\/]*)}/', Route::getInfo()["path"], $groups1);
         preg_match_all($regexPath, $this->requestPath, $groups2);
 
         if(isset($groups1[0]))
@@ -135,6 +133,6 @@ class Request{
      */
     public static function getCurrentRequest(): Request
     {
-        return self::$currentRequest ?? new Request(explode("?", $_SERVER["REQUEST_URI"])[0], ["path" => "/"], "//");
+        return self::$currentRequest ?? new Request(explode("?", $_SERVER["REQUEST_URI"])[0], "//");
     }
 }
