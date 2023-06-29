@@ -11,11 +11,25 @@ export default async function importer(path){
         let result = await fetch(path, {method: "GET"});
         result = await result.text();
 
+        result = result.replace(
+            /<(?:$^|[ ]*)([a-zA-Z0-9_-]+)(?:^$|[ \n\t\r]*)((?:(?:[0-9a-zA-Z-:@_]+(?:^$|[ ]*)=(?:^$|[ ]*)"[^"]*")(?:^$|[ \n\t\r]*))*)\/>/g,
+            (match, tagName, attr) => `<${tagName} ${attr}></${tagName}>`
+        );
+        let scope = Math.round(Math.random() * 10000) + "-" + Date.now();
+
         const page = new DOMParser()
         .parseFromString(
             result, 
             "text/html"
         );
+        
+        if(page.body.children[2].getAttribute("unscope") === null){
+            page.body.children[2].textContent = page.body.children[2].textContent.replace(
+                /(?:$^|[ ]*)([@a-zA-Z0-9.\[\]\-_ >:()*,]+)(?:$^|[ \n]*)\{/g, 
+                (match, selector) => `[cv-${scope}] ${selector},[cv-${scope}]${selector}{`
+            );
+        }
+
         document.head.appendChild(page.body.children[2]);
         let script = page.body.children[1].innerHTML.replace(/export[ ]*default/i, "return ");
 
@@ -24,9 +38,9 @@ export default async function importer(path){
                 ${script};
             }
         )`);
-
         let properties = await fnc();
         properties.el = page.body.children[0];
+        properties.el.setAttribute("cv-" + scope, "");
         let component = new CuteVue(properties);
         resolve(component);
         return component;

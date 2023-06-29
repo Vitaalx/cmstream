@@ -2,15 +2,13 @@
 
 namespace Controller\API\ContentManager\RoleController;
 
-use Core\Token;
-use Core\Controller;
 use Core\Request;
 use Core\Response;
 
+use Services\Permissions;
 use Entity\Role;
 use Entity\User;
 use Services\Access\AccessRoleEditor;
-use Services\MustBeAdmin;
 
 
 /**
@@ -26,7 +24,8 @@ class addRole extends AccessRoleEditor
     {
         return [
             ["type/string", $request->getBody()["name"], "name"],
-            ["role/alreadyExistByName", fn () => $request->getBody()["name"], "name"]
+            ["type/notEmpty", fn () => $this->floor->pickup("name")],
+            ["role/alreadyExistByName", fn () => $this->floor->pickup("name")],
         ];
     }
 
@@ -34,28 +33,27 @@ class addRole extends AccessRoleEditor
     {
         /** @var Role $role */
         $role = Role::insertOne([
-            "name" => $request->getBody()["name"]
+            "name" => $this->floor->pickup("name")
         ]);
         $response->code(200)->info("role.created")->send(["role" => $role]);
     }
 }
 
 /**
- * @POST{/api/role/user}
- * @Body Json Request
- * @param $name
+ * @POST{/api/role/{role_id}/user/{user_id}}
+ * @param $role_id
  * @param $user_id
  *
  * @return $role
  */
-class setRole extends MustBeAdmin
+class setRole extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/string", $request->getBody()["name"], "name"],
-            ["role/existByName", fn () => $this->floor->pickup("name"), "role"],
-            ["type/int", $request->getBody()["user_id"], "user_id"],
+            ["type/int", $request->getParam("role_id"), "role_id"],
+            ["role/exist", fn () => $this->floor->pickup("role_id"), "role"],
+            ["type/int", $request->getParam("user_id"), "user_id"],
             ["user/exist", fn () => $this->floor->pickup("user_id"), "user"]
         ];
     }
@@ -66,12 +64,13 @@ class setRole extends MustBeAdmin
         $user = $this->floor->pickup("user");
         /** @var Role $role */
         $role = $this->floor->pickup("role");
+        if($user->getId() === 1) $response->info("user.protected.admin")->code(403)->send();
         $user->setRole($role);
         date_default_timezone_set('Europe/Paris');
         $user->setUpdatedAt(date("Y-m-d H:i:s"));
         $user::groups("userRole");
         $user->save();
-        $response->code(200)->info("user.role.added")->send(["user" => $user]);
+        $response->code(204)->info("user.role.added")->send();
     }
 }
 
@@ -91,7 +90,8 @@ class getRoles extends AccessRoleEditor
     {
         /** @var Role $roles */
         $roles = Role::findMany();
-        $response->code(200)->info("roles.get")->send(["role" => $roles]);
+        Role::groups("rolePermission");
+        $response->code(200)->info("roles.get")->send(["roles" => $roles]);
     }
 }
 
@@ -130,6 +130,46 @@ class modifyRole extends AccessRoleEditor
 }
 
 /**
+ * @PUT{/api/role/{id}/permissions}
+ * @param int $id
+ * @Body Json Request
+ * @param $permissions
+ *
+ * @return void
+ */
+class modifyPermissionByRole extends AccessRoleEditor
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int" , $request->getParam("id"), "id"],
+            ["role/admin" , fn () => $this->floor->pickup("id")],
+            ["type/arrayCheck", $request->getBody()["permissions"], "permissions"],
+            ["role/exist", fn () => $this->floor->pickup("id"), "role"],
+            ["permissions/exist", fn () => $this->floor->pickup("permissions"), "permissions"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Role $role */
+        $role = $this->floor->pickup("role");
+        $permissions = $this->floor->pickup("permissions");
+        foreach (Permissions::getAllPermissions() as $permission) {
+            if (in_array($permission, $permissions)) {
+                $role->addPermission(Permissions::getPermissionByName($permission));
+            } else {
+                $role->removePermission(Permissions::getPermissionByName($permission));
+            }
+        }
+        date_default_timezone_set('Europe/Paris');
+        $role->setUpdatedAt(date("Y-m-d H:i:s"));
+        $role->save();
+        $response->code(200)->info("role.permission.added")->send();
+    }
+}
+
+/**
  * @DELETE{/api/role/{id}}
  * @param int $id
  *
@@ -150,6 +190,12 @@ class deleteRole extends AccessRoleEditor
     {
         /** @var Role $role */
         $role = $this->floor->pickup("role");
+        /** @var User $users */
+        $users = $role->getUsers();
+        foreach ($users as $user) {
+            $user->setRole(null);
+            $user->save();
+        }
         $role->delete();
         $response->code(200)->info("role.deleted")->send();
     }
@@ -161,14 +207,14 @@ class deleteRole extends AccessRoleEditor
  *
  * @return void
  */
-class unsetRole extends MustBeAdmin
+class unsetRole extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int" , $request->getParam("id"), "id"],
             ["user/exist", fn () => $this->floor->pickup("id"), "user"],
-            ["role/hasRole", fn () => $this->floor->pickup("id")]
+            ["user/hasRole", fn () => $this->floor->pickup("id")]
         ];
     }
 
@@ -176,10 +222,11 @@ class unsetRole extends MustBeAdmin
     {
         /** @var User $user */
         $user = $this->floor->pickup("user");
+        if($user->getId() === 1) $response->info("user.protected.admin")->code(403)->send();
         $user->setRole(null);
         date_default_timezone_set('Europe/Paris');
         $user->setUpdatedAt(date("Y-m-d H:i:s"));
         $user->save();
-        $response->code(200)->info("role.removed")->send();
+        $response->code(204)->info("role.removed")->send();
     }
 }

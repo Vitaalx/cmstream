@@ -6,11 +6,10 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Core\SendResponse;
 use Entity\Movie;
 use Entity\Video;
+use Services\Access\AccessContentsManager;
 use Services\Back\VideoManagerService as VideoManager;
-use Services\MustBeAdmin;
 
 /**
  * @POST{/api/movie}
@@ -29,42 +28,32 @@ use Services\MustBeAdmin;
 /*
 Entry:
 {
-"url": [
-"https://www.youtube.com/watch?v=1",
-"https://www.youtube.com/watch?v=2"
-],
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
 "category_id": 1
 }
 */
-class createMovie extends MustBeAdmin
+class createMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
         return [
-            ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $request->getBody()['description'], "description"],
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
-            ["type/int", $request->getBody()['category'], "category_id"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
             ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
-    /**
-     * @throws SendResponse
-     * @throws \Exception
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Video $video */
         $video = VideoManager::createVideo(
-            $this->floor->pickup("video/url"),
             $this->floor->pickup("title_video"),
             $this->floor->pickup("description")
         );
@@ -78,7 +67,7 @@ class createMovie extends MustBeAdmin
             "category_id" => $this->floor->pickup("category")->getId()
         ]);
 
-        $response->code(201)->info("movie.created")->send(["movie" => $movie]);
+        $response->code(201)->info("movie.created")->send(["movie" => $movie, "video" => $video]);
     }
 }
 
@@ -92,7 +81,7 @@ class createMovie extends MustBeAdmin
  * @param int id
  * @return Response
  */
-class deleteMovie extends MustBeAdmin
+class deleteMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -102,9 +91,6 @@ class deleteMovie extends MustBeAdmin
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         $this->floor->pickup("movie")->delete();
@@ -132,9 +118,6 @@ class getMovie extends Controller
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Movie $movie */
@@ -142,7 +125,7 @@ class getMovie extends Controller
         $movie[] = $this->floor->pickup("movie");
         $movie[] = $this->floor->pickup("movie")->getVideo();
 
-        $response->code(200)->info("movie.get")->send(["movie" => $movie]);
+        $response->code(200)->info("movie.get")->send($movie);
     }
 }
 
@@ -162,9 +145,6 @@ class getMovies extends Controller
         return [];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Movie[] $movies */
@@ -199,24 +179,19 @@ class getMovies extends Controller
 /*
 Entry:
 {
-"url": [
-"https://www.youtube.com/watch?v=1",
-"https://www.youtube.com/watch?v=2"
-],
 "title_video": "Video title",
 "description": "Video description",
 "image": "https://www.image.com/image.png",
 "category_id": 1
 }
 */
-class updateMovie extends MustBeAdmin
+class updateMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam('id'), "movie_id"],
             ["movie/exist", fn () => $this->floor->pickup("movie_id"), "movie"],
-            ["video/url", $request->getBody()['url']],
             ["type/string", $request->getBody()['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $request->getBody()['description'], "description"],
@@ -228,9 +203,6 @@ class updateMovie extends MustBeAdmin
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         VideoManager::updateVideo(

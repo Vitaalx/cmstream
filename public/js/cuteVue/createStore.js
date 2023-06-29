@@ -54,24 +54,23 @@ export default function createStore(name, properties){
             }
         );
 
+        let subscriber = () => {
+            let oldValue = comput;
+            let newValue = computed[key]();
+            comput = newValue;
+            subscribers[key].forEach(element => element(newValue, oldValue));
+        };
+
         let groups = [];
         for(let [match, group] of fncString.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
             if(groups.indexOf(group) !== -1) continue;
             else groups.push(group);
-
-            let subscriber = () => {
-                let oldValue = comput;
-                let newValue = computed[key]();
-                comput = newValue;
-                subscribers[key].forEach(element => element(newValue, oldValue));
-            };
-
-            if(groups.length === 1)subscriber();
-
             if(subscribers[group] !== undefined){
                 subscribers[group].push(subscriber);
             }
         }
+
+        subscriber();
     });
 
     globalStores[name] = {

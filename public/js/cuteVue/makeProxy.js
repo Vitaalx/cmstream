@@ -195,8 +195,9 @@ export default function makeProxy(properties, template){
         );
 
         let subscriber = () => {
+            let oldValue = comput;
             comput = fnc();
-            proxy[__launchSubscribers__](key, __ignoreWatcher__);
+            proxy[__launchSubscribers__](key, oldValue, comput);
         };
 
         let groups = [];

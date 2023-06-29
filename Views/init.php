@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMStream</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="/public/css/custom.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,6 +26,12 @@
   </script>
   <script type="module" src="https://www.unpkg.com/toanotherback@2.0.1/src/index.js"></script>
   <script type="module" defer src="/public/cuteVue/init/main.js"></script>
+  <style>
+        body {
+            background-color: #000;
+            color: #DADADA;
+        }
+  </style>
 </head>
 <body>
     <div id="app"></div>

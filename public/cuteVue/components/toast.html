@@ -1,0 +1,41 @@
+<div class="bottom-0 left-0 fixed w-full h-0 flex flex-col items-center justify-end pb-[20px] gap-[10px]">
+    <div 
+    cv-for="toast of this.toasts" 
+    class="flex lg:max-w-[500px] lg:min-w-[300px] lg:w-auto w-[90%] max-w-[300px] justify-between bg-darkblue rounded-[4px] gap-[5px] z-10 px-[5px] items-center"
+    >
+        <icon 
+        :name="this.toast.status === 'error'? 'close' : 'check'"
+        cv-class="{
+            'text-[red]': this.toast.status === 'error',
+            'text-[green]': this.toast.status === 'successfull'
+        }"
+        class="text-[25px]"
+        />
+
+        <p class="overflow-hidden text-ellipsis whitespace-nowrap">
+            {{ this.toast.message }}
+        </p>
+
+        <icon 
+        name="close"
+        class="text-[25px] hover:opacity-[0.5] transition"
+        @click="this.toast.close()"
+        />
+    </div>
+</div>
+
+<script>
+    export default {
+        stores: [
+            {
+                name: "toast",
+                states: ["toasts"]
+            }
+        ]
+
+    }
+</script>
+
+<style>
+
+</style>

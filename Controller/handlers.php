@@ -20,8 +20,9 @@ class assets extends Controller{
     public function handler(Request $request, Response $response): void
     {
         Logger::disable();
-        
+
         $response
+        ->setHeader("Access-Control-Allow-Methods", "GET")
         ->code(200)
         ->sendFile(
             $this->floor->pickup("path")

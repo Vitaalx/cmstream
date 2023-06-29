@@ -13,6 +13,7 @@ const {
     __mount__,
     __props__,
     __properties__,
+    __launchSubscribers__
 } = symbol;
 
 export default function render(template, proxy){
@@ -30,6 +31,14 @@ export default function render(template, proxy){
     else{
         let component = instance;
         instance = makeProxy(component.properties, component.template);
+
+        Object.entries(template.attributes).forEach(([key, value]) =>{
+            if(instance[__props__][key] !== undefined)instance[__properties__][key] = value;
+        });
+        Object.entries(template.objectAttributes).forEach(([key, value]) =>{
+            if(instance[__props__][key] !== undefined)instance[__properties__][key] = eval(/* js */`(function anonymous(proxy){return ${value.script}})`)(proxy);
+        });
+
         instance[__element__] = render(component.template, instance);
         instance[__parent__] = proxy;
         el = instance[__element__];
@@ -55,17 +64,19 @@ export default function render(template, proxy){
     Object.entries(template.attributes).forEach(([key, value]) => {
         if(instance !== undefined){
             if(instance[__props__][key] !== undefined){
+                let oldValue = instance[__properties__][key];
                 instance[__properties__][key] = value;
-                instance.$update(key);
+                instance[__launchSubscribers__](key, value, oldValue);
             }
             else if(key === "class"){
                 let attrValue = el.getAttribute("class");
-                el.setAttribute(key, value + " " + attrValue);
+                el.setAttribute(key, value + " " + (attrValue ?? ""));
             }
             else if(key === "style"){
                 let attrValue = el.getAttribute("style");
-                el.setAttribute(key, value + ";" + attrValue);
+                el.setAttribute(key, value + ";" + (attrValue ?? ""));
             }
+            else if(typeof value === "string" || typeof value === "number")el.setAttribute(key, value);
         }
         else el.setAttribute(key, value);
     });
@@ -81,8 +92,9 @@ export default function render(template, proxy){
             let subscriber = () => {
                 let result = attrRender(proxy);
                 if(instance !== undefined && instance[__props__][key] !== undefined){
+                    let oldValue = instance[__properties__][key];
                     instance[__properties__][key] = result;
-                    instance.$update(key);
+                    instance[__launchSubscribers__](key, result, oldValue);
                 }
                 else if(typeof result === "string" || typeof result === "number")el.setAttribute(key, result);
                 else if(typeof result === "boolean"){
@@ -110,11 +122,15 @@ export default function render(template, proxy){
             }
         )`);
 
+        let oldValue = [];
         let subscriber = () => {
-            Object.entries(classRender(proxy)).forEach(([key, value]) => {
+            let newClass = Object.entries(classRender(proxy));
+            newClass.forEach(([key, value], index) => {
                 if(value) el.classList.add(...key.split(" "));
                 else el.classList.remove(...key.split(" "));
+                if(oldValue[index] !== undefined && key !== oldValue[index][0]) el.classList.remove(oldValue[index][0]);
             });
+            oldValue = newClass;
         };
 
         for(let group of template.class.vars){

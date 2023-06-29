@@ -7,7 +7,7 @@
         <div id="#A" class="show-group">
             <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">#A</h2>
             <div class="show-list">
-                <show_card_large></show_card_large>
+                <show_card_large />
             </div>
         </div>
     </div>
@@ -15,7 +15,7 @@
 
 <script>
     const [show_card_large] = await Promise.all([
-        importer('/public/cuteVue/components/show_card_large.html')
+        importer('/public/cuteVue/components/cards/show_card_large.html')
     ]);
 
     export default {

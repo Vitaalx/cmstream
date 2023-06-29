@@ -30,6 +30,7 @@ class Comment extends Entity
     /**
      * @type{int}
      * @notnullable{}
+     * @default{0}
      */
     private int $status;
 

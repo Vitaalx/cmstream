@@ -16,6 +16,13 @@ class Reset_Password extends Entity
     private User $user;
 
     /**
+     * @type{int}
+     * @notnullable{}
+     * @default{date_part('epoch'::text, now())}
+     */
+    private int $timestamp;
+
+    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
@@ -37,6 +44,11 @@ class Reset_Password extends Entity
     public function getCreated_at(): string
     {
         return parent::get("created_at");
+    }
+
+    public function getTimestamp(): int
+    {
+        return parent::get("timestamp");
     }
 
     public function setUser(User $user): self

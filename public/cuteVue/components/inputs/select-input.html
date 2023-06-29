@@ -1,0 +1,144 @@
+<div 
+:rulled="this.rules.length !== 0"
+class="relative"
+>
+    <div 
+    class="w-full py-[5px] relative px-[1px] focus:outline-none focus:border-skyblue transition cursor-pointer"
+    cv-ref="select"
+    cv-class="{
+        'border-b-[2px]': this.border,
+        'border-[red]': this.invalide !== false,
+        'opacity-[0.5]': this.disabled,
+    }"
+    tabindex="1"
+    @focus="focused"
+    @blur="blured"
+    >
+        <label 
+        cv-if="this.label !== false"
+        :for="this.name"
+        class="absolute top-[50%] -translate-y-[50%] transition-all select-none cursor-pointer"
+        cv-class="{
+            '!top-0 text-[0.8em]': this.isFocus || this.value,
+            'opacity-[0.5]': this.disabled,
+        }"
+        @click="this.$refs.select.focus()"
+        >
+            {{ this.label }}
+        </label>
+        
+        <span>{{ this.selectedValue }}</span>
+
+        <span 
+        cv-if="this.index === -1 && this.placeholder && !this.isFocus"
+        class="opacity-[0.5]"
+        >
+            {{ this.placeholder }}
+        </span>
+        
+        <span class="invisible select-none">V</span>
+
+        <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[5px]">
+            <slot/>
+
+            <icon
+            cv-show="this.value && this.clearable === true"
+            name="close"
+            @click="clear"
+            />
+
+            <icon 
+            :name="this.isFocus ? 'chevron-up' : 'chevron-down'" 
+            />
+        </div>
+
+        <div 
+        class="absolute left-0 w-full bg-[white] top-[calc(100%+10px)] flex flex-col gap-[5px]"
+        cv-show="this.isFocus"
+        >
+            <div
+            class="text-[black] hover:bg-skyblue hover:text-[white]"
+            cv-for="item of Object.entries(this.items)"
+            @click="this.selected(this.item[0])"
+            >
+                {{ this['return-text'](this.item[1]) }}
+            </div>
+        </div>
+    </div>
+
+    <small class="text-[red]">{{this.invalide || ""}}</small>
+</div>
+
+<script>
+    export default {
+        props: {
+            value: null,
+            items: [],
+            "return-value": value => value,
+            "return-text": text => text,
+            border: true,
+            isFocus: false,
+            label: "",
+            disabled: false,
+            rules: [],
+            clearable: false,
+            placeholder: false,
+        },
+        data: {
+            index: -1,
+            invalide: false,
+            cleared: false,
+        },
+        watch: {
+            items(){
+                this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+            }
+        },
+        computed: {
+            selectedValue(){
+                if(this.index === -1) return "";
+                else return this['return-text'](this.items[this.index]);
+            }
+        },
+        methods: {
+            selected(index){
+                this.index = index;
+                this.$emit("input", {target:{value: this['return-value'](this.items[this.index])}});
+                this.$refs.select.blur();
+            },
+            focused(e){
+                this.isFocus = true;
+                this.$emit("focus", e);
+            },
+            blured(e){
+                this.isFocus = false;
+                this.$emit("blur", e);
+            },
+            clear(e){
+                this.index = -1;
+                this.$emit("input", {target:{value: null}});
+            },
+            validate(){
+                if(this.disabled === true) return true;
+
+                for(const rule of this.rules){
+                    let result = rule(this.value);
+                    if(result !== true){
+                        this.invalide = result;
+                        return false;
+                    }
+                }
+
+                if(this.invalide !== false)this.invalide = false;
+                return true;
+            }
+        },
+        mounted(){
+            this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+        }
+    }
+</script>
+
+<style>
+    
+</style>

@@ -1,0 +1,40 @@
+<div 
+class="w-[100px] h-[100px] rounded-full flex items-center justify-center text-3xl" 
+alt="avatar"
+cv-style="{ 
+    'background': this.avatarColor,
+    'zoom': this.scale,
+}"
+>
+    {{ this.getFirstLetters }}
+</div>
+
+<script>
+    export default {
+        props: {
+            size: 100
+        },
+
+        computed: {
+            getFirstLetters() {
+                return this.firstname[0] + this.lastname[0];
+            },
+
+            scale(){
+                return 1 * this.size / 100;
+            }
+        },
+
+        stores: [
+            {
+                name: "user",
+                states: ["firstname", "lastname"],
+                computed: ["avatarColor"],
+            },
+        ]
+    }
+</script>
+
+<style>
+
+</style>

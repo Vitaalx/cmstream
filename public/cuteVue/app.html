@@ -1,12 +1,20 @@
 <div id="app">
-    <page-loader></page-loader>
-    <router></router>
+    <page-loader/>
+    <router/>
+    <toast/>
 </div>
 
 <script>
-export default {
-
-}
+    const [page_loader, toast] = await Promise.all([
+        importer("/public/cuteVue/components/page-loader.html"),
+        importer("/public/cuteVue/components/toast.html")
+    ]);
+    export default {
+        components: {
+            "page-loader": page_loader,
+            toast,
+        }
+    }
 </script>
 
 <style>

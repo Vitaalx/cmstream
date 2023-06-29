@@ -17,7 +17,6 @@ class Movie extends Entity
 
     /**
      * notnullable{}
-     * cascade{}
      */
     private Category $category;
 

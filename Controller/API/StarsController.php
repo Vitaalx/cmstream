@@ -8,7 +8,7 @@ use Core\Response;
 
 use Entity\Star;
 use Entity\Video;
-use Services\MustBeAdmin;
+use Services\Access\AccessContentsManager;
 use Services\MustBeConnected;
 
 /**
@@ -97,7 +97,7 @@ class starAverage extends Controller
  * @param int user_id
  * @return Response
  */
-class deleteStarAdmin extends MustBeAdmin
+class deleteStarAdmin extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {

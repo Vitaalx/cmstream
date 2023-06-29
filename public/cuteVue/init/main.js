@@ -4,7 +4,7 @@ import "../loader.js";
 const [view, cv_form, text_input, page_loader] = await Promise.all([
     importer("/public/cuteVue/init/view.html"),
     importer("/public/cuteVue/components/cv-form.html"),
-    importer("/public/cuteVue/components/text-input.html"),
+    importer("/public/cuteVue/components/inputs/text-input.html"),
     importer("/public/cuteVue/components/page-loader.html"),
 ]);
 

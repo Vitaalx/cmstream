@@ -2,9 +2,18 @@
 
 namespace checker\type;
 
+function notEmpty($value): void
+{
+    if(empty($value)) throw new \TypeError("Value is empty");
+}
+
 function string(string $string): string
 {
     return $string;
+}
+
+function arrayCheck (array $array): array {
+    return $array;
 }
 
 function flawless(string $string): string

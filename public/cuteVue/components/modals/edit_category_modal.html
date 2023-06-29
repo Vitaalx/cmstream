@@ -1,0 +1,72 @@
+<div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
+    <div class="relative w-[400px] min-h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
+        <span class="mdi mdi-close absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"></span>
+
+        <cv-form @submit="editCategory" class="w-auto h-auto">
+            <div class="flex flex-col items-center">
+                <div class="flex flex-col items-start m-[5px]">
+                    <label>Catégorie</label>
+
+                    <input class="focus:border-gray-100 focus:outline-none border rounded-[8px] px-[20px] py-[10px] text-grey" cv-model="currentname" type="text">
+                </div>
+
+                <div class="mt-[30px] text-center submit text-white">
+                    <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">
+                        Modifier
+                    </button>
+                </div>
+            </div>
+        </cv-form>
+    </div>
+</div>
+
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        props: {
+            category_id: null,
+            currentname: ""
+        },
+        methods: {
+            closeModal() {
+                this.$emit("close");
+            },
+            async editCategory() {
+                let close = loaderStore.push();
+
+                await taob.put("/category/" + this.category_id, {
+                    category_name: this.currentname,
+
+                })
+                .s(async () => {
+                    this.$emit("edit-category", "edit")
+                    this.pushToast("successfull", "La catégorie à bien été modifiée.");
+                })
+                .info(info => {
+                    if (info === "category.exist") this.pushToast("error", "La catégorie existe déjà.");
+                }).result;
+
+                this.closeModal();
+                close();
+            },
+        },
+        mounted() {
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
+    }
+</script>
+
+<style>
+
+</style>

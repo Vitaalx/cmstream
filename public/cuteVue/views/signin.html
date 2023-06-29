@@ -12,7 +12,7 @@
             cv-model="email"
             :rules="this.emailRule"
             class="w-full"
-            ></text-input>
+            />
 
             <text-input
             type="password" 
@@ -20,13 +20,11 @@
             cv-model="password"
             :rules="this.passwordRule"
             class="w-full"
-            ></text-input>
+            />
 
             <router_link class="select-none hover:underline" href="/forgot-password">
                 <small class="text-skyblue">Mot de passe oublié ?</small>
             </router_link>
-
-            <p class="text-center text-[red]">{{ this.info }}</p>
         </div>
 
         <div class="mt-[30px] text-center submit">
@@ -75,7 +73,8 @@
                     router.push("/");
                 })
                 .e(() => {
-                    this.info = "Les identifiants sont invalides";
+                    this.pushToast("error", "Les identifiants sont invalides.");
+
                 })
                 .result;
 
@@ -84,7 +83,13 @@
         },
         mounted(){
             
-        }
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
     }
 </script>
 

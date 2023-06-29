@@ -6,10 +6,9 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
-use Core\SendResponse;
 use Entity\Category;
 use Entity\Video;
-use Services\MustBeAdmin;
+use Services\Access\AccessContentsManager;
 
 /**
  * @POST{/api/category}
@@ -27,7 +26,7 @@ use Services\MustBeAdmin;
   "category_name": "Category name"
  }
 */
-class addCategory extends MustBeAdmin
+class addCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -38,14 +37,11 @@ class addCategory extends MustBeAdmin
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
         $category = Category::insertOne(["title" => $this->floor->pickup("category_name")]);
-        $response->info("category.created")->code(201)->send(["category" => $category]);
+        $response->info("category.created")->code(201)->send($category);
     }
 }
 
@@ -59,7 +55,7 @@ class addCategory extends MustBeAdmin
  * @param int id
  * @return Response
  */
-class deleteCategory extends MustBeAdmin
+class deleteCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -69,9 +65,6 @@ class deleteCategory extends MustBeAdmin
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
@@ -94,14 +87,28 @@ class getCategories extends Controller
 {
     public function checkers(Request $request): array
     {
-        return [];
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("name") ?? "", "name"],
+        ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        $page = $this->floor->pickup("page");
+        $name = $this->floor->pickup("name");
+        $number = 5;
+
         /** @var Category[] $categories */
-        $categories = Category::findMany();
-        $response->code(200)->info("categories.get")->send(["categories" => $categories]);
+        $categories = Category::findMany(
+            [
+                "title" => [
+                    "\$CTN" => $name
+                ]
+            ],
+            ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
+        );
+        $response->code(200)->info("categories.get")->send($categories);
     }
 }
 
@@ -125,9 +132,6 @@ class getContentsByCategory extends Controller
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Video $videos */
@@ -180,7 +184,7 @@ Entry:
 "category_name": "Category name"
 }
 */
-class updateCategory extends MustBeAdmin
+class updateCategory extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -193,9 +197,6 @@ class updateCategory extends MustBeAdmin
         ];
     }
 
-    /**
-     * @throws SendResponse
-     */
     public function handler(Request $request, Response $response): void
     {
         /** @var Category $category */
@@ -204,5 +205,22 @@ class updateCategory extends MustBeAdmin
         $category->setUpdatedAt(date("Y-m-d H:i:s"));
         $category->save();
         $response->code(200)->info("category.updated")->send();
+    }
+}
+
+/**
+ * @GET{/api/categories/count}
+ */
+class getCountCategories extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $count = Category::count();
+        $response->code(200)->info("categories.count")->send($count);
     }
 }

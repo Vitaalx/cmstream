@@ -1,6 +1,7 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+config.php
 
 # Editor-based HTTP Client requests
 /httpRequests/
@@ -25,3 +26,4 @@ logs/*.txt
 .env
 
 generate.index.php
+generate.methods.php

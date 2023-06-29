@@ -10,12 +10,40 @@ require __DIR__ . "/Logger.php";
 
 error_reporting(0);
 
+function callController(string $controller){
+    $controllerClass = Route::autoLoadController($controller);
+    return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
+}
+
+function error_handler(){
+    $error = error_get_last();
+    if($error === null) return;
+    Logger::error($error["message"]);
+    $response = new Response();
+    $response
+    ->code(500)
+    ->info("ERROR.INTERNAL_SERVER")
+    ->send([
+        "info" => "Internal server error.",
+        "message" => $error["message"],
+        "file" => $error["file"],
+        "line" => $error["line"],
+    ]);
+}
+
+register_shutdown_function("Core\\error_handler");
+
+set_error_handler("Core\\error_handler", E_COMPILE_ERROR);
+set_error_handler("Core\\error_handler", E_CORE_ERROR);
+set_error_handler("Core\\error_handler", E_ERROR);
+
 if(file_exists(__DIR__ . "/../config.php")) include __DIR__ . "/../config.php";
 else define("CONFIG", []);
 
 class Route{
     static private string $requestPath;
     static private int $count = 0;
+    static private array $info;
 
     static public function match(array $info): void
     {
@@ -30,7 +58,8 @@ class Route{
             )
         )
         {  
-            $request = new Request(self::$requestPath, $info, $regexPath);
+            self::$info = $info;
+            $request = new Request(self::$requestPath, $regexPath);
             $response = new Response();
 
             $class = self::autoLoadController($info["controller"]);
@@ -100,38 +129,21 @@ class Route{
         return $class;
     }
 
+    static function getInfo(){
+        return self::$info ?? ["path" => "BEFORE_MATCH"];
+    }
+
     static function initRoute(): void
     {
+        $origin = getallheaders()["Origin"] ?? null;
+        if($_SERVER["REQUEST_METHOD"] === "OPTIONS" && isset(CONFIG["HOST"]) && $origin !== null){
+            if(preg_match("/" . CONFIG["HOST"] . "/", $origin) === false){
+                Response::getCurrentResponse()->code(400)->send();
+            }
+        }
         $uri = explode("?", $_SERVER["REQUEST_URI"]);
         self::$requestPath = $uri[0] === "/" ? "/" : rtrim($uri[0], "/");
     }
 }
 
 Route::initRoute();
-
-function callController(string $controller){
-    $controllerClass = Route::autoLoadController($controller);
-    return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
-}
-
-function error_handler(){
-    $error = error_get_last();
-    if($error === null) return;
-    Logger::debug($error["message"]);
-    $response = new Response();
-    $response
-    ->code(500)
-    ->info("ERROR.INTERNAL_SERVER")
-    ->send([
-        "info" => "Internal server error.",
-        "message" => $error["message"],
-        "file" => $error["file"],
-        "line" => $error["line"],
-    ]);
-}
-
-register_shutdown_function("Core\\error_handler");
-
-set_error_handler("Core\\error_handler", E_COMPILE_ERROR);
-set_error_handler("Core\\error_handler", E_CORE_ERROR);
-set_error_handler("Core\\error_handler", E_ERROR);
