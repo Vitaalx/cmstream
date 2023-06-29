@@ -206,7 +206,9 @@
 
                 close();
             }, 
-            async changePassWord(){
+            async changePassWord(e){
+                e.preventDefault();
+
                 let close = loaderStore.push();
 
                 await taob.post("/user/password", { email: this.email})
