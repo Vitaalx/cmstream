@@ -215,7 +215,6 @@
                 .info(info => {
                     if(info === "Reset_Password.already.use") this.pushToast("error", "Une demande a déjà été envoyée.");
                     else if(info === "user.notfound.mail") this.pushToast("error", "Aucun utilisateur est associé à cette adresse email.");
-                    else this.pushToast("error", "Champ invalide.");
                 })
                 .s(() => {
                     this.success = true;

@@ -12,6 +12,7 @@ class Request{
     private $requestBody;
     private array $cookies;
     private array $headers;
+    private array $files = [];
 
     public function __construct(string $path, string $regexPath)
     {
@@ -22,6 +23,9 @@ class Request{
         $this->requestQuery = $_GET;
         $this->cookies = $_COOKIE;
         $this->headers = getallheaders();
+        foreach ($_FILES as $key => $value) {
+            $this->files[$key] = new UploadFile($value);
+        }
 
         $this->requestPath = $path;
         $this->setRequestBody();
@@ -88,6 +92,19 @@ class Request{
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * @return UploadFile[]
+     */
+    public function getFiles(): array
+    {
+        return $this->files;
+    }
+
+    public function getFile(string $key): ?UploadFile
+    {
+        return $this->files[$key] ?? null;
     }
 
     public function getBody()
