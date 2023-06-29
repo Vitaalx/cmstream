@@ -16,19 +16,13 @@ class VideoManagerService
      * @param integer $category
      * @return void
      */
-    public static function createVideo(array $url, string $title, string $description): Video
+    public static function createVideo(string $title, string $description): Video
     {
         try {
             $video = Video::insertOne([
                 "title" => $title,
                 "description" => $description,
             ]);
-            foreach ($url as $url) {
-                Url::insertOne([
-                    "url" => $url,
-                    "video_url_id" => $video->getId()
-                ]);
-            }
             return $video;
         } catch (\Exception $e) {
             throw new \Exception("Error creating video - " . $e->getMessage());
@@ -81,24 +75,16 @@ class VideoManagerService
         }
     }
 
-    /**
-     * this function update a url
-     *
-     * @param integer $id
-     * @param string $content (url)
-     * @return void
-     */
-    public static function updateUrlWhereId(int $id, string $content): void
+    public static function createUrlWhereVideo(int $video_id, string $content): Url
     {
         try {
-            $url = Url::findFirst([
-                "id" => $id
+            $url = Url::insertOne([
+                "video_url_id" => $video_id,
+                "url" => $content
             ]);
-            $url->setUrl($content);
-            $url->setUpdatedAt(date("Y-m-d H:i:s"));
-            $url->save();
+            return $url;
         } catch (\Exception $e) {
-            throw new \Exception("Error update url where id: " . $e->getMessage());
+            throw new \Exception("Error create url where video: " . $e->getMessage());
         }
     }
 }
