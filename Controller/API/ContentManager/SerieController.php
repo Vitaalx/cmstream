@@ -212,7 +212,6 @@ class updateSerie extends AccessContentsManager
  * @apiVersion 1.0.0
  * @Feature ContentManager
  * @Description Add an episode to a serie
- * @param array url
  * @param string title_video
  * @param string description
  * @param int serie_id
@@ -223,10 +222,6 @@ class updateSerie extends AccessContentsManager
 /*
 Entry:
 {
- "url": [
- "https://www.youtube.com/watch?v=1",
- "https://www.youtube.com/watch?v=2"
- ],
  "title_video": "Video title",
  "description": "Video description",
  "serie_id": 1,
@@ -241,7 +236,6 @@ class addEpisodeBySerie extends AccessContentsManager
     {
         $episode = $request->getBody();
         return [
-            ["video/url", $episode['url'], "url"],
             ["type/string", $episode['title_video'], "title_video"],
             ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $episode['description'], "description"],
@@ -266,7 +260,6 @@ class addEpisodeBySerie extends AccessContentsManager
     {
         /** @var Video $video */
         $video = VideoManager::createVideo(
-            $this->floor->pickup("video/url"),
             $this->floor->pickup("title_video"),
             $this->floor->pickup("description"),
         );
@@ -278,7 +271,7 @@ class addEpisodeBySerie extends AccessContentsManager
             "video_id" => $video->getId(),
             "serie_id" => $this->floor->pickup("serie")->getId(),
         ]);
-        $response->info("episode.created")->code(200)->send(["episode" => $episode]);
+        $response->info("episode.created")->code(200)->send(["episode" => $episode, "video" => $video]);
     }
 }
 
