@@ -198,7 +198,7 @@
                     }
                 })
                 .s(async () => {
-                    this.pushToast("successful", "Les modification on bien etais prie en compte.");
+                    this.pushToast("successfull", "Les modifications ont bien été prises en compte.");
                     await this.connect();
                     this.init();
                 })
@@ -213,13 +213,13 @@
 
                 await taob.post("/user/password", { email: this.email})
                 .info(info => {
-                    if(info === "Reset_Password.already.use") this.pushToast("error", "Une demande a déjà étais envoyer.");
-                    else if(info === "user.notfound.mail") this.pushToast("error", "Aucun utilisateur est associé à cette adresse Email.");
+                    if(info === "Reset_Password.already.use") this.pushToast("error", "Une demande a déjà été envoyée.");
+                    else if(info === "user.notfound.mail") this.pushToast("error", "Aucun utilisateur est associé à cette adresse email.");
                     else this.pushToast("error", "Champ invalide.");
                 })
                 .s(() => {
                     this.success = true;
-                    this.pushToast("successful", "Un mail de confirmation vous a été envoyé.");
+                    this.pushToast("successfull", "Un mail de confirmation vous a été envoyé.");
                 })
                 .result;
 

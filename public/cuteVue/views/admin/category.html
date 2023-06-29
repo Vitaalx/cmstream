@@ -3,9 +3,9 @@
     <delete_category_modal :category_id="this.selectCategory" cv-if="this.dialogDeleteCategory" 
     @close="this.dialogDeleteCategory = false" @delete-category="refresh"
     />
-    <edit_category_modal :category_id="this.selectCategory" 
+    <edit_category_modal :category_id="this.selectCategory"
     cv-if="this.dialogEditCategory" @close="this.dialogEditCategory = false"
-    :currentName="this.nameSelectedCategory" @edit-category="refresh"
+    :currentname="this.nameSelectedCategory" @edit-category="refresh"
     />
 
     <div class="table w-full">
@@ -49,7 +49,7 @@
 
                         <span
                         class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                        @click="this.editCategory(this.category.id, this.category.title)">
+                        @click="this.editCategory(this.category)">
                         </span>
                     </td>
                 </tr>
@@ -93,7 +93,7 @@
             dialogDeleteCategory: false,
             dialogEditCategory: false,
             selectCategory: null,
-            nameSelectedCategory: "",
+            nameSelectedCategory: ""
         },
         static: {
             titleRule: [
@@ -160,16 +160,16 @@
                 this.selectCategory = id;
                 this.dialogDeleteCategory = true;
             },
-            editCategory(category_id, category_name) {
-                this.selectCategory = category_id;
-                this.nameSelectedCategory = category_name;
+            editCategory(category) {
+                this.selectCategory = category.id;
+                this.nameSelectedCategory = category.title;
                 this.dialogEditCategory = true;
             },
             async refresh(action) {
                 if (action === "delete") {
                     this.getCategories(this.currentPageNumber, true);
                 } else {
-                    this.getCategories(this.currentPageNumber);
+                    await this.getCategories(this.currentPageNumber);
                 }
             },
             async countCategories() {

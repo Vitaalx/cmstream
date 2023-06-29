@@ -7,7 +7,6 @@
             <button @click="this.deleteUser()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
-        <p class="text-center text-[red]">{{ this.info }}</p>
     </div>
 </div>
 
@@ -18,10 +17,8 @@
     ]);
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
+
     export default {
-        data: {
-            info: ""
-        },
         props: {
             userid: ""
         },
@@ -33,19 +30,27 @@
                 let close = loaderStore.push();
 
                 await taob.delete("/user/" + this.userid)
-                    .s(() => this.$emit("ondelete", "delete"))
-                    .info(info => {
-                    console.log(info);
+                .s(async () => {
+                    this.$emit("ondelete", "delete");
+                    this.pushToast("successfull", "L'utilisateur à bien été supprimé.");
+                })
+                .info(info => {
+                if(info === "user.cant.delete.admin") this.pushToast("error", "Vous ne pouvez pas supprimer le superadministrateur.");
                 }).result;
 
                 this.closeModal();
-
                 close();
             }
         },
         mounted() {
 
-        }
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
     }
 </script>
 

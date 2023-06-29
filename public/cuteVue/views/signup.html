@@ -57,8 +57,6 @@
             :always-rule="true"
             class="w-full"
             />
-            
-            <p class="text-center text-[red]" cv-class="{ 'text-[green]': this.success }">{{ this.info }}</p>
         </div>
 
         <div class="mt-[30px] text-center submit">
@@ -118,6 +116,7 @@
             },
             cpasswordRule(){
                 return [
+                    (value) => !!value || "Ce champs est obligatoire",
                     (value) => this.password === this.cpassword || "Les mots de passe conrespondent pas",
                 ];
             }
@@ -146,8 +145,6 @@
                 this.success = false;
                 let close = loaderStore.push();
 
-                this.info = "";
-
                 await taob.post("/register", { 
                     firstname: this.firstname,
                     lastname: this.lastname,
@@ -167,19 +164,22 @@
                 })
                 .s(() => {
                     this.success = true;
-                    this.info = "Un lien de confirmation vous a été envoyé par email";
+                    this.pushToast("successfull", "Un lien de confirmation vous a été envoyé par email.");
                 })
                 .e(() => {
-                    this.info = "Les informations sont invalides";
+                    this.pushToast("error", "Les informations sont invalides.");
                 })
                 .result;
 
                 close();
             }
         },
-        mounted(){
-            
-        }
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
     }
 </script>
 

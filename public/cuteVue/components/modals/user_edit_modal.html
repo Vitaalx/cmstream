@@ -1,7 +1,6 @@
-<div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay"
->
+<div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
     <div class="relative w-[400px] min-h-[380px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
-        <span class="absolute top-[24px] right-[24px] text-[24px] mdi mdi-close cursor-pointer" @click="this.closeModal()"></span>
+        <span class="mdi mdi-close absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"></span>
 
         <cv-form
         @submit="editUser"
@@ -40,8 +39,6 @@
                         Modifier
                     </button>
                 </div>
-
-                <p class="text-center text-[red]">{{ this.info }}</p>
             </div>
         </cv-form>
     </div>
@@ -54,10 +51,10 @@
     ]);
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
+
     export default {
         data: {
             user: null,
-            info: "",
             roles: [],
             roleIdToEdit: ""
         },
@@ -71,7 +68,6 @@
         },
         methods: {
             closeModal() {
-                this.info = "";
                 this.$emit("close");
             },
             async editUser() {
@@ -80,14 +76,20 @@
                 if (this.hasPermission("role_editor")) {
                     if (this.roleIdToEdit != this.currentroleid) {
                         if(this.roleIdToEdit === null) {
-                            await taob.put("role/user/" + this.userid).info(info => {
-                                if (info === "user.protected.admin") this.info = "Vous ne pouvez pas supprimer le rôle de l'administrateur.";
-                                if (info === "role.removed") this.info = "Le rôle à bien été enlevé de l'utilisateur."
+                            await taob.put("role/user/" + this.userid)
+                            .s(async () => {
+                                this.pushToast("successfull", "L'utilisateur à bien été modifié.");
+                            })
+                            .info(info => {
+                                if (info === "user.protected.admin") this.pushToast("error", "Vous ne pouvez pas supprimer le rôle de l'administrateur.");
                             }).result;
                         } else {
-                            await taob.post("role/" +  this.roleIdToEdit + "/user/" + this.userid).info(info => {
-                                if (info === "user.protected.admin") this.info = "Vous ne pouvez pas modifié le rôle de l'administrateur.";
-                                if (info === "user.role.added") this.info = "Le rôle à bien été ajouté.";
+                            await taob.post("role/" +  this.roleIdToEdit + "/user/" + this.userid)
+                            .s(async () => {
+                                this.pushToast("successfull", "L'utilisateur à bien été modifié.");
+                            })
+                            .info(info => {
+                                if (info === "user.protected.admin") this.pushToast("error", "Vous ne pouvez pas modifier le rôle de l'administrateur.");
                             }).result;
                         }
                     }
@@ -97,14 +99,15 @@
                     lastname: this.currentlastname,
                     username: this.currentusername
                 })
-                    .s(() => this.$emit("onedit", "edit"))
-                    .info(info => {
-                        if (info === "username.already.used") this.info = "Le pseudo est déjà utilisé.";
-                        if (info === "user.modified") this.info = "L'utilisateur à bien été modifié.";
+                .s(async () => {
+                    this.$emit("onedit", "edit");
+                    this.pushToast("successfull", "L'utilisateur à bien été modifié.");
+                })
+                .info(info => {
+                    if (info === "username.already.used") this.pushToast("error", "Le pseudo est déjà utilisé.");
                 }).result;
 
                 this.closeModal();
-
                 close();
             },
             async getRoles() {
@@ -129,6 +132,10 @@
             {
                 name: "user",
                 actions: ["hasPermission"]
+            },
+            {
+                name: "toast",
+                actions: ["pushToast"]
             }
         ]
     }

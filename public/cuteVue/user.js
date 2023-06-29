@@ -1,5 +1,6 @@
 import CuteVue from "../js/cuteVue/index.js";
 import taob from "./taob.js";
+import { toastStore } from "./toast.js";  
 
 export const userStore =  CuteVue.createStore(
     "user",
@@ -36,7 +37,11 @@ export const userStore =  CuteVue.createStore(
                 this.email = "";
                 this.userId = "";
                 this.isConnected = false;
-                if(logout)await taob.get("/logout").result;
+                if(logout) {
+                    await taob.get("/logout").result;
+                    toastStore.pushToast("successfull", "Vous avez bien été déconnecté.");
+                }
+
             },
             hasPermission(permissionName) {
               return this.permissions.indexOf(permissionName) !== -1;
@@ -66,4 +71,4 @@ export const userStore =  CuteVue.createStore(
 
 userStore.connect();
 taob.setHookInfo("user.logged", () => userStore.connect());
-// taob.setHookInfo("token.invalid", () => window.location.href = "/");
+// taob.setHookInfo("token.invalid", () => toastStore.pushToast("error", "Votre session a expiré, veuillez vous reconnecter."));

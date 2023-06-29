@@ -882,7 +882,7 @@ class SMTP
     /**
      * Send an SMTP MAIL command.
      * Starts a mail transaction from the email address specified in
-     * $from. Returns true if successful or false otherwise. If True
+     * $from. Returns true if successfull or false otherwise. If True
      * the mail transaction is started and then one or more recipient
      * commands may be called followed by a data command.
      * Implements RFC 821: MAIL <SP> FROM:<reverse-path> <CRLF>.
@@ -1047,7 +1047,7 @@ class SMTP
     /**
      * Send an SMTP SAML command.
      * Starts a mail transaction from the email address specified in $from.
-     * Returns true if successful or false otherwise. If True
+     * Returns true if successfull or false otherwise. If True
      * the mail transaction is started and then one or more recipient
      * commands may be called followed by a data command. This command
      * will send the message to the users terminal if they are logged
