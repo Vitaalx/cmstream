@@ -25,11 +25,11 @@
             <thead class="bg-whitesmoke">
                 <tr>
                     <th class="p-[22px] cursor-pointer" @click="this.sortById()">
-                        ID <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        ID <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px] cursor-pointer" @click="this.sortByName()">
-                        Nom <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Nom <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px]">Actions</th>
@@ -43,14 +43,17 @@
                     <td class="p-[22px]">{{ this.category.title }}</td>
 
                     <td class="p-[22px]">
-                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer"
-                        @click="this.deleteCategory(this.category.id);">
-                        </span>
+                        <icon 
+                        name="trash-can-outline"
+                        class="text-2xl text-pinkred cursor-pointer"
+                        @click="this.deleteCategory(this.category.id);"
+                        />
 
-                        <span
-                        class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                        @click="this.editCategory(this.category)">
-                        </span>
+                        <icon
+                        name="square-edit-outline"
+                        class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                        @click="this.editCategory(this.category)"
+                        />
                     </td>
                 </tr>
             </tbody>
