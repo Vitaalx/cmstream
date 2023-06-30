@@ -1,0 +1,63 @@
+<div class="select-none">
+    <button 
+    :type="this.type"
+    @click="clicked"
+    class="px-[20px] py-[10px] rounded bg-skyblue self-center"
+    >
+        <slot/>
+    </button>
+
+    <div 
+    cv-if="this.popupIsOpen !== false"
+    @click="$event.stopPropagation()"
+    class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20"
+    >
+        <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[10px]">
+            <h1 class="text-[30px]">{{this.popup.title}}</h1>
+
+            <i>{{this.popup.subtitle}}</i>
+
+            <div class="flex justify-between gap-[10px]">
+                <button
+                class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg" 
+                @click="this.popupIsOpen(true)"
+                >
+                    Oui
+                </button>
+
+                <button
+                class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg"
+                @click="this.popupIsOpen(false)"
+                >
+                    Non
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    export default {
+        props: {
+            type: "button",
+            popup: null,
+        },
+        data: {
+            popupIsOpen: false
+        },
+        methods: {
+            async clicked(e){
+                if(this.popup !== null){
+                    let result = await new Promise((resolve) => this.popupIsOpen = resolve);
+                    this.popupIsOpen = false;
+                    if(result === false) return;
+                }
+                this.$emit("click", e);
+            }
+        }
+    }
+</script>
+
+<style>
+
+</style>
