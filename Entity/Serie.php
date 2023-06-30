@@ -35,7 +35,7 @@ class Serie extends Entity
 
     /** 
      * @notnullable{}
-     * @groups{videoCategory}
+     * @groups{serieCategory}
      */
     private Category $category;
 
