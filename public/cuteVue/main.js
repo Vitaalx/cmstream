@@ -75,24 +75,24 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
                 },
                 {
-                    path: "admin/users",
+                    path: "/admin/users",
                     view: () => importer("/public/cuteVue/views/admin/users.html"),
                 },
                 {
-                    path: "admin/roles",
+                    path: "/admin/roles",
                     view: () => importer("/public/cuteVue/views/admin/roles.html"),
                 },
                 {
-                    path: "admin/category",
+                    path: "/admin/category",
                     view: () => importer("/public/cuteVue/views/admin/category.html"),
                 },
                 {
-                    path: "admin/serie",
+                    path: "/admin/serie",
                     view: () => importer("/public/cuteVue/views/admin/serie.html"),
                 },
                 {
-                    path: "admin/movie",
-                    view: () => importer("/public/cuteVue/views/admin/movie.html"),
+                    path: "/admin/movies",
+                    view: () => importer("/public/cuteVue/views/admin/movies.html"),
                 }
             ],
         },

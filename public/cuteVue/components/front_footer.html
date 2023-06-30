@@ -5,7 +5,7 @@
                 <h2 class="text-xl font-bold leading-normal mt-0 mb-2 text-white">Navigation</h2>
                 <ul>
                     <li>
-                        <router_link href="catalog" class="text-sm text-whiteless hover:text-white">Catalogue</router_link>
+                        <router_link href="/catalog" class="text-sm text-whiteless hover:text-white">Catalogue</router_link>
                     </li>
                     <li>
                         <a class="text-sm text-whiteless hover:text-white" href="#">Boutique</a>
@@ -48,16 +48,16 @@
                 <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Compte</h2>
                 <ul>
                     <li cv-if="!this.connected">
-                        <router_link href="signup" class="text-sm text-whiteless hover:text-white">Céer un compte</router_link>
+                        <router_link href="/signup" class="text-sm text-whiteless hover:text-white">Céer un compte</router_link>
                     </li>
                     <li cv-if="!this.connected">
-                        <router_link href="signin" class="text-sm text-whiteless hover:text-white">Se connecter</router_link>
+                        <router_link href="/signin" class="text-sm text-whiteless hover:text-white">Se connecter</router_link>
                     </li>
                     <li cv-if="this.connected">
-                        <router_link href="lists" class="text-sm text-whiteless hover:text-white">Mes lists</router_link>
+                        <router_link href="/lists" class="text-sm text-whiteless hover:text-white">Mes lists</router_link>
                     </li>
                     <li cv-if="this.connected">
-                        <router_link href="account" class="text-sm text-whiteless hover:text-white">Se Paramètre du compte</router_link>
+                        <router_link href="/account" class="text-sm text-whiteless hover:text-white">Se Paramètre du compte</router_link>
                     </li>
                 </ul>
             </nav>

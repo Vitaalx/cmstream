@@ -108,7 +108,7 @@ class deleteMovie extends AccessContentsManager
  * @param int id
  * @return Response
  */
-class getMovie extends Controller
+class getMovie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -138,7 +138,41 @@ class getMovie extends Controller
  * @Description Get movies
  * @return Response
  */
-class getMovies extends Controller
+class getMovies extends AccessContentsManager
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("title") ?? "", "title"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $page = $this->floor->pickup("page");
+        $title = $this->floor->pickup("title");
+        $number = 5;
+        
+        $movies = Movie::findMany(
+            [
+                "title" => [
+                    "\$CTN" => $title
+                ]
+            ],
+            ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
+        );
+        
+        Movie::groups("dateProps", "movieCategory");
+
+        $response->code(200)->info("movies.get")->send($movies);
+    }
+}
+
+/**
+ * @GET{/api/movies/count}
+ */
+class getMoviesCount extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -147,17 +181,10 @@ class getMovies extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Movie[] $movies */
-        $movies = Movie::findMany();
-        if (empty($movies)) $response->info("movies.notfound")->code(404)->send();
-        $movies = array_map(function ($movie) {
-            return [
-                "id" => $movie->getId(),
-                "video" => $movie->getVideo(),
-                "image" => $movie->getImage()
-            ];
-        }, $movies);
-        $response->code(200)->info("movies.get")->send(["movies" => $movies]);
+        $response
+            ->code(200)
+            ->info("count")
+            ->send(["count" => Movie::count()]);
     }
 }
 
