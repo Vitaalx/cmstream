@@ -5,91 +5,43 @@
     @ondelete="refresh"
     />
 
-    <div class="table w-full">
-        <div class="table-header w-full flex justify-between items-start mb-[10px]">
-            <div class="search-movie">
-                <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
-                    <icon name="magnify" class="text-xl mr-[10px]"/>
-    
-                    <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
-                </div>
-    
-                <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
+    <div class="mb-[10px] w-full flex justify-between items-start">
+        <div class="search-movie">
+            <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
+                <icon name="magnify" class="text-xl mr-[10px]"/>
+
+                <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
             </div>
 
-            <router_link href="/admin/add-content?type=movie" class="add-movie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
-                <icon name="plus" class="text-xl"/>
-                
-                <span class="mt-[-2px]">Ajouter un film</span>
+            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
         </div>
 
-        <span cv-if="!this.displayedMovies.length">Aucun film trouvé.</span>
-
-        <table cv-if="this.displayedMovies.length" class="table-content w-full text-left border-2 rounded-t-[8px]" cv-if="this.displayedMovies.length !== 0">
-            <thead class="bg-whitesmoke"> 
-                <tr>
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByTitle()">
-                        Titre <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByCategory()">
-                        Catégorie <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByAddDate()">
-                        Ajouté le <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByUpdateDate()">
-                        Modifier le <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px]">Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr class="border-2" cv-for="movie of this.displayedMovies">
-                    <td class="p-[22px]">{{ this.movie.title }}</td>
-
-                    <td class="p-[22px]">{{ this.movie.category ? this.movie.category.title : "Aucune" }}</td>
-
-                    <td class="p-[22px]">{{ this.dateFormater(this.movie.created_at) }}</td>
-
-                    <td class="p-[22px]">{{ this.dateFormater(this.movie.updated_at) }}</td>
-                    
-                    <td class="p-[22px]">
-                        <icon
-                        name="trash-can-outline"
-                        class="text-2xl text-pinkred cursor-pointer"
-                        @click="this.openDeleteModal(this.movie.id)"
-                        />
-
-                        <router_link :href="`/admin/edit-video/movie/${this.movie.id}`">
-                            <icon
-                            name="square-edit-outline"
-                            class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                            />
-                        </router_link>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div cv-if="this.displayedMovies.length" class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
-            <button @click="this.previousPage()" class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
-
-            <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
+        <router_link href="/admin/add-content?type=movie" class="add-movie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
+            <icon name="plus" class="text-xl"/>
             
-            <button @click="this.nextPage()" class="px-[20px] py-[10px] border rounded-[8px]">Suivant</button>
-        </div>
+            <span class="mt-[-2px]">Ajouter un film</span>
     </div>
+
+    <admin_table
+    :thead="this.tabHead"
+    :data="this.displayedMovies"
+    :keys="['title', 'category', 'created_at', 'updated_at']"
+    :edit="true"
+    :delete="true"
+    :currentpage="this.currentPageNumber"
+    :totalpages="this.maxPage"
+    @edititem="router.push(`/admin/edit-video/movie/${$event}`)"
+    @deleteitem="this.openDeleteModal($event)"
+    @previous="this.previousPage()"
+    @next="this.nextPage()"
+    />
 </div>
 
 <script>
-    const [impLoader, impTaob, delete_movie_modal] = await Promise.all([
+    const [impLoader, impTaob, admin_table, delete_movie_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js"),
+        importer("/public/cuteVue/components/admin_table.html"),
         importer('/public/cuteVue/components/modals/delete_movie_modal.html')
     ]);
     const loaderStore = impLoader.loaderStore;
@@ -97,29 +49,52 @@
 
     export default {
         components: {
-            delete_movie_modal,
+            admin_table,
+            delete_movie_modal
         },
         data: {
-            displayedMovies: [],
+            tabHead: [
+                {
+                    name: "Titre",
+                    key: "title",
+                    sort: true,
+                },
+                {
+                    name: "Catégorie",
+                    key: "category",
+                    sort: true,
+                },
+                {
+                    name: "Ajouté le",
+                    key: "created_at",
+                    sort: true,
+                },
+                {
+                    name: "Modifié le",
+                    key: "updated_at",
+                    sort: true,
+                },
+            ],
             movies: [],
+            displayedMovies: [],
             movieFiltered: [],
+            nbTotalMovies: 0,
             movieId: null,
-            currentPageNumber: 1,
-            maxPage: 0,
-            isOpenedModal: false,
             currentTitle: "",
             currentCategory: "",
             currentCreatedAt: "",
             currentUpdatedAt: "",
+            currentPageNumber: 1,
+            maxPage: 0,
+            limitToDisplay: 5,
+            isOpenedModal: false,
             isDeleteModalOpen: false,
             search: "",
-            nbTotalMovies: 0,
-            limitToDisplay: 5,
             searchInfo: ""
         },
         watch: {
-            search(val) {
-                if (val === "") {
+            search(val){
+                if (val === ""){
                     this.searchInfo = "";
                     this.displayedMovies = this.movies;
 
@@ -130,7 +105,7 @@
             }
         },
         methods: {
-            async getMoviesWithPaging(page, count = false) {
+            async getMoviesWithPaging(page, count = false){
                 let close = loaderStore.push();
 
                 await taob.get(`movies?page=${page - 1}`).s(data => {
@@ -139,7 +114,7 @@
 
                 this.displayedMovies = this.movies;
 
-                if (count) {
+                if (count){
                     await taob.get("movies/count").s(data => {
                         this.nbTotalMovies = data.count;
                     }).result;
@@ -149,14 +124,14 @@
 
                 close();
             },
-            async searchMovies(val) {
+            async searchMovies(val){
                 let close = loaderStore.push();
 
                 await taob.get(`movies?title=${val}`).s(data => {
                     this.movieFiltered = data;
                 }).result;
 
-                if (this.movieFiltered.length > 0) {
+                if (this.movieFiltered.length > 0){
                     this.searchInfo = "";
                     this.displayedMovies = this.movieFiltered;
                 } else {
@@ -166,59 +141,27 @@
 
                 close();
             },
-            sortByTitle() {
-                this.displayedMovies = this.displayedMovies.sort((a, b) => {
-                    if (a.title < b.title) return -1;
-                    if (a.title > b.title) return 1;
-
-                    return 0;
-                });
-            },
-            sortByCategory() {
-                this.displayedMovies = this.displayedMovies.sort((a, b) => {
-                    if (a.category < b.category) return -1;
-                    if (a.category > b.category) return 1;
-
-                    return 0;
-                });
-            },
-            sortByAddDate() {
-                this.displayedMovies = this.displayedMovies.sort((a, b) => {
-                    if (a.created_at < b.created_at) return -1;
-                    if (a.created_at > b.created_at) return 1;
-
-                    return 0;
-                });
-            },
-            sortByUpdateDate() {
-                this.displayedMovies = this.displayedMovies.sort((a, b) => {
-                    if (a.updated_at < b.updated_at) return -1;
-                    if (a.updated_at > b.updated_at) return 1;
-
-                    return 0;
-                });
-            },
-            async previousPage() {
+            async previousPage(){
                 if (this.currentPageNumber === 1) return;
 
                 this.currentPageNumber--;
                 await this.getMoviesWithPaging(this.currentPageNumber);
             },
-            async nextPage() {
+            async nextPage(){
                 if (this.currentPageNumber === this.maxPage) return;
 
                 this.currentPageNumber++;
                 await this.getMoviesWithPaging(this.currentPageNumber);
             },
-            openDeleteModal(movieId) {
+            openDeleteModal(movieId){
                 this.movieId = movieId;
                 this.isDeleteModalOpen = true;
             },
-            closeDeleteModal() {
+            closeDeleteModal(){
                 this.isDeleteModalOpen = false;
             },
-            async refresh(action) {
-                if (action === "delete") {
+            async refresh(action){
+                if (action === "delete"){
                     if (this.displayedMovies.length === 1 && this.currentPageNumber > 1) {
                         this.currentPageNumber--;
                     }
@@ -226,7 +169,7 @@
 
                 await this.getMoviesWithPaging(this.currentPageNumber, true);
             },
-            getNbPages() {
+            getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalMovies / this.limitToDisplay);
             },
             dateFormater(date){
@@ -238,7 +181,7 @@
                 return day + "/" + month + "/" + year;
             },
         },
-        mounted() {
+        mounted(){
             this.getMoviesWithPaging(this.currentPageNumber, true);
         }
     }

@@ -1,0 +1,170 @@
+
+<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <delete_category_modal :category_id="this.selectCategory" cv-if="this.dialogDeleteCategory" 
+    @close="this.dialogDeleteCategory = false" @delete-category="refresh"
+    />
+    <edit_category_modal :category_id="this.selectCategory"
+    cv-if="this.dialogEditCategory" @close="this.dialogEditCategory = false"
+    :currentname="this.nameSelectedCategory" @edit-category="refresh"
+    />
+
+    <div class="w-full mb-[10px] flex flex-col justify-between">
+        <cv-form @submit="addCategory" class="flex align-center gap-[10px]">
+            <div class="px-[20px] py-[10px] flex items-center border rounded-[8px]">
+                <input type="text" cv-model="addedCategory" class="focus:outline-none" placeholder="Ajouter une categorie">
+                
+                <button cv-class="{ 'cursor-not-allowed text-grey': !this.addedCategory }" :disabled="!this.addedCategory">Ajouter</button>
+            </div>
+        </cv-form>
+
+        <p class="mt-[10px] px-[20px] py-[10px]">{{ this.info }}</p>
+    </div>
+
+    <admin_table
+    :thead="this.tabHead"
+    :data="this.displayedCategories"
+    :keys="['id', 'title']"
+    :edit="true"
+    :delete="true"
+    :currentpage="this.currentPageNumber"
+    :totalpages="this.maxPage"
+    @edititem="this.editCategory($event)"
+    @deleteitem="this.deleteCategory($event)"
+    @previous="this.previousPage()"
+    @next="this.nextPage()"
+    />
+</div>
+
+<script>
+    const [impLoader, impTaob, admin_table, delete_category_modal, edit_category_modal] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js"),
+        importer("/public/cuteVue/components/admin_table.html"),
+        importer("/public/cuteVue/components/modals/delete_category_modal.html"),
+        importer("/public/cuteVue/components/modals/edit_category_modal.html"),
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+
+    export default {
+        components: {
+            admin_table,
+            delete_category_modal,
+            edit_category_modal
+        },
+        data: {
+            tabHead: [
+                {
+                    name: "ID",
+                    key: "id",
+                    sort: true,
+                },
+                {
+                    name: "Nom",
+                    key: "title",
+                    sort: true,
+                },
+            ],
+            categories: [],
+            displayedCategories: [],
+            addedCategory: "",
+            nameSelectedCategory: "",
+            info: "",
+            currentPageNumber: 1,
+            nbCategoriesPerPage: 5,
+            maxPage: 0,
+            dialogDeleteCategory: false,
+            dialogEditCategory: false,
+            selectCategory: null
+        },
+        static: {
+            titleRule: [
+                (value) => !!value || "Le titre est requis",
+                (value) => (value && value.length <= 10) || "Le titre doit contenir moins de 10 caractères",
+                (value) => /^[a-zA-Z0-9 ]+$/.test(value) || "Le titre ne doit contenir que des lettres et des chiffres",
+            ],
+        },
+        methods: {
+            async addCategory(){
+                if(this.addedCategory.trim() === "") return;
+
+                let close = loaderStore.push();
+
+                await taob.post("/category", {
+                    category_name: this.addedCategory,
+                }).s(this.refresh)
+                .e((error) => {
+                    this.info = "Erreur lors de l'ajout de la catégorie";
+                }).result;
+
+                this.addedCategory = "";
+
+                close();
+            },
+            async previousPage(){
+                if (this.currentPageNumber > 1){
+                    this.currentPageNumber--;
+                    this.refresh();
+                }
+            },
+            async nextPage(){
+                if (this.currentPageNumber < this.maxPage){
+                    this.currentPageNumber++;
+                    this.refresh();
+                }
+            },
+            async getCategories(page, count = false){
+                let close = loaderStore.push();
+
+                // get categories per page
+                await taob.get(`/categories?page=${page - 1}`).s((data) => {
+                    this.displayedCategories = data;
+                }).e((error) => {
+                    this.info = "Erreur lors de la récupération des catégories";
+                }).result;
+                if (count){
+                    this.countCategories();
+                }
+
+                close();
+            },
+            deleteCategory(id){
+                this.selectCategory = id;
+                this.dialogDeleteCategory = true;
+            },
+            editCategory(category){
+                this.selectCategory = category.id;
+                this.nameSelectedCategory = category.title;
+                this.dialogEditCategory = true;
+            },
+            async refresh(action){
+                if (action === "delete"){
+                    if (this.displayedCategories.length === 1 && this.currentPageNumber > 1){
+                        this.currentPageNumber--;
+                    }     
+                }
+
+                await this.getCategories(this.currentPageNumber, true);
+            },
+            async countCategories(){
+                let close = loaderStore.push();
+
+                await taob.get('/categories/count').s((data) => {
+                    this.maxPage = Math.ceil(data / this.nbCategoriesPerPage);
+                }).e((error) => {
+                    this.info = "Erreur lors de la récupération du nombres catégories";
+                }).result;
+
+                close();
+            }
+        },
+        mounted(){
+            this.getCategories(this.currentPageNumber, true);
+        }
+    }
+</script>
+
+<style>
+    
+</style>
