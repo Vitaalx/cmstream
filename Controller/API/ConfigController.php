@@ -32,48 +32,6 @@ class uploadLogo extends AccessConfigEditor
         $response->code(201)->info("icon.uploaded")->send();
     }
 }
-
-/**
- * PUT{/api/config/db}
-
-class updateConfigDB extends AccessConfigEditor
-{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["type/string", $request->getBody()["DB_HOST"]],
-            ["type/int", $request->getBody()["DB_PORT"]],
-            ["type/string", $request->getBody()["DB_TYPE"]],
-            ["type/string", $request->getBody()["DB_DATABASE"]],
-            ["type/string", $request->getBody()["DB_USERNAME"]],
-            ["type/string", $request->getBody()["DB_PASSWORD"]]
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        $body = $request->getBody();
-        QueryBuilder::dataBaseConnection($body);
-        try {
-            $file = new File(__DIR__ . '/../../config.php');
-
-            $config = $file->read();
-
-            foreach (['DB_HOST', 'DB_PORT', 'DB_TYPE', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD'] as $key) {
-                if (gettype($body[$key]) === 'string') {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)'([^']*)'(?:^$|[ ]*),/", "'{$key}' => '{$body[$key]}'", $config);
-                } else {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)([0-9]*)(?:^$|[ ]*),/", "'{$key}' => {$body[$key]}", $config);
-                }
-            }
-            $file->write($config);
-            $response->code(204)->send();
-        } catch (\Exception $e) {
-            $response->code(500)->info("config.notUpdated")->send();
-        }
-    }
-}
- */
 /**
  * @PUT{/api/config/app}
  */
@@ -152,14 +110,29 @@ class updateConfigMail extends AccessConfigEditor
 }
 
 /**
- * GET{/api/config}
+ * @GET{/api/config/app}
  */
-class getConfig extends AccessConfigEditor
+class getConfigApp extends AccessConfigEditor
 {
     public function handler(Request $request, Response $response): void
     {
-        $file = new File(__DIR__ . '/../../config.php');
-        $config = $file->read();
-        $response->code(200)->send($config);
+        foreach (['APP_NAME', 'SECRET_KEY', 'TOKEN_DURATION', 'HOST'] as $key) {
+            $data[$key] = CONFIG[$key];
+        }
+        $response->code(200)->send($data);
+    }
+}
+
+/**
+ * @GET{/api/config/mail}
+ */
+class getConfigMail extends AccessConfigEditor
+{
+    public function handler(Request $request, Response $response): void
+    {
+        foreach (['MAIL_PORT', 'MAIL_HOST', 'MAIL_FROM'] as $key) {
+            $data[$key] = CONFIG[$key];
+        }
+        $response->code(200)->send($data);
     }
 }
