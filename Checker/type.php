@@ -4,6 +4,7 @@ namespace checker\type;
 
 use Core\Floor;
 use Core\Response;
+use Core\UploadFile;
 
 function notEmpty($value): void
 {
@@ -40,7 +41,7 @@ function bool(bool $bool): bool
     return $bool;
 }
 
-function file(string $file)
+function fileUpload(UploadFile $file): UploadFile
 {
-    return $_FILES[$file];
+    return $file;
 }

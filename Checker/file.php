@@ -4,6 +4,7 @@ namespace checker\file;
 
 use Core\Floor;
 use Core\Response;
+use Core\UploadFile;
 
 function checkPath(string $path, Floor $floor, Response $response)
 {
@@ -22,21 +23,10 @@ function exist(string $path, Floor $floor, Response $response)
     return $path;
 }
 
-function sizeFile($file, Floor $floor, Response $response)
+function sizeFile(UploadFile $file, Floor $floor, Response $response)
 {
-    if ($file["size"] > 5000000) {
+    if ($file->getSize() > 5000000) {
         $response->info("file.size")->code(400)->send();
-    }
-    return $file;
-}
-
-function extensionFile($file, Floor $floor, Response $response)
-{
-    $allowed = 'png';
-    $filename = $file['name'];
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    if (!in_array($ext, explode(',', $allowed))) {
-        $response->info("file.extension")->code(400)->send();
     }
     return $file;
 }

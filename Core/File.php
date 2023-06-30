@@ -7,12 +7,14 @@ class File
     private string $path;
     private mixed $file;
 
-    public function __construct(string $path){
+    public function __construct(string $path)
+    {
         $this->path = $path;
         $this->file = fopen($path, "a+");
     }
 
-    public function read(){
+    public function read()
+    {
         fseek($this->file, 0, SEEK_SET);
         $content = fread($this->file, filesize($this->path));
         return $content;
@@ -57,7 +59,8 @@ class File
         unlink($this->path);
     }
 
-    public function __destruct(){
-        if($this->file !== null)fclose($this->file);
+    public function __destruct()
+    {
+        if ($this->file !== null && $this->file !== false) fclose($this->file);
     }
 }

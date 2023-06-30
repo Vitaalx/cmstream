@@ -7,6 +7,7 @@ use Core\Request;
 use Core\Response;
 use Core\QueryBuilder;
 use Core\File;
+use Core\UploadFile;
 
 use Services\Access\AccessConfigEditor;
 
@@ -18,24 +19,23 @@ class uploadLogo extends AccessConfigEditor
     public function checkers(Request $request): array
     {
         return [
-            ["type/file", "logo", "logo"],
+            ["type/fileUpload", $request->getFile('logo'), "logo"],
             ["file/sizeFile", fn () => $this->floor->pickup("logo"), "logo"],
-            ["file/extensionFile", fn () => $this->floor->pickup("logo"), "logo"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var UploadFile $logo */
         $logo = $this->floor->pickup("logo");
-        $return = move_uploaded_file($logo["tmp_name"], "/var/www/public/img/icons/logo.png");
-        if (!$return) $response->code(500)->info("icon.notUploaded")->send();
+        $logo->saveTo(__DIR__ . '/../../public/img/icons/logo.png');
         $response->code(201)->info("icon.uploaded")->send();
     }
 }
 
 /**
- * @PUT{/api/config/db}
- */
+ * PUT{/api/config/db}
+
 class updateConfigDB extends AccessConfigEditor
 {
     public function checkers(Request $request): array
@@ -53,6 +53,7 @@ class updateConfigDB extends AccessConfigEditor
     public function handler(Request $request, Response $response): void
     {
         $body = $request->getBody();
+        QueryBuilder::dataBaseConnection($body);
         try {
             $file = new File(__DIR__ . '/../../config.php');
 
@@ -72,7 +73,7 @@ class updateConfigDB extends AccessConfigEditor
         }
     }
 }
-
+ */
 /**
  * @PUT{/api/config/app}
  */
