@@ -110,3 +110,19 @@ class adminRole extends IndexHandler
         ];
     }
 }
+
+/**
+ * @GET{/admin/config}
+ * @GET{/admin/config/mail}
+ */
+class adminConfig extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::ConfigEditor]
+        ];
+    }
+}
