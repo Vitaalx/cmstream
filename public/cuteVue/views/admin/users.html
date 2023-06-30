@@ -152,6 +152,7 @@
 
                 await taob.get(`users?name=${val}`).s(data => {
                     this.userFiltered = data.users;
+                    console.log("data " + data);
                 }).result;
 
                 if (this.userFiltered.length > 0) {
