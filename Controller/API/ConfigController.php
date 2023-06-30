@@ -58,9 +58,9 @@ class updateConfigApp extends AccessConfigEditor
 
             foreach (['APP_NAME', 'SECRET_KEY', 'TOKEN_DURATION', 'HOST'] as $key) {
                 if (gettype($body[$key]) === 'string') {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)'([^']*)'(?:^$|[ ]*),/", "'{$key}' => '{$body[$key]}'", $config);
+                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)'([^']*)'(?:^$|[ ]*),/", "'{$key}' => '{$body[$key]}',", $config);
                 } else {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)([0-9]*)(?:^$|[ ]*),/", "'{$key}' => {$body[$key]}", $config);
+                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)([0-9]*)(?:^$|[ ]*),/", "'{$key}' => {$body[$key]},", $config);
                 }
             }
             $file->write($config);
@@ -96,9 +96,9 @@ class updateConfigMail extends AccessConfigEditor
 
             foreach (['MAIL_PORT', 'MAIL_HOST', 'MAIL_FROM'] as $key) {
                 if (gettype($body[$key]) === 'string') {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)'([^']*)'(?:^$|[ ]*),/", "'{$key}' => '{$body[$key]}'", $config);
+                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)'([^']*)'(?:^$|[ ]*),/", "'{$key}' => '{$body[$key]}',", $config);
                 } else {
-                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)([0-9]*)(?:^$|[ ]*),/", "'{$key}' => {$body[$key]}", $config);
+                    $config = preg_replace("/'{$key}'(?:^$|[ ]*)=>(?:^$|[ ]*)([0-9]*)(?:^$|[ ]*),/", "'{$key}' => {$body[$key]},", $config);
                 }
             }
             $file->write($config);
