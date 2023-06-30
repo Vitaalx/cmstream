@@ -83,8 +83,8 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/admin/roles.html"),
                 },
                 {
-                    path: "/admin/category",
-                    view: () => importer("/public/cuteVue/views/admin/category.html"),
+                    path: "/admin/categories",
+                    view: () => importer("/public/cuteVue/views/admin/categories.html"),
                 },
                 {
                     path: "/admin/series",

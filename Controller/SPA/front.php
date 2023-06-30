@@ -65,7 +65,7 @@ class connected extends IndexHandler
 /**
  * @GET{/admin}
  * @GET{/admin/users}
- * @GET{/admin/category}
+ * @GET{/admin/categories}
  * @GET{/admin/series}
  * @GET{/admin/movies}
  */

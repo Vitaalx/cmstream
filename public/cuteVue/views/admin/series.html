@@ -5,91 +5,43 @@
     @ondelete="refresh"
     />
 
-    <div class="table w-full">
-        <div class="table-header w-full flex justify-between items-start mb-[10px]">
-            <div class="search-serie">
-                <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
-                    <icon name="magnify" class="text-xl mr-[10px]"/>
-    
-                    <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
-                </div>
-    
-                <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
+    <div class="mb-[10px] w-full flex justify-between items-start">
+        <div class="search-serie">
+            <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
+                <icon name="magnify" class="text-xl mr-[10px]"/>
+
+                <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
             </div>
 
-            <router_link href="/admin/add-content?type=serie" class="add-serie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
-                <icon name="plus" class="text-xl"/>
-
-                <span class="mt-[-2px]">Ajouter une série</span>
+            <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
         </div>
 
-        <span cv-if="!this.displayedSeries.length">Aucune série trouvé.</span>
-
-        <table cv-if="this.displayedSeries.length" class="table-content w-full text-left border-2 rounded-t-[8px]" cv-if="this.displayedSeries.length !== 0">
-            <thead class="bg-whitesmoke"> 
-                <tr>
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByTitle()">
-                        Titre <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByCategory()">
-                        Catégorie <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByAddDate()">
-                        Ajouté le <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px] cursor-pointer" @click="this.sortByUpdateDate()">
-                        Modifier le <icon name="arrow-down-thick" class="ml-[8px]"/>
-                    </th>
-
-                    <th class="p-[22px]">Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr class="border-2" cv-for="serie of this.displayedSeries">
-                    <td class="p-[22px]">{{ this.serie.title }}</td>
-
-                    <td class="p-[22px]">{{ this.serie.category ? this.serie.category.title : "Aucune" }}</td>
-
-                    <td class="p-[22px]">{{ this.dateFormater(this.serie.created_at) }}</td>
-
-                    <td class="p-[22px]">{{ this.dateFormater(this.serie.updated_at) }}</td>
-                    
-                    <td class="p-[22px]">
-                        <icon
-                        name="trash-can-outline"
-                        class="text-2xl text-pinkred cursor-pointer"
-                        @click="this.openDeleteModal(this.serie.id)"
-                        />
-
-                        <router_link :href="`/admin/edit-video/serie/${this.serie.id}`">
-                            <icon
-                            name="square-edit-outline"
-                            class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                            />
-                        </router_link>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div cv-if="this.displayedSeries.length" class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
-            <button @click="this.previousPage()" class="px-[20px] py-[10px] border rounded-[8px]">Précédant</button>
-
-            <span>Page {{ this.currentPageNumber }} sur {{ this.maxPage }}</span>
+        <router_link href="/admin/add-content?type=serie" class="add-serie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
+            <icon name="plus" class="text-xl"/>
             
-            <button @click="this.nextPage()" class="px-[20px] py-[10px] border rounded-[8px]">Suivant</button>
-        </div>
+            <span class="mt-[-2px]">Ajouter une série</span>
     </div>
+
+    <admin_table
+    :thead="this.tabHead"
+    :data="this.displayedSeries"
+    :keys="['title', 'category', 'created_at', 'updated_at']"
+    :edit="true"
+    :delete="true"
+    :currentpage="this.currentPageNumber"
+    :totalpages="this.maxPage"
+    @edititem="router.push(`/admin/edit-video/serie/${$event}`)"
+    @deleteitem="this.openDeleteModal($event)"
+    @previous="this.previousPage()"
+    @next="this.nextPage()"
+    />
 </div>
 
 <script>
-    const [impLoader, impTaob, delete_serie_modal] = await Promise.all([
+    const [impLoader, impTaob, admin_table, delete_serie_modal] = await Promise.all([
         import("/public/cuteVue/loader.js"),
         import("/public/cuteVue/taob.js"),
+        importer('/public/cuteVue/components/admin_table.html'),
         importer('/public/cuteVue/components/modals/delete_serie_modal.html')
     ]);
     const loaderStore = impLoader.loaderStore;
@@ -97,28 +49,51 @@
 
     export default {
         components: {
-            delete_serie_modal,
+            admin_table,
+            delete_serie_modal
         },
         data: {
-            displayedSeries: [],
+            tabHead: [
+                {
+                    name: "Titre",
+                    key: "title",
+                    sort: true,
+                },
+                {
+                    name: "Catégorie",
+                    key: "category",
+                    sort: true,
+                },
+                {
+                    name: "Ajouté le",
+                    key: "created_at",
+                    sort: true,
+                },
+                {
+                    name: "Modifié le",
+                    key: "updated_at",
+                    sort: true,
+                },
+            ],
             series: [],
+            displayedSeries: [],
             serieFiltered: [],
+            nbTotalSeries: 0,
             serieId: null,
-            currentPageNumber: 1,
-            maxPage: 0,
-            isOpenedModal: false,
             currentTitle: "",
             currentCategory: "",
             currentCreatedAt: "",
             currentUpdatedAt: "",
+            currentPageNumber: 1,
+            maxPage: 0,
+            limitToDisplay: 5,
+            isOpenedModal: false,
             isDeleteModalOpen: false,
             search: "",
-            nbTotalSeries: 0,
-            limitToDisplay: 5,
             searchInfo: ""
         },
         watch: {
-            search(val) {
+            search(val){
                 if (val === "") {
                     this.searchInfo = "";
                     this.displayedSeries = this.series;
@@ -126,11 +101,11 @@
                     return;
                 }
 
-                this.searchMovies(val);
+                this.searchSeries(val);
             }
         },
         methods: {
-            async getMoviesWithPaging(page, count = false) {
+            async getSeriesWithPaging(page, count = false){
                 let close = loaderStore.push();
 
                 await taob.get(`series?page=${page - 1}`).s(data => {
@@ -139,7 +114,7 @@
 
                 this.displayedSeries = this.series;
 
-                if (count) {
+                if (count){
                     await taob.get("series/count").s(data => {
                         this.nbTotalSeries = data.count;
                     }).result;
@@ -149,14 +124,14 @@
 
                 close();
             },
-            async searchMovies(val) {
+            async searchSeries(val){
                 let close = loaderStore.push();
 
                 await taob.get(`series?title=${val}`).s(data => {
                     this.serieFiltered = data;
                 }).result;
 
-                if (this.serieFiltered.length > 0) {
+                if (this.serieFiltered.length > 0){
                     this.searchInfo = "";
                     this.displayedSeries = this.serieFiltered;
                 } else {
@@ -166,67 +141,35 @@
 
                 close();
             },
-            sortByTitle() {
-                this.displayedSeries = this.displayedSeries.sort((a, b) => {
-                    if (a.title < b.title) return -1;
-                    if (a.title > b.title) return 1;
-
-                    return 0;
-                });
-            },
-            sortByCategory() {
-                this.displayedSeries = this.displayedSeries.sort((a, b) => {
-                    if (a.category < b.category) return -1;
-                    if (a.category > b.category) return 1;
-
-                    return 0;
-                });
-            },
-            sortByAddDate() {
-                this.displayedSeries = this.displayedSeries.sort((a, b) => {
-                    if (a.created_at < b.created_at) return -1;
-                    if (a.created_at > b.created_at) return 1;
-
-                    return 0;
-                });
-            },
-            sortByUpdateDate() {
-                this.displayedSeries = this.displayedSeries.sort((a, b) => {
-                    if (a.updated_at < b.updated_at) return -1;
-                    if (a.updated_at > b.updated_at) return 1;
-
-                    return 0;
-                });
-            },
-            async previousPage() {
+            async previousPage(){
                 if (this.currentPageNumber === 1) return;
 
                 this.currentPageNumber--;
-                await this.getMoviesWithPaging(this.currentPageNumber);
+                await this.getSeriesWithPaging(this.currentPageNumber);
             },
-            async nextPage() {
+            async nextPage(){
                 if (this.currentPageNumber === this.maxPage) return;
 
                 this.currentPageNumber++;
-                await this.getMoviesWithPaging(this.currentPageNumber);
+                await this.getSeriesWithPaging(this.currentPageNumber);
             },
-            openDeleteModal(serieId) {
+            openDeleteModal(serieId){
                 this.serieId = serieId;
                 this.isDeleteModalOpen = true;
             },
-            closeDeleteModal() {
+            closeDeleteModal(){
                 this.isDeleteModalOpen = false;
             },
-            async refresh(action) {
+            async refresh(action){
                 if (action === "delete") {
                     if (this.displayedSeries.length === 1 && this.currentPageNumber > 1) {
                         this.currentPageNumber--;
                     }
                 }
 
-                await this.getMoviesWithPaging(this.currentPageNumber, true);
+                await this.getSeriesWithPaging(this.currentPageNumber, true);
             },
-            getNbPages() {
+            getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalSeries / this.limitToDisplay);
             },
             dateFormater(date){
@@ -238,8 +181,8 @@
                 return day + "/" + month + "/" + year;
             },
         },
-        mounted() {
-            this.getMoviesWithPaging(this.currentPageNumber, true);
+        mounted(){
+            this.getSeriesWithPaging(this.currentPageNumber, true);
         }
     }
 </script>

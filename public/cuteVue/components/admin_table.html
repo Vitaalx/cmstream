@@ -1,0 +1,108 @@
+<div class="table w-full">
+    <span cv-if="!this.data.length">Aucune élément trouvé.</span>
+
+    <table cv-if="this.data.length" class="table-content w-full text-left border-2 rounded-t-[8px]">
+        <thead class="bg-whitesmoke">
+            <tr>
+                <th cv-for="column of this.thead" class="p-[22px] cursor-pointer">
+                    {{ this.column.name }}
+
+                    <icon
+                    cv-if="this.column.sort"
+                    name="arrow-down-thick"
+                    class="ml-[8px]"
+                    @click="this.sortColumn = this.sortColumn == this.column.key ? null : this.column.key"
+                    />
+                </th>
+
+                <th cv-if="this.edit || this.delete" class="p-[22px]">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+             <tr cv-for="item of this.displayitems" class="border-2">
+                <td cv-for="key of this.keys" class="p-[22px]">
+                    {{ this.item[this.key] = this.key === 'created_at' || this.key === 'updated_at' ?
+                    this.dateFormater(this.item[this.key]) : this.key === 'category' ?
+                    this.item[this.key].title : this.item[this.key]
+                    }}
+                </td>
+
+                <td cv-if="this.edit || this.delete" class="p-[22px]">
+                    <icon 
+                    cv-if="this.delete"
+                    name="trash-can-outline"
+                    class="text-2xl text-pinkred cursor-pointer"
+                    @click="this.$emit('deleteitem', this.item.id)"
+                    />
+
+                    <icon
+                    cv-if="this.edit"
+                    name="square-edit-outline"
+                    class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                    @click="this.$emit('edititem', this.item.id)"
+                    />
+                </td> 
+             </tr>
+        </tbody>
+    </table>
+
+   <div cv-if="this.data.length" class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
+        <button
+        class="px-[20px] py-[10px] border rounded-[8px]"
+        @click="this.$emit('previous')"
+        >
+        Précédant
+        </button>
+
+        <span>Page {{ this.currentpage }} sur {{ this.totalpages }}</span>
+
+        <button
+        class="px-[20px] py-[10px] border rounded-[8px]"
+        @click="this.$emit('next')"
+        >
+        Suivant
+        </button>
+    </div>
+</div>
+
+<script>
+    export default {
+        props: {
+            thead: [],
+            data: [],
+            keys: [],
+            edit: false,
+            delete: false,
+            currentpage: 1,
+            totalpages: 1
+        },
+        data: {
+            sortColumn: null
+        },
+        computed: {
+            displayitems(){
+                for(const column of this.thead){
+                    if(column.key === this.sortColumn){
+                        return [...this.data].sort((a, b) => a[column.key] > b[column.key] ? -1 : 1);
+                    }
+                }
+                return this.data;
+            }
+        },
+        methods: {
+            dateFormater(date){
+                const parts = date.split("-");
+                const year = parts[0];
+                const month = parts[1];
+                const day = parts[2];
+
+                return day + "/" + month + "/" + year;
+            },
+        }
+    }
+</script>
+
+<style>
+
+</style>
