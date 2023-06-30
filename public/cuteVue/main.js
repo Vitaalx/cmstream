@@ -120,7 +120,7 @@ createRoute(
     }
 );
 
-const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon] = await Promise.all([
+const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon, search_input] = await Promise.all([
     importer("/public/cuteVue/app.html"),
     importer("/public/cuteVue/components/page-loader.html"),
     importer("/public/cuteVue/components/cv-form.html"),
@@ -128,6 +128,7 @@ const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon
     importer("/public/cuteVue/components/inputs/checkbox-input.html"),
     importer("/public/cuteVue/components/inputs/select-input.html"),
     importer("/public/cuteVue/components/icon.html"),
+    importer("/public/cuteVue/components/inputs/search-input.html"),
 ]);
 
 CuteVue.component("page-loader", page_loader);
@@ -136,5 +137,6 @@ CuteVue.component("text-input", text_input);
 CuteVue.component("checkbox-input", checkbox_input);
 CuteVue.component("select-input", select_input);
 CuteVue.component("icon", icon);
+CuteVue.component("search-input", search_input);
 
 app.mount("#app");
