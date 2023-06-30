@@ -93,6 +93,14 @@ createRoute(
                 {
                     path: "/admin/movies",
                     view: () => importer("/public/cuteVue/views/admin/movies.html"),
+                },
+                {
+                    path: "admin/config",
+                    view: () => importer("/public/cuteVue/views/admin/config.html"),
+                },
+                {
+                    path: "admin/config/mail",
+                    view: () => importer("/public/cuteVue/views/admin/configMail.html"),
                 }
             ],
         },

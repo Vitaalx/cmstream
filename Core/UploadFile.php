@@ -2,12 +2,15 @@
 
 namespace Core;
 
+use Core\Logger;
+
 class UploadFile
 {
     private array $file;
     private ?string $save = null;
 
-    public function __construct(array $file){
+    public function __construct(array $file)
+    {
         $this->file = $file;
     }
 
@@ -33,14 +36,15 @@ class UploadFile
 
     public function saveTo(string $path): ?File
     {
-        if($this->save !== null)return null;
+        if ($this->save !== null) return null;
         move_uploaded_file($this->file["tmp_name"], $path);
         $this->save = $path;
 
         return new File($path);
     }
 
-    public function read(){
+    public function read()
+    {
         $file = fopen($this->file["tmp_name"], "r");
         $content = fread($file, filesize($this->file["tmp_name"]));
         fclose($file);
