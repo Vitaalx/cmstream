@@ -63,9 +63,9 @@
                         </li>
 
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                            'border-l-4 border-white-500': this.pathname === '/admin/serie'
+                            'border-l-4 border-white-500': this.pathname === '/admin/series'
                         }">
-                            <router_link href="/admin/serie" class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
+                            <router_link href="/admin/series" class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="movie-open" class="text-[18px]"/>
                                 Gérer séries
                             </router_link>
@@ -105,7 +105,7 @@
         },
         methods: {
             setDropdownContentManager() {
-                if(this.pathname === "/admin/category" || this.pathname === "/admin/movies" || this.pathname === "/admin/serie") {
+                if(this.pathname === "/admin/category" || this.pathname === "/admin/movies" || this.pathname === "/admin/series") {
                     this.dropdownContentManager = true
                 } else {
                     this.dropdownContentManager = false
