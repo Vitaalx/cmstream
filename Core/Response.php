@@ -169,15 +169,16 @@ class Response{
 
     public function redirect(string $url){
         $this->setHeader("Location", $url);
-        $this->code(303)->info("redirected")->send();
+        if($this->info === null)$this->info("redirected");
+        $this->send();
     }
 
     private function autoSetHeaders(){
         http_response_code($this->code);
 
         if($this->info !== null){
-            $this->setHeader("aob-info", $this->info);
-            $this->addExpose("aob-info");
+            $this->setHeader("Info", $this->info);
+            $this->addExpose("Info");
         }
 
         if(isset(CONFIG["HOST"])){

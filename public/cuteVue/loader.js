@@ -19,6 +19,7 @@ export const loaderStore = CuteVue.createStore(
             },
             close(id){
                 let item = this.timeouts.find(item => item.id === id);
+                if(!item)return;
                 clearTimeout(item.timeout);
                 if(this.list.indexOf(id) !== -1){
                     setTimeout(() => {

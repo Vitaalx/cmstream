@@ -17,7 +17,7 @@ export const userStore =  CuteVue.createStore(
         },
         actions: {
             async connect(){
-                await taob.get("/user").s(data => {
+                let result = await taob.get("/user").s(data => {
                     this.role = data.role;
                     this.username = data.username;
                     this.userId = data.userId;
@@ -29,6 +29,7 @@ export const userStore =  CuteVue.createStore(
                 }).result;
             },
             async disconnect(logout = true){
+                this.isConnected = false;
                 this.username = "";
                 this.role = "";
                 this.lastname = "";
@@ -36,7 +37,6 @@ export const userStore =  CuteVue.createStore(
                 this.permissions = [];
                 this.email = "";
                 this.userId = "";
-                this.isConnected = false;
                 if(logout) {
                     await taob.get("/logout").result;
                     toastStore.pushToast("successfull", "Vous avez bien été déconnecté.");
@@ -70,5 +70,10 @@ export const userStore =  CuteVue.createStore(
 );
 
 userStore.connect();
-taob.setHookInfo("user.logged", () => userStore.connect());
-// taob.setHookInfo("token.invalid", () => toastStore.pushToast("error", "Votre session a expiré, veuillez vous reconnecter."));
+taob.addHookInfo("user.logged", () => userStore.connect());
+taob.addHookInfo("token.invalid", async({response}, request, ip) => {
+    if(userStore.isConnected === false) return;
+    await userStore.disconnect(false);
+    toastStore.pushToast("error", "Votre session a expiré, veuillez vous reconnecter.");
+    if(ip.pageAccess === undefined)router.push("/signin");
+});

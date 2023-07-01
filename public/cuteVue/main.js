@@ -3,6 +3,7 @@ import { createRoute } from "./router/index.js";
 import { loaderStore } from "./loader.js"
 import "./user.js";
 import "./toast.js";
+import taob from "./taob.js";
 
 createRoute(
     [
@@ -108,7 +109,18 @@ createRoute(
 
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
-        let result = await fetch(path, { headers: { "Page-Access": "true" } });
+        let {response: result} = await taob.get(
+            path, 
+            {
+                headers: {
+                    "Page-Access": "true"
+                }, 
+                disabledPrefix: true,
+            },
+            {
+                pageAccess: true,
+            }
+        ).result;
         if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");
@@ -117,6 +129,10 @@ createRoute(
             let appName = result.headers.get("App-Name");
             if (document.title !== appName) document.title = appName;
             return path;
+        }
+        else if(result.headers.get("info") === "token.invalid"){
+            close();
+            return "/signin";
         }
         else {
             close();
