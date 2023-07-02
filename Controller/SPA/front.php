@@ -112,8 +112,8 @@ class adminRole extends IndexHandler
 }
 
 /**
- * @GET{/admin/config}
- * @GET{/admin/config/mail}
+ * @GET{/dashboard/config}
+ * @GET{/dashboard/config/mail}
  */
 class adminConfig extends IndexHandler
 {

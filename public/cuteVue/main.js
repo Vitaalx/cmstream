@@ -96,12 +96,12 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/admin/movies.html"),
                 },
                 {
-                    path: "admin/config",
-                    view: () => importer("/public/cuteVue/views/admin/config.html"),
+                    path: "/dashboard/config",
+                    view: () => importer("/public/cuteVue/views/dashboard/config.html"),
                 },
                 {
-                    path: "admin/config/mail",
-                    view: () => importer("/public/cuteVue/views/admin/configMail.html"),
+                    path: "/dashboard/config/mail",
+                    view: () => importer("/public/cuteVue/views/dashboard/configMail.html"),
                 },
                 {
                     path: "/dashboard/comments",

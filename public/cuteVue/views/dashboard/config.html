@@ -1,0 +1,198 @@
+<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <h1 class="w-full text-[32px] font-bold border-b-[2px] border-inherit mb-[30px] text-center">
+		Configuration de l'application
+    </h1>
+
+    <div class="w-full flex gap-[20px] flex-col lg:flex-row">
+        <cv-form 
+		@submit="editConfigApp" 
+		class="basis-[50%] flex flex-col gap-[20px]"
+		>
+			<text-input 
+			type="text" 
+			cv-model="editAppName" 
+			placeholder="Nom d'application"
+			:rules="this.appNameRule"
+			/>
+
+			<text-input 
+			:type="!this.lookSecret ? 'password' : 'text'" 
+			cv-model="editSecretKey" 
+			placeholder="Clé secrète"
+			:rules="this.secretKeyRule"
+			>
+				<icon 
+				@click="this.lookSecret = !this.lookSecret"
+				class=" absolute top-[50%] -translate-y-[50%] right-0 cursor-pointer" 
+				name="eye"
+				/>
+			</text-input>
+
+			<text-input
+			type="number" 
+			cv-model="editTokenDuration" 
+			placeholder="durée du token"
+			:rules="this.tokenDurationRule"
+			/>
+
+			<text-input 
+			type="text" 
+			cv-model="editHost" 
+			placeholder="Nom de domaine"
+			:rules="this.hostRule"
+			/>
+			
+			<btn 
+			type="submit"
+			class="self-center"
+			>
+				Modifier
+			</btn>
+				
+        </cv-form>
+
+        <div class="basis-[50%] flex flex-col gap-[20px]">
+			<div class="flex grow gap-[5px] h-[204px]">
+				<div class="basis-[50%] flex items-center justify-center border-gray-300 border-2 rounded-md  max-h-full overflow-hidden">
+					<img :src="'/public/img/icons/logo.png' || this.logo"/>
+				</div>
+
+				<label class="basis-[50%] px-4 transition flex justify-center items-center bg-white border-2 text-grey border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+					<div
+					cv-if="this.logo === null" 
+					class="text-gray-600 text-center"
+					>
+						<icon 
+						class="text-[40px]" 
+						name="upload"
+						/>
+
+						PNG, JPEG uniquement.
+					</div>
+					
+					<div class="flex justify-center items-center max-h-full overflow-hidden">
+						<img 
+						cv-if="this.logo" 
+						:src="URL.createObjectURL(this.logo)"
+						/>
+					</div>
+					
+	
+					<input 
+					type="file"
+					@change="this.logo = $event.target.files[0];" 
+					name="file_upload" 
+					class="hidden" 
+					accept="image/png, image/jpeg"
+					/>
+				</label>
+			</div>
+
+			<btn 
+			@click="uploadLogo"
+			:disabled="this.logo === null"
+			class="self-center"
+			>
+				Modifier
+			</btn>
+
+        </div>
+    </div>
+</div>
+
+<script>
+	const [impLoader, impTaob] = await Promise.all([
+		import("/public/cuteVue/loader.js"),
+		import("/public/cuteVue/taob.js")
+	]);
+
+	const loaderStore = impLoader.loaderStore;
+	const taob = impTaob.default;
+
+	export default {
+		data: {
+			editAppName: "",
+			editSecretKey: "",
+			editTokenDuration: 1000,
+			editHost: "",
+			lookSecret: false,
+			logo: null, 
+		},
+		static: {
+			secretKeyRule: [
+				(v) => !!v || "La clé secrète est requise",
+				(v) => v.length >= 8 || "La clé secrète doit contenir au moins 8 caractères",
+			],
+			tokenDurationRule: [
+				(v) => !!v || "La durée du token est requise",
+				(v) => v >= 1000 || "La durée du token doit être supérieur à 1000",
+			],
+			appNameRule: [
+				(v) => !!v || "Le nom de l'application est requis",
+				(v) => v.length >= 3 || "Le nom de l'application doit contenir au moins 3 caractères",
+			],
+			hostRule: [
+				(v) => !!v || "Le nom de domaine est requis",
+				(v) => v.length >= 3 || "Le nom de domaine doit contenir au moins 3 caractères",
+				(v) => v.startsWith("http://") || v.startsWith("https://") || "Le nom de domaine doit commencer par http:// ou https://",
+				(v) => /^https:\/\/|http:\/\/[a-z0-9.:]+$/.test(v) || "Ce champ n'est pas valide."
+			],
+		},
+		methods: {
+			getConfigApp(){
+				taob.get("/config/app", {loader: true})
+				.s(data => {
+					this.editAppName = data.APP_NAME;
+					this.editHost = data.HOST;
+					this.editSecretKey = data.SECRET_KEY;
+					this.editTokenDuration = data.TOKEN_DURATION;
+				});
+			},
+			uploadLogo(){
+				const formData = new FormData();
+				formData.append("logo", this.logo);
+				taob.post(
+					"/config/logo",
+					formData,
+					{loader: true}
+				)
+				.s(() => {
+					this.logo = null;
+					this.pushToast("successfull", "Le logo à bien été mis à jour.")
+				})
+				.e(() => this.pushToast("error", "Erreur le logo n'a pas été mis à jour."));
+			},
+			editConfigApp(){
+				taob.put(
+					"/config/app", 
+					{
+						APP_NAME: this.editAppName,
+						SECRET_KEY: this.editSecretKey,
+						TOKEN_DURATION: Number(this.editTokenDuration),
+						HOST: this.editHost,
+					},
+					{loader: true}
+				)
+				.s((res) => {
+					this.pushToast("successfull", "Configuration de l'application mise à jour avec succès.");
+					this.getConfigApp();
+				})
+				.e((error) => {
+					this.pushToast("error", "Erreur lors de la mise à jour de la configuration de l'application.");
+				});
+			}
+		},
+		mounted(){
+			this.getConfigApp();
+		},
+		stores: [
+			{
+				name: "toast",
+				actions: ["pushToast"]
+			}
+		],
+	};
+</script>
+
+<style>
+</style>

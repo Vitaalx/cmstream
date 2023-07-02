@@ -1,7 +1,14 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-noen">
     <div class="flex items-center justify-center gap-[30px] left">
-        <router_link href="/" class="h-full pr-[10px] flex items-center logo" @click="this.displayOptionsMenu = false">
-            <img src="/public/img/icons/logo.svg" alt="CMStream logo">
+        <router_link 
+        href="/" 
+        class="h-full w-[100px] flex items-center logo overflow-hidden"
+        >
+            <img 
+            src="/public/img/icons/logo.png" 
+            alt="CMStream logo"
+            class="w-full"
+            >
         </router_link>
 
         <nav class="h-full hidden lg:block">

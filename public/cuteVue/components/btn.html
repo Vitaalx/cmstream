@@ -10,6 +10,7 @@ cv-class="{
     class="px-[20px] py-[10px] rounded self-center button transition"
     cv-style="{
         zoom: this.small? 0.8 : 1,
+        opacity: this.disabled? 0.5 : 1,
     }"
     >
         <slot/>
@@ -49,6 +50,7 @@ cv-class="{
             type: "button",
             theme: "blue",
             popup: null,
+            disabled: false,
             small: false,
         },
         data: {
@@ -56,6 +58,7 @@ cv-class="{
         },
         methods: {
             async clicked(e){
+                if(this.disabled === true)return;
                 if(this.popup !== null){
                     let result = await new Promise((resolve) => this.popupIsOpen = resolve);
                     this.popupIsOpen = false;
