@@ -13,37 +13,41 @@ export default function makeTemplate(el, proxy){
         show: undefined,
         ref: undefined,
         mount: undefined,
-        children: [...el.childNodes].map(child => {
-            if(child.nodeName === "#text"){
-                let script = child.textContent
-                    .replace(/\n|\t/g, "")
-                    .replace(/{{([^{}]*)}}/g, (match, g) => "${" + g + "}")
-                    .replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
-                script = `\`${script}\``;
-
-                let vars = [];
-                for(let [match, group] of child.textContent.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
-                    if(vars.indexOf(group) !== -1) continue;
-                    vars.push(group);
-                }
-
-                return {
-                    type: "#textNode",
-                    script,
-                    vars,
-                };
-            }
-            else if(child.nodeName === "#comment"){
-                return {
-                    type: "#comment",
-                    content: child.textContent,
-                };
-            }
-            else {
-                return makeTemplate(child, proxy);
-            }
-        }),
+        children: [],
     };
+
+    el.childNodes.forEach(child => {
+        if(child.nodeName === "#text"){
+            let script = child.textContent
+                .trim()
+                .replace(/\n|\t/g, "")
+                .replace(/{{([^{}]*)}}/g, (match, g) => "${" + g + "}")
+                .replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
+            if(script === "")return;
+            script = `\`${script}\``;
+
+            let vars = [];
+            for(let [match, group] of child.textContent.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+                if(vars.indexOf(group) !== -1) continue;
+                vars.push(group);
+            }
+
+            obj.children.push({
+                type: "#textNode",
+                script,
+                vars,
+            });
+        }
+        else if(child.nodeName === "#comment"){
+            obj.children.push({
+                type: "#comment",
+                content: child.textContent,
+            });
+        }
+        else {
+            obj.children.push(makeTemplate(child, proxy));
+        }
+    })
 
     el.getAttributeNames().forEach(attrName => {
         if(attrName.startsWith(":")){

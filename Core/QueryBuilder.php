@@ -24,13 +24,17 @@ class QueryBuilder {
         $vs = [];
 
         foreach ($tableValue as $key => $value) {
-            array_push($keys, $key);
             if(gettype($value) === "NULL"){
                 $value = "NULL";
             }
             else if(gettype($value) === "boolean"){
                 $value = ($value? " TRUE" : " FALSE");
             }
+            else if(gettype($value) === "object" && str_starts_with($value::class, "Entity\\")){
+                $value = $value->getId();
+                $key = $key . "_id ";
+            }
+            array_push($keys, $key);
             array_push($vs, "?");
             array_push($values, $value);
         }
@@ -148,6 +152,10 @@ class QueryBuilder {
                         }
                     }
                 }
+                else if(gettype($value) === "object" && str_starts_with($value::class, "Entity\\")){
+                    array_push($values, $value->getId());
+                    array_push($wheres, $key . "_id " . $operator . " ?");
+                }
                 else {
                     array_push($values, $value);
                     array_push($wheres, $where);
@@ -210,6 +218,10 @@ class QueryBuilder {
         foreach ($array as $key => $value) {
             if(gettype($value) === "NULL"){
                 array_push($sets, $key . "= NULL");
+            }
+            else if(gettype($value) === "object" && str_starts_with($value::class, "Entity\\")){
+                array_push($values, $value->getId());
+                array_push($wheres, $key . "_id = ?");
             }
             else{
                 array_push($values, $value);

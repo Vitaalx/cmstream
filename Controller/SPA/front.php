@@ -126,3 +126,18 @@ class adminConfig extends IndexHandler
         ];
     }
 }
+
+/**
+ * @GET{/dashboard/comments}
+ */
+class dashboradManager extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::CommentsManager],
+        ];
+    }
+}

@@ -29,11 +29,21 @@
 
                 <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
                         'border-l-4 border-white-500': this.pathname === '/admin/roles'
-                    }">
+                }">
                     <router_link cv-if="this.hasPermission('role_editor')" href="admin/roles"
                         class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
                         <icon name="card-account-details" class="text-[18px]" />
                         Liste des rôles
+                    </router_link>
+                </li>
+
+                <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
+                    'border-l-4 border-white-500': this.pathname === '/dashboard/comments'
+                }">
+                    <router_link cv-if="this.hasPermission('comments_manager')" href="/dashboard/comments"
+                        class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
+                        <icon name="forum" class="text-[18px]" />
+                        Gérer les commentaires
                     </router_link>
                 </li>
 

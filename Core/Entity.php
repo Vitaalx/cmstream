@@ -53,6 +53,8 @@ abstract class Entity implements \JsonSerializable
         $this->props = $array;
     }
 
+    abstract public function getId(): int;
+
     public function __serialize()
     {
         return $this->toArray();
@@ -205,7 +207,8 @@ abstract class Entity implements \JsonSerializable
         $prop = self::$reflections[static::class][$prop];
         if ($prop["entityProp"] !== null){
             $this->props[$prop["name"] . "_id"] = $value !== null ? $value->getId() : null;
-        } else $this->props[$prop["name"]] = $value;
+        } 
+        else $this->props[$prop["name"]] = $value;
 
         $this->propsChange[$prop["name"]] = true;
     }

@@ -47,18 +47,20 @@ export default function render(template, proxy){
     
     let $destroy = el.$destroy || (() => false);
     el.$destroy = () => {
+        el.$destroyed = true;
         Object.entries(subscribers).forEach(([key, value]) => {
             value.forEach(fnc => {
                 proxy[__subscribers__][key] = proxy[__subscribers__][key].filter(v => v !== fnc);
             })
         });
-        if($destroy() === false)el.remove();
-        else el.$instance[__unmounted__]();
+        el.remove();
+        if(instance !== undefined)instance[__unmounted__]();
         [...el.childNodes].forEach(childNode => childNode.$destroy?.());
+        $destroy()
     };
     el.$mounted = () => {
         if(el.$instance) el.$instance[__mounted__]();
-        [...el.childNodes].forEach(childNode => childNode.$mounted?.());
+        el.childNodes.forEach(childNode => childNode.$mounted?.());
     };
 
     Object.entries(template.attributes).forEach(([key, value]) => {
@@ -90,6 +92,7 @@ export default function render(template, proxy){
             )`);
             
             let subscriber = () => {
+                if(el.$destroyed === true) return;
                 let result = attrRender(proxy);
                 if(instance !== undefined && instance[__props__][key] !== undefined){
                     let oldValue = instance[__properties__][key];
@@ -124,6 +127,7 @@ export default function render(template, proxy){
 
         let oldValue = [];
         let subscriber = () => {
+            if(el.$destroyed === true) return;
             let newClass = Object.entries(classRender(proxy));
             newClass.forEach(([key, value], index) => {
                 if(value) el.classList.add(...key.split(" "));
@@ -151,6 +155,7 @@ export default function render(template, proxy){
         )`);
 
         let subscriber = () => {
+            if(el.$destroyed === true) return;
             Object.entries(styleRender(proxy)).forEach(([key, value]) => {
                 el.style[key] = value;
             });
@@ -203,6 +208,7 @@ export default function render(template, proxy){
         )`);
 
         let subscriber = () => {
+            if(el.$destroyed === true) return;
             let result = cdn(proxy);
             if(result) el.style.display = "";
             else el.style.display = "none";
@@ -219,7 +225,10 @@ export default function render(template, proxy){
 
     template.children.forEach(templateChild => {
         if(templateChild.type === "#textNode"){
-            let textNode = document.createTextNode(templateChild);
+            let textNode = document.createTextNode("");
+            textNode.$destroy = () => {
+                textNode.$destroyed = true;
+            }
 
             let textRender = eval(/* js */`(
                 function anonymous(data){
@@ -228,9 +237,8 @@ export default function render(template, proxy){
             )`);
 
             let subscriber = () => {
-                let newTextNode = document.createTextNode(textRender(proxy));
-                textNode.replaceWith(newTextNode);
-                textNode = newTextNode;
+                if(textNode.$destroyed === true) return
+                textNode.nodeValue = textRender(proxy);
             };
 
             for(let group of templateChild.vars){
@@ -270,6 +278,7 @@ export default function render(template, proxy){
 
                 let oldResult = undefined;
                 let subscriber = () => {
+                    if(elementNode.$destroyed === true) return;
                     let result = cdn(proxy);
 
                     if(!!result === !!oldResult && oldResult !== undefined)return;
@@ -308,6 +317,7 @@ export default function render(template, proxy){
                 delete forElement.for;
                 
                 let subscriber = eval(/* js */`(function anonymous(){
+                    if(elementNode.$destroyed === true) return;
                     let children = [];
                     
                     for(const ${templateChild.for.script}){
@@ -360,6 +370,7 @@ export default function render(template, proxy){
             }
             else if(templateChild.mount !== undefined){
                 let subscriber = (name, component) => {
+                    if(el.$destroyed === true) return;
                     if(name === undefined){
                         let newCommentNode = document.createComment("");
                         elementNode.replaceWith(newCommentNode);

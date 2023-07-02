@@ -1,9 +1,20 @@
-<span class="mdi" cv-class="{['mdi-' + this.name]: true}" @click="this.$emit('click', $event)"/>
+<span 
+class="mdi text-center" 
+cv-class="{['mdi-' + this.name]: true}"
+cv-style="{
+    height: this.size + 'px', 
+    width: this.size + 'px',
+    lineHeight: this.size + 'px',
+    fontSize: this.size + 'px'
+}"
+@click="this.$emit('click', $event)"
+/>
 
 <script>
     export default {
         props: {
             name: "",
+            size: 24
         }
     }
 </script>

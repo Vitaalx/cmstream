@@ -1,8 +1,16 @@
-<div class="select-none">
+<div 
+class="select-none btn"
+cv-class="{
+    ['theme-' + this.theme]: true
+}"
+>
     <button 
     :type="this.type"
     @click="clicked"
-    class="px-[20px] py-[10px] rounded bg-skyblue self-center"
+    class="px-[20px] py-[10px] rounded self-center button transition"
+    cv-style="{
+        zoom: this.small? 0.8 : 1,
+    }"
     >
         <slot/>
     </button>
@@ -10,27 +18,26 @@
     <div 
     cv-if="this.popupIsOpen !== false"
     @click="$event.stopPropagation()"
-    class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20"
+    class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
     >
-        <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[10px]">
-            <h1 class="text-[30px]">{{this.popup.title}}</h1>
+        <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[10px] max-w-[450px]">
+            <h1 class="text-[30px] text-center">{{this.popup.title}}</h1>
 
-            <i>{{this.popup.subtitle}}</i>
+            <i class="text-justify">{{this.popup.subtitle}}</i>
 
-            <div class="flex justify-between gap-[10px]">
-                <button
-                class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg" 
+            <div class="flex justify-around w-full">
+                <btn
                 @click="this.popupIsOpen(true)"
                 >
                     Oui
-                </button>
+                </btn>
 
-                <button
-                class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg"
+                <btn
+                theme="red"
                 @click="this.popupIsOpen(false)"
                 >
                     Non
-                </button>
+                </btn>
             </div>
         </div>
     </div>
@@ -40,7 +47,9 @@
     export default {
         props: {
             type: "button",
+            theme: "blue",
             popup: null,
+            small: false,
         },
         data: {
             popupIsOpen: false
@@ -59,5 +68,30 @@
 </script>
 
 <style>
+.theme-blue{
+    --button-bg-color: var(--color-skyblue);
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: white;
+}
 
+.theme-red{
+    --button-bg-color: var(--color-pinkred);
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: white;
+}
+
+.theme-none{
+    --button-bg-color: transparent;
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: black;
+}
+
+.button{
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+}
+
+.button:hover{
+    opacity: var(--button-bg-hover-opacity);
+}
 </style>
