@@ -87,13 +87,33 @@
                     </td>
 
                     <td class="p-[22px] text-center">
-                        <span class="mdi mdi-square-edit-outline text-2xl text-adminblack cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.isEditable(this.role)"></span>
+                        <icon
+                        cv-if="this.isEditMode === false || this.role.id !== this.roleId"
+                        name="square-edit-outline"
+                        class="text-2xl text-adminblack cursor-pointer"
+                        @click="this.isEditable(this.role)"
+                        />
 
-                        <span class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === false || this.role.id !== this.roleId" @click="this.openDeleteModal(this.role.id)"></span>
+                        <icon
+                        cv-if="this.isEditMode === false || this.role.id !== this.roleId"
+                        name="trash-can-outline"
+                        class="text-2xl text-pinkred cursor-pointer"
+                        @click="this.openDeleteModal(this.role.id)"
+                        />
                         
-                        <span class="mdi mdi-check text-2xl text-[green] cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.editRole(this.role.id)"></span>
+                        <icon
+                        cv-if="this.isEditMode === true && this.role.id === this.roleId"
+                        name="check"
+                        class="text-2xl text-[green] cursor-pointer"
+                        @click="this.editRole(this.role.id)"
+                        />
                         
-                        <span class="mdi mdi-close text-2xl text-pinkred cursor-pointer" cv-if="this.isEditMode === true && this.role.id === this.roleId" @click="this.isEditable(this.role)"></span>
+                        <icon
+                        cv-if="this.isEditMode === true && this.role.id === this.roleId"
+                        name="close"
+                        class="text-2xl text-pinkred cursor-pointer"
+                        @click="this.isEditable(this.role)"
+                        />
                     </td>
 
                 </tr>

@@ -42,7 +42,6 @@ class addComment extends MustBeConnected
                 ->setVideo($video)
                 ->setUser($user)
                 ->setContent($this->floor->pickup("content"))
-                ->setStatus(1)
         );
 
         //Comment::groups("commentVideo", "commentAuthor");
@@ -52,7 +51,39 @@ class addComment extends MustBeConnected
 }
 
 /**
- * @GET{/api/comments/{id}}
+ * @GET{/api/comments/verify/count}
+ */
+class GetCommentsVerifyCount extends AccessCommentsManager
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response
+        ->code(200)
+        ->info("comment.get.count")
+        ->send(["count" => Comment::count(["status" => 0])]);
+    }
+}
+
+/**
+ * @GET{/api/comments/verify}
+ */
+class GetCommentsVerify extends AccessCommentsManager
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $comment = Comment::findFirst(["status" => 0]);
+
+        Comment::groups("commentAuthor", "commentVideo");
+
+        $response
+        ->code(200)
+        ->info("comment.get.count")
+        ->send($comment);
+    }
+}
+
+/**
+ * @GET{/api/video/{id}/comment}
  * @param $videoId
  */
 class getComments extends Controller
@@ -71,9 +102,8 @@ class getComments extends Controller
         /** @var Video $video */
         $video = $this->floor->pickup("video");
 
-        $comments = Comment::findMany(["video_id" => $video->getId(), "status" => 1]);
+        $comments = $video->getComments();
         Comment::groups("commentAuthor", "dateProps");
-
 
         $response->code(200)->info("comments.get")->send($comments);
     }
@@ -100,5 +130,30 @@ class deleteComment extends AccessCommentsManager
         $comment = $this->floor->pickup("comment");
         $comment->delete();
         $response->code(200)->info("comment.deleted")->send($comment);
+    }
+}
+
+/**
+ * @PATCH{/api/comment/{id}/validate}
+ * @param $id
+ */
+class validateComment extends AccessCommentsManager
+{
+
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "commentId"],
+            ["comment/exist", fn () => $this->floor->pickup("commentId"), "comment"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var \Entity\Comment $comment */
+        $comment = $this->floor->pickup("comment");
+        $comment->setStatus(1);
+        $comment->save();
+        $response->code(200)->info("comment.validate")->send();
     }
 }

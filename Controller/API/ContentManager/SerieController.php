@@ -103,7 +103,7 @@ class deleteSerie extends AccessContentsManager
  * @param int id
  * @return Response
  */
-class getSerie extends Controller
+class getSerie extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -139,7 +139,41 @@ class getSerie extends Controller
  * @Description Get all serie
  * @return Response
  */
-class getSeries extends Controller
+class getSeries extends AccessContentsManager
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("title") ?? "", "title"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $page = $this->floor->pickup("page");
+        $title = $this->floor->pickup("title");
+        $number = 5;
+
+        $series = Serie::findMany(
+            [
+                "title" => [
+                    "\$CTN" => $title
+                ]
+            ],
+            ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
+        );
+
+        Serie::groups("dateProps", "serieCategory");
+        
+        $response->code(200)->info("series.get")->send($series);
+    }
+}
+
+/**
+ * @GET{/api/series/count}
+ */
+class getSeriesCount extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
@@ -148,10 +182,10 @@ class getSeries extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Serie[] $series */
-        $series = Serie::findMany();
-        if (empty($series)) $response->info("series.notfound")->code(404)->send();
-        $response->code(200)->info("series.get")->send(["series" => $series]);
+        $response
+            ->code(200)
+            ->info("count")
+            ->send(["count" => Serie::count()]);
     }
 }
 

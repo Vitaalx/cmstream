@@ -1,6 +1,6 @@
 <div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
     <div class="relative w-[400px] min-h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
-        <span class="mdi mdi-close absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"></span>
+        <icon name="close" class="absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"/>
 
         <cv-form @submit="editCategory" class="w-auto h-auto">
             <div class="flex flex-col items-center">

@@ -14,48 +14,42 @@
                 placeholder="Host"
                 cv-model="DB_HOST"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="number"
                 placeholder="Port"
                 cv-model="DB_PORT"
                 :rules="this.portRule"
-                >
-                </text-input>
+                />
                 
                 <text-input
                 type="text"
                 placeholder="Type de connexion"
                 cv-model="DB_TYPE"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="text"
                 placeholder="Nom de la base"
                 cv-model="DB_DATABASE"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="text"
                 placeholder="Nom d'utilisateur"
                 cv-model="DB_USERNAME"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="password"
                 placeholder="Mot de passe"
                 cv-model="DB_PASSWORD"
                 :rules="this.passwordRule"
-                >
-                </text-input>
+                />
             </div>
             <div class="mt-[50px] text-center">
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
@@ -74,29 +68,28 @@
                 placeholder="Host"
                 cv-model="HOST"
                 :rules="this.hostRule"
-                >
-                </text-input>
-                </text-input>
+                />
+
                 <text-input
                 type="text"
                 placeholder="Nom"
                 cv-model="APP_NAME"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
+
                 <text-input
                 type="password"
                 placeholder="Clé secrète"
                 cv-model="SECRET_KEY"
                 :rules="this.passwordRule"
-                >
-                </text-input>
+                />
+
                 <text-input
                 type="number"
                 placeholder="Durée de validité du token"
                 cv-model="TOKEN_DURATION"
                 :rules="this.portRule"
-                >
+                />
             </div>
             <div class="mt-[50px] text-center">
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
@@ -116,25 +109,23 @@
                 placeholder="Host"
                 cv-model="MAIL_HOST"
                 :rules="this.textRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="number"
                 placeholder="Port"
                 cv-model="MAIL_PORT"
                 :rules="this.portRule"
-                >
-                </text-input>
+                />
 
                 <text-input
                 type="mail"
                 placeholder="Mail de l'expéditeur"
                 cv-model="MAIL_FROM"
                 :rules="this.mailRule"
-                >
-                </text-input>
+                />
             </div>
+            
             <div class="mt-[50px] text-center">
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Suivant</button>
             </div>
@@ -153,7 +144,7 @@
             cv-model="lastname"
             :rules="this.lastnameRule"
             class="w-full"
-            ></text-input>
+            />
             
             <text-input
             type="text"
@@ -161,7 +152,7 @@
             cv-model="firstname"
             :rules="this.firstnameRule"
             class="w-full"
-            ></text-input>
+            />
 
             <text-input
             type="text"
@@ -170,7 +161,7 @@
             :rules="this.usernameRule"
             class="w-full"
             cv-ref="username"
-            ></text-input>
+            />
 
             <text-input
             type="text"
@@ -179,7 +170,7 @@
             :rules="this.mailRule"
             class="w-full"
             cv-ref="email"
-            ></text-input>
+            />
 
             <text-input
             type="password" 
@@ -187,7 +178,7 @@
             cv-model="password"
             :rules="this.passwordUserRule"
             class="w-full"
-            ></text-input>
+            />
 
             <text-input
             type="password" 
@@ -196,7 +187,7 @@
             :rules="this.cpasswordUserRule"
             :always-rule="true"
             class="w-full"
-            ></text-input>
+            />
 
             <div class="mt-[50px] text-center">
                 <button type="submit" class="px-[20px] py-[10px] rounded bg-skyblue">Créer mon compte</button>

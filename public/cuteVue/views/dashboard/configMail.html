@@ -1,0 +1,113 @@
+<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <h1 class="w-full text-[32px] font-bold border-b-[2px] border-inherit mb-[30px] text-center">Configuration du
+        serveur mail
+    </h1>
+
+    <div class="w-full flex flex-col items-center gap-[20px]">
+        <cv-form 
+        @submit="editConfigMail"
+        class="w-full max-w-[500px] px-[20px] py-[10px] flex flex-col gap-[20px]"
+        >
+            <text-input 
+            type="text" 
+            cv-model="editMailFrom" 
+            placeholder="Email d'envoie" 
+            :rules="this.fromRule"
+            />
+            
+            <text-input 
+            type="number" 
+            cv-model="editPort" 
+            placeholder="Port du serveur"
+            :rules="this.portRule" 
+            />
+                
+
+            <text-input 
+            type="text" 
+            cv-model="editMailHost" 
+            placeholder="Host du serveur"
+            :rules="this.hostRule" 
+            />
+            
+            <btn 
+            type="submit"
+            class="self-center"
+            >
+                Modifier
+            </btn>
+        </cv-form>
+    </div>
+</div>
+
+<script>
+    const [impTaob] = await Promise.all([
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const taob = impTaob.default;
+
+    export default {
+        data: {
+            editMailFrom: "",
+            editPort: 0,
+            editMailHost: "",
+        },
+        static: {
+            fromRule: [
+                v => !!v || "Le champ est requis",
+                v => /.+@.+\..+/.test(v) || "L'email n'est pas valide",
+            ],
+            portRule: [
+                v => !!v || "Le champ est requis",
+                v => v >= 0 || "Le port doit être supérieur à 0",
+            ],
+            hostRule: [
+                v => !!v || "Le champ est requis",
+            ],
+        },
+        methods: {
+            getConfigMail() {
+                taob.get("/config/mail", {loader: true})
+                .s(data => {
+                    this.editMailFrom = data.MAIL_FROM;
+                    this.editPort = data.MAIL_PORT;
+                    this.editMailHost = data.MAIL_HOST;
+                })
+                .e(error => {
+                    this.pushToast("error", "Erreur lors de la récupération de la configuration du serveur mail");
+                });
+            },
+            async editConfigMail() {
+                taob.put(
+                    "/config/mail", 
+                    {
+                        MAIL_FROM: this.editMailFrom,
+                        MAIL_PORT: this.editPort,
+                        MAIL_HOST: this.editMailHost,
+                    },
+                    {loader: true}
+                )
+                .s(res => {
+                    this.pushToast("successfull", "Modification réussi");
+                    this.getConfigMail();
+                })
+                .e(error => {
+                    this.pushToast("error", "Erreur lors de la modification de la configuration du serveur mail");
+                })
+            },
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"],
+            }
+        ],
+        mounted() {
+            this.getConfigMail();
+        }
+    }
+
+</script>
+
+<style></style>

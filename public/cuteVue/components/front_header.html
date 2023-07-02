@@ -1,20 +1,30 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-noen">
     <div class="flex items-center justify-center gap-[30px] left">
-        <router_link href="/" class="h-full pr-[10px] flex items-center logo" @click="this.displayOptionsMenu = false">
-            <img src="/public/img/icons/logo.svg" alt="CMStream logo">
+        <router_link 
+        href="/" 
+        class="h-full w-[100px] flex items-center logo overflow-hidden"
+        >
+            <img 
+            src="/public/img/icons/logo.png" 
+            alt="CMStream logo"
+            class="w-full"
+            >
         </router_link>
+
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link href="catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                    <router_link href="/catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Catalogue
                     </router_link>
                 </li>
+
                 <li class="h-full">
                     <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Boutique
                     </router_link>
                 </li>
+
                 <li class="h-full">
                     <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         News
@@ -23,19 +33,22 @@
             </ul>
         </nav>
     </div>
+
     <div class="flex items-center justify-center gap-[40px] right">
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
                     <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        <span class="mdi mdi-magnify text-[24px]"></span>
+                        <icon name="magnify" class="text-[24px]"/>
                     </router_link>
                 </li>
+
                 <li class="h-full">
-                    <router_link href="lists" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        <span class="mdi mdi-bookmark-outline text-[24px]"></span>
+                    <router_link href="/lists" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        <icon name="bookmark-outline" class="text-[24px]"/>
                     </router_link>
                 </li>
+
                 <li class="relative h-full">
                     <div class="relative h-full">
                         <div
@@ -45,9 +58,10 @@
                         cv-ref="buttonOptionsMenu"
                         >
                             <icon cv-if="!this.isConnected" name="account-circle" class="text-[24px]"/>
+
                             <user-image cv-if="this.isConnected" size="24"/>
-                            <span cv-if="!this.displayOptionsMenu" class="mdi mdi-triangle-small-down"></span>
-                            <span cv-if="this.displayOptionsMenu" class="mdi mdi-triangle-small-up text-white"></span>
+
+                            <icon name="triangle-small-down" cv-class="{ 'rotate-180 text-white': this.displayOptionsMenu }"/>
                         </div>
 
                         <div 
@@ -56,12 +70,14 @@
                         cv-ref="optionsMenu"
                         >
                             <div cv-if="!this.isConnected" class="py-4 flex flex-col gap-4">
-                                <router_link href="signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptionsMenu = false">
+                                <router_link href="/signup" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signup" @click="this.displayOptionsMenu = false">
                                     <span class="text-xl font-semibold">Créer un compte</span>
+
                                     <p class="text-sm">Inscrivez-vous gratuitement.</p>
                                 </router_link>
-                                <router_link href="signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptionsMenu = false">
+                                <router_link href="/signin" class="px-4 py-2 flex flex-col text-whiteless hover:bg-darkblue signin" @click="this.displayOptionsMenu = false">
                                     <span class="text-xl font-semibold">Se connecter</span>
+
                                     <p class="text-sm">Déjà inscrit ? Bon retour.</p>
                                 </router_link>
                             </div>
@@ -69,15 +85,17 @@
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
                                 <div class="options">
                                     <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="admin" class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
-                                        <span class="mdi mdi-security text-[24px]"></span>
+                                        <icon name="security" class="text-[24px]"/>
+
                                         <span>Accéder au dashboard</span>
                                     </router_link>
                                     <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
-                                        <span class="mdi mdi-bell-outline text-[24px]"></span>
+                                        <icon name="bell-outline" class="text-[24px]"/>
                                         <span>Notifications</span>
                                     </div>
-                                    <router_link href="account" class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
-                                        <span class="mdi mdi-account text-[24px]"></span>
+                                    <router_link href="/account" class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
+                                        <icon name="account" class="text-[24px]"/>
+
                                         <span>Paramètres du compte</span>
                                     </router_link>
                                 </div>
@@ -88,7 +106,8 @@
                                 class="p-4 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer disconnect" 
                                 @click="this.displayOptionsMenu = false; this.toDisconnect()"
                                 >
-                                    <span class="mdi mdi-logout text-[24px]"></span>
+                                    <icon name="logout" class="text-[24px]"/>
+
                                     <span>Se déconnecter</span>
                                 </div>
                             </div>
@@ -118,7 +137,7 @@
         <nav>
             <ul>
                 <li>
-                    <router_link href="catalog" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/catalog" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Catalogue
                     </router_link>
                 </li>
@@ -153,17 +172,17 @@
                     </a>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Paramètres du compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
-                    <router_link href="signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Se connecter
                     </router_link>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
                         Se déconnecter
                     </router_link>
                 </li>

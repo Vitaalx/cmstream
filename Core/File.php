@@ -5,59 +5,57 @@ namespace Core;
 class File
 {
     private string $path;
-    private mixed $file;
 
-    public function __construct(string $path){
+    public function __construct(string $path)
+    {
         $this->path = $path;
-        $this->file = fopen($path, "a+");
     }
 
-    public function read(){
-        fseek($this->file, 0, SEEK_SET);
-        $content = fread($this->file, filesize($this->path));
+    public function read()
+    {
+        $file = fopen($this->path, "r");
+        fseek($file, 0, SEEK_SET);
+        $content = fread($file, filesize($this->path));
         return $content;
     }
 
     public function write($data): File
     {
-        fseek($this->file, 0, SEEK_SET);
-        fwrite($this->file, $data);
+        $file = fopen($this->path, "w");
+        fseek($file, 0, SEEK_SET);
+        fwrite($file, $data);
         return $this;
     }
 
     public function append($data): File
     {
-        fseek($this->file, 0, SEEK_END);
-        fwrite($this->file, $data);
+        $file = fopen($this->path, "a+");
+        fseek($file, 0, SEEK_END);
+        fwrite($file, $data);
         return $this;
     }
 
     public function rename($path): File
     {
-        fclose($this->file);
         rename($this->path, $path);
         $this->path = $path;
-        $this->file = fopen($path, "a+");
         return $this;
     }
 
     public function copyTo($path): File
     {
-        fclose($this->file);
         copy($this->path, $path);
         $this->path = $path;
-        $this->file = fopen($path, "a+");
         return $this;
     }
 
     public function delete(): void
     {
-        fclose($this->file);
-        $this->file = null;
         unlink($this->path);
     }
 
-    public function __destruct(){
-        if($this->file !== null)fclose($this->file);
+    public function getSize(): int
+    {
+        return filesize($this->path);
     }
 }

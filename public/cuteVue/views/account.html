@@ -101,7 +101,7 @@
 
                     <icon
                     cv-show="this.editing === 'p'"
-                    @click="this.$refs.form.$instance.submited()"
+                    @click="this.$refs.form.$instance.submited();"
                     class="cursor-pointer" 
                     name="check"
                     />
@@ -114,7 +114,7 @@
             class="px-[20px] py-[10px] rounded bg-skyblue self-center"
             cv-show="this.success === false"
             >
-                Changer de mot de pass
+                Changer de mot de passe
             </button>
         </cv-form>
     </div>
@@ -169,15 +169,6 @@
                 (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide",
             ],
         },
-
-        watch: {
-            editing(n, o){
-                if(o !== false){
-                    this.init();
-                    this.$refs.form.$instance.submited();
-                }
-            }
-        }, 
         
         methods: {
             init(){

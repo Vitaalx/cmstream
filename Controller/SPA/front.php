@@ -65,9 +65,9 @@ class connected extends IndexHandler
 /**
  * @GET{/admin}
  * @GET{/admin/users}
- * @GET{/admin/category}
- * @GET{/admin/serie}
- * @GET{/admin/movie}
+ * @GET{/admin/categories}
+ * @GET{/admin/series}
+ * @GET{/admin/movies}
  */
 class admin extends IndexHandler
 {
@@ -107,6 +107,37 @@ class adminRole extends IndexHandler
             ["page/onlyConnected", "", "user"],
             ["page/mustHavePermission", Permissions::AccessDashboard],
             ["page/mustHavePermission", Permissions::RoleEditor]
+        ];
+    }
+}
+
+/**
+ * @GET{/dashboard/config}
+ * @GET{/dashboard/config/mail}
+ */
+class adminConfig extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::ConfigEditor]
+        ];
+    }
+}
+
+/**
+ * @GET{/dashboard/comments}
+ */
+class dashboradManager extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::CommentsManager],
         ];
     }
 }

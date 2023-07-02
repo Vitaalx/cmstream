@@ -18,7 +18,7 @@
     <div class="table w-full">
         <div class="table-header w-full flex flex-col justify-between items-start mb-[10px]">
             <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
-                <span class="mdi mdi-magnify text-xl mr-[10px]"></span>
+                <icon name="magnify" class="text-xl mr-[10px]"/>
 
                 <input class="focus:outline-none" cv-model="search" type="text" placeholder="Rechercher">
             </div>
@@ -30,23 +30,23 @@
             <thead class="bg-whitesmoke"> 
                 <tr>
                     <th class="p-[22px] cursor-pointer" @click="this.sortByFirstname()">
-                        Prénom <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Prénom <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px] cursor-pointer" @click="this.sortByLastname()">
-                        Nom<span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Nom <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px] cursor-pointer" @click="this.sortByUsername()">
-                        Username <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Username <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px] cursor-pointer" @click="this.sortByEmail()">
-                        Email <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Email <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px] cursor-pointer">
-                        Rôle <span class="mdi mdi-arrow-down-thick ml-[8px]"></span>
+                        Rôle <icon name="arrow-down-thick" class="ml-[8px]"/>
                     </th>
 
                     <th class="p-[22px]">Actions</th>
@@ -67,15 +67,17 @@
                     <td class="p-[22px]">{{ this.user.role === null ? "utilisateur" : this.user.role.name }}</td>
                     
                     <td class="p-[22px]">
-                        <span 
-                        class="mdi mdi-trash-can-outline text-2xl text-pinkred cursor-pointer"
-                        @click="this.openDeleteModal(this.user.id);">
-                        </span>
+                        <icon
+                        name="trash-can-outline"
+                        class="text-2xl text-pinkred cursor-pointer"
+                        @click="this.openDeleteModal(this.user.id)"
+                        />
 
-                        <span
-                        class="mdi mdi-square-edit-outline text-2xl ml-[14px] text-darkgrey cursor-pointer"
-                        @click="this.openEditModal(this.user)">
-                        </span>
+                        <icon
+                        name="square-edit-outline"
+                        class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                        @click="this.openEditModal(this.user)"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -150,6 +152,7 @@
 
                 await taob.get(`users?name=${val}`).s(data => {
                     this.userFiltered = data.users;
+                    console.log("data " + data);
                 }).result;
 
                 if (this.userFiltered.length > 0) {

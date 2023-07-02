@@ -1,0 +1,100 @@
+<div 
+class="select-none btn"
+cv-class="{
+    ['theme-' + this.theme]: true
+}"
+>
+    <button 
+    :type="this.type"
+    @click="clicked"
+    class="px-[20px] py-[10px] rounded self-center button transition"
+    cv-style="{
+        zoom: this.small? 0.8 : 1,
+        opacity: this.disabled? 0.5 : 1,
+    }"
+    >
+        <slot/>
+    </button>
+
+    <div 
+    cv-if="this.popupIsOpen !== false"
+    @click="$event.stopPropagation()"
+    class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
+    >
+        <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[10px] max-w-[450px]">
+            <h1 class="text-[30px] text-center">{{this.popup.title}}</h1>
+
+            <i class="text-justify">{{this.popup.subtitle}}</i>
+
+            <div class="flex justify-around w-full">
+                <btn
+                @click="this.popupIsOpen(true)"
+                >
+                    Oui
+                </btn>
+
+                <btn
+                theme="red"
+                @click="this.popupIsOpen(false)"
+                >
+                    Non
+                </btn>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    export default {
+        props: {
+            type: "button",
+            theme: "blue",
+            popup: null,
+            disabled: false,
+            small: false,
+        },
+        data: {
+            popupIsOpen: false
+        },
+        methods: {
+            async clicked(e){
+                if(this.disabled === true)return;
+                if(this.popup !== null){
+                    let result = await new Promise((resolve) => this.popupIsOpen = resolve);
+                    this.popupIsOpen = false;
+                    if(result === false) return;
+                }
+                this.$emit("click", e);
+            }
+        }
+    }
+</script>
+
+<style>
+.theme-blue{
+    --button-bg-color: var(--color-skyblue);
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: white;
+}
+
+.theme-red{
+    --button-bg-color: var(--color-pinkred);
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: white;
+}
+
+.theme-none{
+    --button-bg-color: transparent;
+    --button-bg-hover-opacity: 0.8;
+    --button-text-color: black;
+}
+
+.button{
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+}
+
+.button:hover{
+    opacity: var(--button-bg-hover-opacity);
+}
+</style>

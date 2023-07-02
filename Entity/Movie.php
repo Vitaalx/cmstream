@@ -15,16 +15,28 @@ class Movie extends Entity
      */
     private Video $video;
 
-    /**
-     * notnullable{}
-     */
-    private Category $category;
-
     /** 
      * @type{VARCHAR(255)}
      * @notnullable{}
      */
     private string $image;
+
+    /** 
+     * @type{VARCHAR(100)}
+     * @notnullable{}
+     */
+    private string $title;
+
+    /** 
+     * @type{TEXT}
+     */
+    private string $description;
+
+    /**
+     * notnullable{}
+     * @groups{movieCategory}
+     */
+    private Category $category;
 
     /**
      * @type{Date}
@@ -57,6 +69,16 @@ class Movie extends Entity
         return parent::get("image");
     }
 
+    public function getTitle(): string
+    {
+        return parent::get("title");
+    }
+
+    public function getDescription(): string
+    {
+        return parent::get("description");
+    }
+
     public function getCreatedAt(): string
     {
         return parent::get("created_at");
@@ -70,6 +92,18 @@ class Movie extends Entity
     public function setImage(string $image): self
     {
         parent::set("image", $image);
+        return $this;
+    }
+
+    public function setTitle(string $title): self
+    {
+        parent::set("title", $title);
+        return $this;
+    }
+
+    public function setDescription(string $description): self
+    {
+        parent::set("description", $description);
         return $this;
     }
 

@@ -105,22 +105,12 @@ class Video extends Entity
     {
         return parent::get("urls");
     }
-
+    /**
+     * @return Comment[];
+     */
     public function getComments(): array
     {
         return parent::get("comments");
-    }
-
-    public function getCategory(): Category
-    {
-        return parent::get("category");
-    }
-
-    public function setCategory(Category $category): self
-    {
-        parent::set("category", $category);
-
-        return $this;
     }
 
     public function getStars(): array

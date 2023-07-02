@@ -124,7 +124,7 @@
                 let close = loaderStore.push();
                 
                 this.success = false;
-                await taob.get("/comments/1") // TODO: Change the video id
+                await taob.get("/api/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
                 .s((data) => {
                     this.success = true;
                     this.comments = data;

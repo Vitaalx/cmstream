@@ -2,10 +2,10 @@
     <div class="relative w-[400px] h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
         <icon name="alert-circle-outline" class="my-[-16.5px] text-[60px] text-pinkred"/>
 
-        <p class="text-center message">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
+        <p class="text-center message">Êtes-vous sûr de vouloir supprimer ce film ?</p>
 
         <div class="flex gap-[10px] buttons">
-            <button @click="this.deleteUser()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
+            <button @click="this.deleteMovie()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
             
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
@@ -22,22 +22,19 @@
 
     export default {
         props: {
-            userid: ""
+            movieid: ""
         },
         methods: {
             closeModal() {
                 this.$emit("close");
             },
-            async deleteUser() {
+            async deleteMovie() {
                 let close = loaderStore.push();
 
-                await taob.delete("/user/" + this.userid)
+                await taob.delete("/movie/" + this.movieid)
                 .s(async () => {
                     this.$emit("ondelete", "delete");
-                    this.pushToast("successfull", "L'utilisateur à bien été supprimé.");
-                })
-                .info(info => {
-                if(info === "user.cant.delete.admin") this.pushToast("error", "Vous ne pouvez pas supprimer le superadministrateur.");
+                    this.pushToast("successfull", "Le film à bien été supprimé.");
                 }).result;
 
                 this.closeModal();

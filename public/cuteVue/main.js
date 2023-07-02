@@ -3,6 +3,7 @@ import { createRoute } from "./router/index.js";
 import { loaderStore } from "./loader.js"
 import "./user.js";
 import "./toast.js";
+import taob from "./taob.js";
 
 createRoute(
     [
@@ -75,32 +76,55 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
                 },
                 {
-                    path: "admin/users",
+                    path: "/admin/users",
                     view: () => importer("/public/cuteVue/views/admin/users.html"),
                 },
                 {
-                    path: "admin/roles",
+                    path: "/admin/roles",
                     view: () => importer("/public/cuteVue/views/admin/roles.html"),
                 },
                 {
-                    path: "admin/category",
-                    view: () => importer("/public/cuteVue/views/admin/category.html"),
+                    path: "/admin/categories",
+                    view: () => importer("/public/cuteVue/views/admin/categories.html"),
                 },
                 {
-                    path: "admin/serie",
-                    view: () => importer("/public/cuteVue/views/admin/serie.html"),
+                    path: "/admin/series",
+                    view: () => importer("/public/cuteVue/views/admin/series.html"),
                 },
                 {
-                    path: "admin/movie",
-                    view: () => importer("/public/cuteVue/views/admin/movie.html"),
-                }
+                    path: "/admin/movies",
+                    view: () => importer("/public/cuteVue/views/admin/movies.html"),
+                },
+                {
+                    path: "/dashboard/config",
+                    view: () => importer("/public/cuteVue/views/dashboard/config.html"),
+                },
+                {
+                    path: "/dashboard/config/mail",
+                    view: () => importer("/public/cuteVue/views/dashboard/configMail.html"),
+                },
+                {
+                    path: "/dashboard/comments",
+                    view: () => importer("/public/cuteVue/views/dashboard/comments.html"),
+                },
             ],
         },
     ],
 
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
-        let result = await fetch(path, { headers: { "Page-Access": "true" } });
+        let {response: result} = await taob.get(
+            path, 
+            {
+                headers: {
+                    "Page-Access": "true"
+                }, 
+                disabledPrefix: true,
+            },
+            {
+                pageAccess: true,
+            }
+        ).result;
         if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");
@@ -109,6 +133,10 @@ createRoute(
             let appName = result.headers.get("App-Name");
             if (document.title !== appName) document.title = appName;
             return path;
+        }
+        else if(result.headers.get("info") === "token.invalid"){
+            close();
+            return "/signin";
         }
         else {
             close();
@@ -120,7 +148,7 @@ createRoute(
     }
 );
 
-const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon] = await Promise.all([
+const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon, search_input, btn] = await Promise.all([
     importer("/public/cuteVue/app.html"),
     importer("/public/cuteVue/components/page-loader.html"),
     importer("/public/cuteVue/components/cv-form.html"),
@@ -128,6 +156,8 @@ const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon
     importer("/public/cuteVue/components/inputs/checkbox-input.html"),
     importer("/public/cuteVue/components/inputs/select-input.html"),
     importer("/public/cuteVue/components/icon.html"),
+    importer("/public/cuteVue/components/inputs/search-input.html"),
+    importer("/public/cuteVue/components/btn.html"),
 ]);
 
 CuteVue.component("page-loader", page_loader);
@@ -136,5 +166,7 @@ CuteVue.component("text-input", text_input);
 CuteVue.component("checkbox-input", checkbox_input);
 CuteVue.component("select-input", select_input);
 CuteVue.component("icon", icon);
+CuteVue.component("search-input", search_input);
+CuteVue.component("btn", btn);
 
 app.mount("#app");
