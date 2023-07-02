@@ -14,7 +14,7 @@ define("KEY", [
     "e" => "episode",
     "m" => "movie",
     "C" => "comment",
-    "S" => "s",
+    "S" => "star",
     "h" => "history",
     "w" => "watchlist",
     "r" => "role",
@@ -315,8 +315,8 @@ function main(): void
         "serie" => 10,
         "episode" => 30,
         "movie" => 100,
-        "comment" => 200,
-        "start" => 1000,
+        "comment" => 50,
+        "star" => 200,
         "history" => 300,
         "watchlist" => 10,
         "role" => 10,
@@ -362,7 +362,7 @@ function main(): void
             createRandomComment($user["user_id"], getRandomVideo());
         }
 
-        for ($j = 0; $j < $argument["start"]; $j++) {
+        for ($j = 0; $j < $argument["star"]; $j++) {
             createRandomStar($user["user_id"], getRandomVideo());
         }
 
