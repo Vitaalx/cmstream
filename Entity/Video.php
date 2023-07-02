@@ -105,7 +105,9 @@ class Video extends Entity
     {
         return parent::get("urls");
     }
-
+    /**
+     * @return Comment[];
+     */
     public function getComments(): array
     {
         return parent::get("comments");

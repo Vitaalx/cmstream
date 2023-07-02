@@ -101,7 +101,7 @@
 
                     <icon
                     cv-show="this.editing === 'p'"
-                    @click="this.$refs.form.$instance.submited()"
+                    @click="this.$refs.form.$instance.submited();"
                     class="cursor-pointer" 
                     name="check"
                     />
@@ -169,15 +169,6 @@
                 (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide",
             ],
         },
-
-        watch: {
-            editing(n, o){
-                if(o !== false){
-                    this.init();
-                    this.$refs.form.$instance.submited();
-                }
-            }
-        }, 
         
         methods: {
             init(){

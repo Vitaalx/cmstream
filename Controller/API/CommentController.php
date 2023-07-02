@@ -83,7 +83,7 @@ class GetCommentsVerify extends AccessCommentsManager
 }
 
 /**
- * @GET{/api/comments/{id}}
+ * @GET{/api/video/{id}/comment}
  * @param $videoId
  */
 class getComments extends Controller
@@ -102,9 +102,8 @@ class getComments extends Controller
         /** @var Video $video */
         $video = $this->floor->pickup("video");
 
-        $comments = Comment::findMany(["video_id" => $video->getId(), "status" => 1]);
+        $comments = $video->getComments();
         Comment::groups("commentAuthor", "dateProps");
-
 
         $response->code(200)->info("comments.get")->send($comments);
     }

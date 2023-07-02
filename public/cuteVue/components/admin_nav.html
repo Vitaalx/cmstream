@@ -42,7 +42,7 @@
                 }">
                     <router_link cv-if="this.hasPermission('comments_manager')" href="/dashboard/comments"
                         class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
-                        <icon name="forum" class="text-[18px]" />
+                        <icon name="forum"/>
                         Gérer les commentaires
                     </router_link>
                 </li>
@@ -105,9 +105,9 @@
 
                     <ul cv-if="this.dropdownConfigManager === true">
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                                            'border-l-4 border-white-500': this.pathname === '/admin/config'
-                                        }">
-                            <router_link href="admin/config"
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/config'
+                        }">
+                            <router_link href="/dashboard/config"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="application-cog" class="text-[18px]" />
                                 Config App
@@ -115,9 +115,9 @@
                         </li>
 
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                                            'border-l-4 border-white-500': this.pathname === '/admin/config/mail'
+                                            'border-l-4 border-white-500': this.pathname === '/dashboard/config/mail'
                                         }">
-                            <router_link href="admin/config/mail"
+                            <router_link href="/dashboard/config/mail"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="mailbox" class="text-[18px]" />
                                 Config Mail
