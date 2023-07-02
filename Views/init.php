@@ -24,7 +24,7 @@
             },
         }
   </script>
-  <script type="module" src="https://www.unpkg.com/toanotherback@2.0.1/src/index.js"></script>
+  <script type="module" src="https://www.unpkg.com/toanotherback@2.1.5/dist/taob.min.mjs"></script>
   <script type="module" defer src="/public/cuteVue/init/main.js"></script>
   <style>
         body {

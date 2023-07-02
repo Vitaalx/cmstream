@@ -51,37 +51,37 @@ class Comment extends Entity
     private string $updated_at;
 
     // Getters and Setters
-    public function getId(): self
+    public function getId(): int
     {
         return parent::get("id");
     }
 
-    function getContent(): self
+    function getContent(): string
     {
         return parent::get("content");
     }
 
-    function getVideo(): self
+    function getVideo(): Video
     {
         return parent::get("video");
     }
 
-    function getUser(): self
+    function getUser(): User
     {
         return parent::get("user");
     }
 
-    function getStatus(): self
+    function getStatus(): int
     {
         return parent::get("status");
     }
 
-    function getCreatedAt(): self
+    function getCreatedAt(): string
     {
         return parent::get("created_at");
     }
 
-    function getUpdatedAt(): self
+    function getUpdatedAt(): string
     {
         return parent::get("updated_at");
     }

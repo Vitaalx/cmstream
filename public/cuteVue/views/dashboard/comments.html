@@ -1,0 +1,142 @@
+<div class="w-full h-full overflow-y-auto overflow-x-hidden p-[20px] flex flex-col gap-[10px]">
+    <div class="flex gap-[5px]">
+        <p>Il y a {{this.commentsCount}} commentaires à vérifier.</p>
+
+        <icon
+        name="refresh"
+        @click="getCount"
+        class="rounded-full hover:bg-[rgba(0,0,0,0.1)]"
+        />
+    </div>
+    
+    <p
+    class="text-[20px]"
+    cv-show="this.commentsCount === 0"
+    >
+        C'est calme, trop calme... 🤨
+    </p>
+
+    <div
+    test="ok"
+    cv-if="this.comment !== null"
+    class="grow w-full flex items-start justify-center pt-[100px]"
+    >
+        <div class="flex flex-col gap-[10px] table-content text-left border-2 rounded-t-[8px] p-[15px] w-[60%] min-w-[500px]">
+            <div class="flex gap-[5px] items-center justify-between">
+                <div class="flex gap-[5px] items-center">
+                    <user-image size="30" :user="this.comment.user"/>
+                
+                    {{this.comment.user.username}}
+                </div>
+                
+                <div class="flex gap-[5px] items-center">
+                    <btn
+                    @click="deleteComment"
+                    theme="red"
+                    :small="true"
+                    :popup="{
+                        title: 'Supprimer le commentaire ?',
+                        subtitle: 'Veuillez confirmer en appuyant sur \'Oui\', cela entraînera la suppression du commentaire.'
+                    }"
+                    >
+                        Supprimer
+                    </btn>
+
+                    <btn
+                    @click="valideComment"
+                    :small="true"
+                    >
+                        Valider
+                    </btn>
+                </div>
+            </div>
+            
+            <p>
+                {{this.comment.content}}
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [impTaob, user_image] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
+        importer("/public/cuteVue/components/account/user-image.html"),
+    ]);
+
+    const taob = impTaob.default;
+
+    export default {
+        components: {
+            "user-image": user_image
+        },
+        data: {
+            commentsCount: 0,
+            comment: null,
+        },
+        watch: {
+            commentsCount(){
+                if(this.commentsCount !== 0)this.getComment();
+                else this.comment = null;
+            }
+        },
+        methods: {
+            getCount(){
+                taob.get("/comments/verify/count", {loader: true}).s(({count}) => this.commentsCount = count);
+            },
+            getComment(){
+                taob.get("/comments/verify", {loader: true}).s(comment => this.comment = comment);
+            },
+            deleteComment(){
+                taob.delete(
+                    "/comment/{id}", 
+                    {
+                        loader: true, 
+                        params: {
+                            id: this.comment.id
+                        }
+                    }
+                )
+                .info((info, ok) => {
+                    if(info === "comment.notfound")this.getCount();
+                    else if(!ok){
+                        this.pushToast("error", "Une erreur est survenue lors du traitement du commentaire.");
+                    }
+                })
+                .s(() => this.getCount());
+            },
+            valideComment(){
+                taob.patch(
+                    "/comment/{id}/validate",
+                    {},
+                    {
+                        loader: true,
+                        params: {
+                            id: this.comment.id
+                        }
+                    }
+                )
+                .info((info, ok) => {
+                    if(info === "comment.notfound")this.getCount();
+                    else if(!ok){
+                        this.pushToast("error", "Une erreur est survenue lors du traitement du commentaire.");
+                    }
+                })
+                .s(() => this.getCount());
+            }
+        },
+        mounted(){
+            this.getCount();
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
+    }
+</script>
+
+<style>
+
+</style>

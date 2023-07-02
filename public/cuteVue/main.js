@@ -102,7 +102,11 @@ createRoute(
                 {
                     path: "admin/config/mail",
                     view: () => importer("/public/cuteVue/views/admin/configMail.html"),
-                }
+                },
+                {
+                    path: "/dashboard/comments",
+                    view: () => importer("/public/cuteVue/views/dashboard/comments.html"),
+                },
             ],
         },
     ],

@@ -52,17 +52,14 @@ export const userStore =  CuteVue.createStore(
             avatarColor() {
 				let chaine = this.username + this.firstname + this.lastname;
                 let sommeCaracteres = 0;
-
                 for (let i = 0; i < chaine.length; i++) {
                   	sommeCaracteres += chaine.charCodeAt(i) * i * 100;
                 }
-
 				let couleurHex = sommeCaracteres.toString(16);
-
                 for (let index = couleurHex.length; index < 6; index++) {
 					couleurHex += chaine.charCodeAt(index).toString(16);
 			  	}
-
+                couleurHex = couleurHex.substring(0, 6);
 				return "#" + couleurHex;
             }
         }

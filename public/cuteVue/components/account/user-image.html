@@ -1,8 +1,8 @@
 <div 
-class="w-[100px] h-[100px] rounded-full flex items-center justify-center text-3xl" 
+class="w-[100px] h-[100px] rounded-full flex items-center justify-center text-3xl text-[white]" 
 alt="avatar"
 cv-style="{ 
-    'background': this.avatarColor,
+    'background': this.color,
     'zoom': this.scale,
 }"
 >
@@ -12,12 +12,31 @@ cv-style="{
 <script>
     export default {
         props: {
-            size: 100
+            size: 100,
+            user: null
         },
 
         computed: {
             getFirstLetters() {
-                return this.firstname[0] + this.lastname[0];
+                if(this.user === null)return this.firstname[0] + this.lastname[0];
+                else return this.user.firstname[0] + this.user.lastname[0];
+            },
+
+            color(){
+                if(this.user === null)return this.avatarColor;
+                else {
+                    let chaine = this.user.username + this.user.firstname + this.user.lastname;
+                    let sommeCaracteres = 0;
+                    for (let i = 0; i < chaine.length; i++) {
+                        sommeCaracteres += chaine.charCodeAt(i) * i * 100;
+                    }
+                    let couleurHex = sommeCaracteres.toString(16);
+                    for (let index = couleurHex.length; index < 6; index++) {
+                        couleurHex += chaine.charCodeAt(index).toString(16);
+                    }
+                    couleurHex = couleurHex.substring(0, 6);
+                    return "#" + couleurHex;
+                }
             },
 
             scale(){
