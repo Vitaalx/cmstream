@@ -7,6 +7,18 @@ require __DIR__ . '/../config.php';
 
 use Entity\Role;
 
+define("KEY", [
+    "u" => "user",
+    "c" => "category",
+    "s" => "serie",
+    "e" => "episode",
+    "m" => "movie",
+    "C" => "comment",
+    "S" => "s",
+    "h" => "history",
+    "w" => "watchlist",
+    "r" => "role",
+]);
 
 //base function 
 function generateRandomStringWhereSize(int $size): string
@@ -141,10 +153,18 @@ function addEpisode(int $serieId, int $nbEpisode, int $nbSeason): void
 {
     /** @var Video $video */
     $video = \Services\Back\VideoManagerService::createVideo(
-        createArrayYoutubeUrl(),
         generateRandomStringWhereSize(10),
         generateRandomStringWhereSize(100)
     );
+
+    $url = createArrayYoutubeUrl();
+
+    foreach ($url as $item) {
+        \Entity\Url::insertOne([
+            "url" => $item,
+            "video_url_id" => $video->getId(),
+        ]);
+    }
 
     \Entity\Episode::insertOne([
         "episode" => $nbEpisode,
@@ -158,10 +178,18 @@ function createRandomMovie(): void
 {
     /** @var Video $video */
     $video = \Services\Back\VideoManagerService::createVideo(
-        createArrayYoutubeUrl(),
         generateRandomStringWhereSize(10),
         generateRandomStringWhereSize(100)
     );
+
+    $url = createArrayYoutubeUrl();
+
+    foreach ($url as $item) {
+        \Entity\Url::insertOne([
+            "url" => $item,
+            "video_url_id" => $video->getId(),
+        ]);
+    }
 
     \Entity\Movie::insertOne([
         "video_id" => $video->getId(),
@@ -257,68 +285,99 @@ function getRandomVideo(): int
     return $randomVideo->getId();
 }
 
-define("NB_USER", 10);
-define("NB_CATEGORY", 10);
-define("NB_SERIE", 10);
-define("NB_EPISODE", 30);
-define("NB_MOVIE", 100);
-define("NB_COMMENT", 200);
-define("NB_STAR", 1000);
-define("NB_HISTORY", 300);
-define("NB_WATCHLIST", 10);
-define("NB_ROLE", 10);
+function getArgv(): array
+{
+    $argv = $_SERVER['argv'];
+    foreach ($argv as $key => $value) {
+        if (strpos($value, "runDataFixture") !== false) {
+            unset($argv[$key]);
+        }
+    }
+    $result = [];
+    foreach ($argv as $arg) {
+        $arg = explode("=", $arg);
+        if (count($arg) === 2) {
+            $key = $arg[0];
+            $value = $arg[1];
+            if (array_key_exists($key, KEY)) {
+                $result[KEY[$key]] = intval($value);
+            }
+        }
+    }
+    return $result;
+}
 
 function main(): void
 {
-    //genrerate Random Catergory
-    for ($i = 0; $i < NB_CATEGORY; $i++) {
+    $argument = [
+        "user" => 10,
+        "category" => 10,
+        "serie" => 10,
+        "episode" => 30,
+        "movie" => 100,
+        "comment" => 200,
+        "start" => 1000,
+        "history" => 300,
+        "watchlist" => 10,
+        "role" => 10,
+    ];
+    if (isset($_SERVER['argv'][1])) {
+        if ($_SERVER['argv'][1] === "help") {
+            print_r("argument list :\n");
+            print_r(KEY);
+            return;
+        } else if ($_SERVER['argv'][1] === "default") {
+            print_r("default paramter :\n");
+            print_r($argument);
+            return;
+        }
+        $argument = array_merge($argument, getArgv());
+    }
+
+    for ($i = 0; $i < $argument["category"]; $i++) {
         createRandomCategory();
     }
 
-    //generate Random Movie
-    for ($i = 0; $i < NB_MOVIE; $i++) {
-        createRandomMovie();
-    }
-
-    //generate Random Role
-    for ($i = 0; $i < NB_ROLE; $i++) {
+    for ($i = 0; $i < $argument["role"]; $i++) {
         $role = createRandomRole();
         attributeRandomPermissionToRole($role);
     }
 
-    //generate Random Serie
-    for ($i = 0; $i < NB_SERIE; $i++) {
+    for ($i = 0; $i < $argument["serie"]; $i++) {
         $serieId = createRandomSerie();
-        //generate Random Episode
-        for ($j = 0; $j < NB_EPISODE; $j++) {
-            addEpisode($serieId, $j, $j > NB_EPISODE / 2 ? 2 : 1);
+        for ($j = 0; $j < $argument["episode"]; $j++) {
+            addEpisode($serieId, $j, $j > $argument["episode"] / 2 ? 2 : 1);
         }
     }
 
-    //generate Random User
-    for ($i = 0; $i < NB_USER; $i++) {
+    for ($i = 0; $i < $argument["movie"]; $i++) {
+        createRandomMovie();
+    }
+
+    for ($i = 0; $i < $argument["user"]; $i++) {
         $user = createRandomUser();
         print_r($user);
-        //generate Random Comment
-        for ($j = 0; $j < NB_COMMENT; $j++) {
+
+        for ($j = 0; $j < $argument["comment"]; $j++) {
             createRandomComment($user["user_id"], getRandomVideo());
         }
-        //generate Random Star
-        for ($j = 0; $j < NB_STAR; $j++) {
+
+        for ($j = 0; $j < $argument["start"]; $j++) {
             createRandomStar($user["user_id"], getRandomVideo());
         }
-        //generate Random History
-        for ($j = 0; $j < NB_HISTORY; $j++) {
+
+        for ($j = 0; $j < $argument["history"]; $j++) {
             createHistory($user["user_id"], getRandomVideo());
         }
-        //generate Random Watchlist
-        for ($j = 0; $j < NB_WATCHLIST; $j++) {
-            if (generateIntBetween(0, 1) === 0) {
+
+        for ($j = 0; $j < $argument["watchlist"]; $j++) {
+            if (rand(0, 1) === 0) {
                 addRandomMovieInWatchlist($user["user_id"], getRandomVideo());
             } else {
                 addRandomSerieInWatchlist($user["user_id"], getRandomVideo());
             }
         }
     }
+    print_r("Process finished !");
 }
 main();
