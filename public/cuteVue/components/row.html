@@ -1,0 +1,45 @@
+<div class="h-[600px] w-full p-[30px] flex flex-col gap-[10px] overflow-hidden">
+    <h2 
+    cv-if="this.content.title"
+    class="text-center text-[25px]"
+    >
+        {{this.content.title}}
+    </h2>
+
+    <div class="grow w-full overflow-hidden">
+        <slider
+        cv-if="this.content.component === 'slider'"
+        :options="this.content.options"
+        />
+
+        <cards
+        cv-if="this.content.component === 'cards'"
+        :options="this.content.options"
+        />
+    </div>
+
+    <i cv-if="this.content.subtitle">
+        {{this.content.subtitle}}
+    </i>
+</div>
+
+<script>
+    const [slider, cards] = await Promise.all([
+        importer('/public/cuteVue/components/slider.html'),
+        importer('/public/cuteVue/components/cards/cards.html')
+    ]);
+
+    export default {
+        components: {
+            slider,
+            cards
+        },
+        props: {
+            content: null
+        }
+    }
+</script>
+
+<style>
+
+</style>

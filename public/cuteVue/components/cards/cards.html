@@ -1,0 +1,125 @@
+<div class="w-full h-full flex justify-center items-center relative">
+    <div 
+    class="w-full flex gap-[30px] slides-container"
+    cv-ref="div"
+    cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
+    >
+        <div
+        class="w-full shrink-0 flex justify-around gap-[20px]"
+        cv-for="pack of this.packs"
+        >
+            <card
+            cv-style="{
+                width: this.widthCard + 'px',
+            }"
+            cv-for="cards of this.pack"
+            />
+        </div>
+    </div>
+
+    <div class="next-btn" @click="this.currentSlide++">
+        <icon name="chevron-right"/>
+    </div>
+
+    <div class="prev-btn" @click="this.currentSlide--">
+        <icon name="chevron-left"/>
+    </div>
+</div>
+
+<script>
+    const [card] = await Promise.all([
+        importer('/public/cuteVue/components/cards/card.html'),
+    ]);
+
+    export default {
+        components: {
+            card
+        },
+        data: {
+            length: 5,
+            numCardDisplayed: 0,
+            widthCard: 150,
+            slideWidth: 0,
+            currentSlide: 0,
+            allCard: Array.from("&&&&&&&&&&&&&&&&&"),
+        },
+        computed: {
+            packs(){
+                if(this.numCardDisplayed === 0) return [];
+                let packs = [];
+
+                for(let index = 0; index < Math.floor(this.allCard.length / this.numCardDisplayed); index++){
+                    let cards = [];
+                    for(let i = 0; i < this.numCardDisplayed; i++){
+                        cards.push(this.allCard[(index * this.numCardDisplayed) + i]);
+                    }
+                    packs.push(cards);
+                }
+
+                return packs;
+            }
+        },
+        watch: {
+            async currentSlide(n){
+                this.setNumCardDisplayed();
+                if(n === -1) this.currentSlide = this.packs.length-1;
+                else if(n === this.packs.length) this.currentSlide = 0;
+            } 
+        },
+        methods: {
+            setNumCardDisplayed(){
+                this.slideWidth = this.$refs.div.getBoundingClientRect().width + 30;
+                let numCardDisplayed = Math.floor(this.slideWidth / (this.widthCard + 20));
+                if(numCardDisplayed !== this.numCardDisplayed)this.numCardDisplayed = numCardDisplayed;
+            }
+        },
+        mounted(){
+            window.addEventListener("resize", this.setNumCardDisplayed);
+            setTimeout(this.setNumCardDisplayed, 100);
+        },
+        unmounted(){
+            window.removeEventListener("resize", this.setNumCardDisplayed);
+        }
+    }
+</script>
+
+<style>
+    .slides-container {
+        transition: 900ms cubic-bezier(0.48, 0.15, 0.18, 1)
+    }
+
+    .next-btn,
+    .prev-btn {
+        padding: 16px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        background-color: #FFFFFF;
+        color: #5499C7;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+        cursor: pointer;
+        transition: 400ms;
+    }
+
+    .prev-btn {
+        left: 0;
+    }
+
+    .next-btn {
+        right: 0;
+    }
+
+    .tag-1 {
+        background-color: #F5B041;
+    }
+
+    .tag-2 {
+        background-color: #5DADE2;
+    }
+
+    .tag-3 {
+        background-color: #58D68D;
+    }
+</style>
