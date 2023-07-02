@@ -1,66 +1,44 @@
 <div>
-    <div class="h-[600px] mb-[40px] bg-skyblue hero">
-        <div class="max-w-[1130px] h-full mx-auto px-7 lg:px-14">
-            <slider />
-        </div>
-    </div>
-    
-    <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 flex flex-col gap-[40px] content">
-        <div class="show-block">
-            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Derniers ajouts</h2>
-            <div class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,150px)] gap-[20px]">
-                <show_card cv-for="num in this.last_shows" />
-            </div>
-            <div class="see-more">
-                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
-                    Voir plus
-                    <icon name="arrow-right" class="mb-[-3px]"/>
-                </router_link>
-            </div>
-        </div>
-        <div class="show-block">
-            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Les plus populaires</h2>
-            <div class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,150px)] gap-[20px]">
-                <show_card cv-for="num in this.popular_shows" />
-            </div>
-            <div class="see-more">
-                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
-                    Voir plus
-                    <icon name="arrow-right" class="mb-[-3px]"/>
-                </router_link>
-            </div>
-        </div>
-        <div class="show-block">
-            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">Découvrir</h2>
-            <div class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,150px)] gap-[20px]">
-                <show_card cv-for="num in this.discover_shows" />
-            </div>
-            <div class="see-more">
-                <router_link href="#" class="mt-[20px] flex items-center gap-1 hover:text-skyblue">
-                    Voir plus
-                    <icon name="arrow-right" class="mb-[-3px]"/>
-                </router_link>
-            </div>
-        </div>
-    </div>
+    <row 
+    cv-for="row of Object.entries(this.rows)" 
+    :content="this.row[1]"
+    cv-class="{
+        'bg-skyblue': ((Number(this.row[0])+1) % 2) 
+    }"
+    />
 </div>
 
 <script>
-    const [slider, show_card] = await Promise.all([
-        importer('/public/cuteVue/components/slider.html'),
-        importer('/public/cuteVue/components/cards/show_card.html')
+    const [row] = await Promise.all([
+        importer('/public/cuteVue/components/row.html'),
     ]);
     
     export default {
         components: {
             slider,
-            show_card
+            show_card,
+            row,
         },
 
         data: {
-            last_shows: [1, 2, 3, 4, 5, 6],
-            popular_shows: [1, 2, 3, 4, 5, 6],
-            discover_shows: [1, 2, 3, 4, 5, 6],
+            
+        },
+
+        static: {
+            rows: [
+                {
+                    component: "slider",
+                    options: {
+
+                    }
+                },
+                {
+                    component: "cards",
+                    options: {
+                        
+                    }
+                }
+            ]
         },
 
         mounted(){
