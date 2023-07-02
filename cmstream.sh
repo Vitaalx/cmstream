@@ -11,7 +11,7 @@ GREEN='32m'
 RED='31m'
 
 if [ -n "$1" ]; then
-    docker-compose exec php php /var/www/bin/$1.php $2
+    docker-compose exec php php /var/www/bin/$1.php $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 $16
 else
     printf "${START}${BLUE}Commands:${END}\n"
     printf "${START}${GREEN}- makeMigration${END}\n"
