@@ -16,6 +16,7 @@ use Services\MustBeConnected;
  * @Body Json Request
  * @param $content
  * @param $video_id
+ * @param $user_id
  * @param $status
  */
 class addComment extends MustBeConnected

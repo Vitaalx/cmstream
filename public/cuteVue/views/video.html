@@ -124,13 +124,13 @@
                 let close = loaderStore.push();
                 
                 this.success = false;
-                await taob.get("/api/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
+                await taob.get("/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
                 .s((data) => {
                     this.success = true;
                     this.comments = data;
                 })
                 .e(() => {
-                    alert("Une erreur est survenue");
+                    alert("Une erreur est survenue lors du chargement des commentaires");
                 })
                 .result;
 

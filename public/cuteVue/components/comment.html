@@ -1,6 +1,6 @@
 <div class="w-full flex gap-[20px] user-comment">
     <div class="avatar">
-        <icon name="account-circle block mt-[-15px]" class="text-[48px]"/>
+        <icon name="account-circle block mt-[-15px]" size="48"/>
     </div>
     <div
     class="flex-1 flex flex-col comment-ctnr" 
@@ -19,7 +19,7 @@
         @click="this.report()"
         class="flex items-center gap-[4px] rounded text-sm text-grey hover:text-white report"
         >
-        <icon name="alert-octagon"/>
+        <icon name="alert-octagon" size="16"/>
         Signaler le commentaire
         </button> 
     </div>
@@ -54,7 +54,7 @@
                 this.comm = {
                     content: this.comment.content,
                     username: this.comment.user.username,
-                    date: this.dateFormater(this.comment.created_at)
+                    date: this.comment.created_at ? this.dateFormater(this.comment.created_at) : this.dateFormater(new Date().toISOString().slice(0, 10)), 
                 };
             },
             report(){
