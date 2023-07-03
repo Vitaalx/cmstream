@@ -5,6 +5,7 @@ namespace Controller\API\ContentManager\SerieController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
+use Entity\Category;
 use Entity\Serie;
 use Entity\Episode;
 use Entity\Video;
@@ -117,16 +118,10 @@ class getSerie extends AccessContentsManager
     {
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
-        $serieMapped = [
-            "id" => $serie->getId(),
-            "title" => $serie->getTitle(),
-            "description" => $serie->getDescription(),
-            "image" => $serie->getImage(),
-            "category" => $serie->getCategory()->getTitle(),
-            "created_at" => $serie->getCreatedAt(),
-            "updated_at" => $serie->getUpdatedAt()
-        ];
-        $response->send(["serie" => $serieMapped]);
+
+        Serie::groups("serieCategory");
+
+        $response->send($serie);
     }
 }
 
@@ -223,7 +218,9 @@ class updateSerie extends AccessContentsManager
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
             ["type/string", $request->getBody()['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"]
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
@@ -231,9 +228,12 @@ class updateSerie extends AccessContentsManager
     {
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
         $serie->setTitle($this->floor->pickup("title_serie"));
         $serie->setImage($this->floor->pickup("image"));
         $serie->setDescription($this->floor->pickup("description"));
+        $serie->setCategory($category);
         $serie->save();
         $response->info("serie.updated")->code(200)->send();
     }

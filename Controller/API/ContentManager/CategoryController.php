@@ -101,8 +101,8 @@ class getCategories extends Controller
 
         $categories = Category::findMany(
             [
-                "title" => [
-                    "\$CTN" => $name
+                "lower(title)" => [
+                    "\$CTN" => strtolower($name)
                 ]
             ],
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]

@@ -111,6 +111,10 @@ createRoute(
                     path: "/dashboard/comments",
                     view: () => importer("/public/cuteVue/views/dashboard/comments.html"),
                 },
+                {
+                    path: "admin/edit-video/{typeEdit}/{id}",
+                    view: () => importer("/public/cuteVue/views/admin/edit-video.html"),
+                }
             ],
         },
     ],

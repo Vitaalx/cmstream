@@ -121,11 +121,20 @@ class getMovie extends AccessContentsManager
     public function handler(Request $request, Response $response): void
     {
         /** @var Movie $movie */
-        $movie = [];
-        $movie[] = $this->floor->pickup("movie");
-        $movie[] = $this->floor->pickup("movie")->getVideo();
+        $movie = $this->floor->pickup("movie");
 
-        $response->code(200)->info("movie.get")->send($movie);
+        /** @var Video $video */
+        $video = $movie->getVideo();
+
+        $movieMapped = [
+            "id" => $movie->getId(),
+            "description" => $video->getDescription(),
+            "title" => $video->getTitle(),
+            "image" => $movie->getImage(),
+            "category" => $movie->getCategory()
+        ];
+
+        $response->code(200)->info("movie.get")->send($movieMapped);
     }
 }
 
