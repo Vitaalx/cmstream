@@ -3,7 +3,7 @@
     cv-for="row of Object.entries(this.rows)" 
     :content="this.row[1]"
     cv-class="{
-        'bg-skyblue': ((Number(this.row[0])+1) % 2) 
+        'bg-skyblue': this.row[1].blue
     }"
     />
 </div>
@@ -25,12 +25,28 @@
         static: {
             rows: [
                 {
+                    blue: true,
                     component: "slider",
                     options: {
 
                     }
                 },
                 {
+                    title: "Derniers Ajouts",
+                    component: "cards",
+                    options: {
+                        
+                    }
+                },
+                {
+                    title: "Les plus populaires",
+                    component: "cards",
+                    options: {
+                        
+                    }
+                },
+                {
+                    title: "Découvrir",
                     component: "cards",
                     options: {
                         

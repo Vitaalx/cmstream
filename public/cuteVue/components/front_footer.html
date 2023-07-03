@@ -19,26 +19,26 @@
                 <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Suivez-nous !</h2>
                 <ul>
                     <li>
-                        <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="facebook"/>
+                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
+                            <icon name="facebook" size="18"/>
                             Facebook
                         </a>
                     </li>
                     <li>
-                        <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="twitter"/>
+                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
+                            <icon name="twitter" size="18"/>
                             Twitter
                         </a>
                     </li>
                     <li>
-                        <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="instagram"/>
+                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
+                            <icon name="instagram" size="18"/>
                             Instagram
                         </a>
                     </li>
                     <li>
-                        <a class="text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="youtube"/>
+                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
+                            <icon name="youtube" size="18"/>
                             Youtube
                         </a>
                     </li>
@@ -47,33 +47,62 @@
             <nav class="account-nav">
                 <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Compte</h2>
                 <ul>
-                    <li cv-if="!this.connected">
+                    <li cv-if="!this.isConnected">
                         <router_link href="/signup" class="text-sm text-whiteless hover:text-white">Céer un compte</router_link>
                     </li>
-                    <li cv-if="!this.connected">
+
+                    <li cv-if="!this.isConnected">
                         <router_link href="/signin" class="text-sm text-whiteless hover:text-white">Se connecter</router_link>
                     </li>
-                    <li cv-if="this.connected">
+
+                    <li cv-if="this.isConnected">
                         <router_link href="/lists" class="text-sm text-whiteless hover:text-white">Mes lists</router_link>
                     </li>
-                    <li cv-if="this.connected">
-                        <router_link href="/account" class="text-sm text-whiteless hover:text-white">Se Paramètre du compte</router_link>
+
+                    <li cv-if="this.isConnected">
+                        <router_link href="/account" class="text-sm text-whiteless hover:text-white">Paramètre du compte</router_link>
+                    </li>
+
+                    <li cv-if="this.isConnected">
+                        <span @click="this.toDisconnect()" class="text-sm text-whiteless cursor-pointer hover:text-white">Se déconnecter</span>
                     </li>
                 </ul>
             </nav>
         </div>
         <hr class="my-6">
         <div class="bot">
-            <small class="text-whiteless">&copy; CMStream 2023</small>
+            <small class="text-whiteless">&copy; CMStream {{ this.currentYear }}</small>
         </div>
     </div>
 </footer>
 
 <script>
+    const [impLoader] = await Promise.all([
+        import("/public/cuteVue/loader.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+
     export default {
         data: {
-            connected: true,
+            currentYear: new Date().getFullYear()
         },
+        methods: {
+            async toDisconnect(){
+                let close = loaderStore.push();
+
+                await this.disconnect();
+                router.push("/");
+                close();
+            },
+        },
+        stores: [
+            {
+                name: "user",
+                states: ["isConnected"],
+                actions: ["disconnect"]
+            }
+        ]
     }
 </script>
 

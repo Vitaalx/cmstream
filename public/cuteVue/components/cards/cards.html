@@ -68,7 +68,7 @@
         },
         methods: {
             setNumCardDisplayed(){
-                this.slideWidth = this.$refs.div.getBoundingClientRect().width + 30;
+                this.slideWidth = this.$refs.div.getBoundingClientRect().width + 20;
                 let numCardDisplayed = Math.floor(this.slideWidth / (this.widthCard + 20));
                 if(numCardDisplayed !== this.numCardDisplayed)this.numCardDisplayed = numCardDisplayed;
             }
