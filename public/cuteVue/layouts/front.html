@@ -15,10 +15,17 @@
             front_header,
             front_footer
         },
-        
-        mounted(){
-            
+        watch: {
+            pathname(){
+                window.scrollTo(0, 0);
+            }
         },
+        stores: [
+            {
+                name: "router",
+                states: ["pathname"]
+            }
+        ]
     }
 </script>
 

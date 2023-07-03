@@ -1,26 +1,29 @@
 <div 
-class="h-[500px] relative text-[white]"
+class="relative h-[500px] text-[white]"
 @mouseover="this.hover = true"
 @mouseleave="this.hover = false"
 cv-ref="div"
 >
-    <div 
+    <router_link 
     cv-for="video of Object.entries(this.videos)"
-    class="w-full h-full absolute top-0 left-0 transition duration-[1s]"
+    :href="this.video[1].link"
+    class="absolute top-0 left-0 w-full h-full transition duration-[1s]"
     cv-class="{
         'opacity-1': this.video[0] == this.index,
         'opacity-0': this.video[0] != this.index,
     }"
     >
         <img 
-        class="w-full absolute top-[50%] left-0 -translate-y-[50%]"
+        class="absolute top-[50%] left-0 w-full h-full object-cover pointer-events-none -translate-y-[50%]"
         :src="this.video[1].img"
         />
 
-        <p class="absolute top-[10px] left-[10px] text-[40px]">
-            {{this.video[1].title}}
-        </p>
-    </div>
+        <div class="absolute top-[20px] left-[20px] w-2/3 px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+            <h2 class="text-[40px]">{{ this.video[1].title }}</h2>
+
+            <p>{{ this.video[1].description }}</p>
+        </div>
+    </router_link>
 
     <div 
     class="absolute bottom-0 h-[200px] p-[20px] flex gap-[40px] transition  duration-[1s]"
@@ -29,17 +32,17 @@ cv-ref="div"
     >
         <div 
         cv-for="video of Object.entries(this.videos)"
-        class="aspect-video h-full overflow-hidden shrink-0 relative"
+        class="relative h-full aspect-video shrink-0 overflow-hidden cursor-pointer shadow-[0px_0px_20px_rgba(0,0,0,0.5)] transition duration-[0.5s] hover:shadow-[0px_0px_30px_rgba(0,0,0,0.75)] hover:scale-[1.02]"
         @click="this.index = this.video[0]"
         >
             <img
-            class="w-full"
+            class="w-full h-full object-cover pointer-events-none"
             :src="this.video[1].img" 
             alt=""
             />
 
-            <p class="absolute bottom-[10px] left-[10px]">
-                {{this.video[1].title}}
+            <p class="absolute bottom-[10px] left-[10px] px-[8px] py-[4px] bg-[rgba(0,0,0,0.5)]">
+                {{ this.video[1].title }}
             </p>
         </div>
     </div>
@@ -48,7 +51,7 @@ cv-ref="div"
     name="chevron-left"
     size="50"
     @click="left"
-    class="absolute left-0 bottom-[100px] translate-y-[50%] transition"
+    class="absolute left-0 bottom-[100px] cursor-pointer translate-y-[50%] transition"
     cv-class="{
         '-translate-x-[100%]': this.hover === false
     }"
@@ -58,7 +61,7 @@ cv-ref="div"
     name="chevron-right"
     size="50"
     @click="right"
-    class="absolute right-0 bottom-[100px] translate-y-[50%] transition"
+    class="absolute right-0 bottom-[100px] cursor-pointer translate-y-[50%] transition"
     cv-class="{
         'translate-x-[100%]': this.hover === false
     }"
@@ -74,28 +77,40 @@ cv-ref="div"
             videos: [
                 {
                     img: "https://picsum.photos/1000",
-                    title: "Test",
+                    title: "Test 1",
+                    link: "show#1",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                 },
                 {
                     img: "https://picsum.photos/1000/1000",
-                    title: "Test"
+                    title: "Test 2",
+                    link: "show#2",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                     
                 },
                 {
                     img: "https://picsum.photos/1000",
-                    title: "Test"
+                    title: "Test 3",
+                    link: "show#3",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                 },
                 {
                     img: "https://picsum.photos/1000/1000",
-                    title: "Test"
+                    title: "Test 4",
+                    link: "show#4",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                 },
                 {
                     img: "https://picsum.photos/1000",
-                    title: "Test"
+                    title: "Test 5",
+                    link: "show#5",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                 },
                 {
                     img: "https://picsum.photos/1000/1000",
-                    title: "Test"
+                    title: "Test 6",
+                    link: "show#6",
+                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
                 },
             ]
         },

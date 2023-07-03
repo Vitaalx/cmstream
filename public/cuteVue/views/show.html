@@ -11,7 +11,13 @@
         </div>
 
         <div class="show-content">
-            <select-input :options="this.seasons" />
+            <select-input
+            class="w-[150px]"
+            :items="this.seasons" 
+            :return-value="v => v.value"
+            :return-text="t => t.text"
+            cv-model="currentSeason"
+            />
 
             <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
                 <episode_card cv-for="episode in this.episodes" />
@@ -34,13 +40,14 @@
             seasons: [
                 {
                     text: "Saison 1",
-                    value: "season1"
+                    value: 1
                 },
                 {
                     text: "Saison 2",
-                    value: "season2"
-                }
+                    value: 2
+                },
             ],
+            currentSeason: 1,
             episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         },
 
