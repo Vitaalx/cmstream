@@ -134,6 +134,7 @@ class="relative"
             }
         },
         mounted(){
+            this.$getElement().$validate = () => this.validate();
             this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
         }
     }

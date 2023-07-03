@@ -158,6 +158,7 @@ class="relative"
             }
         },
         mounted(){
+            this.$getElement().$validate = () => this.validate();
             this.init();
         }
     }
