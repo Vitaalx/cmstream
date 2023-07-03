@@ -16,6 +16,11 @@
         cv-if="this.content.component === 'cards'"
         :options="this.content.options"
         />
+
+        <topper
+        cv-if="this.content.component === 'topper'"
+        :options="this.content.options"
+        />
     </div>
 
     <i cv-if="this.content.subtitle">
@@ -24,15 +29,17 @@
 </div>
 
 <script>
-    const [slider, cards] = await Promise.all([
+    const [slider, cards, topper] = await Promise.all([
         importer('/public/cuteVue/components/slider.html'),
-        importer('/public/cuteVue/components/cards/cards.html')
+        importer('/public/cuteVue/components/cards/cards.html'),
+        importer('/public/cuteVue/components/topper.html')
     ]);
 
     export default {
         components: {
             slider,
-            cards
+            cards,
+            topper,
         },
         props: {
             content: null
