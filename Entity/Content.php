@@ -44,7 +44,7 @@ class Content extends Entity
 
     public function getValue(): Movie | Serie | null
     {
-        if(parent::get("value_type") !== "S") return Serie::findFirst(["id" => parent::get("value_id")]);
+        if(parent::get("value_type") === "S") return Serie::findFirst(["id" => parent::get("value_id")]);
         else return Movie::findFirst(["id" => parent::get("value_id")]);
     }
 
