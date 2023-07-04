@@ -102,6 +102,12 @@ function getRandomSerie(): int
     return $video->getId();
 }
 
+function getRandomContent()
+{
+    $video = \Entity\Content::findFirst([], ["ORDER_BY" => ["random()"]]);
+    return $video;
+}
+
 function createArrayYoutubeUrl(): array
 {
 
@@ -156,6 +162,10 @@ function createRandomSerie(): int
         "release_date" => generateRandomDate(),
     ]);
 
+    \Entity\Content::insertOne(
+        fn (\Entity\Content $content) => $content->setValue($serie)
+    );
+
     return $serie->getId();
 }
 
@@ -194,13 +204,17 @@ function createRandomMovie(): void
         ]);
     }
 
-    \Entity\Movie::insertOne([
+    $movie = \Entity\Movie::insertOne([
         "title" => generateRandomStringWhereSize(10),
         "video" => $video,
         "image" => getRandomUrlImg(),
         "category_id" => getRandomCategory(),
         "release_date" => generateRandomDate(),
     ]);
+
+    \Entity\Content::insertOne(
+        fn (\Entity\Content $content) => $content->setValue($movie)
+    );
 }
 
 function createRandomComment(int $userId, int $videoId): void
@@ -218,15 +232,15 @@ function createRandomVote(int $userId): void
     if(generateRandomBool()){
         \Entity\Vote::insertOne([
             "user_id" => $userId,
-            "movie_id" => getRandomMovie(),
-            "value" => rand(0, 1),
+            "content" => getRandomContent(),
+            "value" => -1,
         ]);
     }
     else {
         \Entity\Vote::insertOne([
             "user_id" => $userId,
-            "serie_id" => getRandomSerie(),
-            "value" => rand(0, 1),
+            "content" => getRandomContent(),
+            "value" => 1,
         ]);
     }
     
