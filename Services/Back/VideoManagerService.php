@@ -14,7 +14,6 @@ class VideoManagerService
      * @param string $title
      * @param string $description
      * @param integer $category
-     * @return void
      */
     public static function createVideo(string $title, string $description): Video
     {

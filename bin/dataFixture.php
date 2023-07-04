@@ -2,7 +2,7 @@
 
 namespace runDataFixture;
 
-require_once __DIR__ . '/../Core/Autoloader.php';
+require_once __DIR__ . '/../Core/AutoLoader.php';
 require __DIR__ . '/../config.php';
 
 use Entity\Role;
@@ -56,7 +56,7 @@ function generateRandomBool(): bool
     return (bool)rand(0, 1);
 }
 
-function getRandomUrlYoutube(): string
+function generateRandomUrlYoutube(): string
 {
     $url = 'https://www.youtube.com/watch?v=';
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -68,16 +68,9 @@ function getRandomUrlYoutube(): string
     return $url . $randomString;
 }
 
-function getRandomUrlImgur(): string
+function getRandomUrlImg(): string
 {
-    $url = 'https://i.imgur.com/';
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < 7; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $url . $randomString . '.jpg';
+    return 'https://picsum.photos/' . random_int(500, 1800) . '/' . random_int(500, 1800);
 }
 
 function generateIntBetween(int $min, int $max): int
@@ -85,12 +78,36 @@ function generateIntBetween(int $min, int $max): int
     return rand($min, $max);
 }
 
+function getRandomCategory(): int
+{
+    $categories = \Entity\Category::findFirst([], ["ORDER_BY" => ["random()"]]);
+    return $categories->getId();
+}
+
+function getRandomVideo(): int
+{
+    $video = \Entity\Video::findFirst([], ["ORDER_BY" => ["random()"]]);
+    return $video->getId();
+}
+
+function getRandomMovie(): int
+{
+    $video = \Entity\Movie::findFirst([], ["ORDER_BY" => ["random()"]]);
+    return $video->getId();
+}
+
+function getRandomSerie(): int
+{
+    $video = \Entity\Serie::findFirst([], ["ORDER_BY" => ["random()"]]);
+    return $video->getId();
+}
+
 function createArrayYoutubeUrl(): array
 {
 
     $arrayYoutubeUrl = [];
     for ($i = 0; $i < generateIntBetween(1, 4); $i++) {
-        $arrayYoutubeUrl[] = getRandomUrlYoutube();
+        $arrayYoutubeUrl[] = generateRandomUrlYoutube();
     }
     return $arrayYoutubeUrl;
 }
@@ -109,8 +126,7 @@ function createRandomUser(): array
         "lastname" => $lastname,
         "email" => $email,
         "username" => $username,
-        "password" => password_hash($password, PASSWORD_DEFAULT),
-        "role_id" => 0,
+        "password" => password_hash($password, PASSWORD_DEFAULT)
     ]);
 
     return [
@@ -119,7 +135,7 @@ function createRandomUser(): array
         "lastname" => $lastname,
         "username" => $username,
         "email" => $email,
-        "password" => $password,
+        "password" => $password
     ];
 }
 
@@ -130,20 +146,14 @@ function createRandomCategory(): void
     ]);
 }
 
-function getRandomCategory(): int
-{
-    $categories = \Entity\Category::findMany();
-    $randomCategory = $categories[rand(0, count($categories) - 1)];
-    return $randomCategory->getId();
-}
-
 function createRandomSerie(): int
 {
     $serie = \Entity\Serie::insertOne([
         "description" => generateRandomStringWhereSize(100),
         "title" => generateRandomStringWhereSize(10),
-        "image" => getRandomUrlImgur(),
+        "image" => getRandomUrlImg(),
         "category_id" => getRandomCategory(),
+        "release_date" => generateRandomDate(),
     ]);
 
     return $serie->getId();
@@ -151,50 +161,45 @@ function createRandomSerie(): int
 
 function addEpisode(int $serieId, int $nbEpisode, int $nbSeason): void
 {
-    /** @var Video $video */
-    $video = \Services\Back\VideoManagerService::createVideo(
-        generateRandomStringWhereSize(10),
-        generateRandomStringWhereSize(100)
-    );
 
+    $video = \Entity\Video::insertOne([]);
     $url = createArrayYoutubeUrl();
 
     foreach ($url as $item) {
         \Entity\Url::insertOne([
-            "url" => $item,
-            "video_url_id" => $video->getId(),
+            "value" => $item,
+            "video" => $video,
         ]);
     }
 
     \Entity\Episode::insertOne([
         "episode" => $nbEpisode,
         "season" => $nbSeason,
-        "video_id" => $video->getId(),
+        "video" => $video,
+        "title" => generateRandomStringWhereSize(10),
         "serie_id" => $serieId,
     ]);
 }
 
 function createRandomMovie(): void
 {
-    /** @var Video $video */
-    $video = \Services\Back\VideoManagerService::createVideo(
-        generateRandomStringWhereSize(10),
-        generateRandomStringWhereSize(100)
-    );
+    $video = \Entity\Video::insertOne([]);
 
     $url = createArrayYoutubeUrl();
 
     foreach ($url as $item) {
         \Entity\Url::insertOne([
-            "url" => $item,
-            "video_url_id" => $video->getId(),
+            "value" => $item,
+            "video" => $video,
         ]);
     }
 
     \Entity\Movie::insertOne([
-        "video_id" => $video->getId(),
-        "image" => getRandomUrlImgur(),
+        "title" => generateRandomStringWhereSize(10),
+        "video" => $video,
+        "image" => getRandomUrlImg(),
         "category_id" => getRandomCategory(),
+        "release_date" => generateRandomDate(),
     ]);
 }
 
@@ -208,13 +213,23 @@ function createRandomComment(int $userId, int $videoId): void
     ]);
 }
 
-function createRandomStar(int $userId, int $videoId): void
+function createRandomVote(int $userId): void
 {
-    \Entity\Star::insertOne([
-        "user_id" => $userId,
-        "video_id" => $videoId,
-        "note" => generateIntBetween(0, 5),
-    ]);
+    if(generateRandomBool()){
+        \Entity\Vote::insertOne([
+            "user_id" => $userId,
+            "movie_id" => getRandomMovie(),
+            "value" => rand(0, 1),
+        ]);
+    }
+    else {
+        \Entity\Vote::insertOne([
+            "user_id" => $userId,
+            "serie_id" => getRandomSerie(),
+            "value" => rand(0, 1),
+        ]);
+    }
+    
 }
 
 function createHistory(int $userId, int $videoId): void
@@ -278,13 +293,6 @@ function attributeRandomPermissionToRole(Role $role): void
     }
 }
 
-function getRandomVideo(): int
-{
-    $videos = \Entity\Video::findMany();
-    $randomVideo = $videos[rand(0, count($videos) - 1)];
-    return $randomVideo->getId();
-}
-
 function getArgv(): array
 {
     $argv = $_SERVER['argv'];
@@ -316,7 +324,7 @@ function main(): void
         "episode" => 30,
         "movie" => 100,
         "comment" => 50,
-        "star" => 200,
+        "vote" => 200,
         "history" => 300,
         "watchlist" => 10,
         "role" => 10,
@@ -362,8 +370,8 @@ function main(): void
             createRandomComment($user["user_id"], getRandomVideo());
         }
 
-        for ($j = 0; $j < $argument["star"]; $j++) {
-            createRandomStar($user["user_id"], getRandomVideo());
+        for ($j = 0; $j < $argument["vote"]; $j++) {
+            createRandomVote($user["user_id"]);
         }
 
         for ($j = 0; $j < $argument["history"]; $j++) {
