@@ -32,34 +32,18 @@ class Vote extends Entity
     }
 
     /** 
-     * 
+     * @notnullable{}
      */
-    private Movie $movie;
+    private Content $content;
 
-    public function getMovie(): Movie
+    public function getContent(): Content
     {
-        return parent::get("movie");
+        return parent::get("content");
     }
 
-    public function setMovie(Movie $movie): self
+    public function setContent(Content $content): self
     {
-        parent::set("movie", $movie);
-        return $this;
-    }
-
-    /** 
-     * 
-     */
-    private Serie $serie;
-
-    public function getSerie(): Serie
-    {
-        return parent::get("serie");
-    }
-
-    public function setSerie(Serie $serie): self
-    {
-        parent::set("serie", $serie);
+        parent::set("content", $content);
         return $this;
     }
 

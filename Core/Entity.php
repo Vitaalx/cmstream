@@ -183,6 +183,7 @@ abstract class Entity implements \JsonSerializable
 
     public function delete(): bool
     {
+        $this->onDelete();
         $currentEntityName = "_" . $this->entityName;
         try {
             QueryBuilder::createDeleteRequest($currentEntityName, ["id" => $this->props["id"]]);
@@ -206,6 +207,11 @@ abstract class Entity implements \JsonSerializable
 
         unset($this->props["id"]);
         return true;
+    }
+
+    protected function onDelete()
+    {
+        
     }
 
     protected function set(string $prop, mixed $value): void

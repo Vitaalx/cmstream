@@ -99,22 +99,6 @@ class Movie extends Entity
     }
 
     /**
-     * @many{Entity\Vote,movie}
-     * @cascade{}
-     */
-    private array $votes;
-    
-    public function getUpVotes(): int
-    {
-        return Vote::count(["movie" => $this, "value" => 1]);
-    }
-    
-    public function getDownVotes(): int
-    {
-        return Vote::count(["movie" => $this, "value" => 0]);
-    }
-
-    /**
      * @type{Date}
      * @notnullable{}
      */
@@ -163,12 +147,7 @@ class Movie extends Entity
         return $this;
     }
 
-    protected function onSerialize(array $array): array
-    {
-        if(in_array("vote", self::$groups)){
-            $array["up_vote"] = $this->getUpVotes();
-            $array["down_vote"] = $this->getDownVotes();
-        }
-        return $array;
+    protected function onDelete(){
+        Content::findFirst(["value_id" => $this->getId(), "value_type" => "M"])->delete();
     }
 }
