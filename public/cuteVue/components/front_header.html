@@ -123,6 +123,7 @@
         cv-class="{
             'active': this.displayNaveBar
         }"
+        cv-ref="burgerButton"
         >
             <div class="burger-line"></div>
         </div>
@@ -133,6 +134,7 @@
     cv-class="{
         'active': this.displayNaveBar
     }"
+    cv-ref="menuWrapper"
     >
         <nav>
             <ul>
@@ -174,6 +176,11 @@
                 <li cv-if="this.isConnected">
                     <router_link href="/account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Paramètres du compte
+                    </router_link>
+                </li>
+                <li cv-if="!this.isConnected">
+                    <router_link href="/signup" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Créer un compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
@@ -236,6 +243,26 @@
                             e.clientY < rectOptionsMenu.top
                         )
                     ) this.displayOptionsMenu = false;
+                }
+
+                if(this.displayNaveBar === true){
+                    let rectBurgerButton = this.$refs.burgerButton.getBoundingClientRect();
+                    let rectMenuWrapper = this.$refs.menuWrapper.getBoundingClientRect();
+
+                    if(
+                        (
+                            e.clientX > rectBurgerButton.right ||
+                            e.clientX < rectBurgerButton.left ||
+                            e.clientY > rectBurgerButton.bottom ||
+                            e.clientY < rectBurgerButton.top
+                        ) &&
+                        (
+                            e.clientX > rectMenuWrapper.right ||
+                            e.clientX < rectMenuWrapper.left ||
+                            e.clientY > rectMenuWrapper.bottom ||
+                            e.clientY < rectMenuWrapper.top
+                        )
+                    ) this.displayNaveBar = false;
                 }
             },
             async toDisconnect(){
