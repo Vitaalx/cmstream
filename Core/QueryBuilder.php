@@ -25,10 +25,14 @@ class QueryBuilder {
 
         foreach ($tableValue as $key => $value) {
             if(gettype($value) === "NULL"){
-                $value = "NULL";
+                array_push($keys, $key);
+                array_push($vs, "NULL");
+                continue;
             }
             else if(gettype($value) === "boolean"){
-                $value = ($value? " TRUE" : " FALSE");
+                array_push($keys, $key);
+                array_push($vs, ($value? " TRUE" : " FALSE"));
+                continue;
             }
             else if(gettype($value) === "object" && str_starts_with($value::class, "Entity\\")){
                 $value = $value->getId();
@@ -38,11 +42,11 @@ class QueryBuilder {
             array_push($vs, "?");
             array_push($values, $value);
         }
-
+        
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
 
-        $request = self::$db->prepare("INSERT INTO  " . $to . " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " . $options);
+        $request = self::$db->prepare("INSERT INTO  " . $to . (count($keys) !== 0 ? " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " : " DEFAULT VALUES ") . $options);
         $request->execute($values);
         return $request;
     }

@@ -1,0 +1,27 @@
+<div>
+    <header></header>
+    <nav></nav>
+    <view class="pt-[100px] pl-[250px] h-[100vh] bg-white text-black"></view>
+</div>
+
+<script>
+     const [header, nav] = await Promise.all([
+         importer('/public/cuteVue/components/dashboard/header.html'),
+         importer('/public/cuteVue/components/dashboard/nav.html')
+     ]);
+
+    export default {
+        components: {
+            header,
+            nav
+        },
+
+        mounted(){
+              
+        },
+    }
+</script>
+
+<style>
+
+</style>

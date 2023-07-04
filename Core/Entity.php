@@ -5,7 +5,7 @@ namespace Core;
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable
 {
-    static private array $groups = [];
+    static protected array $groups = [];
     private static array $reflections = [];
     private array $props = [];
     private array $propsChange = [];
@@ -57,13 +57,18 @@ abstract class Entity implements \JsonSerializable
 
     public function __serialize()
     {
-        return $this->toArray();
+        return $this->onSerialize($this->toArray());
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return $this->toArray();
+        return $this->onSerialize($this->toArray());
+    }
+
+    protected function onSerialize(array $array): array
+    {
+        return $array;
     }
 
     private function join(array $prop): bool
@@ -161,14 +166,15 @@ abstract class Entity implements \JsonSerializable
             if ($prop["default"] === true) array_push($returning, $propName);
         }
 
-        if(count($props) === 0) return;
-        else if (array_key_exists("id", $this->props) === false) {
+        if (array_key_exists("id", $this->props) === false) {
             $request = QueryBuilder::createInsertRequest($currentEntityName, $props, ["RETURNING" => $returning]);
             $result = $request->fetchAll(\PDO::FETCH_ASSOC)[0];
             foreach ($result as $key => $value) {
                 $this->props[$key] = $value;
             }
-        } else {
+        }
+        else if(count($props) === 0) return; 
+        else {
             QueryBuilder::createUpdateRequest($currentEntityName, $props, ["id" => $this->props["id"]]);
         }
 

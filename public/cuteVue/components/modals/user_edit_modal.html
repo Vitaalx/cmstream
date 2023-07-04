@@ -27,8 +27,14 @@
 
                 <div cv-if="this.hasPermission('role_editor')" class="flex flex-col items-start m-[5px] w-full">
                     <label>Rôles</label>
-
-                    <select-input class="w-full" :items="this.roles" :return-value="v => v.id" :return-text="t => t.name" cv-model="roleIdToEdit" />
+                    
+                    <search-input 
+                    class="w-full" 
+                    :items="this.roles" 
+                    :return-value="v => v.id" 
+                    :return-text="t => t.name" 
+                    cv-model="roleIdToEdit" 
+                    />
                 </div>
 
                 <div class="mt-[30px] text-center submit text-white">
@@ -56,7 +62,7 @@
         data: {
             user: null,
             roles: [],
-            roleIdToEdit: ""
+            roleIdToEdit: null
         },
         props: {
             userid: null,

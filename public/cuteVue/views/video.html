@@ -8,8 +8,8 @@
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
             <div class="flex gap-[20px] player-otions">
-                <select-input class="w-[100px]" label="Player" :items="this.players" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentPlayer" />
-                <select-input class="w-[100px]" label="Épisode" :items="this.episodes" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentEpisode" />
+                <select-input class="w-[150px]" label="Player" :items="this.players" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentPlayer" />
+                <select-input class="w-[150px]" label="Épisode" :items="this.episodes" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentEpisode" />
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
@@ -124,13 +124,13 @@
                 let close = loaderStore.push();
                 
                 this.success = false;
-                await taob.get("/api/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
+                await taob.get("/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
                 .s((data) => {
                     this.success = true;
                     this.comments = data;
                 })
                 .e(() => {
-                    alert("Une erreur est survenue");
+                    alert("Une erreur est survenue lors du chargement des commentaires");
                 })
                 .result;
 

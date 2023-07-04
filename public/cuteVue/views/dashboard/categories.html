@@ -1,11 +1,16 @@
 
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-    <delete_category_modal :category_id="this.selectCategory" cv-if="this.dialogDeleteCategory" 
-    @close="this.dialogDeleteCategory = false" @delete-category="refresh"
+    <delete_category_modal 
+    :category_id="this.selectCategory" 
+    cv-if="this.dialogDeleteCategory" 
+    @close="this.dialogDeleteCategory = false" 
+    @delete-category="refresh"
     />
-    <edit_category_modal :category_id="this.selectCategory"
+    <edit_category_modal
     cv-if="this.dialogEditCategory" @close="this.dialogEditCategory = false"
-    :currentname="this.nameSelectedCategory" @edit-category="refresh"
+    :category_id="this.selectCategory"
+    :current_name="this.nameSelectedCategory" 
+    @edit-category="refresh"
     />
 
     <div class="w-full mb-[10px] flex flex-col justify-between">
@@ -86,21 +91,25 @@
             ],
         },
         methods: {
-            async addCategory(){
+            addCategory(){
                 if(this.addedCategory.trim() === "") return;
 
-                let close = loaderStore.push();
-
-                await taob.post("/category", {
-                    category_name: this.addedCategory,
-                }).s(this.refresh)
+                taob.post(
+                    "/category", 
+                    {
+                        category_name: this.addedCategory,
+                    },
+                    {loader: true}
+                )
+                .s(() => {
+                    this.refresh();
+                    this.addedCategory = "";
+                })
                 .e((error) => {
-                    this.info = "Erreur lors de l'ajout de la catégorie";
+                    this.pushToast("error", "Erreur lors de l'ajout de la catégorie");
                 }).result;
 
-                this.addedCategory = "";
-
-                close();
+                
             },
             async previousPage(){
                 if (this.currentPageNumber > 1){
@@ -114,22 +123,27 @@
                     this.refresh();
                 }
             },
-            async getCategories(page, count = false){
-                let close = loaderStore.push();
+            getCategories(page, count = false){
 
-                // get categories per page
-                await taob.get(`/categories?page=${page - 1}`).s((data) => {
+                taob.get(
+                    `/categories`,
+                    {
+                        query: {page: page-1},
+                        loader: true
+                    }
+                )
+                .s(data => {
                     this.displayedCategories = data;
-                }).e((error) => {
-                    this.info = "Erreur lors de la récupération des catégories";
-                }).result;
+                })
+                .e((error) => {
+                    this.pushToast("error", "Erreur lors de la récupération des catégories");
+                })
+
                 if (count){
                     this.countCategories();
                 }
-
-                close();
             },
-            deleteCategory(id){
+            deleteCategory({id}){
                 this.selectCategory = id;
                 this.dialogDeleteCategory = true;
             },
@@ -138,30 +152,36 @@
                 this.nameSelectedCategory = category.title;
                 this.dialogEditCategory = true;
             },
-            async refresh(action){
+            refresh(action){
                 if (action === "delete"){
                     if (this.displayedCategories.length === 1 && this.currentPageNumber > 1){
                         this.currentPageNumber--;
                     }     
                 }
 
-                await this.getCategories(this.currentPageNumber, true);
+                this.getCategories(this.currentPageNumber, true);
             },
-            async countCategories(){
-                let close = loaderStore.push();
-
-                await taob.get('/categories/count').s((data) => {
+            countCategories(){
+                taob.get(
+                    '/categories/count',
+                    {loader: true}
+                ).s(data => {
                     this.maxPage = Math.ceil(data / this.nbCategoriesPerPage);
-                }).e((error) => {
+                })
+                .e(error => {
                     this.info = "Erreur lors de la récupération du nombres catégories";
-                }).result;
-
-                close();
+                })
             }
         },
         mounted(){
             this.getCategories(this.currentPageNumber, true);
-        }
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
     }
 </script>
 

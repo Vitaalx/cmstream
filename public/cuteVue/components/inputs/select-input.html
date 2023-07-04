@@ -53,7 +53,7 @@ class="relative"
         </div>
 
         <div 
-        class="absolute left-0 w-full bg-[white] top-[calc(100%+10px)] flex flex-col gap-[5px]"
+        class="absolute left-0 w-full bg-[white] top-[calc(100%+10px)] flex flex-col gap-[5px] max-h-[200px] overflow-y-auto"
         cv-show="this.isFocus"
         >
             <div
@@ -134,6 +134,7 @@ class="relative"
             }
         },
         mounted(){
+            this.$getElement().$validate = () => this.validate();
             this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
         }
     }

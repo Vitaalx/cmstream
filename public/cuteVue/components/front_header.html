@@ -2,7 +2,7 @@
     <div class="flex items-center justify-center gap-[30px] left">
         <router_link 
         href="/" 
-        class="h-full w-[100px] flex items-center logo overflow-hidden"
+        class="h-full w-[100px] h-[20px] flex items-center logo overflow-hidden"
         >
             <img 
             src="/public/img/icons/logo.png" 
@@ -84,16 +84,16 @@
 
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
                                 <div class="options">
-                                    <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="admin" class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
+                                    <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="admin" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
                                         <icon name="security" class="text-[24px]"/>
 
                                         <span>Accéder au dashboard</span>
                                     </router_link>
-                                    <div class="px-4 pt-2 pb-1 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
+                                    <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
                                         <icon name="bell-outline" class="text-[24px]"/>
                                         <span>Notifications</span>
                                     </div>
-                                    <router_link href="/account" class="px-4 pt-1 pb-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
+                                    <router_link href="/account" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
                                         <icon name="account" class="text-[24px]"/>
 
                                         <span>Paramètres du compte</span>

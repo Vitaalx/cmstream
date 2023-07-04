@@ -56,21 +56,21 @@
                 const comment = {
                     content: this.content, // TODO: change video_id and user_id
                     video_id: 1,
-                    user_id: 1,
+                    user_id: this.userId,
                     status: 1,
-                    user: {
-                        username: this.username
-                    }
                 }
 
                 await taob.post("/comment", comment)
                 .s(() => {
                     this.success = true;
+                    comment.user = {
+                        username: this.username
+                    }
                     this.$emit("add-comment", comment);
                     this.content = "";
                 })
                 .e(() => {
-                    alert("Une erreur est survenue");
+                    alert("Une erreur est survenue lors de l'ajout du commentaire");
                 })
                 .result;
 
@@ -80,7 +80,7 @@
         stores: [
             {
                 name: "user",
-                states: ["isConnected", "username"],
+                states: ["isConnected", "userId", "username"],
             }
         ]
     }

@@ -64,8 +64,7 @@ class connected extends IndexHandler
 
 /**
  * @GET{/admin}
- * @GET{/admin/users}
- * @GET{/admin/categories}
+ * @GET{/dashboard/categories}
  * @GET{/admin/series}
  * @GET{/admin/movies}
  */
@@ -82,7 +81,7 @@ class admin extends IndexHandler
 }
 
 /**
- * @GET{/admin/users}
+ * @GET{/dashboard/users}
  */
 class adminUser extends IndexHandler
 {
@@ -97,7 +96,7 @@ class adminUser extends IndexHandler
 }
 
 /**
- * @GET{/admin/roles}
+ * @GET{/dashboard/roles}
  */
 class adminRole extends IndexHandler
 {

@@ -9,12 +9,43 @@ class Url extends Entity
     /** @type{int} */
     private int $id;
 
-    /** @type{TEXT}
+    public function getId(): int
+    {
+        return parent::get("id");
+    }
+
+    /** 
+     * @type{TEXT}
      * @notnullable{}
      */
-    private string $url;
+    private string $value;
+    
+    public function getValue(): string
+    {
+        return parent::get("value");
+    }
 
-    private Video $video_url;
+    public function setValue(string $value): self
+    {
+        parent::set("value", $value);
+        return $this;
+    }
+
+    /**
+     * @notnullable{}
+     */
+    private Video $video;
+
+    public function getVideol(): Video
+    {
+        return parent::get("video");
+    }
+
+    public function setVideo(Video $video): self
+    {
+        parent::set("video", $video);
+        return $this;
+    }
 
     /**
      * @type{Date}
@@ -24,56 +55,8 @@ class Url extends Entity
      */
     private string $created_at;
 
-    /**
-     * @type{Date}
-     * @notnullable{}
-     * @default{CURRENT_TIMESTAMP}
-     * @groups{dateProps}
-     */
-    private string $updated_at;
-
-    // Getters and Setters
-
-    public function getId(): int
-    {
-        return parent::get("id");
-    }
-
-    public function getUrl(): string
-    {
-        return parent::get("url");
-    }
-
-    public function setUrl(string $url): self
-    {
-        parent::set("url", $url);
-        return $this;
-    }
-
-    public function getVideoUrl(): Video
-    {
-        return parent::get("video_url");
-    }
-
-    public function setVideoUrl(Video $video_url): self
-    {
-        parent::set("video_url", $video_url);
-        return $this;
-    }
-
     public function getCreatedAt(): self
     {
         return parent::get("created_at");
-    }
-
-    public function getUpdatedAt(): self
-    {
-        return parent::get("updated_at");
-    }
-
-    public function setUpdatedAt(string $updated_at): self
-    {
-        parent::set("updated_at", $updated_at);
-        return $this;
     }
 }
