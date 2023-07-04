@@ -53,6 +53,7 @@
             },
         }
   </script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="https://www.unpkg.com/toanotherback@2.1.5/dist/taob.min.mjs"></script>
   <script type="module" src="/public/cuteVue/main.js" defer></script>
   <style>

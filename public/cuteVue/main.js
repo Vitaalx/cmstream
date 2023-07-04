@@ -72,8 +72,8 @@ createRoute(
             layout: () => importer("/public/cuteVue/layouts/dashboard.html"),
             children: [
                 {
-                    path: "/admin",
-                    view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
+                    path: "/dashboard",
+                    view: () => importer("/public/cuteVue/views/dashboard/dashboard.html"),
                 },
                 {
                     path: "/dashboard/users",
@@ -88,20 +88,20 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/dashboard/categories.html"),
                 },
                 {
-                    path: "/admin/series",
-                    view: () => importer("/public/cuteVue/views/admin/series.html"),
+                    path: "/dashboard/series",
+                    view: () => importer("/public/cuteVue/views/dashboard/series.html"),
                 },
                 {
-                    path: "/admin/movies",
-                    view: () => importer("/public/cuteVue/views/admin/movies.html"),
+                    path: "/dashboard/movies",
+                    view: () => importer("/public/cuteVue/views/dashboard/movies.html"),
                 },
                 {
-                    path: "/dashboard/config",
-                    view: () => importer("/public/cuteVue/views/dashboard/config.html"),
+                    path: "/dashboard/config-app",
+                    view: () => importer("/public/cuteVue/views/dashboard/config-app.html"),
                 },
                 {
-                    path: "/dashboard/config/mail",
-                    view: () => importer("/public/cuteVue/views/dashboard/configMail.html"),
+                    path: "/dashboard/config-mail",
+                    view: () => importer("/public/cuteVue/views/dashboard/config-mail.html"),
                 },
                 {
                     path: "/dashboard/comments",
