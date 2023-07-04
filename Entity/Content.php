@@ -42,10 +42,10 @@ class Content extends Entity
      */
     private string $value_type;
 
-    public function getValue(): Movie | Serie
+    public function getValue(): Movie | Serie | null
     {
-        if(parent::get("value_type") !== "S") return parent::get("serie");
-        else return parent::get("movie");
+        if(parent::get("value_type") !== "S") return Serie::findFirst(["id" => parent::get("value_id")]);
+        else return Movie::findFirst(["id" => parent::get("value_id")]);
     }
 
     public function setValue(Movie | Serie $value): self
