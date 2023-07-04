@@ -164,7 +164,7 @@ class getSeries extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
 
-        Serie::groups("dateProps", "serieCategory");
+        Serie::groups("dateProps", "category");
         
         $response->code(200)->info("series.get")->send($series);
     }

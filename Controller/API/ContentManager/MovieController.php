@@ -163,7 +163,7 @@ class getMovies extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
         
-        Movie::groups("dateProps", "movieCategory");
+        Movie::groups("dateProps", "category");
 
         $response->code(200)->info("movies.get")->send($movies);
     }
