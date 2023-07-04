@@ -119,6 +119,23 @@
                 </tr>
             </tbody>
         </table>
+        <div class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
+            <button
+            class="px-[20px] py-[10px] border rounded-[8px]"
+            @click="this.page--"
+            >
+            Précédant
+            </button>
+    
+            <span>Page {{ this.page + 1 }} sur {{ this.maxPage + 1 }}</span>
+    
+            <button
+            class="px-[20px] py-[10px] border rounded-[8px]"
+            @click="this.page++"
+            >
+            Suivant
+            </button>
+        </div>
     </div>
 </div>
 <script>
@@ -146,20 +163,34 @@
             userEditorEdited: false,
             configEditorEdited: false,
             addedRole: "",
-            isDeleteModalOpen: false
+            isDeleteModalOpen: false,
+            page: 0,
+            maxPage: 0,
+        },
+        watch: {
+            page(){
+                if(this.page < 0)this.page = this.maxPage;
+                else if(this.page > this.maxPage)this.page = 0;
+                else this.getRoles();
+            }
         },
         methods: {
             async getRoles() {
-                let close = loaderStore.push();
-
-                await taob.get('roles').s(data => {
+                taob.get(
+                    'roles', 
+                    {
+                        query: {
+                            page: this.page
+                        },
+                        loader: true
+                    }
+                )
+                .s(data => {
                     data.roles.forEach(role => {
                         role.permissions = role.permissions.map(p => p.name);
                     })
                     this.roles = data.roles;
-                }).result;
-
-                close();
+                })
             },
             isEditable(role) {
                 if (this.isEditMode === true) {
@@ -203,31 +234,42 @@
 
                 await taob.put('role/' + this.roleId + '/permissions', {
                     permissions: permissions
-                }).s(async () => {
+                })
+                .s(async () => {
                     this.isEditMode = false;
                     this.resetEditData();
                     this.getRoles();
-                }).info(info => {
+                })
+                .info(info => {
                     if (info === "role.protected.admin") this.pushToast("error", "Le rôle admin ne peut pas être modifié.");
-                }).result;
+                })
+                .result;
 
                 close();
             },
             async addRole() {
                 if(this.addedRole.trim() === "") return;
 
-                let close = loaderStore.push();
-
-                await taob.post('role', {
-                    name: this.addedRole
-                }).s(async () => {
+                taob.post(
+                    'role', 
+                    {name: this.addedRole.trim()},
+                    {loader: true}
+                )
+                .s(() => {
                     this.pushToast("successfull", "Le rôle à bien été ajouté.");
                     this.getRoles();
-                }).result
-
-                this.addedRole = "";
-
-                close();
+                    this.countPage();
+                    this.addedRole = "";
+                })
+                .info(info => {
+                    if(info === "role.exist")this.pushToast("error", "Ce nom est déjà utilisé pour un autre rôle.");
+                })
+            },
+            countPage(){
+                taob.get("/roles/count", {loader: true})
+                .s(data => {
+                    this.maxPage = Math.floor(Number(data) / 5);
+                })
             },
             openDeleteModal(roleId) {
                 this.roleId = roleId;
@@ -240,6 +282,7 @@
 
         mounted(){
             this.getRoles();
+            this.countPage();
         },
         stores: [
             {

@@ -7,7 +7,11 @@
                 <div class="flex flex-col items-start m-[5px]">
                     <label>Catégorie</label>
 
-                    <input class="focus:border-gray-100 focus:outline-none border rounded-[8px] px-[20px] py-[10px] text-grey" cv-model="currentname" type="text">
+                    <input 
+                    class="focus:border-gray-100 focus:outline-none border rounded-[8px] px-[20px] py-[10px] text-grey" 
+                    cv-model="name" 
+                    type="text"
+                    />
                 </div>
 
                 <div class="mt-[30px] text-center submit text-white">
@@ -31,7 +35,10 @@
     export default {
         props: {
             category_id: null,
-            currentname: ""
+            current_name: ""
+        },
+        data: {
+            name: "",
         },
         methods: {
             closeModal() {
@@ -41,7 +48,7 @@
                 let close = loaderStore.push();
 
                 await taob.put("/category/" + this.category_id, {
-                    category_name: this.currentname,
+                    category_name: this.name,
 
                 })
                 .s(async () => {
@@ -57,6 +64,7 @@
             },
         },
         mounted() {
+            this.name = this.current_name;
         },
         stores: [
             {
