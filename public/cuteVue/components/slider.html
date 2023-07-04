@@ -1,4 +1,6 @@
 <div class="w-full h-full flex flex-col items-center h-[500px]">
+    <h2 cv-if="this.options.title" class="mb-[20px] self-start text-lg font-bold">{{ this.options.title }}</h2>
+
     <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
         <div class="prev-btn" @click="this.currentSlide--">
             <icon name="chevron-left"/>
@@ -36,7 +38,7 @@
 <script>
     export default {
         props: {
-            options: {},
+            options: null,
         },
         data: {
             slideWidth: 0,

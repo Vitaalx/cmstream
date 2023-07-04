@@ -1,28 +1,37 @@
-<div class="w-full h-full flex justify-center items-center relative">
-    <div 
-    class="w-full flex gap-[30px] slides-container"
-    cv-ref="div"
-    cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
+<div>
+    <h2 
+    cv-if="this.options.title"
+    class="w-full mx-auto mb-[10px] pb-[10px] text-lg font-bold border-b-[4px] border-skyblue"
     >
-        <div
-        class="w-full shrink-0 flex justify-around gap-[20px]"
-        cv-for="pack of this.packs"
+        {{this.options.title}}
+    </h2>
+
+    <div class="w-full h-full flex justify-center items-center relative">
+        <div 
+        class="w-full flex gap-[30px] slides-container"
+        cv-ref="div"
+        cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
         >
-            <card
-            cv-style="{
-                width: this.widthCard + 'px',
-            }"
-            cv-for="cards of this.pack"
-            />
+            <div
+            class="w-full shrink-0 flex justify-around gap-[20px]"
+            cv-for="pack of this.packs"
+            >
+                <card
+                cv-style="{
+                    width: this.widthCard + 'px',
+                }"
+                cv-for="cards of this.pack"
+                />
+            </div>
         </div>
-    </div>
 
-    <div class="next-btn" @click="this.currentSlide++">
-        <icon name="chevron-right"/>
-    </div>
+        <div class="next-btn" @click="this.currentSlide++">
+            <icon name="chevron-right"/>
+        </div>
 
-    <div class="prev-btn" @click="this.currentSlide--">
-        <icon name="chevron-left"/>
+        <div class="prev-btn" @click="this.currentSlide--">
+            <icon name="chevron-left"/>
+        </div>
     </div>
 </div>
 
@@ -32,6 +41,9 @@
     ]);
 
     export default {
+        props: {
+            options: null
+        },
         components: {
             card
         },

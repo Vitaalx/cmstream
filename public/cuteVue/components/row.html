@@ -1,11 +1,4 @@
 <div class="w-full p-[30px] flex flex-col gap-[10px] overflow-hidden">
-    <h2 
-    cv-if="this.content.title"
-    class="w-full max-w-[1200px] mx-auto mb-[10px] pb-[10px] text-lg font-bold border-b-[4px] border-skyblue"
-    >
-        {{this.content.title}}
-    </h2>
-
     <div class="grow w-full max-w-[1200px] mx-auto overflow-hidden">
         <slider
         cv-if="this.content.component === 'slider'"
