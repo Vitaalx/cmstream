@@ -83,18 +83,38 @@ class getRoles extends AccessRoleEditor
 {
     public function checkers(Request $request): array
     {
-        return [];
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page"]
+        ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         /** @var Role $roles */
-        $roles = Role::findMany();
+        $roles = Role::findMany(
+            [], 
+            [
+                "LIMIT" => 5, 
+                "OFFSET" => $this->floor->pickup("page") * 5
+            ]
+        );
         Role::groups("rolePermission");
         $response->code(200)->info("roles.get")->send(["roles" => $roles]);
     }
 }
 
+/**
+ * @GET{/api/roles/count}
+ *
+ * @return $role
+ */
+class getRolesCount extends AccessRoleEditor
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response->code(200)->info("roles.get.count")->send(Role::count());
+    }
+}
 
 /**
  * @PUT{/api/role/{id}}
