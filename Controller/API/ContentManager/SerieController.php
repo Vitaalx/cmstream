@@ -47,8 +47,9 @@ class createSerie extends AccessContentsManager
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
             ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
             ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
-            ["type/int", $request->getBody()['category_id'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["type/string", $request->getBody()['category_name'], "category_name"],
+            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
@@ -59,9 +60,10 @@ class createSerie extends AccessContentsManager
             "description" => $this->floor->pickup("description"),
             "image" => $this->floor->pickup("image"),
             "title" => $this->floor->pickup("title_serie"),
-            "category_id" => $this->floor->pickup("category")->getId()
+            "category_id" => $this->floor->pickup("category")->getId(),
+            "release_date" => $this->floor->pickup("release_date")
         ]);
-        $response->info("serie.created")->code(201)->send(["serie" => $serie]);
+        $response->info("serie.created")->code(201)->send($serie);
     }
 }
 
@@ -292,18 +294,17 @@ class addEpisodeBySerie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Video $video */
-        $video = VideoManager::createVideo(
-            $this->floor->pickup("title_video"),
-            $this->floor->pickup("description"),
-        );
-        if (empty($video)) $response->info("video.error")->code(500)->send();
+        $video = VideoManager::createVideo();
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
         /** @var Episode $episode */
         $episode = Episode::insertOne([
             "episode" => $this->floor->pickup("episode"),
             "season" => $this->floor->pickup("season"),
             "video_id" => $video->getId(),
-            "serie_id" => $this->floor->pickup("serie")->getId(),
+            "serie_id" => $serie->getId(),
+            "title" => $this->floor->pickup("title_video"),
+            "description" => $this->floor->pickup("description")
         ]);
         $response->info("episode.created")->code(200)->send(["episode" => $episode, "video" => $video]);
     }

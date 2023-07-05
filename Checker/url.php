@@ -23,7 +23,7 @@ function url(string $url, Floor $floor, Response $response): string
 {
     $url = trim($url);
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
-        $response->info("url.url")->code(400)->send();
+        $response->info("url.invalid")->code(400)->send();
     }
     return $url;
 }

@@ -1,0 +1,336 @@
+<div class="max-w-[1164px] min-h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+    <cv-form
+            @submit="editVideo"
+    >
+        <div class="mt-[10px] flex flex-col gap-[20px] movie-inputs">
+            <label class="font-bold">Modifier {{ this.typeEdit === 'serie' ? 'la série' : 'le film' }}</label>
+
+            <div class="w-full flex gap-[20px] inputs-group">
+                <div class="w-full flex flex-col items-start m-[5px]">
+                    <label>Titre</label>
+
+                    <text-input
+                            type="text"
+                            :placeholder="`Titre ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+                            cv-model="titleVideo"
+                            :rules="this.titleRule"
+                            class="w-full"
+                    ></text-input>
+                </div>
+
+                <div class="w-full flex flex-col items-start m-[5px] gap-[10px]">
+                    <label>Miniature</label>
+
+                    <text-input
+                            type="text"
+                            :placeholder="`Mignature ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+                            cv-model="imgVideo"
+                            :rules="this.imgRule"
+                            class="w-full"
+                    />
+                    <img class="aspect-video" id="imagePreview" :src="this.imgVideo" alt="Image Preview">
+                </div>
+            </div>
+
+            <div class="w-full flex flex-col items-start m-[5px]">
+                <label>Description</label>
+
+                <textarea
+                        rows="4"
+                        class="w-full border-[2px] p-[5px] focus:outline-none focus:border-skyblue"
+                        cv-model="descriptionVideo"
+                        :placeholder="`Description ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+                />
+            </div>
+            <div class="flex flex-col items-start m-[5px]">
+                <label>Catégorie</label>
+                <div class="flex gap-[5px]">
+                    <search-input
+                            :filter="false"
+                            :items="this.categories"
+                            @search="searchCategory"
+                            placeholder="Rechercher une catégorie"
+                            :rules="this.categoryRule"
+                            :return-text="v => v.title"
+                            cv-model="categoryVideo"
+                    />
+                    <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
+                        <icon name="plus-circle" class="text-[24px] text-skyblue hover:text-[#1da1f2]"></icon>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-[20px] text-right submit text-white">
+                <button
+                        type="submit"
+                        class="px-[20px] py-[10px] rounded bg-skyblue hover:bg-[#1da1f2]"
+                >
+                    Modifier
+                </button>
+            </div>
+        </div>
+    </cv-form>
+    <cv-form @submit="addUrl">
+        <div class="w-full flex flex-col items-start m-[5px] gap-[20px]">
+            <label class="font-bold">Ajouter une URL</label>
+
+            <text-input
+                    type="text"
+                    :placeholder="`Url ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+                    cv-model="urlVideo"
+                    :rules="this.urlRule"
+                    class="w-full"
+            ></text-input>
+        </div>
+        <div class="mt-[20px] text-right submit text-white">
+            <button
+                    type="submit"
+                    class="px-[20px] py-[10px] rounded bg-skyblue hover:bg-[#1da1f2]"
+            >
+                Ajouter
+            </button>
+        </div>
+    </cv-form>
+    <cv-form @submit="addEpisode">
+        <div cv-if="this.typeEdit === 'serie'" class="w-full flex flex-col items-start m-[5px] gap-[20px]">
+            <label class="font-bold">Ajouter un épisode</label>
+            <div class="w-full flex flex-col items-start m-[5px]">
+                <label>N° de l'épisode</label>
+
+                <text-input
+                        type="number"
+                        placeholder="Numéro de l'épisode"
+                        cv-model="episodeNumber"
+                        :rules="this.numberRule"
+                        class="w-full"
+                ></text-input>
+            </div>
+            <div class="w-full flex flex-col items-start m-[5px]">
+                <label>N° de la saison</label>
+
+                <text-input
+                        type="number"
+                        placeholder="Numéro de la saison"
+                        cv-model="seasonNumber"
+                        :rules="this.numberRule"
+                        class="w-full"
+                ></text-input>
+            </div>
+            <div class="w-full mt-[20px] mb-[20px] text-right submit text-white">
+                <button
+                        type="submit"
+                        class="px-[20px] py-[10px] rounded bg-skyblue hover:bg-[#1da1f2]"
+                >
+                    Ajouter
+                </button>
+            </div>
+        </div>
+    </cv-form>
+</div>
+</div>
+<script>
+    const [impLoader, impTaob] = await Promise.all([
+        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+    const taob = impTaob.default;
+    export default {
+        data: {
+            video: [],
+            urls: [],
+            typeEdit: "",
+            idVideo: "",
+            categories: [],
+            imgVideo: "",
+            titleVideo: "",
+            descriptionVideo: "",
+            categoryVideo: "",
+            urlVideo: "",
+            episodeNumber: "",
+            seasonNumber: ""
+        },
+        methods: {
+            async editVideo() {
+                let close = loaderStore.push();
+
+                if (this.typeEdit === "serie") {
+                    console.log(this.categoryVideo);
+                    console.log(this.imgVideo);
+                    console.log(this.descriptionVideo);
+                    console.log(this.titleVideo);
+                    console.log(this.urlVideo);
+                    console.log(this.episodeNumber);
+                    console.log(this.seasonNumber);
+                } else if (this.typeEdit === "movie") {
+                    console.log(this.categoryVideo);
+                    console.log(this.imgVideo);
+                    console.log(this.descriptionVideo);
+                    console.log(this.titleVideo);
+                    console.log(this.urlVideo);
+                }
+
+                close();
+            },
+            async addUrl() {
+                let close = loaderStore.push();
+
+                console.log(this.video.id);
+
+                await taob.post("url/" + this.video.id, {
+                    url: this.urlVideo
+                })
+                    .s(() => {
+                        this.pushToast("success", "L'url à bien été ajoutée.");
+                    })
+                    .info(info => {
+                        if (info === "video.notfound") this.pushToast("error", "La vidéo n'a pas été trouvée.");
+                    })
+                    .e(err => {
+                        console.log(err);
+                    })
+                    .result;
+
+                close();
+
+                await this.getUrlByVideoId();
+            },
+            async getUrlByVideoId() {
+                let close = loaderStore.push();
+
+                await taob.get("url/" + this.video.id)
+                    .s(data => {
+                        data.forEach(url => {
+                            this.urls.push({
+                                value: url,
+                                domain: this.extractUrlDomain(url)
+                            });
+                        });
+                    })
+                    .result;
+
+                console.log(this.urls);
+
+                close();
+            },
+            extractUrlDomain(url) {
+                return this.ucFirst(url.replace(/(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+)+\/?/g, "$3"));
+            },
+            ucFirst (string) {
+                string = string.toLowerCase();
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            },
+            async getEpisode() {
+                console.log("get episode");
+            },
+            async addEpisode() {
+                console.log("add episode");
+            },
+            async addCategory() {
+                let close = loaderStore.push();
+
+                await taob.post("category", {
+                    category_name: this.categoryVideo
+                })
+                    .s(() => this.pushToast("success", "La category à bien été ajoutée."))
+                    .info(info => {
+                        if (info === "category.exist") this.pushToast("error", "La category existe déjà.");
+                    })
+                    .result
+
+                close();
+            },
+            async getVideo() {
+                let close = loaderStore.push();
+
+                if (this.typeEdit === "serie") {
+                    await taob.get("serie/" + this.idVideo)
+                        .s(data => {
+                            this.imgVideo = data.image;
+                            this.titleVideo = data.title;
+                            this.descriptionVideo = data.description;
+                            this.categoryVideo = data.category || null;
+                            this.categories = data.category ? [data.category] : [];
+                        })
+                        .info(info => {
+                            if (info === "serie.notfound") this.pushToast("error", "Cette série n'existe pas.");
+                        })
+                        .result;
+                    await this.getEpisode();
+                } else if (this.typeEdit === "movie") {
+                    await taob.get("movie/" + this.idVideo)
+                        .s(data => {
+                            this.imgVideo = data.image;
+                            this.titleVideo = data.title;
+                            this.descriptionVideo = data.description;
+                            this.categoryVideo = data.category || null;
+                            this.video = data.video;
+                            this.categories = data.category ? [data.category] : [];
+                        })
+                        .info(info => {
+                            if (info === "movie.notfound") this.pushToast("error", "Ce film n'existe pas.");
+                        })
+                        .result;
+                }
+
+                this.getUrlByVideoId();
+
+                close();
+            },
+            async searchCategory(val) {
+                await taob.get(`categories?name=${val}`).s(data => {
+                    if (data.length === 0) {
+                        this.categoryVideo = val;
+                        this.categories = [];
+                    } else {
+                        this.categories = data;
+                    }
+                }).result;
+            }
+        },
+        static: {
+            titleRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value.length < 100 || "Ce champs doit contenir moins de 100 caractères.",
+            ],
+            imgRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => {
+                    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
+                    return urlPattern.test(value) || "Ce champ doit contenir un lien valide.";
+                }
+            ],
+            urlRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => {
+                    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
+                    return urlPattern.test(value) || "Ce champ doit contenir un lien valide.";
+                }
+            ],
+            categoryRule: [
+                (value) => !!value || "Ce champs est obligatoire."
+            ],
+            numberRule: [
+                (value) => !!value || "Ce champs est obligatoire.",
+                (value) => value > 0 || "Ce champs doit être supérieur à 0.",
+                (value) => !!Number(value) || "Ce champs doit être un nombre."
+            ]
+        },
+        mounted() {
+            this.typeEdit = this.params.typeEdit;
+            this.idVideo = this.params.id;
+            this.getVideo();
+        },
+        stores: [
+            {
+                name: "router",
+                states: ["params"],
+            },
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            }
+        ]
+    }
+</script>
+<style></style>

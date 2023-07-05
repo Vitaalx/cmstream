@@ -3,7 +3,7 @@
 class="relative"
 >
     <div 
-    class="w-full relative"
+    class="w-full relative flex items-center"
     >
         <label 
         cv-if="this.label !== false"
@@ -32,6 +32,8 @@ class="relative"
         }"
         >
 
+        <icon name="magnify" class="text-xl mr-[10px] absolute right-0"/>
+
         <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[5px]">
             <slot/>
 
@@ -43,8 +45,11 @@ class="relative"
         </div>
 
         <div 
-        class="absolute left-0 w-full border-x-[1px] z-10 border-b-[1px] bg-[white] top-[calc(100%+2px)] overflow-y-auto max-h-[300px] flex flex-col gap-[5px]"
+        class="absolute left-0 w-full border-x-[1px] z-10 bg-[white] top-[calc(100%+2px)] overflow-y-auto max-h-[300px] flex flex-col gap-[5px]"
         cv-show="this.isFocus"
+        cv-class="{
+            'border-b-[1px]': this.items.length > 0,
+        }"
         >
             <div
             class="text-[black] p-[5px] bg-[white] z-10 hover:bg-skyblue hover:text-[white]"

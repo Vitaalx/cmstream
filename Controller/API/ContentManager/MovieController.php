@@ -45,29 +45,30 @@ class createMovie extends AccessContentsManager
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
-            ["type/int", $request->getBody()['category_id'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["type/string", $request->getBody()['category_name'], "category_name"],
+            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         /** @var Video $video */
-        $video = VideoManager::createVideo(
-            $this->floor->pickup("title_video"),
-            $this->floor->pickup("description")
-        );
+        $video = VideoManager::createVideo();
         if (empty($video)) {
             $response->code(500)->info("video.error")->send();
         }
         /** @var Movie $movie */
         $movie = Movie::insertOne([
+            "title" => $this->floor->pickup("title_video"),
+            "description" => $this->floor->pickup("description"),
             "video_id" => $video->getId(),
-            "image" => $this->floor->pickup("video/image"),
-            "category_id" => $this->floor->pickup("category")->getId()
+            "image" => $this->floor->pickup("image"),
+            "category_id" => $this->floor->pickup("category")->getId(),
+            "release_date" => $this->floor->pickup("release_date")
         ]);
 
-        $response->code(201)->info("movie.created")->send(["movie" => $movie, "video" => $video]);
+        $response->code(201)->info("movie.created")->send($movie);
     }
 }
 
@@ -123,15 +124,13 @@ class getMovie extends AccessContentsManager
         /** @var Movie $movie */
         $movie = $this->floor->pickup("movie");
 
-        /** @var Video $video */
-        $video = $movie->getVideo();
-
         $movieMapped = [
             "id" => $movie->getId(),
-            "description" => $video->getDescription(),
-            "title" => $video->getTitle(),
+            "description" => $movie->getDescription(),
+            "title" => $movie->getTitle(),
             "image" => $movie->getImage(),
-            "category" => $movie->getCategory()
+            "category" => $movie->getCategory(),
+            "video" => $movie->getVideo()
         ];
 
         $response->code(200)->info("movie.get")->send($movieMapped);

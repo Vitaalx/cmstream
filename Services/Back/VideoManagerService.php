@@ -15,17 +15,9 @@ class VideoManagerService
      * @param string $description
      * @param integer $category
      */
-    public static function createVideo(string $title, string $description): Video
+    public static function createVideo(): Video
     {
-        try {
-            $video = Video::insertOne([
-                "title" => $title,
-                "description" => $description,
-            ]);
-            return $video;
-        } catch (\Exception $e) {
-            throw new \Exception("Error creating video - " . $e->getMessage());
-        }
+        return Video::insertOne([]);
     }
 
     /**
@@ -60,30 +52,21 @@ class VideoManagerService
      */
     public static function getUrlWhereVideo(int $video): array
     {
-        try {
-            $urls = Url::findMany([
-                "video_url_id" => $video
-            ]);
-            $result = [];
-            foreach ($urls as $url) {
-                $result[] = $url->getUrl();
-            }
-            return $result;
-        } catch (\Exception $e) {
-            throw new \Exception("Error get url where video: " . $e->getMessage());
+        $urls = Url::findMany([
+            "video_id" => $video
+        ]);
+        $result = [];
+        foreach ($urls as $url) {
+            $result[] = $url->getValue();
         }
+        return $result;
     }
 
     public static function createUrlWhereVideo(int $video_id, string $content): Url
     {
-        try {
-            $url = Url::insertOne([
-                "video_url_id" => $video_id,
-                "url" => $content
-            ]);
-            return $url;
-        } catch (\Exception $e) {
-            throw new \Exception("Error create url where video: " . $e->getMessage());
-        }
+        return Url::insertOne([
+            "video_id" => $video_id,
+            "value" => $content
+        ]);
     }
 }

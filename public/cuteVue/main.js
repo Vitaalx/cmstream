@@ -97,7 +97,7 @@ createRoute(
                 },
                 {
                     path: "/dashboard/add-content",
-                    view: () => importer("/public/cuteVue/views/admin/add-content.html"),
+                    view: () => importer("/public/cuteVue/views/dashboard/add-content.html"),
                 },
                 {
                     path: "/dashboard/config-app",
@@ -112,8 +112,8 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/dashboard/comments.html"),
                 },
                 {
-                    path: "admin/edit-video/{typeEdit}/{id}",
-                    view: () => importer("/public/cuteVue/views/admin/edit-video.html"),
+                    path: "/dashboard/edit-video/{typeEdit}/{id}",
+                    view: () => importer("/public/cuteVue/views/dashboard/edit-video.html"),
                 }
             ],
         },

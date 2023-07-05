@@ -16,7 +16,7 @@
             <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
         </div>
 
-        <router_link href="/admin/add-content?type=movie" class="add-movie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
+        <router_link href="/dashboard/add-content?type=movie" class="add-movie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
             <icon name="plus" class="text-xl"/>
             
             <span class="mt-[-2px]">Ajouter un film</span>
@@ -30,8 +30,8 @@
     :delete="true"
     :currentpage="this.currentPageNumber"
     :totalpages="this.maxPage"
-    @edititem="router.push(`/admin/edit-video/movie/${$event}`)"
-    @deleteitem="this.openDeleteModal($event)"
+    @edititem="router.push(`/dashboard/edit-video/movie/${$event.id}`)"
+    @deleteitem="this.openDeleteModal($event.id)"
     @previous="this.previousPage()"
     @next="this.nextPage()"
     />
@@ -112,6 +112,8 @@
                     this.movies = data;
                 }).result;
 
+                console.log(this.movies);
+
                 this.displayedMovies = this.movies;
 
                 if (count){
@@ -188,5 +190,4 @@
 </script>
 
 <style>
-
 </style>

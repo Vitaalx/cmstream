@@ -142,11 +142,11 @@ class dashboardManager extends IndexHandler
 }
 
 /**
- * @GET{/admin/add-content}
- * @GET{/admin/category}
- * @GET{/admin/edit-video/{typeEdit}/{id}}
- * @GET{/admin/serie}
- * @GET{/admin/movie}
+ * @GET{/dashboard/add-content}
+ * @GET{/dashboard/category}
+ * @GET{/dashboard/edit-video/{typeEdit}/{id}}
+ * @GET{/dashboard/serie}
+ * @GET{/dashboard/movie}
  */
 class adminContent extends IndexHandler
 {

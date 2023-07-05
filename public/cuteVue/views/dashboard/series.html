@@ -16,25 +16,25 @@
             <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
         </div>
 
-        <router_link href="/admin/add-content?type=serie"
-                     class="add-serie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white" />
+        <router_link href="/dashboard/add-content?type=serie" class="add-serie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
             <icon name="plus" class="text-xl"/>
 
             <span class="mt-[-2px]">Ajouter une série</span>
-            <admin_table
-                    :thead="this.tabHead"
-                    :data="this.displayedSeries"
-                    :keys="['title', 'category', 'created_at', 'updated_at']"
-                    :edit="true"
-                    :delete="true"
-                    :currentpage="this.currentPageNumber"
-                    :totalpages="this.maxPage"
-                    @edititem="router.push(`/admin/edit-video/serie/${$event}`)"
-                    @deleteitem="this.openDeleteModal($event)"
-                    @previous="this.previousPage()"
-                    @next="this.nextPage()"
-            />
     </div>
+
+    <admin_table
+            :thead="this.tabHead"
+            :data="this.displayedSeries"
+            :keys="['title', 'category', 'created_at', 'updated_at']"
+            :edit="true"
+            :delete="true"
+            :currentpage="this.currentPageNumber"
+            :totalpages="this.maxPage"
+            @edititem="router.push(`/dashboard/edit-video/serie/${$event.id}`)"
+            @deleteitem="this.openDeleteModal($event)"
+            @previous="this.previousPage()"
+            @next="this.nextPage()"
+    />
 </div>
 
 <script>
@@ -93,7 +93,7 @@
             searchInfo: ""
         },
         watch: {
-            search(val) {
+            search(val){
                 if (val === "") {
                     this.searchInfo = "";
                     this.displayedSeries = this.series;
@@ -105,7 +105,7 @@
             }
         },
         methods: {
-            async getSeriesWithPaging(page, count = false) {
+            async getSeriesWithPaging(page, count = false){
                 let close = loaderStore.push();
 
                 await taob.get(`series?page=${page - 1}`).s(data => {
@@ -114,7 +114,7 @@
 
                 this.displayedSeries = this.series;
 
-                if (count) {
+                if (count){
                     await taob.get("series/count").s(data => {
                         this.nbTotalSeries = data.count;
                     }).result;
@@ -124,14 +124,14 @@
 
                 close();
             },
-            async searchSeries(val) {
+            async searchSeries(val){
                 let close = loaderStore.push();
 
                 await taob.get(`series?title=${val}`).s(data => {
                     this.serieFiltered = data;
                 }).result;
 
-                if (this.serieFiltered.length > 0) {
+                if (this.serieFiltered.length > 0){
                     this.searchInfo = "";
                     this.displayedSeries = this.serieFiltered;
                 } else {
@@ -141,26 +141,26 @@
 
                 close();
             },
-            async previousPage() {
+            async previousPage(){
                 if (this.currentPageNumber === 1) return;
 
                 this.currentPageNumber--;
                 await this.getSeriesWithPaging(this.currentPageNumber);
             },
-            async nextPage() {
+            async nextPage(){
                 if (this.currentPageNumber === this.maxPage) return;
 
                 this.currentPageNumber++;
                 await this.getSeriesWithPaging(this.currentPageNumber);
             },
-            openDeleteModal(serieId) {
+            openDeleteModal(serieId){
                 this.serieId = serieId;
                 this.isDeleteModalOpen = true;
             },
-            closeDeleteModal() {
+            closeDeleteModal(){
                 this.isDeleteModalOpen = false;
             },
-            async refresh(action) {
+            async refresh(action){
                 if (action === "delete") {
                     if (this.displayedSeries.length === 1 && this.currentPageNumber > 1) {
                         this.currentPageNumber--;
@@ -169,10 +169,10 @@
 
                 await this.getSeriesWithPaging(this.currentPageNumber, true);
             },
-            getNbPages() {
+            getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalSeries / this.limitToDisplay);
             },
-            dateFormater(date) {
+            dateFormater(date){
                 const parts = date.split("-");
                 const year = parts[0];
                 const month = parts[1];
@@ -181,7 +181,7 @@
                 return day + "/" + month + "/" + year;
             },
         },
-        mounted() {
+        mounted(){
             this.getSeriesWithPaging(this.currentPageNumber, true);
         }
     }
