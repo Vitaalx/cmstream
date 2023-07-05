@@ -10,8 +10,12 @@
         },
         mounted(){
             const ctx = this.$refs.myChart;
+
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
             
-            new Chart(ctx, {
+            window.myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -29,6 +33,13 @@
                     }
                 }
             });
+        },
+        unmounted(){
+            const ctx = this.$refs.myChart;
+
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
         }
     }
 </script>
