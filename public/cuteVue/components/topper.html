@@ -9,7 +9,7 @@
     >
         <router_link 
         cv-for="video of Object.entries(this.videos)"
-        :href="this.video[1].link"
+        href="#"
         class="absolute top-0 left-0 w-full h-full transition duration-[1s]"
         cv-class="{
             'opacity-1': this.video[0] == this.index,
@@ -18,13 +18,13 @@
         >
             <img 
             class="absolute top-[50%] left-0 w-full h-full object-cover pointer-events-none -translate-y-[50%]"
-            :src="this.video[1].img"
+            :src="this.video[1].value.image"
             />
 
             <div class="absolute top-[20px] left-[20px] w-2/3 px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
-                <h2 class="text-[40px]">{{ this.video[1].title }}</h2>
+                <h2 class="text-[40px]">{{ this.video[1].value.title }}</h2>
 
-                <p>{{ this.video[1].description }}</p>
+                <p class="text-ellipsis overflow-hidden w-full">{{ this.video[1].value.description || "" }}</p>
             </div>
         </router_link>
 
@@ -40,12 +40,12 @@
             >
                 <img
                 class="w-full h-full object-cover pointer-events-none"
-                :src="this.video[1].img" 
+                :src="this.video[1].value.image" 
                 alt=""
                 />
 
                 <p class="absolute bottom-[10px] left-[10px] px-[8px] py-[4px] bg-[rgba(0,0,0,0.5)]">
-                    {{ this.video[1].title }}
+                    {{ this.video[1].value.title }}
                 </p>
             </div>
         </div>
@@ -73,6 +73,12 @@
 </div>
 
 <script>
+    const [impTaob] = await Promise.all([
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const taob = impTaob.default;
+
     export default {
         props: {
             options: null,
@@ -81,41 +87,12 @@
             index: 0,
             hover: false,
             xpos: 0,
-            videos: [
-                {
-                    img: "https://picsum.photos/1000",
-                    title: "Test 1",
-                    link: "show#1",
-                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
-                },
-                {
-                    img: "https://picsum.photos/1000/1000",
-                    title: "Test 2",
-                    link: "show#2",
-                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
-                    
-                },
-                {
-                    img: "https://picsum.photos/1000",
-                    title: "Test 3",
-                    link: "show#3",
-                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
-                },
-                {
-                    img: "https://picsum.photos/1000/1000",
-                    title: "Test 4",
-                    link: "show#4",
-                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
-                },
-                {
-                    img: "https://picsum.photos/1000",
-                    title: "Test 5",
-                    link: "show#5",
-                    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae sapiente, consectetur deserunt magni ad magnam id reiciendis neque quod repellat rem velit vel dicta adipisci. Recusandae ipsum laboriosam ut nobis?"
-                },
-            ]
+            videos: [],
         },
         methods: {
+            init(){
+                taob.get(this.options.url, {query: this.options.query}).s(data => this.videos = data);
+            },
             right(){
                 let width = this.$refs.videos.getBoundingClientRect().width;
                 let widthDiv = this.$refs.div.getBoundingClientRect().width;
@@ -125,8 +102,11 @@
             left(){
                 if(this.xpos - 400 < 0)this.xpos = 0;
                 else this.xpos -= 400;
-            }
-        }
+            },
+        },
+        mounted(){
+            this.init();
+        },
     }
 </script>
 

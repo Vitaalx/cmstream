@@ -13,14 +13,15 @@
         cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
         >
             <div
-            class="w-full shrink-0 flex justify-around gap-[20px]"
+            class="w-full shrink-0 flex justify-around gap-[20px] h-[285px]"
             cv-for="pack of this.packs"
             >
                 <card
                 cv-style="{
                     width: this.widthCard + 'px',
                 }"
-                cv-for="cards of this.pack"
+                cv-for="card of this.pack"
+                :content="this.card"
                 />
             </div>
         </div>
@@ -36,9 +37,12 @@
 </div>
 
 <script>
-    const [card] = await Promise.all([
+    const [card, impTaob] = await Promise.all([
         importer('/public/cuteVue/components/cards/card.html'),
+        import("/public/cuteVue/taob.js")
     ]);
+
+    const taob = impTaob.default;
 
     export default {
         props: {
@@ -53,12 +57,14 @@
             widthCard: 150,
             slideWidth: 0,
             currentSlide: 0,
-            allCard: Array.from("&&&&&&&&&&&&&&&&&"),
+            allCard: [],
         },
         computed: {
             packs(){
                 if(this.numCardDisplayed === 0) return [];
                 let packs = [];
+
+                if(this.allCard.length < this.numCardDisplayed) return [this.allCard];
 
                 for(let index = 0; index < Math.floor(this.allCard.length / this.numCardDisplayed); index++){
                     let cards = [];
@@ -76,9 +82,15 @@
                 this.setNumCardDisplayed();
                 if(n === -1) this.currentSlide = this.packs.length-1;
                 else if(n === this.packs.length) this.currentSlide = 0;
-            } 
+            },
+            allCard(){
+                setTimeout(this.setNumCardDisplayed, 100);
+            }
         },
         methods: {
+            init(){
+                taob.get(this.options.url, {query: this.options.query}).s(data => this.allCard = data);
+            },
             setNumCardDisplayed(){
                 this.slideWidth = this.$refs.div.getBoundingClientRect().width + 20;
                 let numCardDisplayed = Math.floor(this.slideWidth / (this.widthCard + 20));
@@ -87,7 +99,7 @@
         },
         mounted(){
             window.addEventListener("resize", this.setNumCardDisplayed);
-            setTimeout(this.setNumCardDisplayed, 100);
+            this.init();
         },
         unmounted(){
             window.removeEventListener("resize", this.setNumCardDisplayed);
