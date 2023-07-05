@@ -58,9 +58,13 @@ export default function render(template, proxy){
         [...el.childNodes].forEach(childNode => childNode.$destroy?.());
         $destroy()
     };
-    el.$mounted = () => {
-        if(el.$instance) el.$instance[__mounted__]();
-        el.childNodes.forEach(childNode => childNode.$mounted?.());
+    
+    el.$mount = () => {
+        if(el.$instance && el.$mounted !== true){
+            el.$mounted = true;
+            el.$instance[__mounted__]();
+        }
+        el.childNodes.forEach(childNode => childNode.$mount?.());
     };
 
     Object.entries(template.attributes).forEach(([key, value]) => {
@@ -288,7 +292,7 @@ export default function render(template, proxy){
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);
                         elementNode = newElementNode;
-                        if(document.body.contains(newElementNode)) newElementNode.$mounted();
+                        if(document.body.contains(newElementNode)) newElementNode.$mount();
                     }
                     else{
                         let newCommentNode = document.createComment("");
@@ -353,7 +357,7 @@ export default function render(template, proxy){
                     currentForElement.forEach(e => {
                         if(templateChild.ref !== undefined)proxy.$refs[templateChild.ref].push(e);
                         el.insertBefore(e, elementNode);
-                        if(document.body.contains(e)) e.$mounted();
+                        if(document.body.contains(e)) e.$mount();
                     });
                 })`);
                 
@@ -383,7 +387,7 @@ export default function render(template, proxy){
                         let newElementNode = render(templateChild, proxy);
                         elementNode.replaceWith(newElementNode);
                         elementNode.$destroy?.();
-                        newElementNode.$mounted();
+                        newElementNode.$mount();
                         elementNode = newElementNode;
                     }
                 }

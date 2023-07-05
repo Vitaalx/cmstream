@@ -51,6 +51,7 @@ export default function makeProxy(properties, template){
         $destroy: () => proxy[__element__].$destroy(),
         $getElement: () => proxy[__element__],
         $mount: (name, component) => proxy[__mount__][name](name, component),
+        $unmount: (name) => proxy[__mount__][name](),
         $getParent: () => proxy[__parent__],
     };
 

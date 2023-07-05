@@ -42,7 +42,7 @@ var CuteVue = (() => {
             }
             proxy[__element__] = newEl;
             proxy[__mounted__]();
-            proxy[__element__].$mounted();
+            proxy[__element__].$mount();
             return proxy;
         }
     
@@ -402,9 +402,9 @@ var CuteVue = (() => {
                 else el.$instance[__unmounted__]();
                 [...el.childNodes].forEach(childNode => childNode.$destroy?.());
             };
-            el.$mounted = () => {
+            el.$mount = () => {
                 if(el.$instance) el.$instance[__mounted__]();
-                [...el.childNodes].forEach(childNode => childNode.$mounted?.());
+                [...el.childNodes].forEach(childNode => childNode.$mount?.());
             };
     
             Object.entries(template.attributes).forEach(([key, value]) => el.setAttribute(key, value));
@@ -556,7 +556,7 @@ var CuteVue = (() => {
                                 let newElementNode = this.render(templateChild, proxy);
                                 elementNode.replaceWith(newElementNode);
                                 elementNode = newElementNode;
-                                if(document.body.contains(newElementNode)) newElementNode.$mounted();
+                                if(document.body.contains(newElementNode)) newElementNode.$mount();
                             }
                             else{
                                 let newCommentNode = document.createComment("");
@@ -623,7 +623,7 @@ var CuteVue = (() => {
                             currentForElement.forEach(e => {
                                 if(templateChild.ref !== undefined)proxy.$refs[templateChild.ref].push(e);
                                 el.insertBefore(e, elementNode);
-                                if(document.body.contains(e)) e.$mounted();
+                                if(document.body.contains(e)) e.$mount();
                             });
                         }`);
                         

@@ -50,7 +50,7 @@ function CuteVue(properties){
         }
         proxy[__element__] = newEl;
         proxy[__mounted__]();
-        proxy[__element__].$mounted();
+        proxy[__element__].$mount();
         return proxy;
     }
 

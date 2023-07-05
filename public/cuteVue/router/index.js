@@ -60,7 +60,10 @@ const proxyRouter = CuteVue.createStore(
                         }
                         this.query = query;
 
-                        if(updateLayout !== false)this.currentLayout = updateLayout;
+                        if(updateLayout !== false){
+                            this.currentView = null;
+                            this.currentLayout = updateLayout;
+                        }
                         if(updateView !== false)this.currentView = updateView;
                         await this.afterFnc(path + url.search);
                         break;

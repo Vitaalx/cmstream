@@ -1,21 +1,20 @@
 <div class="max-h-[calc(100vh-100px)] p-[24px] lg:p-[48px] content">
-    <canvas cv-ref="myChart"></canvas>
+    <canvas cv-ref="myChart"/>
 </div>
 
 <script>
     export default {
         data: {
+            chart: null
         },
         methods: {
+
         },
         mounted(){
+            console.log("test");
             const ctx = this.$refs.myChart;
-
-            if (window.myChart) {
-                window.myChart.destroy();
-            }
             
-            window.myChart = new Chart(ctx, {
+            this.chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -35,11 +34,7 @@
             });
         },
         unmounted(){
-            const ctx = this.$refs.myChart;
-
-            if (window.myChart) {
-                window.myChart.destroy();
-            }
+            this.chart.destroy();
         }
     }
 </script>
