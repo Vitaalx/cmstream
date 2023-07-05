@@ -28,19 +28,30 @@
                     blue: true,
                     component: "slider",
                     options: {
-
+                        url: "/content/last",
+                        query: {
+                            number: 3
+                        },
                     }
                 },
                 {
                     component: "cards",
                     options: {
                         title: "Derniers Ajouts",
+                        url: "/content/last",
+                        query: {
+                            number: 20
+                        },
                     }
                 },
                 {
                     component: "cards",
                     options: {
                         title: "Les plus populaires",
+                        url: "/content/top",
+                        query: {
+                            number: 20
+                        },
                     }
                 },
                 {
@@ -48,19 +59,28 @@
                     component: "topper",
                     options: {
                         title: "Top 5 du moment",
+                        url: "/content/top",
+                        query: {
+                            number: 10,
+                            type: "serie"
+                        },
                     }
                 },
                 {
                     component: "cards",
                     options: {
                         title: "Découvrir",
+                        url: "/content/discover",
+                        query: {
+                            number: 20
+                        },
                     }
                 }
             ]
         },
 
         mounted(){
-            console.log("test");
+            
         },
         
         unmounted(){
