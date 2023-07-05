@@ -12,6 +12,7 @@ SELECT
     end as is_not_nullable,
     case
         when data_type = 'character varying' then CONCAT('VARCHAR(', character_maximum_length ,')')
+        when data_type = 'character' then CONCAT('CHAR(', character_maximum_length ,')')
         when data_type = 'integer' then 'INT'
         when data_type = 'date' then 'DATE'
         when data_type = 'text' then 'TEXT'

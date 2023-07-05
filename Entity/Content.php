@@ -29,15 +29,33 @@ class Content extends Entity
     {
         return Vote::count(["content" => $this, "value" => -1]);
     }
+    
+    /** 
+     * @groups{category}
+     */
+    private Category $category;
+
+    public function getCategory(): Category
+    {
+        return parent::get("category");
+    }
+
+    public function setCategory(Category $category): self
+    {
+        parent::set("category", $category);
+        return $this;
+    }
 
     /** 
      * @type{int}
+     * @groups{contentValue}
      * @notnullable{}
      */
     private int $value_id;
 
     /** 
      * @type{CHAR(1)}
+     * @groups{contentValue}
      * @notnullable{}
      */
     private string $value_type;
@@ -76,6 +94,7 @@ class Content extends Entity
             $array["down_vote"] = $this->getDownVotes();
         }
         if(in_array("value", self::$groups)){
+            $array["type"] = parent::get("value_type");
             $array["value"] = $this->getValue();
         }
         return $array;

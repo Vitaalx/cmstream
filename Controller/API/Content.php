@@ -15,27 +15,27 @@ class GetDiscoverContent extends Controller
 {
     public function checkers(Request $request): array
     {
-        $number = $request->getQuery("number") ?? 0;
+        $number = $request->getQuery("number") ?? 5;
         $number = (($number > 40 || $number < 1) ? null : $number);
         return [
             ["type/int", $number, "number", "content.get.badNumber"],
             ["type/string", $request->getQuery("type") ?? "", "type", "content.get.badType"],
+            ["type/int", $request->getQuery("type") ?? -1, "category_id"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {  
-        Content::groups("value", "votes");
         $number = $this->floor->pickup("number");
         $type = $this->floor->pickup("type");
-        if($type === "serie"){
-            $response->code(200)->info("content.get")->send(Content::findMany(["value_type" => "S"], ["ORDER_BY" => ["RANDOM()"], "LIMIT" => $number]));
-        }
-        else if($type === "movie"){
-            $response->code(200)->info("content.get")->send(Content::findMany(["value_type" => "M"], ["ORDER_BY" => ["RANDOM()"], "LIMIT" => $number]));
-        }
-        else {
-            $response->code(200)->info("content.get")->send(Content::findMany([], ["ORDER_BY" => ["RANDOM()"], "LIMIT" => $number]));
-        }
+        $category_id = $this->floor->pickup("category_id");
+
+        if($type === "serie") $where = ["value_type" => "S"];
+        else if($type === "movie") $where = ["value_type" => "M"];
+        else $where = [];
+        if($category_id !== -1) $where["category_id"] = $category_id;
+
+        Content::groups("value", "vote", "category");
+        $response->code(200)->info("content.get")->send(Content::findMany($where, ["ORDER_BY" => ["RANDOM()"], "LIMIT" => $number]));
     }
 }

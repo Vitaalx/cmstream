@@ -83,22 +83,6 @@ class Movie extends Entity
     }
 
     /**
-     * @groups{category}
-     */
-    private Category $category;
-
-    public function setCategory(Category $category): self
-    {
-        parent::set("category", $category);
-        return $this;
-    }
-
-    public function getCategory(): Category
-    {
-        return parent::get("category");
-    }
-
-    /**
      * @type{Date}
      * @notnullable{}
      */

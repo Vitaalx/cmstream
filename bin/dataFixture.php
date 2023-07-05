@@ -5,8 +5,6 @@ namespace runDataFixture;
 require_once __DIR__ . '/../Core/AutoLoader.php';
 require __DIR__ . '/../config.php';
 
-use Entity\Role;
-
 define("KEY", [
     "u" => "user",
     "c" => "category",
@@ -78,10 +76,10 @@ function generateIntBetween(int $min, int $max): int
     return rand($min, $max);
 }
 
-function getRandomCategory(): int
+function getRandomCategory(): \Entity\Category
 {
     $categories = \Entity\Category::findFirst([], ["ORDER_BY" => ["random()"]]);
-    return $categories->getId();
+    return $categories;
 }
 
 function getRandomVideo(): int
@@ -158,12 +156,11 @@ function createRandomSerie(): int
         "description" => generateRandomStringWhereSize(100),
         "title" => generateRandomStringWhereSize(10),
         "image" => getRandomUrlImg(),
-        "category_id" => getRandomCategory(),
         "release_date" => generateRandomDate(),
     ]);
 
     \Entity\Content::insertOne(
-        fn (\Entity\Content $content) => $content->setValue($serie)
+        fn (\Entity\Content $content) => $content->setValue($serie)->setCategory(getRandomCategory())
     );
 
     return $serie->getId();
@@ -208,12 +205,11 @@ function createRandomMovie(): void
         "title" => generateRandomStringWhereSize(10),
         "video" => $video,
         "image" => getRandomUrlImg(),
-        "category_id" => getRandomCategory(),
         "release_date" => generateRandomDate(),
     ]);
 
     \Entity\Content::insertOne(
-        fn (\Entity\Content $content) => $content->setValue($movie)
+        fn (\Entity\Content $content) => $content->setValue($movie)->setCategory(getRandomCategory())
     );
 }
 
@@ -272,7 +268,7 @@ function addRandomSerieInWatchlist(int $userId, int $videoId): void
     ]);
 }
 
-function createRandomRole(): Role
+function createRandomRole(): \Entity\Role
 {
     $name = generateRandomStringWhereSize(10);
     $role = \Entity\Role::insertOne([
@@ -289,7 +285,7 @@ function setRandomRoleToUser(int $userId): void
     $user->setRole($randomRole);
 }
 
-function attributeRandomPermissionToRole(Role $role): void
+function attributeRandomPermissionToRole(\Entity\Role $role): void
 {
     $perm = [
         \Services\Permissions::AccessDashboard,

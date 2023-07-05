@@ -79,22 +79,6 @@ class Serie extends Entity
         return $this;
     }
 
-    /** 
-     * @groups{category}
-     */
-    private Category $category;
-
-    public function getCategory(): Category
-    {
-        return parent::get("category");
-    }
-
-    public function setCategory(Category $category): self
-    {
-        parent::set("category", $category);
-        return $this;
-    }
-
     /**
      * @type{Date}
      * @notnullable{}
