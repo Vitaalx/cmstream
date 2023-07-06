@@ -21,10 +21,10 @@
             :src="this.video[1].value.image"
             />
 
-            <div class="absolute top-[20px] left-[20px] w-2/3 px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
-                <h2 class="text-[40px]">{{ this.video[1].value.title }}</h2>
+            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[150px] px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+                <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.video[1].value.title }}</h2>
 
-                <p class="text-ellipsis overflow-hidden w-full">{{ this.video[1].value.description || "" }}</p>
+                <p class="w-full description">{{ this.video[1].value.description || "" }}</p>
             </div>
         </router_link>
 
@@ -111,5 +111,11 @@
 </script>
 
 <style>
-
+    .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* number of lines to show */
+        -webkit-box-orient: vertical;
+    }
 </style>

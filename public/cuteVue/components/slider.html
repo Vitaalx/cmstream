@@ -19,10 +19,10 @@
             >
                 <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1].value.image">
 
-                <div class="absolute bottom-[20px] left-[20px] w-1/3 px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
-                    <h2 class="text-[40px]">{{ this.content[1].value.title }}</h2>
+                <div class="absolute bottom-[50px] left-[25px] w-1/3 max-h-[150px] px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+                    <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.content[1].value.title }}</h2>
     
-                    <p class="text-ellipsis overflow-hidden w-full">{{ this.content[1].value.description || "" }}</p>
+                    <p class="w-full description">{{ this.content[1].value.description || "" }}</p>
                 </div>
             </div>
         </div>
@@ -118,6 +118,15 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+
+    .slide .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* number of lines to show */
+        -webkit-box-orient: vertical;
     }
 
     .next-btn,
