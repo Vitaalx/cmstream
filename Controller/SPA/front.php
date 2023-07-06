@@ -5,6 +5,7 @@ namespace Controller\SPA\front;
 use Core\Logger;
 use Services\IndexHandler;
 use Core\Request;
+use Core\Response;
 use Services\Permissions;
 
 /**
@@ -13,8 +14,16 @@ use Services\Permissions;
  * @GET{/video}
  * @GET{/show}
  */
-class index extends IndexHandler
-{
+class index extends IndexHandler{}
+
+/**
+ * @GET{/pages/{name}}
+ */
+class Pages extends IndexHandler{
+    public function extendHandler(Request $request, Response $response): void
+    {
+        $this->appName .= " : " . $request->getParam("name"); 
+    }
 }
 
 /**

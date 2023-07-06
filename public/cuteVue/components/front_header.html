@@ -14,20 +14,23 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
+                    <router_link href="/" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        Accueil
+                    </router_link>
+                </li>
+
+                <li class="h-full">
                     <router_link href="/catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Catalogue
                     </router_link>
                 </li>
 
-                <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        Boutique
-                    </router_link>
-                </li>
-
-                <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        News
+                <li
+                cv-for="page of this.pagesFilter"
+                class="h-full"
+                >
+                    <router_link :href="'/pages/' + this.page.name" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        {{this.page.name}}
                     </router_link>
                 </li>
             </ul>
@@ -290,6 +293,10 @@
                 name: "user",
                 states: ["isConnected", "role", "username", "permissions"],
                 actions: ["disconnect", "hasPermission"]
+            },
+            {
+                name: "pages",
+                computed: ["pagesFilter"],
             }
         ]
     }

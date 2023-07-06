@@ -64,6 +64,11 @@
   </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div 
+    id="app"
+    class="w-full h-[100vh] flex items-center justify-center text-[50px] text-center"
+    >
+        Chargement de la page en cours...
+    </div>
 </body>
 </html>
