@@ -1,4 +1,4 @@
-import Toanotherback from "https://www.unpkg.com/toanotherback@2.1.5/dist/taob.min.mjs";
+import Toanotherback from "https://www.unpkg.com/toanotherback@2.1.6/dist/taob.min.mjs";
 import { loaderStore } from "./loader.js";
 
 const taob = new Toanotherback({

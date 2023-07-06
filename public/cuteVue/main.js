@@ -1,9 +1,10 @@
 import CuteVue, { importer } from "../js/cuteVue/index.js";
 import { createRoute } from "./router/index.js";
 import { loaderStore } from "./loader.js"
+import taob from "./taob.js";
 import "./user.js";
 import "./toast.js";
-import taob from "./taob.js";
+import "./pages.js";
 
 createRoute(
     [
@@ -12,6 +13,11 @@ createRoute(
             children: [
                 {
                     path: "/",
+                    view: () => importer("/public/cuteVue/views/home.html"),
+                },
+                
+                {
+                    path: "/pages/{name}",
                     view: () => importer("/public/cuteVue/views/home.html"),
                 },
                 {
@@ -132,7 +138,8 @@ createRoute(
             {
                 pageAccess: true,
             }
-        ).result;
+        )
+        .result;
         if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");
