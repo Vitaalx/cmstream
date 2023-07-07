@@ -21,7 +21,7 @@ class createUrl extends AccessContentsManager
         return [
             ["type/string", $request->getBody()['url'], "url"],
             ["url/url", fn () => $this->floor->pickup("url"), "url"],
-            ["type/int", $request->getParams()['video_id'], "video_id"],
+            ["type/int", $request->getParam('video_id'), "video_id"],
             ["video/exist", fn () => $this->floor->pickup("video_id"), "video"]
         ];
     }
@@ -99,6 +99,6 @@ class getUrlWhereVideo extends Controller
     public function handler(Request $request, Response $response): void
     {
         $urls = VideoManager::getUrlWhereVideo($this->floor->pickup("video_id"));
-        $response->code(200)->info("url.found")->send($urls);
+        $response->code(200)->info("url.get")->send($urls);
     }
 }

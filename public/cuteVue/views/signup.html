@@ -3,7 +3,7 @@
     
     <cv-form
     @submit="submit"
-    class="w-[500px]"
+    class="w-full max-w-[500px]"
     >
         <div class="inputs p-[40px] flex flex-col gap-[20px] bg-darkblue">
             <text-input
@@ -75,7 +75,7 @@
 
 <script>
     const [impLoader, impTaob] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
 

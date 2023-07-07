@@ -16,12 +16,6 @@ class Category extends Entity
     private string $title;
 
     /**
-     * @many{Entity\Video,category}
-     * @groups{catagories}
-     */
-    private array $videos;
-
-    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
@@ -54,14 +48,6 @@ class Category extends Entity
         parent::set("title", $title);
 
         return $this;
-    }
-
-    /**
-     * @return \Entity\Video[]
-     */
-    public function getVideos(): array
-    {
-        return parent::get("videos");
     }
 
     public function getCreatedAt(): self

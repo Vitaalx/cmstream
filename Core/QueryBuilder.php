@@ -42,10 +42,9 @@ class QueryBuilder {
             array_push($vs, "?");
             array_push($values, $value);
         }
-        
+
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
-
         $request = self::$db->prepare("INSERT INTO  " . $to . (count($keys) !== 0 ? " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " : " DEFAULT VALUES ") . $options);
         $request->execute($values);
         return $request;

@@ -1,0 +1,43 @@
+<div class="max-h-[calc(100vh-100px)] p-[24px] lg:p-[48px] content">
+    <canvas cv-ref="myChart"/>
+</div>
+
+<script>
+    export default {
+        data: {
+            chart: null
+        },
+        methods: {
+
+        },
+        mounted(){
+            const ctx = this.$refs.myChart;
+            
+            this.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                    datasets: [{
+                        label: '# of Votes',
+                        data: [12, 19, 3, 5, 2, 3],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        },
+        unmounted(){
+            this.chart.destroy();
+        }
+    }
+</script>
+
+<style>
+
+</style>

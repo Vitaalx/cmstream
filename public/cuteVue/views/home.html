@@ -1,9 +1,16 @@
 <div>
+    <h1 
+    cv-if="this.page?.title"
+    class="w-full text-center text-[40px] p-[10px]"
+    >
+        {{this.page.title}}
+    </h1>
+
     <row 
-    cv-for="row of Object.entries(this.rows)" 
-    :content="this.row[1]"
+    cv-for="row of this.page?.rows || []" 
+    :content="this.row"
     cv-class="{
-        'bg-skyblue': this.row[1].blue
+        'bg-skyblue': this.row.blue
     }"
     />
 </div>
@@ -19,56 +26,28 @@
         },
 
         data: {
-            
+            page: null,
         },
 
-        static: {
-            rows: [
-                {
-                    blue: true,
-                    component: "slider",
-                    options: {
-
-                    }
-                },
-                {
-                    title: "Derniers Ajouts",
-                    component: "cards",
-                    options: {
-                        
-                    }
-                },
-                {
-                    title: "Les plus populaires",
-                    component: "cards",
-                    options: {
-                        
-                    }
-                },
-                {
-                    blue: true,
-                    component: "topper",
-                    options: {
-                        
-                    }
-                },
-                {
-                    title: "Découvrir",
-                    component: "cards",
-                    options: {
-                        
-                    }
-                }
-            ]
+        methods: {
+            init(){
+                const pageName = router.params.name || "home";
+                const page = this.pages.find(p => p.name === pageName);
+                if(page !== undefined) this.page = page;
+                else router.push("/");
+            }
         },
 
         mounted(){
-            
+            this.init();
         },
-        
-        unmounted(){
 
-        }
+        stores: [
+            {
+                name: "pages",
+                states: ["pages"],
+            }
+        ]
     }
 </script>
 

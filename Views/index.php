@@ -53,6 +53,7 @@
             },
         }
   </script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="https://www.unpkg.com/toanotherback@2.1.5/dist/taob.min.mjs"></script>
   <script type="module" src="/public/cuteVue/main.js" defer></script>
   <style>
@@ -63,6 +64,11 @@
   </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div 
+    id="app"
+    class="w-full h-[100vh] flex items-center justify-center text-[50px] text-center"
+    >
+        Chargement de la page en cours...
+    </div>
 </body>
 </html>

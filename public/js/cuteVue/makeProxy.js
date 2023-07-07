@@ -35,6 +35,11 @@ export default function makeProxy(properties, template){
     proxy[__mount__] = {};
     proxy[__parent__] = undefined;
     proxy[__props__] = props;
+    Object.defineProperty(
+        proxy,
+        "$events",
+        {get: () => proxy[__element__].$events}
+    );
 
     properties = {
         ...data,
@@ -51,7 +56,8 @@ export default function makeProxy(properties, template){
         $destroy: () => proxy[__element__].$destroy(),
         $getElement: () => proxy[__element__],
         $mount: (name, component) => proxy[__mount__][name](name, component),
-        $getParent: () => proxy[__parent__],
+        $unmount: (name) => proxy[__mount__][name](),
+        $getParent: () => proxy[__parent__]
     };
 
     proxy[__properties__] = properties;

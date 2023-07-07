@@ -1,4 +1,6 @@
 <div class="w-full h-full flex flex-col items-center h-[500px]">
+    <h2 cv-if="this.options.title" class="mb-[20px] self-start text-lg font-bold">{{ this.options.title }}</h2>
+
     <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
         <div class="prev-btn" @click="this.currentSlide--">
             <icon name="chevron-left"/>
@@ -9,13 +11,19 @@
         >
             <div 
             cv-ref="slides" 
-            class="slide" 
+            class="slide relative" 
             cv-for="content of Object.entries(this.contents)" 
             cv-class="{'active': this.content[0] == this.currentSlide}"
             :test="this.currentSlide + ':' + this.content[0]"
             cv-style="{'left': this.content[0] * 100 + '%'}"
             >
-                <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1]">
+                <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1].value.image">
+
+                <div class="absolute bottom-[50px] left-[25px] w-1/3 max-h-[150px] px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+                    <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.content[1].value.title }}</h2>
+    
+                    <p class="w-full description">{{ this.content[1].value.description || "" }}</p>
+                </div>
             </div>
         </div>
         <div class="next-btn" @click="this.currentSlide++">
@@ -29,25 +37,27 @@
         @click="this.currentSlide = this.key"
         class="single-dot"
         cv-class="{'active': this.key == this.currentSlide}"
-        ></div>
+        />
     </div>
 </div>
 
 <script>
+    const [impTaob] = await Promise.all([
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    const taob = impTaob.default;
+
     export default {
         props: {
-            options: {},
+            options: null,
         },
         data: {
             slideWidth: 0,
             currentSlide: 0,
             switchDelay: 10000,
             interval: null,
-            contents: [
-                "https://i.postimg.cc/hvtQjxyw/slide1.jpg",
-                "https://i.postimg.cc/7YbTr3TJ/slide2.jpg",
-                "https://i.postimg.cc/QNfWz4Vr/slide3.jpg"
-            ],
+            contents: [],
         },
 
         watch: {
@@ -59,6 +69,9 @@
         },
 
         methods: {
+            init(){
+                taob.get(this.options.url, {query: this.options.query}).s(data => this.contents = data);
+            },
             updateWidth(){
                 this.slideWidth = this.$refs.slides[0].clientWidth;
             },
@@ -70,6 +83,8 @@
             }, this.switchDelay);
 
             window.addEventListener("resize", this.updateWidth);
+
+            this.init();
         },
 
         unmounted(){
@@ -103,6 +118,15 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+
+    .slide .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* number of lines to show */
+        -webkit-box-orient: vertical;
     }
 
     .next-btn,

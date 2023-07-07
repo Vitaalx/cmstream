@@ -99,11 +99,10 @@ class getCategories extends Controller
         $name = $this->floor->pickup("name");
         $number = 5;
 
-        /** @var Category[] $categories */
         $categories = Category::findMany(
             [
-                "title" => [
-                    "\$CTN" => $name
+                "lower(title)" => [
+                    "\$CTN" => strtolower($name)
                 ]
             ],
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
@@ -222,5 +221,26 @@ class getCountCategories extends Controller
     {
         $count = Category::count();
         $response->code(200)->info("categories.count")->send($count);
+    }
+}
+
+/**
+ * @GET{/api/category/{id}}
+ */
+class getCategory extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
+        $response->code(200)->info("category.get")->send($category);
     }
 }

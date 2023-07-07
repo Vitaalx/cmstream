@@ -5,6 +5,7 @@ namespace Controller\API\ContentManager\SerieController;
 use Core\Controller;
 use Core\Request;
 use Core\Response;
+use Entity\Category;
 use Entity\Serie;
 use Entity\Episode;
 use Entity\Video;
@@ -46,8 +47,9 @@ class createSerie extends AccessContentsManager
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
             ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
             ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
-            ["type/int", $request->getBody()['category_id'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["type/string", $request->getBody()['category_name'], "category_name"],
+            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
@@ -58,9 +60,10 @@ class createSerie extends AccessContentsManager
             "description" => $this->floor->pickup("description"),
             "image" => $this->floor->pickup("image"),
             "title" => $this->floor->pickup("title_serie"),
-            "category_id" => $this->floor->pickup("category")->getId()
+            "category_id" => $this->floor->pickup("category")->getId(),
+            "release_date" => $this->floor->pickup("release_date")
         ]);
-        $response->info("serie.created")->code(201)->send(["serie" => $serie]);
+        $response->info("serie.created")->code(201)->send($serie);
     }
 }
 
@@ -117,16 +120,10 @@ class getSerie extends AccessContentsManager
     {
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
-        $serieMapped = [
-            "id" => $serie->getId(),
-            "title" => $serie->getTitle(),
-            "description" => $serie->getDescription(),
-            "image" => $serie->getImage(),
-            "category" => $serie->getCategory()->getTitle(),
-            "created_at" => $serie->getCreatedAt(),
-            "updated_at" => $serie->getUpdatedAt()
-        ];
-        $response->send(["serie" => $serieMapped]);
+
+        Serie::groups("serieCategory");
+
+        $response->send($serie);
     }
 }
 
@@ -164,7 +161,7 @@ class getSeries extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
 
-        Serie::groups("dateProps", "serieCategory");
+        Serie::groups("dateProps", "category");
         
         $response->code(200)->info("series.get")->send($series);
     }
@@ -223,7 +220,9 @@ class updateSerie extends AccessContentsManager
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
             ["type/string", $request->getBody()['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"]
+            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
         ];
     }
 
@@ -231,9 +230,12 @@ class updateSerie extends AccessContentsManager
     {
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
         $serie->setTitle($this->floor->pickup("title_serie"));
         $serie->setImage($this->floor->pickup("image"));
         $serie->setDescription($this->floor->pickup("description"));
+        $serie->setCategory($category);
         $serie->save();
         $response->info("serie.updated")->code(200)->send();
     }
@@ -292,18 +294,17 @@ class addEpisodeBySerie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Video $video */
-        $video = VideoManager::createVideo(
-            $this->floor->pickup("title_video"),
-            $this->floor->pickup("description"),
-        );
-        if (empty($video)) $response->info("video.error")->code(500)->send();
+        $video = VideoManager::createVideo();
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
         /** @var Episode $episode */
         $episode = Episode::insertOne([
             "episode" => $this->floor->pickup("episode"),
             "season" => $this->floor->pickup("season"),
             "video_id" => $video->getId(),
-            "serie_id" => $this->floor->pickup("serie")->getId(),
+            "serie_id" => $serie->getId(),
+            "title" => $this->floor->pickup("title_video"),
+            "description" => $this->floor->pickup("description")
         ]);
         $response->info("episode.created")->code(200)->send(["episode" => $episode, "video" => $video]);
     }

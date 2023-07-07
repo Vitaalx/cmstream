@@ -140,7 +140,7 @@
 </div>
 <script>
     const [impLoader, impTaob, delete_role_modal] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/modals/delete_role_modal.html')
     ]);
@@ -276,7 +276,7 @@
                 this.isDeleteModalOpen = true;
             },
             async refresh(action) {
-                this.getRoles();
+                await this.getRoles();
             }
         },
 

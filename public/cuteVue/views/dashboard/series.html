@@ -1,12 +1,12 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-    <delete_movie_modal
-    cv-if="this.isDeleteModalOpen" :movieid="this.movieId"
-    @close="this.isDeleteModalOpen = false"
-    @ondelete="refresh"
+    <delete_serie_modal
+            cv-if="this.isDeleteModalOpen" :serieid="this.serieId"
+            @close="this.isDeleteModalOpen = false"
+            @ondelete="refresh"
     />
 
     <div class="mb-[10px] w-full flex justify-between items-start">
-        <div class="search-movie">
+        <div class="search-serie">
             <div class="search-bar border rounded-[8px] px-[20px] py-[10px] flex items-center">
                 <icon name="magnify" class="text-xl mr-[10px]"/>
 
@@ -16,33 +16,33 @@
             <p class="mt-[10px] px-[20px] py-[10px]">{{ this.searchInfo }}</p>
         </div>
 
-        <router_link href="/admin/add-content?type=movie" class="add-movie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
+        <router_link href="/dashboard/add-content?type=serie" class="add-serie-btn flex items-center gap-[10px] px-[20px] py-[10px] rounded-[8px] bg-skyblue hover:bg-[#1da1f2] text-white">
             <icon name="plus" class="text-xl"/>
-            
-            <span class="mt-[-2px]">Ajouter un film</span>
+
+            <span class="mt-[-2px]">Ajouter une série</span>
     </div>
 
     <admin_table
-    :thead="this.tabHead"
-    :data="this.displayedMovies"
-    :keys="['title', 'category', 'created_at', 'updated_at']"
-    :edit="true"
-    :delete="true"
-    :currentpage="this.currentPageNumber"
-    :totalpages="this.maxPage"
-    @edititem="router.push(`/admin/edit-video/movie/${$event}`)"
-    @deleteitem="this.openDeleteModal($event)"
-    @previous="this.previousPage()"
-    @next="this.nextPage()"
+            :thead="this.tabHead"
+            :data="this.displayedSeries"
+            :keys="['title', 'category', 'created_at', 'updated_at']"
+            :edit="true"
+            :delete="true"
+            :currentpage="this.currentPageNumber"
+            :totalpages="this.maxPage"
+            @edititem="router.push(`/dashboard/edit-video/serie/${$event.id}`)"
+            @deleteitem="this.openDeleteModal($event)"
+            @previous="this.previousPage()"
+            @next="this.nextPage()"
     />
 </div>
 
 <script>
-    const [impLoader, impTaob, admin_table, delete_movie_modal] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+    const [impLoader, impTaob, admin_table, delete_serie_modal] = await Promise.all([
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
-        importer("/public/cuteVue/components/admin_table.html"),
-        importer('/public/cuteVue/components/modals/delete_movie_modal.html')
+        importer('/public/cuteVue/components/admin_table.html'),
+        importer('/public/cuteVue/components/modals/delete_serie_modal.html')
     ]);
     const loaderStore = impLoader.loaderStore;
     const taob = impTaob.default;
@@ -50,7 +50,7 @@
     export default {
         components: {
             admin_table,
-            delete_movie_modal
+            delete_serie_modal
         },
         data: {
             tabHead: [
@@ -75,11 +75,11 @@
                     sort: true,
                 },
             ],
-            movies: [],
-            displayedMovies: [],
-            movieFiltered: [],
-            nbTotalMovies: 0,
-            movieId: null,
+            series: [],
+            displayedSeries: [],
+            serieFiltered: [],
+            nbTotalSeries: 0,
+            serieId: null,
             currentTitle: "",
             currentCategory: "",
             currentCreatedAt: "",
@@ -94,29 +94,29 @@
         },
         watch: {
             search(val){
-                if (val === ""){
+                if (val === "") {
                     this.searchInfo = "";
-                    this.displayedMovies = this.movies;
+                    this.displayedSeries = this.series;
 
                     return;
                 }
 
-                this.searchMovies(val);
+                this.searchSeries(val);
             }
         },
         methods: {
-            async getMoviesWithPaging(page, count = false){
+            async getSeriesWithPaging(page, count = false){
                 let close = loaderStore.push();
 
-                await taob.get(`movies?page=${page - 1}`).s(data => {
-                    this.movies = data;
+                await taob.get(`series?page=${page - 1}`).s(data => {
+                    this.series = data;
                 }).result;
 
-                this.displayedMovies = this.movies;
+                this.displayedSeries = this.series;
 
                 if (count){
-                    await taob.get("movies/count").s(data => {
-                        this.nbTotalMovies = data.count;
+                    await taob.get("series/count").s(data => {
+                        this.nbTotalSeries = data.count;
                     }).result;
 
                     this.getNbPages();
@@ -124,19 +124,19 @@
 
                 close();
             },
-            async searchMovies(val){
+            async searchSeries(val){
                 let close = loaderStore.push();
 
-                await taob.get(`movies?title=${val}`).s(data => {
-                    this.movieFiltered = data;
+                await taob.get(`series?title=${val}`).s(data => {
+                    this.serieFiltered = data;
                 }).result;
 
-                if (this.movieFiltered.length > 0){
+                if (this.serieFiltered.length > 0){
                     this.searchInfo = "";
-                    this.displayedMovies = this.movieFiltered;
+                    this.displayedSeries = this.serieFiltered;
                 } else {
                     this.searchInfo = "Aucun résultat trouvé pour cette recherche.";
-                    this.displayedMovies = this.movies;
+                    this.displayedSeries = this.series;
                 }
 
                 close();
@@ -145,32 +145,32 @@
                 if (this.currentPageNumber === 1) return;
 
                 this.currentPageNumber--;
-                await this.getMoviesWithPaging(this.currentPageNumber);
+                await this.getSeriesWithPaging(this.currentPageNumber);
             },
             async nextPage(){
                 if (this.currentPageNumber === this.maxPage) return;
 
                 this.currentPageNumber++;
-                await this.getMoviesWithPaging(this.currentPageNumber);
+                await this.getSeriesWithPaging(this.currentPageNumber);
             },
-            openDeleteModal(movieId){
-                this.movieId = movieId;
+            openDeleteModal(serieId){
+                this.serieId = serieId;
                 this.isDeleteModalOpen = true;
             },
             closeDeleteModal(){
                 this.isDeleteModalOpen = false;
             },
             async refresh(action){
-                if (action === "delete"){
-                    if (this.displayedMovies.length === 1 && this.currentPageNumber > 1) {
+                if (action === "delete") {
+                    if (this.displayedSeries.length === 1 && this.currentPageNumber > 1) {
                         this.currentPageNumber--;
                     }
                 }
 
-                await this.getMoviesWithPaging(this.currentPageNumber, true);
+                await this.getSeriesWithPaging(this.currentPageNumber, true);
             },
             getNbPages(){
-                this.maxPage = Math.ceil(this.nbTotalMovies / this.limitToDisplay);
+                this.maxPage = Math.ceil(this.nbTotalSeries / this.limitToDisplay);
             },
             dateFormater(date){
                 const parts = date.split("-");
@@ -182,7 +182,7 @@
             },
         },
         mounted(){
-            this.getMoviesWithPaging(this.currentPageNumber, true);
+            this.getSeriesWithPaging(this.currentPageNumber, true);
         }
     }
 </script>

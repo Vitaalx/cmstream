@@ -1,24 +1,29 @@
 <router_link 
 href="#" 
-class="aspect-[47/63] show-card"
+class="show-card"
 >
-    <div class="h-[225px] mb-[10px] object-cover thumbnail">
-        <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded.png" alt="show title">
+    <div class="mb-[10px] object-cover thumbnail aspect-[47/63]">
+        <img class="w-full h-full object-cover pointer-events-none" :src="this.content.value.image" alt="show title">
     </div>
 
     <div class="content">
-        <h3 class="text-bold show-title">Show title</h3>
+        <h3 class="text-bold show-title">{{this.content.value.title}}</h3>
 
-        <p class="text-sm show-description">Show description</p>
+        <p 
+        class="text-sm show-description text-ellipsis overflow-hidden w-full"
+        :title="this.content.value.description || ''"
+        >
+            {{this.content.value.description || ""}}
+        </p>
 
-        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">Category</span>
+        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{this.content.category.title}}</span>
     </div>
 </router_link>
 
 <script>
     export default {
         props: {
-            movie: {}
+            content: null
         }
     }
 </script>

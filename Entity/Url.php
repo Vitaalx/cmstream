@@ -14,12 +14,12 @@ class Url extends Entity
         return parent::get("id");
     }
 
-    /** 
+    /**
      * @type{TEXT}
      * @notnullable{}
      */
     private string $value;
-    
+
     public function getValue(): string
     {
         return parent::get("value");
@@ -36,7 +36,7 @@ class Url extends Entity
      */
     private Video $video;
 
-    public function getVideol(): Video
+    public function getVideo(): Video
     {
         return parent::get("video");
     }

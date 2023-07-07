@@ -1,4 +1,4 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-noen">
+<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
     <div class="flex items-center justify-center gap-[30px] left">
         <router_link 
         href="/" 
@@ -14,20 +14,23 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
+                    <router_link href="/" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        Accueil
+                    </router_link>
+                </li>
+
+                <li class="h-full">
                     <router_link href="/catalog" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Catalogue
                     </router_link>
                 </li>
 
-                <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        Boutique
-                    </router_link>
-                </li>
-
-                <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        News
+                <li
+                cv-for="page of this.pagesFilter"
+                class="h-full"
+                >
+                    <router_link :href="'/pages/' + this.page.name" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        {{this.page.name}}
                     </router_link>
                 </li>
             </ul>
@@ -84,7 +87,7 @@
 
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
                                 <div class="options">
-                                    <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="admin" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
+                                    <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="/dashboard" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
                                         <icon name="security" class="text-[24px]"/>
 
                                         <span>Accéder au dashboard</span>
@@ -123,6 +126,7 @@
         cv-class="{
             'active': this.displayNaveBar
         }"
+        cv-ref="burgerButton"
         >
             <div class="burger-line"></div>
         </div>
@@ -133,6 +137,7 @@
     cv-class="{
         'active': this.displayNaveBar
     }"
+    cv-ref="menuWrapper"
     >
         <nav>
             <ul>
@@ -177,6 +182,11 @@
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
+                    <router_link href="/signup" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Créer un compte
+                    </router_link>
+                </li>
+                <li cv-if="!this.isConnected">
                     <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Se connecter
                     </router_link>
@@ -194,7 +204,7 @@
 
 <script>
     const [impLoader, user_image] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         importer('/public/cuteVue/components/account/user-image.html'),
     ]);
 
@@ -237,6 +247,26 @@
                         )
                     ) this.displayOptionsMenu = false;
                 }
+
+                if(this.displayNaveBar === true){
+                    let rectBurgerButton = this.$refs.burgerButton.getBoundingClientRect();
+                    let rectMenuWrapper = this.$refs.menuWrapper.getBoundingClientRect();
+
+                    if(
+                        (
+                            e.clientX > rectBurgerButton.right ||
+                            e.clientX < rectBurgerButton.left ||
+                            e.clientY > rectBurgerButton.bottom ||
+                            e.clientY < rectBurgerButton.top
+                        ) &&
+                        (
+                            e.clientX > rectMenuWrapper.right ||
+                            e.clientX < rectMenuWrapper.left ||
+                            e.clientY > rectMenuWrapper.bottom ||
+                            e.clientY < rectMenuWrapper.top
+                        )
+                    ) this.displayNaveBar = false;
+                }
             },
             async toDisconnect(){
                 let close = loaderStore.push();
@@ -263,6 +293,10 @@
                 name: "user",
                 states: ["isConnected", "role", "username", "permissions"],
                 actions: ["disconnect", "hasPermission"]
+            },
+            {
+                name: "pages",
+                computed: ["pagesFilter"],
             }
         ]
     }

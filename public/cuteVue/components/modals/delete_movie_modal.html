@@ -14,7 +14,7 @@
 
 <script>
     const [impLoader, impTaob] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
     const loaderStore = impLoader.loaderStore;

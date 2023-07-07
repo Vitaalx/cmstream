@@ -5,6 +5,7 @@ namespace Controller\SPA\front;
 use Core\Logger;
 use Services\IndexHandler;
 use Core\Request;
+use Core\Response;
 use Services\Permissions;
 
 /**
@@ -12,10 +13,9 @@ use Services\Permissions;
  * @GET{/catalog}
  * @GET{/video}
  * @GET{/show}
+ * @GET{/pages/{name}}
  */
-class index extends IndexHandler
-{
-}
+class index extends IndexHandler{}
 
 /**
  * @GET{/signin}
@@ -63,10 +63,7 @@ class connected extends IndexHandler
 }
 
 /**
- * @GET{/admin}
- * @GET{/dashboard/categories}
- * @GET{/admin/series}
- * @GET{/admin/movies}
+ * @GET{/dashboard}
  */
 class admin extends IndexHandler
 {
@@ -111,8 +108,8 @@ class adminRole extends IndexHandler
 }
 
 /**
- * @GET{/dashboard/config}
- * @GET{/dashboard/config/mail}
+ * @GET{/dashboard/config-app}
+ * @GET{/dashboard/config-mail}
  */
 class adminConfig extends IndexHandler
 {
@@ -129,7 +126,7 @@ class adminConfig extends IndexHandler
 /**
  * @GET{/dashboard/comments}
  */
-class dashboradManager extends IndexHandler
+class dashboardManager extends IndexHandler
 {
     public function checkers(Request $request): array
     {
@@ -137,6 +134,26 @@ class dashboradManager extends IndexHandler
             ["page/onlyConnected", "", "user"],
             ["page/mustHavePermission", Permissions::AccessDashboard],
             ["page/mustHavePermission", Permissions::CommentsManager],
+        ];
+    }
+}
+
+/**
+ * @GET{/dashboard/add-content}
+ * @GET{/dashboard/categories}
+ * @GET{/dashboard/edit-video/{typeEdit}/{id}}
+ * @GET{/dashboard/series}
+ * @GET{/dashboard/movies}
+ * @GET{/dashboard/pages}
+ */
+class adminContent extends IndexHandler
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["page/onlyConnected", "", "user"],
+            ["page/mustHavePermission", Permissions::AccessDashboard],
+            ["page/mustHavePermission", Permissions::ContentsManager]
         ];
     }
 }

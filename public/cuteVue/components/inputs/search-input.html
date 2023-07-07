@@ -1,17 +1,19 @@
 <div 
 :rulled="this.rules.length !== 0"
 class="relative"
+cv-class="{
+    'opacity-[0.5]': this.disabled,
+}"
 >
     <div 
-    class="w-full relative"
+    class="w-full relative flex items-center"
     >
         <label 
         cv-if="this.label !== false"
         :for="this.name"
-        class="absolute top-[50%] -translate-y-[50%] transition-all select-none cursor-pointer"
+        class="absolute top-[50%] -translate-y-[50%] transition-all select-none cursor-pointer opacity-[0.5]"
         cv-class="{
-            '!top-0 text-[0.8em]': this.isFocus || this.value,
-            'opacity-[0.5]': this.disabled,
+            '!top-0 text-[0.8em] !opacity-[1]': this.isFocus || this.value,
         }"
         @click="this.$refs.input.focus()"
         >
@@ -28,9 +30,10 @@ class="relative"
         cv-class="{
             'border-b-[2px]': this.border,
             'border-[red]': this.invalide !== false,
-            'opacity-[0.5]': this.disabled,
         }"
         >
+
+        <icon name="magnify" class="text-xl mr-[10px] absolute right-0"/>
 
         <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[5px]">
             <slot/>
@@ -43,11 +46,14 @@ class="relative"
         </div>
 
         <div 
-        class="absolute left-0 w-full bg-[white] top-[calc(100%+10px)] flex flex-col gap-[5px]"
+        class="absolute left-0 w-full border-x-[1px] z-10 bg-[white] top-[calc(100%+2px)] overflow-y-auto max-h-[300px] flex flex-col gap-[5px]"
         cv-show="this.isFocus"
+        cv-class="{
+            'border-b-[1px]': this.items.length > 0,
+        }"
         >
             <div
-            class="text-[black] hover:bg-skyblue hover:text-[white]"
+            class="text-[black] p-[5px] bg-[white] z-10 hover:bg-skyblue hover:text-[white]"
             cv-for="item of this.filterItems"
             @click="this.selected(this.item.index)"
             >
@@ -73,7 +79,6 @@ class="relative"
             rules: [],
             clearable: false,
             placeholder: false,
-            inputValue: "",
             filter: true,
         },
         data: {
@@ -81,6 +86,7 @@ class="relative"
             invalide: false,
             cleared: false,
             filterItems: [],
+            inputValue: "",
         },
         watch: {
             items(){
@@ -89,18 +95,19 @@ class="relative"
                     if(item) this.$emit("input", {target:{value: item}});
                     else this.$emit("input", {target:{value: null}});
                 }
-                else {
-                    this.init();
+                else{
+                    if(this.items[0] && this['return-text'](this.items[0]) === this.inputValue)this.selected(0);
+                    this.filterItems = this.items.map((value, index) => ({value, index}));
+                    let value = this.items.find(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+                    if(value && this['return-text'](value) !== this.inputValue) this.inputValue = this['return-text'](value);
                 }
             },
             index(){
-                if(this.index !== -1){
+                if(this.index !== -1 && this.inputValue !== this['return-text'](this.items[this.index])){
                     this.inputValue = this['return-text'](this.items[this.index]);
                 }
             },
             inputValue(){
-                this.$emit("search", this.inputValue);
-
                 if(this.filter === true){
                     this.filterItems = this.items
                     .map((value, index) => ({value, index}))
@@ -117,6 +124,14 @@ class="relative"
                         this.selected(this.filterItems[0].index);
                     }
                 }
+                else this.$emit("input", {target:{value: null}});
+                this.$emit("search", this.inputValue);
+            },
+            value(){
+                if(this.value !== null){
+                    let value = this.items.find(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+                    if(value && this['return-text'](value) !== this.inputValue) this.inputValue = this['return-text'](value);
+                }
             }
         },
         methods: {
@@ -129,7 +144,10 @@ class="relative"
                 this.$emit("focus", e);
             },
             blured(e){
-                setTimeout(() => this.isFocus = false, 100);
+                setTimeout(() => {
+                    this.isFocus = false;
+                    if(this.value === null)this.inputValue = "";
+                }, 100);
                 this.$emit("blur", e);
             },
             clear(e){

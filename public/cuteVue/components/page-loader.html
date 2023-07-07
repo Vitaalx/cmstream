@@ -2,7 +2,7 @@
 cv-show="this.list.length !== 0"
 class="w-full h-full fixed z-50 bg-[rgba(0,0,0,0.4)] flex justify-center items-center"
 >
-    <svg class="loaderSvg" viewBox="0 0 50 50">
+    <svg class="loaderSvg aspect-square" viewBox="0 0 50 50">
         <circle cx="25" cy="25" r="20"/>
     </svg>
 </div>
@@ -21,7 +21,6 @@ export default {
 <style unscope>
 .loaderSvg{
     animation: rotate 2s linear infinite;
-    aspect-ratio: 1/1;
     width: 200px;
 }
 

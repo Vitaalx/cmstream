@@ -1,7 +1,7 @@
 <aside class="w-[250px] h-[100vh] flex flex-col justify-between bg-adminblack fixed">
     <div class="top">
         <div class="h-[130px] flex justify-center items-center logo">
-            <router_link href="/admin">
+            <router_link href="/dashboard">
                 <span class="text-5xl font-semibold text-white">Admin</span>
             </router_link>
         </div>
@@ -9,9 +9,9 @@
         <nav class="navbar">
             <ul>
                 <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                        'border-l-4 border-white-500': this.pathname === '/admin'
+                        'border-l-4 border-white-500': this.pathname === '/dashboard'
                     }">
-                    <router_link href="/admin" class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
+                    <router_link href="/dashboard" class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
                         <icon name="view-dashboard" class="text-[18px]" />
                         Dashboard
                     </router_link>
@@ -37,7 +37,7 @@
                     </router_link>
                 </li>
 
-                <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
+                <li cv-if="this.hasPermission('contents_manager')" class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
                     'border-l-4 border-white-500': this.pathname === '/dashboard/comments'
                 }">
                     <router_link cv-if="this.hasPermission('comments_manager')" href="/dashboard/comments"
@@ -61,6 +61,15 @@
 
                     <ul cv-if="this.dropdownContentManager === true">
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/add-content'
+                        }">
+                            <router_link href="/dashboard/add-content" class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
+                                <icon name="plus-box-multiple" class="text-[18px]"/>
+                                Ajouter contenu
+                            </router_link>
+                        </li>
+
+                        <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
                             'border-l-4 border-white-500': this.pathname === '/dashboard/categories'
                         }">
                             <router_link href="/dashboard/categories"
@@ -71,9 +80,9 @@
                         </li>
 
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                            'border-l-4 border-white-500': this.pathname === '/admin/series'
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/series'
                         }">
-                            <router_link href="/admin/series"
+                            <router_link href="/dashboard/series"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="movie-open" class="text-[18px]" />
                                 Gérer séries
@@ -81,12 +90,22 @@
                         </li>
 
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                            'border-l-4 border-white-500': this.pathname === '/admin/movies'
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/movies'
                         }">
-                            <router_link href="/admin/movies"
+                            <router_link href="/dashboard/movies"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="filmstrip" class="text-[18px]" />
                                 Gérer films
+                            </router_link>
+                        </li>
+
+                        <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/pages'
+                        }">
+                            <router_link href="/dashboard/pages"
+                                class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
+                                <icon name="file-outline" class="text-[18px]" />
+                                Gérer page
                             </router_link>
                         </li>
                     </ul>
@@ -97,7 +116,7 @@
                         cv-class="{ 'bg-adminblacker': this.dropdownConfigManager }"
                         @click="toggleDropdownConfigManager">
                         <icon name="cog" class="text-[18px]" />
-                        Gérer config&nbsp;&nbsp;&nbsp;
+                        Gérer config
 
                         <icon name="chevron-down" class="text-[18px]"
                             cv-class="{ 'rotate-180': this.dropdownConfigManager }" />
@@ -105,9 +124,9 @@
 
                     <ul cv-if="this.dropdownConfigManager === true">
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                            'border-l-4 border-white-500': this.pathname === '/dashboard/config'
+                            'border-l-4 border-white-500': this.pathname === '/dashboard/config-app'
                         }">
-                            <router_link href="/dashboard/config"
+                            <router_link href="/dashboard/config-app"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="application-cog" class="text-[18px]" />
                                 Config App
@@ -115,9 +134,9 @@
                         </li>
 
                         <li class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
-                                'border-l-4 border-white-500': this.pathname === '/dashboard/config/mail'
+                                'border-l-4 border-white-500': this.pathname === '/dashboard/config-mail'
                             }">
-                            <router_link href="/dashboard/config/mail"
+                            <router_link href="/dashboard/config-mail"
                                 class="px-[24px] py-[18px] ml-[20px] flex items-center gap-[24px] cursor-pointer">
                                 <icon name="mailbox" class="text-[18px]" />
                                 Config Mail
@@ -151,7 +170,7 @@
         },
         methods: {
             setDropdownContentManager() {
-                if (this.pathname === "/admin/categories" || this.pathname === "/admin/movies" || this.pathname === "/admin/series") {
+                if (this.pathname === "/dashboard/categories" || this.pathname === "/dashboard/movies" || this.pathname === "/dashboard/series" || this.pathname === "/dashboard/add-content") {
                     this.dropdownContentManager = true
                 } else {
                     this.dropdownContentManager = false
@@ -164,7 +183,7 @@
                 this.dropdownConfigManager = !this.dropdownConfigManager
             },
             setDropdownConfigManager() {
-                if (this.pathname === "/admin/config" || this.pathname === "/admin/config/mail") {
+                if (this.pathname === "/dashboard/config-app" || this.pathname === "/dashboard/config-mail") {
                     this.dropdownConfigManager = true
                 } else {
                     this.dropdownConfigManager = false

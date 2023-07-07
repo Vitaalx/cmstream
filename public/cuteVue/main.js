@@ -1,9 +1,11 @@
 import CuteVue, { importer } from "../js/cuteVue/index.js";
 import { createRoute } from "./router/index.js";
-import { loaderStore } from "./loader.js"
-import "./user.js";
-import "./toast.js";
+import { loaderStore } from "./stores/loader.js"
 import taob from "./taob.js";
+import "./stores/user.js";
+import "./stores/toast.js";
+import "./stores/pages.js";
+import "./stores/popup.js";
 
 createRoute(
     [
@@ -12,6 +14,11 @@ createRoute(
             children: [
                 {
                     path: "/",
+                    view: () => importer("/public/cuteVue/views/home.html"),
+                },
+                
+                {
+                    path: "/pages/{name}",
                     view: () => importer("/public/cuteVue/views/home.html"),
                 },
                 {
@@ -72,8 +79,8 @@ createRoute(
             layout: () => importer("/public/cuteVue/layouts/dashboard.html"),
             children: [
                 {
-                    path: "/admin",
-                    view: () => importer("/public/cuteVue/views/admin/dashboard.html"),
+                    path: "/dashboard",
+                    view: () => importer("/public/cuteVue/views/dashboard/dashboard.html"),
                 },
                 {
                     path: "/dashboard/users",
@@ -88,25 +95,38 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/dashboard/categories.html"),
                 },
                 {
-                    path: "/admin/series",
-                    view: () => importer("/public/cuteVue/views/admin/series.html"),
+                    path: "/dashboard/series",
+                    view: () => importer("/public/cuteVue/views/dashboard/series.html"),
                 },
                 {
-                    path: "/admin/movies",
-                    view: () => importer("/public/cuteVue/views/admin/movies.html"),
+                    path: "/dashboard/movies",
+                    view: () => importer("/public/cuteVue/views/dashboard/movies.html"),
                 },
                 {
-                    path: "/dashboard/config",
-                    view: () => importer("/public/cuteVue/views/dashboard/config.html"),
+                    path: "/dashboard/add-content",
+                    view: () => importer("/public/cuteVue/views/dashboard/add-content.html"),
                 },
                 {
-                    path: "/dashboard/config/mail",
-                    view: () => importer("/public/cuteVue/views/dashboard/configMail.html"),
+                    path: "/dashboard/config-app",
+                    view: () => importer("/public/cuteVue/views/dashboard/config-app.html"),
+                },
+                {
+                    path: "/dashboard/config-mail",
+                    view: () => importer("/public/cuteVue/views/dashboard/config-mail.html"),
                 },
                 {
                     path: "/dashboard/comments",
                     view: () => importer("/public/cuteVue/views/dashboard/comments.html"),
                 },
+                {
+                    path: "/dashboard/edit-video/{typeEdit}/{id}",
+                    view: () => importer("/public/cuteVue/views/dashboard/edit-video.html"),
+                }
+                ,
+                {
+                    path: "/dashboard/pages",
+                    view: () => importer("/public/cuteVue/views/dashboard/pages.html"),
+                }
             ],
         },
     ],
@@ -114,17 +134,18 @@ createRoute(
     async (path) => {
         let close = loaderStore.push(path.split("?")[0]);
         let {response: result} = await taob.get(
-            path, 
+            path,
             {
                 headers: {
                     "Page-Access": "true"
-                }, 
+                },
                 disabledPrefix: true,
             },
             {
                 pageAccess: true,
             }
-        ).result;
+        )
+        .result;
         if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");

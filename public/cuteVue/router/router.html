@@ -7,6 +7,7 @@ export default {
     watch: {
         currentLayout(){
             if(this.currentLayout !== null)this.$mount("layout", this.currentLayout);
+            else this.$unmount("layout");
         }
     },
     mounted(){

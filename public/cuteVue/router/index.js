@@ -41,12 +41,12 @@ const proxyRouter = CuteVue.createStore(
                         let updateView = false;
                         if(typeof route.layout === "function"){
                             let layout = await route.layout();
-                            if(layout !== this.currentLayout)updateLayout = layout;
+                            if(layout !== this.currentLayout || route.view === null)updateLayout = layout;
                         }
                         else if(route.layout !== this.currentLayout)updateLayout = route.layout;
                         if(typeof route.view === "function"){
                             let view = await route.view();
-                            if(view !== this.currentView)updateView = view;
+                            updateView = view;
                         }
                         else if(route.view !== this.currentView)updateView = route.view;
 
@@ -60,7 +60,10 @@ const proxyRouter = CuteVue.createStore(
                         }
                         this.query = query;
 
-                        if(updateLayout !== false)this.currentLayout = updateLayout;
+                        if(updateLayout !== false){
+                            this.currentView = null;
+                            this.currentLayout = updateLayout;
+                        }
                         if(updateView !== false)this.currentView = updateView;
                         await this.afterFnc(path + url.search);
                         break;

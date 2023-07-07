@@ -123,7 +123,7 @@
 <script>
     const [user_image, impLoader, impTaob] = await Promise.all([
         importer('/public/cuteVue/components/account/user-image.html'),
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
     ]);
 

@@ -1,0 +1,114 @@
+<div class="w-full h-full overflow-y-auto flex flex-col p-[20px] gap-[20px]">
+    <cv-form 
+    @submit="addPage"
+    class="flex align-center gap-[10px]"
+    >
+        <div class="px-[20px] py-[10px] flex items-center border rounded-[8px]">
+            <input 
+            type="text" 
+            cv-model="newPageName" 
+            class="focus:outline-none" 
+            placeholder="Ajouter une categorie"
+            >
+            
+            <button 
+            cv-class="{ 'cursor-not-allowed text-grey': !this.newPageName.trim() }" 
+            :disabled="!this.newPageName.trim()"
+            >
+                Ajouter
+            </button>
+        </div>
+    </cv-form>
+
+    <paging-table
+    :items="this.pages"
+    :cols="this.cols"
+    :total-pages="0"
+    @delete="deletePage"
+    @edit="editPage"
+    />
+
+    <edit-page
+    cv-if="this.editingPage !== null"
+    :editing-page="this.editingPage"
+    @close="this.editingPage = null"
+    />
+</div>
+
+<script>
+    const [paging_table, {default: taob}, edit_page] = await Promise.all([
+        importer("/public/cuteVue/components/paging-table.html"),
+        import("/public/cuteVue/taob.js"),
+        importer("/public/cuteVue/components/modals/edit-page.html"),
+    ]);
+
+    export default {
+        components: {
+            "paging-table": paging_table,
+            "edit-page": edit_page,
+        },
+        data: {
+            newPageName: "",
+            editingPage: null,
+        },
+        static: {
+            cols: [
+                {
+                    name: "nom", 
+                    display: (item) => item.name,
+                    sort: true
+                },
+                {
+                    name: "title", 
+                    display: (item) => item.title || "[sans titre]",
+                },
+            ]
+        },
+        methods: {
+            async addPage(){
+                if(this.pages.find(p => p.name.toLowerCase() === this.newPageName.trim().toLowerCase()) !== undefined){
+                    this.pushToast("error", "Ce nom de page est déjà utilisé.")
+                    return;
+                }
+
+                await this.setPages([...this.pages, {name: this.newPageName.trim(), rows: []}]);
+                this.newPageName = "";
+            },
+            editPage(item){
+                this.editingPage = item.name;
+            },
+            async deletePage(item){
+                if(item.name === "home"){
+                    this.pushToast("error", "Impossible de supprimer cette page.");
+                    return;
+                }
+
+                if(await this.pushPopup("Supprimer la page.", "Voulez vous vraiment supprimer la page ?") === false) return;
+
+                await this.setPages(this.pages.filter(p => p.name !== item.name));
+            }
+        },
+        mounted(){
+            
+        },
+        stores: [
+            {
+                name: "pages",
+                states: ["pages"],
+                actions: ["setPages"],
+            },
+            {
+                name: "toast",
+                actions: ["pushToast"],
+            },
+            {
+                name: "popup",
+                actions: ["pushPopup"],
+            },
+        ]
+    }
+</script>
+
+<style>
+     
+</style>
