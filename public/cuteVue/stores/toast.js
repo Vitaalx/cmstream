@@ -1,4 +1,4 @@
-import CuteVue from "../js/cuteVue/index.js";
+import CuteVue from "../../js/cuteVue/index.js";
 
 export const toastStore = CuteVue.createStore(
     "toast",

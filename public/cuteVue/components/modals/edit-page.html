@@ -1,0 +1,362 @@
+<div class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]">
+    <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[20px] w-[500px] max-h-[90%]">
+        <div class="flex justify-between items-center w-full">
+            <text-input
+            label="Titre de la page"
+            cv-model="title"
+            />
+
+            {{this['editing-page'].toUpperCase()}}
+        </div>
+
+        <div class="w-full flex justify-center">
+            <btn
+            @click="addRow"
+            :small="true"
+            >
+                Ajouter une Row
+            </btn>
+        </div>
+
+        <div class="w-full flex flex-col gap-[10px] overflow-y-auto pt-[10px]">
+            <div
+            cv-for="row of Object.entries(this.rows)"
+            class="w-full p-[10px] border-2 rounded-[4px]"
+            >
+                <div
+                cv-if="this.row[0] === this.editingRow"
+                class="gap-[10px] grid grid-cols-12"
+                >
+                    <select-input
+                    label="Composant"
+                    class="col-span-6"
+                    :items="this.components"
+                    cv-model="editingComponent"
+                    />
+
+                    <select-input
+                    label="Tri"
+                    class="col-span-6"
+                    :items="this.urls"
+                    :return-value="v => v.url"
+                    :return-text="v => v.label"
+                    cv-model="editingUrl"
+                    />
+
+                    <select-input
+                    label="Type"
+                    class="col-span-6"
+                    :items="this.types"
+                    :return-value="v => v.value"
+                    :return-text="v => v.label"
+                    cv-model="editingType"
+                    />
+
+                    <text-input
+                    label="Titre"
+                    class="col-span-6"
+                    cv-model="editingTitle"
+                    />
+
+                    <search-input
+                    label="Categorie"
+                    class="col-span-12"
+                    :items="this.categories"
+                    :return-value="v => v.id"
+                    :return-text="v => v.title"
+                    cv-model="editingCategory"
+                    :filter="false"
+                    @search="searchCategory"
+                    />
+
+                    <text-input
+                    type="number"
+                    label="Nombre de contenu"
+                    class="col-span-6"
+                    cv-model="editingNumber"
+                    />
+
+                    <div class="col-span-6 flex items-center gap-[10px] select-none">
+                        <label :for="'bg-' + this.row[0]">
+                            Fond bleu
+                        </label>
+                        
+                        <checkbox-input 
+                        :name="'bg-' + this.row[0]" 
+                        cv-model="editingBG"
+                        />
+                    </div>
+
+                    <div class="col-span-12 flex justify-around">
+                        <btn
+                        @click="this.saveEditRow(this.row[0])"
+                        :small="true"
+                        >
+                            Sauvegarder
+                        </btn>
+
+                        <btn
+                        theme="red"
+                        @click="cancelEditRow"
+                        :small="true"
+                        >
+                            Annuler
+                        </btn>
+                    </div>
+                </div>
+
+                <div
+                cv-if="this.row[0] !== this.editingRow"
+                class="gap-[10px] grid grid-cols-12"
+                >
+                    <text-input
+                    label="Composant"
+                    :value="this.row[1].component"
+                    :disabled="true"
+                    class="col-span-6"
+                    />
+
+                    <text-input
+                    label="Tri"
+                    :value="this.urls.find(v => v.url === this.row[1].options.url).label"
+                    :disabled="true"
+                    class="col-span-6"
+                    />
+
+                    <text-input
+                    label="Type"
+                    :value="this.row[1].options?.query?.type || 'tout'"
+                    :disabled="true"
+                    class="col-span-6"
+                    />
+
+                    <text-input
+                    label="Titre"
+                    :value="this.row[1].options?.title || ''"
+                    :disabled="true"
+                    class="col-span-6"
+                    />
+
+                    <text-input
+                    label="Categorie"
+                    class="col-span-12"
+                    :value="this.row[1].options?.query?.category_id ? this.categoriesName[this.row[0]] : ''"
+                    :disabled="true"
+                    />
+
+                    <text-input
+                    type="number"
+                    label="Nombre de contenu"
+                    :value="this.row[1].options?.query?.number || '5'"
+                    :disabled="true"
+                    class="col-span-6"
+                    />
+
+                    <div class="col-span-6 flex items-center gap-[10px] select-none opacity-[0.5]">
+                        <label :for="'bg-' + this.row[0]">
+                            Fond bleu
+                        </label>
+                        
+                        <checkbox-input 
+                        :name="'bg-' + this.row[0]" 
+                        :value="!!this.row[1].blue" 
+                        :disabled="true"
+                        />
+                    </div>
+
+                    <div class="col-span-12 flex justify-around">
+                        <btn
+                        @click="this.startEditRow(this.row)"
+                        :small="true"
+                        >
+                            Modifier
+                        </btn>
+
+                        <btn
+                        theme="red"
+                        @click="this.removeRow(this.row[0])"
+                        :small="true"
+                        :popup="{
+                            title: 'Supprimer la row',
+                            subtitle: 'Voulez vous vraiment suppier la row ?',
+                        }"
+                        >
+                            Supprimer
+                        </btn>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-around w-full">
+            <btn
+            @click="save"
+            >
+                Sauvegarder
+            </btn>
+
+            <btn
+            theme="red"
+            @click="this.$emit('close')"
+            >
+                Annuler
+            </btn>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [{default: taob}] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
+    ]);
+
+    export default {
+        props: {
+            "editing-page": null
+        },
+        data: {
+            title: "",
+            rows: [],
+            editingRow: false,
+            categoriesName: {},
+            categories: [],
+
+            editingType: false,
+            editingComponent: false,
+            editingUrl: false,
+            editingTitle: false,
+            editingNumber: false,
+            editingBG: false,
+            editingCategory: false,
+        },
+        static:{
+            urls: [
+                {url: "/content/discover", label: "découverte"},
+                {url: "/content/top", label: "top"},
+                {url: "/content/last", label: "dernier"},
+            ],
+            types: [
+                {label: "série", value: "serie"},
+                {label: "film", value: "movie"},
+                {label: "tout", value: "all"},
+            ],
+            components: ["slider", "cards", "topper"],
+        },
+        methods: {
+            async init(){
+                const page = this.pages.find(p => p.name === this["editing-page"]);
+                this.title = page.title || "";
+                const rows = [...page.rows];
+
+                const requests = [];
+                rows.forEach((item, index) => requests.push((async() => {
+                    let category_id = item.options?.query?.category_id || undefined;
+                    if(!category_id) return;
+                    let category = await taob.get("/category/{id}", {params: {id: category_id}, loader: true}).sd();
+                    this.categoriesName[index] = category.title;
+                })()));
+
+                await Promise.all(requests);
+
+                this.rows = rows;
+            },
+            startEditRow([index, row]){
+                this.editingType = row.options?.query?.type || "all";
+                this.editingComponent = row.component;
+                this.editingUrl = row.options?.url;
+                this.editingTitle = row.options?.title || "";
+                this.editingNumber = row.options?.query?.number || 5;
+                this.editingBG = !!row.blue;
+                this.editingCategory = row.options?.query?.category_id || null;
+                if(this.editingCategory)this.categories = [{id: this.editingCategory, title: this.categoriesName[index]}];
+                else this.editingCategory = null;
+
+                this.editingRow = index;
+            },
+            async saveEditRow(index){
+                if(this.editingCategory !== null){
+                    let category = await taob.get("/category/{id}", {params: {id: this.editingCategory}, loader: true}).sd();
+                    this.categoriesName[index] = category.title;
+                }
+
+                this.rows[index] = {
+                    blue: this.editingBG,
+                    component: this.editingComponent,
+                    options: {
+                        title: this.editingTitle,
+                        url: this.editingUrl,
+                        query: {
+                            type: this.editingType === "all" ? "" : this.editingType,
+                            number: this.editingNumber,
+                            category_id: this.editingCategory || undefined,
+                        }
+                    }
+                };
+
+                this.cancelEditRow();
+                this.$update("rows");
+            },
+            cancelEditRow(){
+                this.editingRow = false;
+
+                this.editingType = false;
+                this.editingComponent = false;
+                this.editingUrl = false;
+                this.editingTitle = false;
+                this.editingNumber = false;
+                this.editingBG = false;
+                this.editingCategory = false;
+                this.categories = [];
+
+            },
+            removeRow(index){
+                this.rows.splice(index, 1);
+                this.$update("rows");
+            },
+            addRow(){
+                this.rows.push({
+                    blue: false,
+                    component: "slider",
+                    options: {
+                        title: "",
+                        url: "/content/discover",
+                        query: {
+                            type: "",
+                            number: 5,
+                        }
+                    }
+                });
+                this.$update("rows");
+            },
+            async searchCategory(name){
+                this.categories = await taob.get("/categories", {query: {name}}).sd();
+            },
+            async save(){
+                const pages = [...this.pages];
+                const index = pages.findIndex(p => p.name === this["editing-page"]);
+                pages[index] = {
+                    name: this["editing-page"],
+                    title: this.title,
+                    rows: this.rows,
+                };
+
+                await this.setPages(pages);
+                this.$emit('close');
+            }
+        },
+        mounted(){
+            this.init();
+        },
+        stores: [
+            {
+                name: "pages",
+                states: ["pages"],
+                actions: ["setPages"]
+            }
+        ]
+    }
+</script>
+
+<style>
+
+</style>
