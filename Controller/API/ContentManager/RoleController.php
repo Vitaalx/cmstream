@@ -84,18 +84,25 @@ class getRoles extends AccessRoleEditor
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getQuery("page") ?? 0, "page"]
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
+            ["type/string", $request->getQuery("name") ?? "", "name"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Role $roles */
+        $page = $this->floor->pickup("page");
+        $name = $this->floor->pickup("name");
+
         $roles = Role::findMany(
-            [], 
+            [
+                "lower(name)" => [
+                    "\$CTN" => strtolower($name)
+                ]
+            ], 
             [
                 "LIMIT" => 5, 
-                "OFFSET" => $this->floor->pickup("page") * 5
+                "OFFSET" => $page * 5
             ]
         );
         Role::groups("rolePermission");

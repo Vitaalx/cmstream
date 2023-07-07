@@ -33,7 +33,9 @@
                     :items="this.roles" 
                     :return-value="v => v.id" 
                     :return-text="t => t.name" 
-                    cv-model="roleIdToEdit" 
+                    cv-model="roleIdToEdit"
+                    @search="getRoles"
+                    :filter="false"
                     />
                 </div>
 
@@ -59,18 +61,18 @@
     const taob = impTaob.default;
 
     export default {
-        data: {
-            user: null,
-            roles: [],
-            roleIdToEdit: null
-        },
         props: {
             userid: null,
             currentfirstname: "",
             currentlastname: "",
             currentusername: "",
             currentrolename: "",
-            currentroleid: ""
+            currentroleid: null
+        },
+        data: {
+            user: null,
+            roles: [],
+            roleIdToEdit: null
         },
         methods: {
             closeModal() {
@@ -80,8 +82,8 @@
                 let close = loaderStore.push();
 
                 if (this.hasPermission("role_editor")) {
-                    if (this.roleIdToEdit != this.currentroleid) {
-                        if(this.roleIdToEdit === null) {
+                    if (this.roleIdToEdit != (this.currentroleid || -1)) {
+                        if(this.roleIdToEdit === -1) {
                             await taob.put("role/user/" + this.userid)
                             .s(async () => {
                                 this.pushToast("successfull", "L'utilisateur à bien été modifié.");
@@ -116,23 +118,32 @@
                 this.closeModal();
                 close();
             },
-            async getRoles() {
-                let close = loaderStore.push();
-
-                await taob.get('roles').s(data => {
-                    data.roles.push({
-                        id: null,
-                        name: "utilisateur"
-                    });
-                    this.roles = data.roles;
-                }).result;
-
-                close();
+            async getRoles(name){
+                const {roles} = await taob.get("roles", {query: {name}}).sd();
+                roles.push({
+                    id: -1,
+                    name: "utilisateur"
+                });
+                this.roles = roles;
             }
         },
         mounted() {
-            this.getRoles();
-            this.roleIdToEdit = this.currentroleid;
+            if (this.hasPermission("role_editor")) {
+                this.getRoles().then(() => {
+                    if(this.currentroleid === null){
+                        this.roleIdToEdit = -1;
+                        return;
+                    }
+                    else this.roleIdToEdit = this.currentroleid;
+
+                    this.roles[0] = {
+                        id: this.roleIdToEdit,
+                        name: this.currentrolename
+                    }
+                    this.$update("roles");
+                });
+                
+            }
         },
         stores: [
             {

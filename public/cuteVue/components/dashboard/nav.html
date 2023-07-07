@@ -1,10 +1,11 @@
 <aside class="w-[250px] h-[100vh] flex flex-col justify-between bg-adminblack fixed">
-    <div class="top">
-        <div class="h-[130px] flex justify-center items-center logo">
-            <router_link href="/dashboard">
-                <span class="text-5xl font-semibold text-white">Admin</span>
-            </router_link>
-        </div>
+    <div class="h-[130px] flex justify-center items-center logo">
+        <router_link href="/dashboard">
+            <span class="text-5xl font-semibold text-white">Admin</span>
+        </router_link>
+    </div>
+    
+    <div class="top overflow-y-auto scrollable grow">
 
         <nav class="navbar">
             <ul>
@@ -209,5 +210,15 @@
 </script>
 
 <style>
+.scrollable::-webkit-scrollbar {
+    width: 0px;
+}
 
+.scrollable::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background: transparent; 
+}
 </style>
