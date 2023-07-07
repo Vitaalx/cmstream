@@ -1,10 +1,11 @@
 import CuteVue, { importer } from "../js/cuteVue/index.js";
 import { createRoute } from "./router/index.js";
-import { loaderStore } from "./loader.js"
+import { loaderStore } from "./stores/loader.js"
 import taob from "./taob.js";
-import "./user.js";
-import "./toast.js";
-import "./pages.js";
+import "./stores/user.js";
+import "./stores/toast.js";
+import "./stores/pages.js";
+import "./stores/popup.js";
 
 createRoute(
     [
@@ -120,6 +121,11 @@ createRoute(
                 {
                     path: "/dashboard/edit-video/{typeEdit}/{id}",
                     view: () => importer("/public/cuteVue/views/dashboard/edit-video.html"),
+                }
+                ,
+                {
+                    path: "/dashboard/pages",
+                    view: () => importer("/public/cuteVue/views/dashboard/pages.html"),
                 }
             ],
         },

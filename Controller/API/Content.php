@@ -17,7 +17,8 @@ class GetDiscoverContent extends Controller
     public function checkers(Request $request): array
     {
         $number = $request->getQuery("number") ?? 5;
-        $number = (($number > 40 || $number < 1) ? null : $number);
+        $number = ($number > 40 ? 40 : $number);
+        $number = ($number < 1 ? 5 : $number);
         return [
             ["type/int", $number, "number", "content.get.badNumber"],
             ["type/string", $request->getQuery("type") ?? "", "type", "content.get.badType"],

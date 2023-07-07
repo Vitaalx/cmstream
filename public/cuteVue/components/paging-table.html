@@ -1,0 +1,116 @@
+<div class="w-full text-left border-2 rounded-[8px] h-[504px] overflow-y-auto relative flex flex-col">
+    <div class="h-[70px] bg-whitesmoke top-0 sticky flex">
+        <div 
+        cv-for="col of this.cols" 
+        class="p-[22px] cursor-pointer grow-0 w-full flex items-center"
+        >
+            {{ this.col.name }}
+
+            <icon
+            cv-if="this.col.sort"
+            :name="this.sortColumn === this.col.name ? 'arrow-down-thick' : 'arrow-up-thick'"
+            class="ml-[8px]"
+            @click="this.sortColumn = this.sortColumn == this.col.name ? null : this.col.name"
+            />
+        </div>
+
+        <div
+        cv-if="this.canEdit || this.canDelet"
+        class="p-[22px] text-right grow-0 w-full"
+        >
+            Actions
+        </div>
+    </div>
+
+    <div class="flex flex-col bg-[#e5e7eb] gap-[2px] py-[2px]">
+        <div 
+        cv-for="item of this.displayitems" 
+        class="h-[70px] flex bg-white"
+        >
+            <div 
+            cv-for="col of this.cols" 
+            class="p-[22px] grow-0 w-full"
+            >
+                {{ this.col.display(this.item) }}
+            </div>
+
+            <div 
+            cv-if="this.canEdit || this.canDelete"
+            class="p-[22px] flex justify-end grow-0 w-full"
+            >
+                <icon 
+                cv-if="this.canDelete"
+                name="trash-can-outline"
+                class="text-2xl text-pinkred cursor-pointer"
+                @click="this.$emit('delete', this.item)"
+                />
+
+                <icon
+                cv-if="this.canEdit"
+                name="square-edit-outline"
+                class="text-2xl ml-[14px] text-darkgrey cursor-pointer"
+                @click="this.$emit('edit', this.item)"
+                />
+            </div> 
+        </div>
+    </div>
+
+    <div class="grow"/>
+
+    <div
+    cv-if="this['total-pages'] !== 0"
+    class="bg-white w-full flex items-center justify-between px-[25px] p-[12px] bottom-0 sticky flex h-[70px]"
+    >
+        <button
+        class="px-[20px] py-[10px] border rounded-[8px]"
+        @click="this.$emit('previous')"
+        >
+            Précédant
+        </button>
+
+        <span>
+            Page {{ this['current-page'] }} sur {{ this['total-pages'] }}
+        </span>
+
+        <button
+        class="px-[20px] py-[10px] border rounded-[8px]"
+        @click="this.$emit('next')"
+        >
+            Suivant
+        </button>
+    </div>
+</div>
+
+<script>
+    export default {
+        props: {
+            cols: [],
+            items: [],
+            "current-page": 1,
+            "total-pages": 1,
+        },
+        data: {
+            sortColumn: null,
+            canEdit: false,
+            canDelete: false,
+        },
+        computed: {
+            displayitems(){
+                for(const column of this.cols){
+                    if(column.name === this.sortColumn){
+                        return [...this.items].sort((a, b) => column.display(a) > column.display(b) ? -1 : 1);
+                    }
+                }
+                return this.items;
+            }
+        },
+        mounted(){
+            this.canEdit = !!this.$events["edit"];
+            this.canDelete = !!this.$events["delete"];
+        }
+    }
+</script>
+
+<style>
+
+</style>

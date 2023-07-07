@@ -39,7 +39,7 @@
 
 <script>
     const [impLoader, impTaob, admin_table, delete_movie_modal] = await Promise.all([
-        import("/public/cuteVue/loader.js"),
+        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
         importer("/public/cuteVue/components/admin_table.html"),
         importer('/public/cuteVue/components/modals/delete_movie_modal.html')

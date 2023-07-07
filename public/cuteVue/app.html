@@ -2,17 +2,20 @@
     <page-loader/>
     <router/>
     <toast/>
+    <popup/>
 </div>
 
 <script>
-    const [page_loader, toast] = await Promise.all([
+    const [page_loader, toast, popup] = await Promise.all([
         importer("/public/cuteVue/components/page-loader.html"),
-        importer("/public/cuteVue/components/toast.html")
+        importer("/public/cuteVue/components/toast.html"),
+        importer("/public/cuteVue/components/popup.html"),
     ]);
     export default {
         components: {
             "page-loader": page_loader,
             toast,
+            popup,
         }
     }
 </script>

@@ -1,5 +1,5 @@
-import CuteVue from "../js/cuteVue/index.js";
-import taob from "./taob.js";
+import CuteVue from "../../js/cuteVue/index.js";
+import taob from "../taob.js";
 import { toastStore } from "./toast.js";  
 
 export const userStore =  CuteVue.createStore(

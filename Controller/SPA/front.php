@@ -13,18 +13,9 @@ use Services\Permissions;
  * @GET{/catalog}
  * @GET{/video}
  * @GET{/show}
- */
-class index extends IndexHandler{}
-
-/**
  * @GET{/pages/{name}}
  */
-class Pages extends IndexHandler{
-    public function extendHandler(Request $request, Response $response): void
-    {
-        $this->appName .= " : " . $request->getParam("name"); 
-    }
-}
+class index extends IndexHandler{}
 
 /**
  * @GET{/signin}
@@ -73,9 +64,6 @@ class connected extends IndexHandler
 
 /**
  * @GET{/dashboard}
- * @GET{/dashboard/categories}
- * @GET{/dashboard/series}
- * @GET{/dashboard/movies}
  */
 class admin extends IndexHandler
 {
@@ -152,10 +140,11 @@ class dashboardManager extends IndexHandler
 
 /**
  * @GET{/dashboard/add-content}
- * @GET{/dashboard/category}
+ * @GET{/dashboard/categories}
  * @GET{/dashboard/edit-video/{typeEdit}/{id}}
- * @GET{/dashboard/serie}
- * @GET{/dashboard/movie}
+ * @GET{/dashboard/series}
+ * @GET{/dashboard/movies}
+ * @GET{/dashboard/pages}
  */
 class adminContent extends IndexHandler
 {

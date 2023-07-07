@@ -223,3 +223,24 @@ class getCountCategories extends Controller
         $response->code(200)->info("categories.count")->send($count);
     }
 }
+
+/**
+ * @GET{/api/category/{id}}
+ */
+class getCategory extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
+        $response->code(200)->info("category.get")->send($category);
+    }
+}

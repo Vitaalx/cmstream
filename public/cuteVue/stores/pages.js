@@ -1,5 +1,5 @@
-import CuteVue from "../js/cuteVue/index.js";
-import taob from "./taob.js";
+import CuteVue from "../../js/cuteVue/index.js";
+import taob from "../taob.js";
 
 export const pagesStore = CuteVue.createStore(
     "pages",
@@ -8,7 +8,7 @@ export const pagesStore = CuteVue.createStore(
             pages: [],
         },
         actions: {
-            async get(){
+            async getPages(){
                 await taob.get(
                     "/public/cuteVue/pages.json", 
                     {
@@ -18,6 +18,14 @@ export const pagesStore = CuteVue.createStore(
                 )
                 .s(data => this.pages = data)
                 .result;
+            },
+            async setPages(pages){
+                await taob.put(
+                    "/pages", 
+                    JSON.stringify(pages), 
+                    {loader: true}
+                ).sd();
+                await this.getPages();
             }
         },
         computed: {
@@ -28,4 +36,4 @@ export const pagesStore = CuteVue.createStore(
     }
 );
 
-await pagesStore.get();
+await pagesStore.getPages();

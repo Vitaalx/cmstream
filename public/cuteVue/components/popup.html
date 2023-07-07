@@ -1,0 +1,43 @@
+<div>
+    <div 
+    cv-if="this.resolve !== false"
+    class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
+    >
+        <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[10px] max-w-[450px]">
+            <h1 class="text-[30px] text-center text-black">{{this.title}}</h1>
+
+            <i class="text-justify text-black">{{this.subtitle}}</i>
+
+            <div class="flex justify-around w-full">
+                <btn
+                @click="this.resolve(true)"
+                >
+                    Oui
+                </btn>
+
+                <btn
+                theme="red"
+                @click="this.resolve(false)"
+                >
+                    Non
+                </btn>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    export default {
+        stores: [
+            {
+                name: "popup",
+                states: ["title", "subtitle", "resolve"],
+            }
+        ]
+
+    }
+</script>
+
+<style>
+
+</style>

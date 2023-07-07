@@ -1,12 +1,17 @@
-<div :rulled="this.rules.length !== 0">
+<div 
+:rulled="this.rules.length !== 0"
+cv-class="{
+    'opacity-[0.5] !cursor-not-allowed': this.disabled,
+}"
+>
     <div class="w-full relative">
         <label 
         cv-if="this.label !== false"
         :for="this.name"
-        class="absolute top-[50%] -translate-y-[50%] transition-all cursor-text"
+        class="absolute top-[50%] -translate-y-[50%] transition-all cursor-text opacity-[0.5] select-none"
         cv-class="{
-            '!top-0 text-[0.8em]': this.isFocus || this.value,
-            'opacity-[0.5]': this.disabled,
+            '!top-0 text-[0.8em] !opacity-[1]': this.isFocus || this.value,
+            '!cursor-not-allowed': this.disabled,
         }"
         @click="this.$refs.input.focus()"
         >
@@ -27,7 +32,7 @@
         cv-class="{
             'border-[red]': this.invalide !== false,
             'border-b-[2px]': this.border,
-            'opacity-[0.5]': this.disabled,
+            '!cursor-not-allowed': this.disabled,
         }"
         >
 
