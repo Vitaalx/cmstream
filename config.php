@@ -5,7 +5,7 @@ define(
     [
         'DB_HOST' => 'database',
         'DB_PORT' => 5432,
-        'APP_NAME' => 'cmstream',
+        'APP_NAME' => 'myCMStream',
         'DB_TYPE' => 'pgsql',
         'DB_DATABASE' => 'esgi',
         'DB_USERNAME' => 'esgi',
