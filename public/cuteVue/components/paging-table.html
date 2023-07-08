@@ -1,4 +1,4 @@
-<div class="w-full text-left border-2 rounded-[8px] h-[504px] overflow-y-auto relative flex flex-col">
+<div class="w-full text-left border-2 rounded-[8px] h-[506px] overflow-y-auto relative flex flex-col">
     <div class="h-[70px] bg-whitesmoke top-0 sticky flex">
         <div 
         cv-for="col of this.cols" 
@@ -30,7 +30,7 @@
         >
             <div 
             cv-for="col of this.cols" 
-            class="p-[22px] grow-0 w-full"
+            class="p-[22px] grow-0 w-full overflow-hidden text-ellipsis"
             cv-class="{[this.col.class || 'EmPtY']: true}"
             >
                 {{ this.col.display(this.item) }}

@@ -1,4 +1,4 @@
-<div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
+<div class="absolute z-10 top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
     <div class="relative w-[400px] min-h-[380px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
         <icon name="close" class="absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"/>
 
@@ -53,12 +53,11 @@
 </div>
 
 <script>
-    const [impLoader, impTaob] = await Promise.all([
+    const [impLoader, { default: taob }] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
     const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
         props: {

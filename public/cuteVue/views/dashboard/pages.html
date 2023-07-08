@@ -1,4 +1,4 @@
-<div class="w-full h-full overflow-y-auto flex flex-col p-[20px] gap-[20px]">
+<div class="w-full h-full p-[20px] overflow-y-auto flex flex-col gap-[20px]">
     <cv-form 
     @submit="addPage"
     class="flex align-center gap-[10px]"
@@ -8,7 +8,7 @@
             type="text" 
             cv-model="newPageName" 
             class="focus:outline-none" 
-            placeholder="Ajouter une categorie"
+            placeholder="Ajouter une page"
             >
             
             <button 
@@ -36,7 +36,7 @@
 </div>
 
 <script>
-    const [paging_table, {default: taob}, edit_page] = await Promise.all([
+    const [paging_table, { default: taob }, edit_page] = await Promise.all([
         importer("/public/cuteVue/components/paging-table.html"),
         import("/public/cuteVue/taob.js"),
         importer("/public/cuteVue/components/modals/edit-page.html"),

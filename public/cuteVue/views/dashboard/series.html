@@ -1,8 +1,8 @@
-<div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
+<div class="w-full h-full p-[20px] overflow-y-auto flex flex-col gap-[20px]">
     <delete_serie_modal
-            cv-if="this.isDeleteModalOpen" :serieid="this.serieId"
-            @close="this.isDeleteModalOpen = false"
-            @ondelete="refresh"
+    cv-if="this.isDeleteModalOpen" :serieid="this.serieId"
+    @close="this.isDeleteModalOpen = false"
+    @ondelete="refresh"
     />
 
     <div class="mb-[10px] w-full flex justify-between items-start">
@@ -21,66 +21,35 @@
 
             <span class="mt-[-2px]">Ajouter une série</span>
     </div>
+    
 
-    <admin_table
-            :thead="this.tabHead"
-            :data="this.displayedSeries"
-            :keys="['title', 'category', 'release_date', 'created_at', 'updated_at']"
-            :edit="true"
-            :delete="true"
-            :paging="true"
-            :currentpage="this.currentPageNumber"
-            :totalpages="this.maxPage"
-            @edititem="router.push(`/dashboard/edit-video/serie/${$event.id}`)"
-            @deleteitem="this.openDeleteModal($event.id)"
-            @previous="this.previousPage()"
-            @next="this.nextPage()"
+    <paging-table
+    :items="this.displayedSeries"
+    :cols="this.cols"
+    :current-page="this.currentPageNumber"
+    :total-pages="this.maxPage"
+    @previous="previousPage"
+    @next="nextPage"
+    @delete="this.openDeleteModal($event.id)"
+    @edit="router.push(`/dashboard/edit-video/serie/${$event.id}`)"
     />
 </div>
 
 <script>
-    const [impLoader, impTaob, admin_table, delete_serie_modal] = await Promise.all([
+    const [impLoader, { default: taob }, paging_table, delete_serie_modal] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
-        importer('/public/cuteVue/components/admin_table.html'),
+        importer('/public/cuteVue/components/paging-table.html'),
         importer('/public/cuteVue/components/modals/delete_serie_modal.html')
     ]);
     const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
         components: {
-            admin_table,
+            "paging-table": paging_table,
             delete_serie_modal
         },
         data: {
-            tabHead: [
-                {
-                    name: "Titre",
-                    key: "title",
-                    sort: true,
-                },
-                {
-                    name: "Catégorie",
-                    key: "category",
-                    sort: true,
-                },
-                {
-                    name: "Date de sortie",
-                    key: "release_date",
-                    sort: true,
-                },
-                {
-                    name: "Ajouté le",
-                    key: "created_at",
-                    sort: true,
-                },
-                {
-                    name: "Modifié le",
-                    key: "updated_at",
-                    sort: true,
-                },
-            ],
             series: [],
             displayedSeries: [],
             serieFiltered: [],
@@ -97,6 +66,35 @@
             isDeleteModalOpen: false,
             search: "",
             searchInfo: ""
+        },
+        static: {
+            cols: [
+                {
+                    name: "Titre", 
+                    display: (item) => item.title,
+                    sort: true
+                },
+                {
+                    name: "Catégorie", 
+                    display: (item) => item.category?.title || "Aucune",
+                    sort: true
+                },
+                {
+                    name: "Date de sortie", 
+                    display: (item) => item.release_date.split("-").reverse().join("/"),
+                    sort: true
+                },
+                {
+                    name: "Ajouté le", 
+                    display: (item) => item.created_at.split("-").reverse().join("/"),
+                    sort: true
+                },
+                {
+                    name: "Modifié le", 
+                    display: (item) => item.updated_at.split("-").reverse().join("/"),
+                    sort: true
+                },
+            ]
         },
         watch: {
             search(val){
@@ -115,7 +113,6 @@
                 let close = loaderStore.push();
 
                 await taob.get(`series?page=${page - 1}`).s(data => {
-                    data.forEach(series => series.release_date = this.dateFormatter(series.release_date));
                     this.series = data;
                 }).result;
 
@@ -178,14 +175,6 @@
             },
             getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalSeries / this.limitToDisplay);
-            },
-            dateFormatter(date){
-                let [year, month, day] = date.split("-");
-                let months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet",
-                    "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                let index = parseInt(month);
-
-                return parseInt(day) + " " + months[index] + " " + year;
             },
         },
         mounted(){

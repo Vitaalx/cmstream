@@ -13,13 +13,12 @@
 </div>
 
 <script>
-  const [impLoader, impTaob] = await Promise.all([
+  const [impLoader, { default: taob }] = await Promise.all([
     import("/public/cuteVue/stores/loader.js"),
     import("/public/cuteVue/taob.js")
   ]);
 
   const loaderStore = impLoader.loaderStore;
-  const taob = impTaob.default;
 
   export default {
     props: {
@@ -32,20 +31,16 @@
       async deleteUrl() {
         let close = loaderStore.push();
 
-        console.log(this.urlid);
-
         await taob.delete("url/" + this.urlid)
-                .s(async () => {
-                  this.$emit("delete-url", "delete");
-                  this.pushToast("successfull", "L'url à bien été supprimée.");
-                })
-                .info(info => console.log(info)).result;
+        .s(async () => {
+          this.$emit("delete-url", "delete");
+          this.pushToast("successfull", "L'url à bien été supprimée.");
+        })
+        .info(info => console.log(info)).result;
 
         this.closeModal();
         close();
       }
-    },
-    mounted() {
     },
     stores: [
       {
