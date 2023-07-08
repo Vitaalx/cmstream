@@ -37,15 +37,11 @@
 </div>
 
 <script>
-    const [impLoader, impTaob, add_comment, comment] = await Promise.all([
-        import("/public/cuteVue/stores/loader.js"),
+    const [{default: taob}, add_comment, comment] = await Promise.all([
         import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/add_comment.html'),
         importer('/public/cuteVue/components/comment.html')
     ]);
-
-    const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
         components: {
@@ -54,77 +50,28 @@
         },
 
         data: {
-            players: [
-                {
-                    text: "Player 1",
-                    value: "player1"
-                },
-                {
-                    text: "Player 2",
-                    value: "player2"
-                }
-            ],
-            episodes: [
-                {
-                    text: "Episode 1",
-                    value: 1,
-                },
-                {
-                    text: "Episode 2",
-                    value: 2,
-                },
-                {
-                    text: "Episode 3",
-                    value: 3,
-                },
-                {
-                    text: "Episode 4",
-                    value: 4,
-                },
-                {
-                    text: "Episode 5",
-                    value: 5,
-                },
-                {
-                    text: "Episode 6",
-                    value: 6,
-                },
-                {
-                    text: "Episode 7",
-                    value: 7,
-                },
-                {
-                    text: "Episode 8",
-                    value: 8,
-                },
-                {
-                    text: "Episode 9",
-                    value: 9,
-                },
-                {
-                    text: "Episode 10",
-                    value: 10,
-                },
-                {
-                    text: "Episode 11",
-                    value: 11,
-                },
-                {
-                    text: "Episode 12",
-                    value: 12,
-                }
-            ],
+            type: null,
+            players: [],
+            episodes: [],
             currentPlayer: "player1",
             currentEpisode: 1,
             comments: [],
         },
 
         methods: {
+            async init(){
+                if(router.pathname.startsWith("/movies")){
+                    await taob
+                    this.type = "movie";
+                }
+                else {
+                    this.type = "serie";
+                }
+            },
+
             async getComments(){
-                let close = loaderStore.push();
-                
                 this.success = false;
-                await taob.get("/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
+                await taob.get("/video/{id}/comment", {params: {id: 1}, loader: true}) // TODO: Change the video id
                 .s((data) => {
                     this.success = true;
                     this.comments = data;
@@ -133,8 +80,6 @@
                     alert("Une erreur est survenue lors du chargement des commentaires");
                 })
                 .result;
-
-                close();
             },
 
             async refreshComment(comment){
@@ -144,11 +89,8 @@
         },
 
         mounted(){
+            this.init();
             this.getComments();
-        },
-        
-        unmounted(){
-
         }
     }
 </script>
