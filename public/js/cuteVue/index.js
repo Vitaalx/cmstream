@@ -9,6 +9,7 @@ import symbol from "./symbol.js";
 const {
     __element__,
     __mounted__,
+    __computed__
 } = symbol; 
 
 const components = {};
@@ -43,6 +44,7 @@ function CuteVue(properties){
 
     this.mount = function(el){
         const proxy = makeProxy(this.properties, this.template);
+        proxy[__computed__].forEach(fnc => fnc());
         const newEl = render(this.template, proxy);
         if(el !== undefined){
             el = typeof el === "string" ? document.querySelector(el) : el;

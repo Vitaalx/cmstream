@@ -38,7 +38,7 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/catalog.html"),
                 },
                 {
-                    path: "/video",
+                    path: "/movies/{id}",
                     view: () => importer("/public/cuteVue/views/video.html"),
                 },
                 {

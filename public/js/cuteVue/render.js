@@ -13,7 +13,8 @@ const {
     __mount__,
     __props__,
     __properties__,
-    __launchSubscribers__
+    __launchSubscribers__,
+    __computed__
 } = symbol;
 
 export default function render(template, proxy){
@@ -38,6 +39,7 @@ export default function render(template, proxy){
         Object.entries(template.objectAttributes).forEach(([key, value]) =>{
             if(instance[__props__][key] !== undefined)instance[__properties__][key] = eval(/* js */`(function anonymous(proxy){return ${value.script}})`)(proxy);
         });
+        instance[__computed__].forEach(fnc => fnc());
 
         instance[__element__] = render(component.template, instance);
         instance[__parent__] = proxy;

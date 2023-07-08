@@ -54,20 +54,22 @@ class createMovie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Video $video */
-        $video = VideoManager::createVideo();
+        /** @var \Entity\Category $category*/
+        $category = $this->floor->pickup("category");
 
-        $movie = Movie::insertOne([
-            "title" => $this->floor->pickup("title_video"),
-            "description" => $this->floor->pickup("description"),
-            "video_id" => $video->getId(),
-            "image" => $this->floor->pickup("image"),
-            "category_id" => $this->floor->pickup("category")->getId(),
-            "release_date" => $this->floor->pickup("release_date")
-        ]);
-
+        $video = Video::insertOne([]);
+        $movie = Movie::insertOne(
+            fn (Movie $movie) => $movie
+                ->setTitle($this->floor->pickup("title_video"))
+                ->setDescription($this->floor->pickup("description"))
+                ->setVideo($video)
+                ->setImage($this->floor->pickup("image"))
+                ->setReleaseDate($this->floor->pickup("release_date"))
+        );
         Content::insertOne(
-            fn (Content $content) => $content->setValue($movie)
+            fn (Content $content) => $content
+                ->setValue($movie)
+                ->setCategory($category)
         );
 
         $response->code(201)->info("movie.created")->send($movie);
@@ -111,7 +113,7 @@ class deleteMovie extends AccessContentsManager
  * @param int id
  * @return Response
  */
-class getMovie extends AccessContentsManager
+class getMovie extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -126,17 +128,8 @@ class getMovie extends AccessContentsManager
         /** @var Movie $movie */
         $movie = $this->floor->pickup("movie");
 
-        $movieMapped = [
-            "id" => $movie->getId(),
-            "description" => $movie->getDescription(),
-            "title" => $movie->getTitle(),
-            "image" => $movie->getImage(),
-            "category" => $movie->getCategory(),
-            "video" => $movie->getVideo(),
-            "release_date" => $movie->getReleaseDate()
-        ];
-
-        $response->code(200)->info("movie.get")->send($movieMapped);
+        Movie::groups("video", "content", "vote", "category", "urls");
+        $response->code(200)->info("movie.get")->send($movie);
     }
 }
 
@@ -244,12 +237,15 @@ class updateMovie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
+        /** @var \Entity\Category $category */
+        $category = $this->floor->pickup("category");
+
         /** @var Movie $movie */
         $movie = $this->floor->pickup("movie");
 
         $movie->setImage($this->floor->pickup("image"));
         $movie->setTitle($this->floor->pickup("title_video"));
-        $movie->setCategory($this->floor->pickup("category"));
+        $movie->getContent()->setCategory($category)->save();
         $movie->setDescription($this->floor->pickup("description"));
         $movie->setReleaseDate($this->floor->pickup("release_date"));
         $movie->setUpdatedAt(date("Y-m-d H:i:s"));
