@@ -49,6 +49,12 @@ class User extends Entity
     private Role $role;
 
     /**
+     * @many{Entity\Comment,user}
+     * @cascade{}
+     */
+    private array $comments;
+
+    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
