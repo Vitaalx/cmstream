@@ -1,3 +1,5 @@
+const regexVar = /this(?:[ ]|^$)*(?:(?:\.(?:[ ]|^$)*([A-Za-z0-9]*))|(?:\[(?:[ ]|^$)*(?:"|')([A-Za-z0-9-]*)(?:"|')(?:[ ]|^$)*\]))/g
+
 export default function makeTemplate(el, proxy){
     let nodeName = el.nodeName.toLowerCase();
     
@@ -22,12 +24,13 @@ export default function makeTemplate(el, proxy){
                 .trim()
                 .replace(/\n|\t/g, "")
                 .replace(/{{([^{}]*)}}/g, (match, g) => "${" + g + "}")
-                .replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
+                .replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1);
             if(script === "")return;
             script = `\`${script}\``;
 
             let vars = [];
-            for(let [match, group] of child.textContent.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of child.textContent.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(vars.indexOf(group) !== -1) continue;
                 vars.push(group);
             }
@@ -55,10 +58,11 @@ export default function makeTemplate(el, proxy){
             let attr = attrName.slice(1);
             let attrValue = el.getAttribute(attrName);
             obj.objectAttributes[attr] = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.objectAttributes[attr].vars.indexOf(group) !== -1) continue;
                 obj.objectAttributes[attr].vars.push(group);
             }
@@ -66,15 +70,16 @@ export default function makeTemplate(el, proxy){
         else if(attrName.startsWith("@")){
             let attr = attrName.slice(1);
             let attrValue = el.getAttribute(attrName);
-            obj.events[attr] = attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g);
+            obj.events[attr] = attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1);
         }
         else if(attrName === "cv-if"){
             let attrValue = el.getAttribute(attrName);
             obj.if = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.if.vars.indexOf(group) !== -1) continue;
                 obj.if.vars.push(group);
             }
@@ -82,11 +87,12 @@ export default function makeTemplate(el, proxy){
         else if(attrName === "cv-for"){
             let attrValue = el.getAttribute(attrName);
             obj.for = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
                 newVar: attrValue.match(/(?:[ ]|^$)*([A-Za-z0-9]*)(?:[ ]|^$)* (?:in|of)/)[1],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.for.vars.indexOf(group) !== -1) continue;
                 obj.for.vars.push(group);
             }
@@ -94,10 +100,11 @@ export default function makeTemplate(el, proxy){
         else if(attrName === "cv-class"){
             let attrValue = el.getAttribute(attrName);
             obj.class = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.class.vars.indexOf(group) !== -1) continue;
                 obj.class.vars.push(group);
             }
@@ -105,10 +112,11 @@ export default function makeTemplate(el, proxy){
         else if(attrName === "cv-style"){
             let attrValue = el.getAttribute(attrName);
             obj.style = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.style.vars.indexOf(group) !== -1) continue;
                 obj.style.vars.push(group);
             }
@@ -120,10 +128,11 @@ export default function makeTemplate(el, proxy){
         else if(attrName === "cv-show"){
             let attrValue = el.getAttribute(attrName);
             obj.show = {
-                script: attrValue.replace(/this((?:[ ]|^$)*.(?:[ ]|^$)*[A-Za-z0-9]*)/g, (m, g) => "proxy" + g),
+                script: attrValue.replace(regexVar, (m, g1="", g2) => g2 ? "proxy['" + g2 + "']" : "proxy." + g1),
                 vars: [],
             };
-            for(let [match, group] of attrValue.matchAll(/this(?:[ ]|^$)*.(?:[ ]|^$)*([A-Za-z0-9]*)/g)){
+            for(let [match, group1, group2] of attrValue.matchAll(regexVar)){
+                let group = group1 || group2;
                 if(obj.show.vars.indexOf(group) !== -1) continue;
                 obj.show.vars.push(group);
             }
