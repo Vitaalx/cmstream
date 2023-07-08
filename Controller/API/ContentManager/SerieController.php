@@ -125,8 +125,7 @@ class getSerie extends AccessContentsManager
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
 
-        Serie::groups("category");
-
+        Serie::groups("content", "vote", "category");
         $response->send($serie);
     }
 }
