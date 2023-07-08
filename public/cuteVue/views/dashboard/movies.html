@@ -25,9 +25,10 @@
     <admin_table
     :thead="this.tabHead"
     :data="this.displayedMovies"
-    :keys="['title', 'category', 'created_at', 'updated_at']"
+    :keys="['title', 'category', 'release_date', 'created_at', 'updated_at']"
     :edit="true"
     :delete="true"
+    :paging="true"
     :currentpage="this.currentPageNumber"
     :totalpages="this.maxPage"
     @edititem="router.push(`/dashboard/edit-video/movie/${$event.id}`)"
@@ -62,6 +63,11 @@
                 {
                     name: "Catégorie",
                     key: "category",
+                    sort: true,
+                },
+                {
+                    name: "Date de sortie",
+                    key: "release_date",
                     sort: true,
                 },
                 {
@@ -109,6 +115,7 @@
                 let close = loaderStore.push();
 
                 await taob.get(`movies?page=${page - 1}`).s(data => {
+                    data.forEach(movie => movie.release_date = this.dateFormatter(movie.release_date));
                     this.movies = data;
                 }).result;
 
@@ -143,6 +150,14 @@
 
                 close();
             },
+            dateFormatter(date){
+                let [year, month, day] = date.split("-");
+                let months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet",
+                    "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                let index = parseInt(month);
+
+                return parseInt(day) + " " + months[index] + " " + year;
+            },
             async previousPage(){
                 if (this.currentPageNumber === 1) return;
 
@@ -173,14 +188,6 @@
             },
             getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalMovies / this.limitToDisplay);
-            },
-            dateFormater(date){
-                const parts = date.split("-");
-                const year = parts[0];
-                const month = parts[1];
-                const day = parts[2];
-
-                return day + "/" + month + "/" + year;
             },
         },
         mounted(){

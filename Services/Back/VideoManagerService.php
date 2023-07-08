@@ -44,24 +44,6 @@ class VideoManagerService
         }
     }
 
-    /**
-     * this function get url where video id
-     *
-     * @param integer $video
-     * @return array
-     */
-    public static function getUrlWhereVideo(int $video): array
-    {
-        $urls = Url::findMany([
-            "video_id" => $video
-        ]);
-        $result = [];
-        foreach ($urls as $url) {
-            $result[] = $url->getValue();
-        }
-        return $result;
-    }
-
     public static function createUrlWhereVideo(int $video_id, string $content): Url
     {
         return Url::insertOne([

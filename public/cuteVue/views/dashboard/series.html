@@ -25,13 +25,14 @@
     <admin_table
             :thead="this.tabHead"
             :data="this.displayedSeries"
-            :keys="['title', 'category', 'created_at', 'updated_at']"
+            :keys="['title', 'category', 'release_date', 'created_at', 'updated_at']"
             :edit="true"
             :delete="true"
+            :paging="true"
             :currentpage="this.currentPageNumber"
             :totalpages="this.maxPage"
             @edititem="router.push(`/dashboard/edit-video/serie/${$event.id}`)"
-            @deleteitem="this.openDeleteModal($event)"
+            @deleteitem="this.openDeleteModal($event.id)"
             @previous="this.previousPage()"
             @next="this.nextPage()"
     />
@@ -62,6 +63,11 @@
                 {
                     name: "Catégorie",
                     key: "category",
+                    sort: true,
+                },
+                {
+                    name: "Date de sortie",
+                    key: "release_date",
                     sort: true,
                 },
                 {
@@ -109,6 +115,7 @@
                 let close = loaderStore.push();
 
                 await taob.get(`series?page=${page - 1}`).s(data => {
+                    data.forEach(series => series.release_date = this.dateFormatter(series.release_date));
                     this.series = data;
                 }).result;
 
@@ -172,13 +179,13 @@
             getNbPages(){
                 this.maxPage = Math.ceil(this.nbTotalSeries / this.limitToDisplay);
             },
-            dateFormater(date){
-                const parts = date.split("-");
-                const year = parts[0];
-                const month = parts[1];
-                const day = parts[2];
+            dateFormatter(date){
+                let [year, month, day] = date.split("-");
+                let months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet",
+                    "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                let index = parseInt(month);
 
-                return day + "/" + month + "/" + year;
+                return parseInt(day) + " " + months[index] + " " + year;
             },
         },
         mounted(){

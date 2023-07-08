@@ -1,0 +1,61 @@
+<div class="fixed top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] z-[10] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
+  <div class="relative w-[400px] h-[280px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
+    <icon name="alert-circle-outline" class="my-[-16.5px] text-[60px] text-pinkred"/>
+
+    <p class="text-center message">Êtes-vous sûr de vouloir supprimer cette URL ?</p>
+
+    <div class="flex gap-[10px] buttons">
+      <button @click="this.deleteUrl()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
+
+      <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const [impLoader, impTaob] = await Promise.all([
+    import("/public/cuteVue/loader.js"),
+    import("/public/cuteVue/taob.js")
+  ]);
+
+  const loaderStore = impLoader.loaderStore;
+  const taob = impTaob.default;
+
+  export default {
+    props: {
+      urlid: ""
+    },
+    methods: {
+      closeModal() {
+        this.$emit("close");
+      },
+      async deleteUrl() {
+        let close = loaderStore.push();
+
+        console.log(this.urlid);
+
+        await taob.delete("url/" + this.urlid)
+                .s(async () => {
+                  this.$emit("delete-url", "delete");
+                  this.pushToast("successfull", "L'url à bien été supprimée.");
+                })
+                .info(info => console.log(info)).result;
+
+        this.closeModal();
+        close();
+      }
+    },
+    mounted() {
+    },
+    stores: [
+      {
+        name: "toast",
+        actions: ["pushToast"]
+      }
+    ]
+  }
+</script>
+
+<style>
+
+</style>

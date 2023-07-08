@@ -38,9 +38,8 @@ function exist(int $id, Floor $floor, Response $response): Serie
     return $serie;
 }
 
-function notexist(string $name, Floor $floor, Response $response): null
+function notexist(array $array, Floor $floor, Response $response): void
 {
-    $serie = Serie::findFirst(["title" => $name]);
-    if ($serie !== null) $response->info("serie.exist")->code(400)->send();
-    return $serie;
+    $serie = Serie::findFirst(["title" => $array["title"]]);
+    if ($serie !== null && $serie->getId() !== intval($array["serie_id"])) $response->info("serie.exist")->code(400)->send();
 }

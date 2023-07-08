@@ -175,6 +175,7 @@
                     .s(() => this.pushToast("success", "La category à bien été ajoutée."))
                     .info(info => {
                         if (info === "category.exist") this.pushToast("error", "La category existe déjà.");
+                        if (info === "category.name") this.pushToast("error", "Le nom de la categorie doit faire au minimum 4 caractères et maximum 20 caratères.");
                     })
                     .result
 

@@ -6,6 +6,7 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
+use Entity\Content;
 use Entity\Movie;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
@@ -55,10 +56,7 @@ class createMovie extends AccessContentsManager
     {
         /** @var Video $video */
         $video = VideoManager::createVideo();
-        if (empty($video)) {
-            $response->code(500)->info("video.error")->send();
-        }
-        /** @var Movie $movie */
+
         $movie = Movie::insertOne([
             "title" => $this->floor->pickup("title_video"),
             "description" => $this->floor->pickup("description"),
@@ -67,6 +65,10 @@ class createMovie extends AccessContentsManager
             "category_id" => $this->floor->pickup("category")->getId(),
             "release_date" => $this->floor->pickup("release_date")
         ]);
+
+        Content::insertOne(
+            fn (Content $content) => $content->setValue($movie)
+        );
 
         $response->code(201)->info("movie.created")->send($movie);
     }
@@ -130,7 +132,8 @@ class getMovie extends AccessContentsManager
             "title" => $movie->getTitle(),
             "image" => $movie->getImage(),
             "category" => $movie->getCategory(),
-            "video" => $movie->getVideo()
+            "video" => $movie->getVideo(),
+            "release_date" => $movie->getReleaseDate()
         ];
 
         $response->code(200)->info("movie.get")->send($movieMapped);
@@ -234,20 +237,21 @@ class updateMovie extends AccessContentsManager
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
             ["type/int", $request->getBody()['category'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
+            ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        VideoManager::updateVideo(
-            $this->floor->pickup("movie")->getVideo()->getId(),
-            $this->floor->pickup("title_video"),
-            $this->floor->pickup("description")
-        );
         /** @var Movie $movie */
         $movie = $this->floor->pickup("movie");
+
         $movie->setImage($this->floor->pickup("image"));
+        $movie->setTitle($this->floor->pickup("title_video"));
+        $movie->setCategory($this->floor->pickup("category"));
+        $movie->setDescription($this->floor->pickup("description"));
+        $movie->setReleaseDate($this->floor->pickup("release_date"));
         $movie->setUpdatedAt(date("Y-m-d H:i:s"));
         $movie->save();
 

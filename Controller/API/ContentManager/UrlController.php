@@ -98,7 +98,7 @@ class getUrlWhereVideo extends Controller
 
     public function handler(Request $request, Response $response): void
     {
-        $urls = VideoManager::getUrlWhereVideo($this->floor->pickup("video_id"));
+        $urls = Url::findMany(["video_id" => $this->floor->pickup("video_id")]);
         $response->code(200)->info("url.get")->send($urls);
     }
 }
