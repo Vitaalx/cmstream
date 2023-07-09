@@ -3,6 +3,7 @@
 namespace Controller\API\ContentManager\SerieController;
 
 use Core\Controller;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
 use Entity\Category;
@@ -12,6 +13,7 @@ use Entity\Episode;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
 use Services\Back\VideoManagerService as VideoManager;
+use Services\MustBeConnected;
 
 /**
  * @POST{/api/serie}
@@ -243,7 +245,7 @@ class updateSerie extends AccessContentsManager
         $serie->setImage($this->floor->pickup("image"));
         $serie->setDescription($this->floor->pickup("description"));
         $serie->setReleaseDate($this->floor->pickup("release_date"));
-        $serie->setCategory($category);
+        $serie->getContent()->setCategory($category)->save();
         $serie->save();
         $response->info("serie.updated")->code(200)->send();
     }
@@ -331,52 +333,59 @@ class addEpisodeBySerie extends AccessContentsManager
 }
 
 /**
- * @GET{/api/episode/{serie_id}/{season}/{episode}}
- * @apiName GetEpisode
- * @apiGroup ContentManager/SerieController
- * @apiVersion 1.0.0
- * @Feature ContentManager
- * @Description Get an episode
- * @param int serie_id
- * @param int episode
- * @param int season
- * @return Response
+ * @GET{/api/serie/{id}/season/{season}/episode/{episode}}
  */
-class getEpisodeBySerie extends AccessContentsManager
+class GetEpisode extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('serie_id'), "serie_id"],
-            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"],
-            ["type/int", $request->getParam('episode'), "episode"],
-            ["serie/episode", fn() => $this->floor->pickup("episode"), "episode"],
-            ["type/int", $request->getParam('season'), "season"],
-            ["serie/season", fn() => $this->floor->pickup("season"), "season"]
+            ["type/int", $request->getParam("id"), "serieId"],
+            ["serie/exist", fn() => $this->floor->pickup("serieId"), "serie"],
+            ["type/int", $request->getParam("episode"), "episodeNumber"],
+            ["type/int", $request->getParam("season"), "seasonNumber"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Episode $episode */
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
+        $episodeNumber = $this->floor->pickup("episodeNumber");
+        $seasonNumber = $this->floor->pickup("seasonNumber");
+
         $episode = Episode::findFirst([
-            "serie_id" => $this->floor->pickup("serie")->getId(),
-            "episode" => $this->floor->pickup("episode"),
-            "season" => $this->floor->pickup("season")
+            "serie" => $serie,
+            "episode" => $episodeNumber,
+            "season" => $seasonNumber,
         ]);
-        if (empty($episode)) $response->info("episode.notfound")->code(404)->send();
-        $episodeMapped = [
-            "id" => $episode->getId(),
-            "episode" => $episode->getEpisode(),
-            "season" => $episode->getSeason(),
-            "image" => $episode->getSerie()->getImage(),
-            "title" => $episode->getVideo()->getTitle(),
-            "description" => $episode->getVideo()->getDescription(),
-            "category" => $episode->getSerie()->getCategory()->getTitle(),
-            "created_at" => $episode->getCreatedAt(),
-            "updated_at" => $episode->getUpdatedAt()
+
+        if ($episode === null) $response->info("episode.notfound")->code(404)->send();
+        
+        Episode::groups("video", "content", "vote", "category", "urls", "serie");
+        $response->code(200)->info("episode.get")->send($episode);
+    }
+}
+
+/**
+ * @GET{/api/serie/{id}/all}
+ */
+class GetAllSerie extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "serieId"],
+            ["serie/exist", fn() => $this->floor->pickup("serieId"), "serie"],
         ];
-        $response->code(200)->info("episode.get")->send(["episode" => $episodeMapped]);
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
+
+        $response->code(200)->info("episode.get.all")->send(Episode::findMany(["serie" => $serie]));
     }
 }
 

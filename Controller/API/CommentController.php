@@ -3,6 +3,7 @@
 namespace Controller\API\CommentController;
 
 use Core\Controller;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
 use Entity\Comment;
@@ -121,7 +122,6 @@ class GetCommentsSlef extends MustBeConnected
         return [
             ["type/int", $request->getParam("id"), "videoId"],
             ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
-            ["type/int", $request->getQuery("page") ?? 0, "page"],
         ];
     }
 
@@ -131,9 +131,8 @@ class GetCommentsSlef extends MustBeConnected
         $video = $this->floor->pickup("video");
         /** @var Video $user */
         $user = $this->floor->pickup("user");
-        $page = $this->floor->pickup("page");
 
-        $comments = Comment::findMany(["video" => $video, "user" => $user], ["OFFSET" => 10 * $page, "LIMIT" => 10]);
+        $comments = Comment::findMany(["video" => $video, "user" => $user]);
         Comment::groups("commentAuthor", "dateProps");
         $response->code(200)->info("comments.get")->send($comments);
     }

@@ -128,7 +128,6 @@ abstract class Entity implements \JsonSerializable
 
             try {
                 if (array_key_exists($propName, $this->props) === false) continue;
-                else if ($prop["entityProp"] !== null && $this->props[$propName] !== null) $array[$propName] = $this->props[$propName]->toArray();
                 else $array[$propName] = $this->props[$propName];
             } catch (\Throwable $th) {
                 continue;

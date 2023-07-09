@@ -4,10 +4,22 @@
     </div>
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
-        <h1 class="mb-[40px] text-2xl font-bold">{{this.title}}</h1>
+        <div cv-if="this.type === null" class="h-[32px] mb-[40px]"/>
+        <h1
+        cv-if="this.type === 'movie'"
+        class="mb-[40px] text-2xl font-bold"
+        >
+            {{this.title}}
+        </h1>
+        <h1 
+        cv-if="this.type === 'serie'"
+        class="mb-[40px] text-2xl font-bold"
+        >
+            {{this.serieName}} : {{this.title}} S{{this.season}} EP{{this.episode}}
+        </h1>
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
-            <div class="flex gap-[20px] player-otions">
+            <div class="flex gap-[20px] player-otions items-center">
                 <select-input 
                 class="w-[150px]" 
                 label="Player" 
@@ -17,15 +29,12 @@
                 cv-model="currentPlayer" 
                 />
 
-                <select-input 
-                cv-if="this.type === 'serie'"
-                class="w-[150px]" 
-                label="Épisode" 
-                :items="this.episodes" 
-                :return-value="v => v.value" 
-                :return-text="t => t.text" 
-                cv-model="currentEpisode" 
-                />
+                <btn
+                @click="this.selecting = true"
+                :small="true"
+                >
+                    Sélectionner un épisode
+                </btn>
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
@@ -48,20 +57,32 @@
                 cv-if="this.type === 'serie'"
                 class="flex gap-[10px] player-controls"
                 >
-                    <button class="px-[20px] py-[10px] text-white bg-skyblue rounded">Précédent</button>
-                    <button class="px-[20px] py-[10px] text-white bg-skyblue rounded">Suivant</button>
+                    <btn
+                    @click="previous"
+                    cv-class="{invisible: !this.hasPrevious}"
+                    >
+                        Précédent
+                    </btn>
+
+                    <btn 
+                    @click="next"
+                    cv-class="{invisible: !this.hasNext}"
+                    >
+                        Suivant
+                    </btn>
                 </div>
             </div>
         </div>
 
         <div class="comments-section">
-            <add_comment 
+            <add-comment 
             cv-if="this.isConnected"
+            :video-id="this.videoId"
             @add-comment="getMyComments" 
-            class="mb-[40px]" 
+            class="mb-[40px]"
             />
 
-            <div cv-if="this.comments.length" class="flex flex-col gap-[20px] comments">
+            <div class="flex flex-col gap-[20px] comments">
                 <comment 
                 cv-for="comment of this.myComments" 
                 :comment="this.comment"
@@ -82,6 +103,40 @@
             </div>
         </div>
     </div>
+
+    <div 
+    cv-if="this.selecting === true"
+    class="fixed z-20 flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
+    >
+        <div class="bg-darkblue p-[20px] flex flex-col items-start w-[600px] max-w-[90%] gap-[15px]">
+            <select-input
+            label="Saison"
+            class="w-[150px]"
+            :items="Object.keys(this.serie)"
+            cv-model="selectedSeason"
+            />
+
+            <div class="h-[200px] w-full overflow-y-auto flex-col flex gap-[15px]">
+                <router_link
+                cv-for="e of this.serie[this.selectedSeason]"
+                class="w-full"
+                :href="`/serie/${this.params.id}/season/${this.e.season}/episode/${this.e.episode}`"
+                >   
+                    <p class="w-full h-full overflow-hidden text-ellipsis whitespace-nowrap hover:underline">
+                        ep {{this.e.episode}} : <strong>{{ " " + this.e.title + " "}}</strong> 
+                        <i class="text-[12px]">{{this.e.description || "rg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg dz dsd qsd sqd  ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qdzdq d z qzdg"}}</i>
+                    </p>
+                </router_link>
+            </div>
+
+            <btn
+            @click="this.selecting = false"
+            :small="true"
+            >
+                Fermer
+            </btn>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -93,7 +148,7 @@
 
     export default {
         components: {
-            add_comment,
+            "add-comment": add_comment,
             comment
         },
 
@@ -105,11 +160,14 @@
             description: "",
             release_date: "",
 
+            serie: null,
+            serieName: "",
+            season: null,
+            episode: null,
+            videoId: null,
+
             players: [],
             currentPlayer: null,
-
-            episodes: [],
-            currentEpisode: null,
 
             myComments: [],
             comments: [],
@@ -118,15 +176,54 @@
 
             up_vote: 0,
             down_vote: 0,
+
+            selecting: false,
+            selectedSeason: null,
+        },
+
+        computed: {
+            hasNext(){
+                if(this.serie === null) return false;
+
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === this.serie[season].length -1){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason + 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return false;
+                }
+                return true;
+            },
+
+            hasPrevious(){
+                if(this.serie === null) return false;
+
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === 0){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason - 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return false;
+                }
+                return true;
+            }
         },
 
         methods: {
             async init(){
-                if(router.pathname.startsWith("/movies")){
-                    const  movie = await taob.get(
+                if(this.pathname.startsWith("/movies")){
+                    const movie = await taob.get(
                         "/movie/{id}", 
                         {
-                            params: {id: this.params.id}, 
+                            params: {id: this.params.id},
                             loader: true
                         }
                     )
@@ -148,6 +245,7 @@
                     this.category = movie.content.category.name;
                     this.description = movie.description || "";
                     this.release_date = movie.release_date;
+                    this.videoId = movie.video.id;
 
                     this.players = movie.video.urls;
                     this.currentPlayer = movie.video.urls[0]?.value || null;
@@ -156,15 +254,93 @@
                     this.down_vote = movie.content.down_vote;
                 }
                 else {
-                    // this.type = "serie";
+                    const [episode, episodes] = await Promise.all([
+                        taob.get(
+                            "/serie/{id}/season/{season}/episode/{episode}", 
+                            {
+                                params: {
+                                    id: this.params.id,
+                                    season: this.params.season,
+                                    episode: this.params.episode,
+                                },
+                                loader: true
+                            }
+                        )
+                        .info((info, ok) => {
+                            if(info === "episode.notfound"){
+                                this.pushToast("error", "Episode introuvable.");
+                                router.push("/");
+                            }
+                            else if(!ok){
+                                this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                                router.push("/");
+                            }
+                        })
+                        .sd(),
+                        taob.get(
+                            "/serie/{id}/all", 
+                            {
+                                params: {
+                                    id: this.params.id,
+                                },
+                                loader: true
+                            }
+                        )
+                        .info((info, ok) => {
+                            if(!ok){
+                                this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                                router.push("/");
+                            }
+                        })
+                        .sd(),
+                    ]);
+                    this.type = "serie";
+
+                    this.title = episode.title;
+                    this.img = episode.serie.image;
+                    this.category = episode.serie.content.category.name;
+                    this.description = episode.description || "";
+                    this.release_date = episode.release_date;
+                    this.videoId = episode.video.id;
+                    this.episode = episode.episode;
+                    this.season = episode.season;
+                    this.serieName = episode.serie.title;
+
+                    this.players = episode.video.urls;
+                    this.currentPlayer = episode.video.urls[0]?.value || null;
+
+                    this.up_vote = episode.serie.content.up_vote;
+                    this.down_vote = episode.serie.content.down_vote;
+                    
+                    const serie = episodes.reduce(
+                        (pv, cv) => {
+                            if(pv[cv.season] === undefined)pv[cv.season] = []
+                            pv[cv.season].push(cv);
+                            return pv;
+                        },
+                        {}
+                    );
+                    Object.keys(serie).forEach(key => serie[key] = serie[key].sort((a, b) => a.episode > b.episode));
+                    const sort = Object.keys(serie).sort((a, b) => a.episode > b.episode);
+                    this.serie = sort.reduce(
+                        (pv, cv) => {
+                            pv[cv] = serie[cv];
+                            return pv;
+                        },
+                        {}
+                    );
+                    this.selectedSeason = String(episode.season);
                 }
+                
+                this.getComments();
+                if(this.isConnected)this.getMyComments();
             },
 
            async getComments(){
                 const comments = await taob.get(
                     "/video/{id}/comment", 
                     {
-                        params: {id: 1},
+                        params: {id: this.videoId},
                         query: {page: this.pageComment},
                         loader: true
                     }
@@ -180,26 +356,60 @@
                 const comments = await taob.get(
                     "/video/{id}/comment/self", 
                     {
-                        params: {id: 1},
+                        params: {id: this.videoId},
                         loader: true
                     }
                 )
                 .sd();
-
+                
                 this.myComments = comments
             },
+
+            next(){
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === this.serie[season].length -1){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason + 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return;
+                    episode = this.serie[season][0].episode;
+                }
+                else episode = this.serie[season][indexEpisode + 1].episode;
+
+                router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
+            },
+
+            previous(){
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === 0){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason - 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return;
+                    episode = this.serie[season][this.serie[season].length - 1].episode;
+                }
+                else episode = this.serie[season][indexEpisode - 1].episode;
+
+                router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
+            }
         },
 
         mounted(){
             this.init();
-            this.getComments();
-            if(this.isConnected)this.getMyComments();
         },
 
         stores: [
             {
                 name: "router",
-                states: ["params"]
+                states: ["params", "pathname"]
             },
             {
                 name: "user",

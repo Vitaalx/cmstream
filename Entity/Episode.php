@@ -99,6 +99,7 @@ class Episode extends Entity
     }
 
     /** 
+     * @groups{serie}
      * @notnullable{}
      */
     private Serie $serie;

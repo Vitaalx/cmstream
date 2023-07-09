@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Core\Logger;
 
 class Serie extends Entity
 {
@@ -98,7 +99,7 @@ class Serie extends Entity
 
     public function getContent(): Content
     {
-        return Content::findFirst(["value" => $this, "value_type" => "M"]);
+        return Content::findFirst(["value" => $this, "value_type" => "S"]);
     }
 
     /**

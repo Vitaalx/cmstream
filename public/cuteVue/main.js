@@ -42,6 +42,10 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/video.html"),
                 },
                 {
+                    path: "/serie/{id}/season/{season}/episode/{episode}",
+                    view: () => importer("/public/cuteVue/views/video.html"),
+                },
+                {
                     path: "/show",
                     view: () => importer("/public/cuteVue/views/show.html"),
                 },
