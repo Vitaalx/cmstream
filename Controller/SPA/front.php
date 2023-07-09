@@ -12,6 +12,7 @@ use Services\Permissions;
  * @GET{/}
  * @GET{/catalog}
  * @GET{/movies/{id}}
+ * @GET{/serie/{id}/season/{season}/episode/{episode}}
  * @GET{/show}
  * @GET{/pages/{name}}
  */

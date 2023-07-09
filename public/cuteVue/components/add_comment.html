@@ -36,6 +36,9 @@
         components: {
             "user-image": user_image
         },
+        props: {
+            "video-id": null
+        },
         data: {
             content: "",
         },
@@ -51,7 +54,7 @@
                     "/video/{id}/comment", 
                     {content: this.content}, 
                     {
-                        params: {id: this.params.id},
+                        params: {id: this["video-id"]},
                         loader: true,
                     }
                 )
@@ -66,10 +69,6 @@
             }
         },
         stores: [
-            {
-                name: "router",
-                states: ["params"]
-            },
             {
                 name: "toast",
                 actions: ["pushToast"]
