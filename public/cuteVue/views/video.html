@@ -185,8 +185,8 @@
             hasNext(){
                 if(this.serie === null) return false;
 
-                let season = this.params.season;
-                let episode = this.params.episode;
+                let season = this.season;
+                let episode = this.episode;
 
                 let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
 
@@ -202,8 +202,8 @@
             hasPrevious(){
                 if(this.serie === null) return false;
 
-                let season = this.params.season;
-                let episode = this.params.episode;
+                let season = this.season;
+                let episode = this.episode;
 
                 let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
 
