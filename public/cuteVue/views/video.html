@@ -36,6 +36,23 @@
                 >
                     Sélectionner un épisode
                 </btn>
+
+                <div 
+                cv-if="this.type === 'movie'"
+                class="flex gap-[15px] rate select-none"
+                >
+                    <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
+                        {{ this.up_vote }}
+
+                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                    </div>
+
+                    <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
+                        {{ this.down_vote }}
+
+                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                    </div>
+                </div>
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
@@ -177,6 +194,9 @@
 
             up_vote: 0,
             down_vote: 0,
+            liked: false,
+            disliked: false,
+            contentId: null,
 
             selecting: false,
             selectedSeason: null,
@@ -253,6 +273,20 @@
 
                     this.up_vote = movie.content.up_vote;
                     this.down_vote = movie.content.down_vote;
+                    this.contentId = movie.content.id;
+
+                    taob.get(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId},
+                            loader: true
+                        }
+                    )
+                    .s(data => {
+                        if(!data) return;
+                        if(data.value === 1) this.liked = true;
+                        else if(data.value === -1) this.disliked = true;
+                    });
                 }
                 else {
                     const [episode, episodes] = await Promise.all([
@@ -400,7 +434,65 @@
                 else episode = this.serie[season][indexEpisode - 1].episode;
 
                 router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
-            }
+            },
+
+            async vote(type){
+                if(this.isConnected === false) return;
+                if(type === "like" && !this.liked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: 1 }, 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+                    
+                    this.up_vote++;
+                    if(this.disliked) this.down_vote--;
+                    this.disliked = false;
+                    this.liked = true;
+                } 
+                else if(type === "like" && this.liked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.up_vote--;
+                    this.liked = false;
+                }
+                else if(type === "dislike" && !this.disliked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: -1 }, 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote++;
+                    if(this.liked) this.up_vote--;
+                    this.liked = false;
+                    this.disliked = true;
+                } 
+                else if(type === "dislike" && this.disliked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote--;
+                    this.disliked = false;
+                }
+            },   
         },
 
         mounted(){

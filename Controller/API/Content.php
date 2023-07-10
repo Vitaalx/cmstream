@@ -177,7 +177,7 @@ class GetVoteContent extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        $response->code(202)->info("content.vote.get")->send(Vote::findFirst(["content" => $content, "user" => $user]));
+        $response->code(200)->info("content.vote.get")->send(Vote::findFirst(["content" => $content, "user" => $user]));
     }
 }
 

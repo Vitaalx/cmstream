@@ -12,7 +12,7 @@
             <div class="flex items-center gap-[30px] info">
                 <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
         
-                <div class="flex gap-[15px] rate">
+                <div class="flex gap-[15px] rate select-none">
                     <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
                         {{ this.up_vote }}
 
@@ -72,7 +72,8 @@
             up_vote: 0,
             down_vote: 0,
             liked: false,
-            disliked: false
+            disliked: false,
+            contentId: null
         },
         methods: {
             async init(){
@@ -121,6 +122,7 @@
 
                 let seasons = episodes.reduce(
                     (pv, cv) => {
+                        cv.image = cv.image || serie.image;
                         if(pv[cv.season] === undefined)pv[cv.season] = []
                         pv[cv.season].push(cv);
                         return pv;
@@ -141,29 +143,29 @@
 
                 this.selectedSeason = String(seasons[sort[0]][0].season);
                 this.seasons = seasons;
+                this.contentId = serie.content.id;
 
                 taob.get(
                     "/content/{id}/vote", 
                     {
-                        params: { id: serie.content.id },
+                        params: { id: this.contentId },
                         loader: true
                     }
                 )
                 .s(data => {
-                    console.log(data);
-
                     if(!data) return;
                     if(data.value === 1) this.liked = true;
                     else if(data.value === -1) this.disliked = true;
-                })
+                });
             },
             async vote(type){
+                if(this.isConnected === false) return;
                 if(type === "like" && !this.liked){ 
                     taob.post(
                         "/content/{id}/vote", 
                         { vote: 1 }, 
                         {
-                            params: { id: this.params.id },
+                            params: { id: this.contentId },
                             loader: true,
                         }
                     )
@@ -177,7 +179,7 @@
                     taob.delete(
                         "/content/{id}/vote", 
                         {
-                            params: { id: this.params.id },
+                            params: { id: this.contentId },
                             loader: true,
                         }
                     )
@@ -190,7 +192,7 @@
                         "/content/{id}/vote", 
                         { vote: -1 }, 
                         {
-                            params: { id: this.params.id },
+                            params: { id: this.contentId },
                             loader: true,
                         }
                     )
@@ -204,7 +206,7 @@
                     taob.delete(
                         "/content/{id}/vote", 
                         {
-                            params: { id: this.params.id },
+                            params: { id: this.contentId },
                             loader: true,
                         }
                     )

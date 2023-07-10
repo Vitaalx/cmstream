@@ -1,6 +1,6 @@
 <router_link :href="`/serie/${this.serie.id}/season/${this.episode.season}/episode/${this.episode.episode}`" class="episode-card">
     <div class="w-full h-[135px] mb-[10px] thumbnail">
-        <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded-large.png" alt="show title">
+        <img class="w-full h-full object-cover pointer-events-none" :src="this.episode.image" alt="show title">
     </div>
 
     <div class="content">
