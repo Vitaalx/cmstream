@@ -1,4 +1,4 @@
-const regexVar = /this(?:[ ]|^$)*(?:(?:\.(?:[ ]|^$)*([A-Za-z0-9]*))|(?:\[(?:[ ]|^$)*(?:"|')([A-Za-z0-9-]*)(?:"|')(?:[ ]|^$)*\]))/g
+const regexVar = /this(?:[ ]|^$)*(?:(?:\.(?:[ ]|^$)*([A-Za-z0-9_]*))|(?:\[(?:[ ]|^$)*(?:"|')([A-Za-z0-9-_]*)(?:"|')(?:[ ]|^$)*\]))/g
 
 export default function makeTemplate(el, proxy){
     let nodeName = el.nodeName.toLowerCase();
