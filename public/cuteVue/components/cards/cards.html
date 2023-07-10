@@ -92,7 +92,7 @@
                 taob.get(this.options.url, {query: this.options.query}).s(data => this.allCard = data);
             },
             setNumCardDisplayed(){
-                this.slideWidth = this.$refs.div.getBoundingClientRect().width + 20;
+                this.slideWidth = this.$refs.div.getBoundingClientRect().width + 30;
                 let numCardDisplayed = Math.floor(this.slideWidth / (this.widthCard + 20));
                 if(numCardDisplayed !== this.numCardDisplayed)this.numCardDisplayed = numCardDisplayed;
             }

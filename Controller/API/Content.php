@@ -8,6 +8,9 @@ use Core\QueryBuilder;
 use Core\Request;
 use Core\Response;
 use Entity\Content;
+use Entity\User;
+use Entity\Vote;
+use Services\MustBeConnected;
 
 /**
  * @GET{/api/content/discover}
@@ -117,5 +120,89 @@ class GetLastContent extends Controller
 
         Content::groups("value", "vote", "category", "dateProps");
         $response->code(200)->info("content.get")->send(Content::findMany($where, ["ORDER_BY" => ["created_at DESC"], "LIMIT" => $number]));
+    }
+}
+
+/**
+ * @POST{/api/content/{id}/vote}
+ */
+class VoteContent extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getBody()["vote"], "value", "content.vote.badNumber"],
+            ["content/exist", $request->getParam("id"), "content"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        /** @var Content $content */
+        $content = $this->floor->pickup("content");
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $value = $this->floor->pickup("value");
+
+        $vote = Vote::findFirst(["content" => $content, "user" => $user]);
+        
+        if($vote !== null)$vote->setValue($value == 1? 1 : -1)->save();
+        else Vote::insertOne(
+            fn (Vote $vote) => $vote
+                ->setContent($content)
+                ->setUser($user)
+                ->setValue($value == 1? 1 : -1)
+        );
+
+        $response->code(204)->info("content.vote")->send();
+    }
+}
+
+/**
+ * @GET{/api/content/{id}/vote}
+ */
+class GetVoteContent extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["content/exist", $request->getParam("id"), "content"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        /** @var Content $content */
+        $content = $this->floor->pickup("content");
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        $response->code(200)->info("content.vote.get")->send(Vote::findFirst(["content" => $content, "user" => $user]));
+    }
+}
+
+/**
+ * @DELETE{/api/content/{id}/vote}
+ */
+class DeleteVoteContent extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["content/exist", $request->getParam("id"), "content"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        /** @var Content $content */
+        $content = $this->floor->pickup("content");
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        $vote = Vote::findFirst(["content" => $content, "user" => $user]);
+        if($vote !== null) $vote->delete();
+
+        $response->code(204)->info("content.vote.delete")->send();
     }
 }

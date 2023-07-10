@@ -1,155 +1,569 @@
 <div>
     <div class="h-[300px] mb-[40px] bg-skyblue hero">
-        <img class="w-full h-full object-cover" src="/public/img/banners/unloaded.png">
+        <img class="w-full h-full object-cover" :src="this.img || '/public/img/banners/unloaded.png'">
     </div>
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
-        <h1 class="mb-[40px] text-2xl font-bold">Show title</h1>
+        <div cv-if="this.type === null" class="h-[32px] mb-[40px]"></div>
+        <h1
+        cv-if="this.type === 'movie'"
+        class="mb-[40px] text-2xl font-bold"
+        >
+            {{ this.title }}
+        </h1>
+        <h1 
+        cv-if="this.type === 'serie'"
+        class="mb-[40px] text-2xl font-bold"
+        >
+            {{ this.serieName }} : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
+        </h1>
+
+        <div cv-if="this.type === 'movie'" class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
+            <p>{{ this.description }}</p>
+
+            <div class="flex items-center gap-[30px] info">
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
+        
+                <div class="flex gap-[15px] rate">
+                    <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
+                        {{ this.up_vote }}
+
+                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                    </div>
+
+                    <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
+                        {{ this.down_vote }}
+
+                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
-            <div class="flex gap-[20px] player-otions">
-                <select-input class="w-[150px]" label="Player" :items="this.players" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentPlayer" />
-                <select-input class="w-[150px]" label="Épisode" :items="this.episodes" :return-value="v => v.value" :return-text="t => t.text" cv-model="currentEpisode" />
+            <div class="flex gap-[20px] player-otions items-center">
+                <select-input 
+                class="w-[150px]" 
+                label="Player" 
+                :items="this.players" 
+                :return-value="v => v.value" 
+                :return-text="t => t.value.replace(/http:\/\/|https:\/\//, '').split('/')[0].split('.').reverse()[1]" 
+                cv-model="currentPlayer" 
+                />
+
+                <btn
+                cv-if="this.type === 'serie'"
+                @click="this.selecting = true"
+                :small="true"
+                >
+                    Sélectionner un épisode
+                </btn>
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
-                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                <iframe 
+                width="100%" 
+                height="100%" 
+                :src="this.currentPlayer"
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen
+                >
+                </iframe>
             </div>
 
             <div class="flex justify-between player-bottom">
-                <h2 class="text-xl font-bold">Episode title</h2>
+                <p cv-if="this.type === 'serie'" class="text-xl font-bold">{{ this.description }}</p>
 
-                <div class="flex gap-[10px] player-controls">
-                    <button class="px-[20px] py-[10px] text-white bg-skyblue rounded">Précédent</button>
-                    <button class="px-[20px] py-[10px] text-white bg-skyblue rounded">Suivant</button>
+                <div 
+                cv-if="this.type === 'serie'"
+                class="flex gap-[10px] player-controls"
+                >
+                    <btn
+                    @click="previous"
+                    cv-class="{invisible: !this.hasPrevious}"
+                    >
+                        Précédent
+                    </btn>
+
+                    <btn 
+                    @click="next"
+                    cv-class="{invisible: !this.hasNext}"
+                    >
+                        Suivant
+                    </btn>
                 </div>
             </div>
         </div>
 
         <div class="comments-section">
-            <add_comment @add-comment="refreshComment" class="mb-[40px]" />
+            <add-comment 
+            cv-if="this.isConnected"
+            :video-id="this.videoId"
+            @add-comment="getMyComments" 
+            class="mb-[40px]"
+            />
 
-            <div cv-if="this.comments.length" class="flex flex-col gap-[20px] comments">
-                <comment cv-for="comment of this.comments" :comment="this.comment" />
+            <div class="flex flex-col gap-[20px] comments">
+                <comment 
+                cv-for="comment of this.myComments" 
+                :comment="this.comment"
+                />
+
+                <comment 
+                cv-for="comment of this.comments" 
+                :comment="this.comment"
+                />
+
+                <btn
+                cv-if="this.endComment === false"
+                @click="getComments"
+                :small="true"
+                >
+                    Voire plus
+                </btn>
             </div>
+        </div>
+    </div>
+
+    <div 
+    cv-if="this.selecting === true"
+    class="fixed z-20 flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
+    >
+        <div class="bg-darkblue p-[20px] flex flex-col items-start w-[600px] max-w-[90%] gap-[15px] select-none">
+            <select-input
+            label="Saison"
+            class="w-[150px]"
+            :items="Object.keys(this.serie)"
+            cv-model="selectedSeason"
+            />
+
+            <div class="h-[200px] w-full overflow-y-auto flex-col flex gap-[15px]">
+                <router_link
+                cv-for="e of this.serie[this.selectedSeason]"
+                class="w-full"
+                :href="`/serie/${this.params.id}/season/${this.e.season}/episode/${this.e.episode}`"
+                >   
+                    <p class="w-full h-full overflow-hidden text-ellipsis whitespace-nowrap hover:underline">
+                        ep {{this.e.episode}} : <strong>{{ " " + this.e.title + " "}}</strong> 
+                        <i class="text-[12px]">{{this.e.description }}</i>
+                    </p>
+                </router_link>
+            </div>
+
+            <btn
+            @click="this.selecting = false"
+            :small="true"
+            >
+                Fermer
+            </btn>
         </div>
     </div>
 </div>
 
 <script>
-    const [impLoader, impTaob, add_comment, comment] = await Promise.all([
-        import("/public/cuteVue/stores/loader.js"),
+    const [{ default: taob }, add_comment, comment] = await Promise.all([
         import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/add_comment.html'),
         importer('/public/cuteVue/components/comment.html')
     ]);
 
-    const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
-
     export default {
         components: {
-            add_comment,
+            "add-comment": add_comment,
             comment
         },
-
         data: {
-            players: [
-                {
-                    text: "Player 1",
-                    value: "player1"
-                },
-                {
-                    text: "Player 2",
-                    value: "player2"
-                }
-            ],
-            episodes: [
-                {
-                    text: "Episode 1",
-                    value: 1,
-                },
-                {
-                    text: "Episode 2",
-                    value: 2,
-                },
-                {
-                    text: "Episode 3",
-                    value: 3,
-                },
-                {
-                    text: "Episode 4",
-                    value: 4,
-                },
-                {
-                    text: "Episode 5",
-                    value: 5,
-                },
-                {
-                    text: "Episode 6",
-                    value: 6,
-                },
-                {
-                    text: "Episode 7",
-                    value: 7,
-                },
-                {
-                    text: "Episode 8",
-                    value: 8,
-                },
-                {
-                    text: "Episode 9",
-                    value: 9,
-                },
-                {
-                    text: "Episode 10",
-                    value: 10,
-                },
-                {
-                    text: "Episode 11",
-                    value: 11,
-                },
-                {
-                    text: "Episode 12",
-                    value: 12,
-                }
-            ],
-            currentPlayer: "player1",
-            currentEpisode: 1,
+            type: null,
+            title: "",
+            img: "",
+            category: "",
+            description: "",
+            release_date: "",
+
+            serie: null,
+            serieName: "",
+            season: null,
+            episode: null,
+            videoId: null,
+
+            players: [],
+            currentPlayer: null,
+
+            myComments: [],
             comments: [],
-        },
+            pageComment: 0,
+            endComment: false,
 
+            up_vote: 0,
+            down_vote: 0,
+            liked: false,
+            disliked: false,
+            contentId: null,
+
+            selecting: false,
+            selectedSeason: null,
+        },
+        computed: {
+            hasNext(){
+                if(this.serie === null) return false;
+
+                let season = this.season;
+                let episode = this.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === this.serie[season].length -1){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason + 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return false;
+                }
+                return true;
+            },
+
+            hasPrevious(){
+                if(this.serie === null) return false;
+
+                let season = this.season;
+                let episode = this.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === 0){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason - 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return false;
+                }
+                return true;
+            }
+        },
         methods: {
+            async init(){
+                if(this.pathname.startsWith("/movie")){
+                    const movie = await taob.get(
+                        "/movie/{id}", 
+                        {
+                            params: {id: this.params.id},
+                            loader: true
+                        }
+                    )
+                    .info((info, ok) => {
+                        if(info === "movie.notfound"){
+                            this.pushToast("error", "Film introuvable.");
+                            router.push("/");
+                        }
+                        else if(!ok){
+                            this.pushToast("error", "Erreur lors de la récupération du film.");
+                            router.push("/");
+                        }
+                    })
+                    .sd();
+                    this.type = "movie";
+
+                    this.title = movie.title;
+                    this.img = movie.image;
+                    this.category = movie.content.category.title;
+                    this.description = movie.description || "";
+                    this.release_date = movie.release_date;
+                    this.videoId = movie.video.id;
+
+                    this.players = movie.video.urls;
+                    this.currentPlayer = movie.video.urls[0]?.value || null;
+
+                    this.up_vote = movie.content.up_vote;
+                    this.down_vote = movie.content.down_vote;
+                    this.contentId = movie.content.id;
+
+                    taob.get(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId},
+                            loader: true
+                        }
+                    )
+                    .s(data => {
+                        if(!data) return;
+                        if(data.value === 1) this.liked = true;
+                        else if(data.value === -1) this.disliked = true;
+                    });
+                }
+                else {
+                    const [episode, episodes] = await Promise.all([
+                        taob.get(
+                            "/serie/{id}/season/{season}/episode/{episode}", 
+                            {
+                                params: {
+                                    id: this.params.id,
+                                    season: this.params.season,
+                                    episode: this.params.episode,
+                                },
+                                loader: true
+                            }
+                        )
+                        .info((info, ok) => {
+                            if(info === "episode.notfound"){
+                                this.pushToast("error", "Episode introuvable.");
+                                router.push("/");
+                            }
+                            else if(!ok){
+                                this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                                router.push("/");
+                            }
+                        })
+                        .sd(),
+                        taob.get(
+                            "/serie/{id}/all", 
+                            {
+                                params: {
+                                    id: this.params.id,
+                                },
+                                loader: true
+                            }
+                        )
+                        .info((info, ok) => {
+                            if(!ok){
+                                this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                                router.push("/");
+                            }
+                        })
+                        .sd(),
+                    ]);
+                    this.type = "serie";
+
+                    this.title = episode.title;
+                    this.img = episode.serie.image;
+                    this.category = episode.serie.content.category.name;
+                    this.description = episode.description || "";
+                    this.release_date = episode.release_date;
+                    this.videoId = episode.video.id;
+                    this.episode = episode.episode;
+                    this.season = episode.season;
+                    this.serieName = episode.serie.title;
+
+                    this.players = episode.video.urls;
+                    this.currentPlayer = episode.video.urls[0]?.value || null;
+
+                    this.up_vote = episode.serie.content.up_vote;
+                    this.down_vote = episode.serie.content.down_vote;
+                    
+                    const serie = episodes.reduce(
+                        (pv, cv) => {
+                            if(pv[cv.season] === undefined)pv[cv.season] = []
+                            pv[cv.season].push(cv);
+                            return pv;
+                        },
+                        {}
+                    );
+                    Object.keys(serie).forEach(key => serie[key] = serie[key].sort((a, b) => a.episode - b.episode));
+                    const sort = Object.keys(serie).sort((a, b) => a.episode - b.episode);
+                    this.serie = sort.reduce(
+                        (pv, cv) => {
+                            pv[cv] = serie[cv];
+                            return pv;
+                        },
+                        {}
+                    );
+                    this.selectedSeason = String(episode.season);
+                }
+                this.getComments();
+                if(this.isConnected)this.getMyComments();
+            },
             async getComments(){
-                let close = loaderStore.push();
+                const comments = await taob.get(
+                    "/video/{id}/comment", 
+                    {
+                        params: { id: this.videoId },
+                        query: { page: this.pageComment },
+                        loader: true
+                    }
+                ) 
+                .sd();
+
+                if(comments.length < 10)this.endComment = true;
+                this.pageComment++;
+                this.comments = [...this.comments, ...comments.filter(c => c.user.id !== this.userId)];
+            },
+            async getMyComments(){
+                const comments = await taob.get(
+                    "/video/{id}/comment/self", 
+                    {
+                        params: {id: this.videoId},
+                        loader: true
+                    }
+                )
+                .sd();
                 
-                this.success = false;
-                await taob.get("/video/{id}/comment", {params: {id: 1}}) // TODO: Change the video id
-                .s((data) => {
-                    this.success = true;
-                    this.comments = data;
-                })
-                .e(() => {
-                    alert("Une erreur est survenue lors du chargement des commentaires");
-                })
-                .result;
+                this.myComments = comments
+            },
+            async vote(type){
+                if(type === "like" && !this.liked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: 1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+                    
+                    this.up_vote++;
+                    if(this.disliked) this.down_vote--;
+                    this.disliked = false;
+                    this.liked = true;
+                } 
+                else if(type === "like" && this.liked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
 
-                close();
+                    this.up_vote--;
+                    this.liked = false;
+                }
+                else if(type === "dislike" && !this.disliked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: -1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote++;
+                    if(this.liked) this.up_vote--;
+                    this.liked = false;
+                    this.disliked = true;
+                } 
+                else if(type === "dislike" && this.disliked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote--;
+                    this.disliked = false;
+                }
+            },
+            next(){
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === this.serie[season].length -1){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason + 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return;
+                    episode = this.serie[season][0].episode;
+                }
+                else episode = this.serie[season][indexEpisode + 1].episode;
+
+                router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
+            },
+            previous(){
+                let season = this.params.season;
+                let episode = this.params.episode;
+
+                let indexEpisode = this.serie[season].findIndex(v => v.episode == episode);
+
+                if(indexEpisode === 0){
+                    let listSeason = Object.keys(this.serie);
+                    let indexSeason = listSeason.findIndex(v => v === season);
+                    season = listSeason[indexSeason - 1];
+                    if(this.serie[season] === undefined || this.serie[season][0] === undefined) return;
+                    episode = this.serie[season][this.serie[season].length - 1].episode;
+                }
+                else episode = this.serie[season][indexEpisode - 1].episode;
+
+                router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
             },
 
-            async refreshComment(comment){
-                this.comments.push(comment);
-                this.$update("comments");
-            },
+            async vote(type){
+                if(this.isConnected === false) return;
+                if(type === "like" && !this.liked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: 1 }, 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+                    
+                    this.up_vote++;
+                    if(this.disliked) this.down_vote--;
+                    this.disliked = false;
+                    this.liked = true;
+                } 
+                else if(type === "like" && this.liked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.up_vote--;
+                    this.liked = false;
+                }
+                else if(type === "dislike" && !this.disliked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: -1 }, 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote++;
+                    if(this.liked) this.up_vote--;
+                    this.liked = false;
+                    this.disliked = true;
+                } 
+                else if(type === "dislike" && this.disliked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.contentId },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote--;
+                    this.disliked = false;
+                }
+            },   
         },
-
         mounted(){
-            this.getComments();
+            this.init();
         },
-        
-        unmounted(){
-
-        }
+        stores: [
+            {
+                name: "router",
+                states: ["params", "pathname"]
+            },
+            {
+                name: "user",
+                states: ["isConnected", "userId"]
+            },
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            },
+        ]
     }
 </script>
 

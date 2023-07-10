@@ -33,6 +33,7 @@
             init(){
                 const pageName = router.params.name || "home";
                 const page = this.pages.find(p => p.name === pageName);
+                document.title = page.navTitle ? document.title + " : " + page.navTitle : document.title;
                 if(page !== undefined) this.page = page;
                 else router.push("/");
             }

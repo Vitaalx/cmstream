@@ -13,13 +13,12 @@
 </div>
 
 <script>
-    const [impLoader, impTaob] = await Promise.all([
+    const [impLoader, { default: taob }] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
 
     const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
     
     export default {
         props: {
@@ -42,8 +41,6 @@
                 this.closeModal();
                 close();
             }
-        },
-        mounted() {
         },
         stores: [
             {

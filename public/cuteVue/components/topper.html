@@ -7,13 +7,13 @@
     @mouseleave="this.hover = false"
     cv-ref="div"
     >
-        <router_link 
+        <div
         cv-for="video of Object.entries(this.videos)"
-        href="#"
         class="absolute top-0 left-0 w-full h-full transition duration-[1s]"
         cv-class="{
             'opacity-1': this.video[0] == this.index,
             'opacity-0': this.video[0] != this.index,
+            'z-[1]': this.video[0] == this.index,
         }"
         >
             <img 
@@ -21,15 +21,25 @@
             :src="this.video[1].value.image"
             />
 
-            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[150px] px-[10px] py-[5px] flex flex-col gap-[10px] bg-[rgba(0,0,0,0.5)] content">
-                <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.video[1].value.title }}</h2>
+            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[280px] px-[10px] py-[5px] flex flex-col items-start gap-[10px] content">
+                <div class="w-full p-[10px] flex flex-col items-start gap-[10px] bg-[rgba(0,0,0,0.5)] top">
+                    <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.video[1].value.title }}</h2>
 
-                <p class="w-full description">{{ this.video[1].value.description || "" }}</p>
+                    <p class="w-full max-h-[70px] description">{{ this.video[1].value.description || "" }}</p>
+
+                    <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
+                </div>
+
+                <router_link href="show" class="ml-[-5px] flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition">
+                    <icon name="play-circle-outline" size="60"/>
+
+                    <span>Regarder</span>
+                </router_link>
             </div>
-        </router_link>
+        </div>
 
         <div 
-        class="absolute bottom-0 h-[200px] p-[20px] flex gap-[40px] transition  duration-[1s]"
+        class="absolute bottom-0 h-[200px] p-[20px] flex gap-[40px] transition z-[2] duration-[1s]"
         cv-style="{'transform': `translateX(-${this.xpos}px)`}"
         cv-ref="videos"
         >
@@ -54,7 +64,7 @@
         name="chevron-left"
         size="50"
         @click="left"
-        class="absolute left-0 bottom-[100px] cursor-pointer translate-y-[50%] transition"
+        class="absolute left-0 bottom-[100px] cursor-pointer translate-y-[50%] transition z-[2]"
         cv-class="{
             '-translate-x-[100%]': this.hover === false
         }"
@@ -64,7 +74,7 @@
         name="chevron-right"
         size="50"
         @click="right"
-        class="absolute right-0 bottom-[100px] cursor-pointer translate-y-[50%] transition"
+        class="absolute right-0 bottom-[100px] cursor-pointer translate-y-[50%] transition z-[2]"
         cv-class="{
             'translate-x-[100%]': this.hover === false
         }"

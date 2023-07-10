@@ -2,6 +2,7 @@
 /shelf/
 /workspace.xml
 config.php
+public/cuteVue/pages.json
 
 # Editor-based HTTP Client requests
 /httpRequests/

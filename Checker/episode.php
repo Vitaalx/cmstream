@@ -8,7 +8,7 @@ use Entity\Episode;
 
 function notexist(array $content, Floor $floor, Response $response): void
 {
-    $episode = episode::findFirst([
+    $episode = Episode::findFirst([
         "episode" => $content["episode"],
         "season" => $content["season"],
         "serie_id" => $content["serie_id"]

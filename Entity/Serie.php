@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Core\Logger;
 
 class Serie extends Entity
 {
@@ -96,6 +97,11 @@ class Serie extends Entity
         return $this;
     }
 
+    public function getContent(): Content
+    {
+        return Content::findFirst(["value" => $this, "value_type" => "S"]);
+    }
+
     /**
      * @type{Date}
      * @notnullable{}
@@ -126,6 +132,14 @@ class Serie extends Entity
     {
         parent::set("updated_at", $updated_at);
         return $this;
+    }
+
+    protected function onSerialize(array $array): array
+    {
+        if(in_array("content", self::$groups)){
+            $array["content"] = $this->getContent();
+        }
+        return $array;
     }
 
     protected function onDelete(){

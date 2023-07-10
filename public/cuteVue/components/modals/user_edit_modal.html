@@ -1,4 +1,4 @@
-<div class="absolute top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
+<div class="absolute z-10 top-0 left-0 w-[calc(100vw-250px)] h-[calc(100vh-100px)] ml-[250px] mt-[100px] flex justify-center items-center bg-[rgba(0,0,0,0.5)] overlay">
     <div class="relative w-[400px] min-h-[380px] px-[48px] py-[24px] flex flex-col justify-center items-center gap-[30px] bg-white rounded-xl popup">
         <icon name="close" class="absolute top-[24px] right-[24px] text-[24px] cursor-pointer" @click="this.closeModal()"/>
 
@@ -33,7 +33,9 @@
                     :items="this.roles" 
                     :return-value="v => v.id" 
                     :return-text="t => t.name" 
-                    cv-model="roleIdToEdit" 
+                    cv-model="roleIdToEdit"
+                    @search="getRoles"
+                    :filter="false"
                     />
                 </div>
 
@@ -51,26 +53,25 @@
 </div>
 
 <script>
-    const [impLoader, impTaob] = await Promise.all([
+    const [impLoader, { default: taob }] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js")
     ]);
     const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
-        data: {
-            user: null,
-            roles: [],
-            roleIdToEdit: null
-        },
         props: {
             userid: null,
             currentfirstname: "",
             currentlastname: "",
             currentusername: "",
             currentrolename: "",
-            currentroleid: ""
+            currentroleid: null
+        },
+        data: {
+            user: null,
+            roles: [],
+            roleIdToEdit: null
         },
         methods: {
             closeModal() {
@@ -80,8 +81,8 @@
                 let close = loaderStore.push();
 
                 if (this.hasPermission("role_editor")) {
-                    if (this.roleIdToEdit != this.currentroleid) {
-                        if(this.roleIdToEdit === null) {
+                    if (this.roleIdToEdit != (this.currentroleid || -1)) {
+                        if(this.roleIdToEdit === -1) {
                             await taob.put("role/user/" + this.userid)
                             .s(async () => {
                                 this.pushToast("successfull", "L'utilisateur à bien été modifié.");
@@ -116,23 +117,32 @@
                 this.closeModal();
                 close();
             },
-            async getRoles() {
-                let close = loaderStore.push();
-
-                await taob.get('roles').s(data => {
-                    data.roles.push({
-                        id: null,
-                        name: "utilisateur"
-                    });
-                    this.roles = data.roles;
-                }).result;
-
-                close();
+            async getRoles(name){
+                const {roles} = await taob.get("roles", {query: {name}}).sd();
+                roles.push({
+                    id: -1,
+                    name: "utilisateur"
+                });
+                this.roles = roles;
             }
         },
         mounted() {
-            this.getRoles();
-            this.roleIdToEdit = this.currentroleid;
+            if (this.hasPermission("role_editor")) {
+                this.getRoles().then(() => {
+                    if(this.currentroleid === null){
+                        this.roleIdToEdit = -1;
+                        return;
+                    }
+                    else this.roleIdToEdit = this.currentroleid;
+
+                    this.roles[0] = {
+                        id: this.roleIdToEdit,
+                        name: this.currentrolename
+                    }
+                    this.$update("roles");
+                });
+                
+            }
         },
         stores: [
             {

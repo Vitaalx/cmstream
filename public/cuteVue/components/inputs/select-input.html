@@ -92,6 +92,11 @@ class="relative"
         watch: {
             items(){
                 this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+            },
+            value(){
+                if(this.value !== null){
+                    this.index = this.items.findIndex(v => JSON.stringify(this['return-value'](v)) === JSON.stringify(this.value));
+                }
             }
         },
         computed: {

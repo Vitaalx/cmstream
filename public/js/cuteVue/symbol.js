@@ -10,6 +10,7 @@ const __ignoreWatcher__ = Symbol("ignoreWatcher");
 const __mount__ = Symbol("mount");
 const __props__ = Symbol("props");
 const __properties__ = Symbol("properties");
+const __computed__ = Symbol("properties");
 
 const symbol = {
     __element__,
@@ -24,6 +25,7 @@ const symbol = {
     __mount__,
     __props__,
     __properties__,
+    __computed__,
 };
 
 export default symbol;

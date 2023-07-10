@@ -12,3 +12,10 @@ function exist(int $commentId, Floor $floor, Response $response): Comment
     if($comment === null) $response->info("comment.notfound")->code(404)->send();
     return $comment;
 }
+
+function size(string $content, Floor $floor, Response $response): string
+{
+    $length = strlen($content);
+    if($length < 1 || $length > 1500) $response->info("comment.wrongSize")->code(400)->send(); 
+    return $content;
+}

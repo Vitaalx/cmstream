@@ -38,12 +38,16 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/catalog.html"),
                 },
                 {
-                    path: "/video",
+                    path: "/movie/{id}",
                     view: () => importer("/public/cuteVue/views/video.html"),
                 },
                 {
-                    path: "/show",
-                    view: () => importer("/public/cuteVue/views/show.html"),
+                    path: "/serie/{id}/season/{season}/episode/{episode}",
+                    view: () => importer("/public/cuteVue/views/video.html"),
+                },
+                {
+                    path: "/serie/{id}",
+                    view: () => importer("/public/cuteVue/views/serie.html"),
                 },
                 {
                     path: "/lists",
@@ -178,7 +182,7 @@ const [app, page_loader, cv_form, text_input, checkbox_input, select_input, icon
     importer("/public/cuteVue/components/inputs/select-input.html"),
     importer("/public/cuteVue/components/icon.html"),
     importer("/public/cuteVue/components/inputs/search-input.html"),
-    importer("/public/cuteVue/components/btn.html"),
+    importer("/public/cuteVue/components/btn.html")
 ]);
 
 CuteVue.component("page-loader", page_loader);

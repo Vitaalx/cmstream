@@ -73,7 +73,7 @@
                 taob.get(this.options.url, {query: this.options.query}).s(data => this.contents = data);
             },
             updateWidth(){
-                this.slideWidth = this.$refs.slides[0].clientWidth;
+                this.slideWidth = this.$refs.slides?.[0]?.clientWidth || 0;
             },
         },
 

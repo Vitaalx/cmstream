@@ -29,5 +29,40 @@ class="show-card"
 </script>
 
 <style>
+    .thumbnail {
+        position: relative;
+    }
 
+    .show-card .thumbnail::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0);
+        transition: 0.3s ease;
+    }
+
+    .show-card .thumbnail::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Material Design Icons";
+        font-size: 60px;
+        color: #fff;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .show-card:hover .thumbnail::before {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .show-card:hover .thumbnail::after {
+    content: "\F0F1B";
+    opacity: 1;
+}
 </style>

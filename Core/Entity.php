@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Iterator;
+
 #[\AllowDynamicProperties]
 abstract class Entity implements \JsonSerializable
 {
@@ -128,7 +130,6 @@ abstract class Entity implements \JsonSerializable
 
             try {
                 if (array_key_exists($propName, $this->props) === false) continue;
-                else if ($prop["entityProp"] !== null && $this->props[$propName] !== null) $array[$propName] = $this->props[$propName]->toArray();
                 else $array[$propName] = $this->props[$propName];
             } catch (\Throwable $th) {
                 continue;
@@ -140,6 +141,9 @@ abstract class Entity implements \JsonSerializable
 
     public function save(): void
     {
+        $isInsert = !array_key_exists("id", $this->props);
+        $this->onSave($isInsert);
+
         $currentEntityName = "_" . $this->entityName;
 
         $props = [];
@@ -166,7 +170,7 @@ abstract class Entity implements \JsonSerializable
             if ($prop["default"] === true) array_push($returning, $propName);
         }
 
-        if (array_key_exists("id", $this->props) === false) {
+        if ($isInsert === true) {
             $request = QueryBuilder::createInsertRequest($currentEntityName, $props, ["RETURNING" => $returning]);
             $result = $request->fetchAll(\PDO::FETCH_ASSOC)[0];
             foreach ($result as $key => $value) {
@@ -179,6 +183,11 @@ abstract class Entity implements \JsonSerializable
         }
 
         $this->propsChange = [];
+    }
+
+    protected function onSave(bool $isInsert): void
+    {
+        
     }
 
     public function delete(): bool
@@ -225,11 +234,12 @@ abstract class Entity implements \JsonSerializable
         $this->propsChange[$prop["name"]] = true;
     }
 
-    protected function get(string $prop)
+    protected function get(string $propName)
     {
-        $prop = self::$reflections[static::class][$prop];
+        $prop = self::$reflections[static::class][$propName];
 
-        if ($prop["entityProp"] !== null || $prop["type"] === "array") $this->join($prop);
+        if($prop === null) return $this->props[$propName];
+        else if ($prop["entityProp"] !== null || $prop["type"] === "array") $this->join($prop);
 
         return $this->props[$prop["name"]];
     }
@@ -267,6 +277,15 @@ abstract class Entity implements \JsonSerializable
         }
 
         return $result;
+    }
+
+    static public function findIterator(array $where = [], array $options = []): EntityIterator
+    {
+        $currentEntityName = explode("\\", static::class);
+        $currentEntityName = "_" . array_pop($currentEntityName);
+
+        $request = QueryBuilder::createSelectRequest($currentEntityName, ["*"], $where, $options);
+        return new EntityIterator(static::class, $request->getIterator());
     }
 
     static public function insertOne(callable | array $default): ?static
@@ -313,5 +332,41 @@ abstract class Entity implements \JsonSerializable
     static public function groups(string ...$groups): void
     {
         self::$groups = $groups;
+    }
+}
+
+class EntityIterator implements Iterator
+{
+    public Iterator $iterator;
+    public string $entity;
+
+    public function __construct(string $entity, Iterator $iterator){
+        $this->iterator = $iterator;
+        $this->entity = $entity;
+    }
+
+    public function current(): mixed
+    {
+        return new $this->entity($this->iterator->current());
+    }
+
+    public function key(): mixed
+    {
+        return $this->iterator->key();
+    }
+
+    public function next(): void
+    {
+        $this->iterator->next();
+    }
+
+    public function rewind(): void
+    {
+        $this->iterator->rewind();
+    }
+
+    public function valid(): bool
+    {
+        return $this->iterator->valid();
     }
 }

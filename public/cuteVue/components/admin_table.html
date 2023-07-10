@@ -1,5 +1,5 @@
 <div class="table w-full">
-    <span cv-if="!this.data.length">Aucune élément trouvé.</span>
+    <span cv-if="!this.data.length">Aucun élément trouvé.</span>
 
     <table cv-if="this.data.length" class="table-content w-full text-left border-2 rounded-t-[8px]">
         <thead class="bg-whitesmoke">
@@ -23,7 +23,7 @@
              <tr cv-for="item of this.displayitems" class="border-2">
                 <td cv-for="key of this.keys" class="p-[22px]">
                     {{ this.item[this.key] = this.key === 'created_at' || this.key === 'updated_at' ?
-                    this.dateFormater(this.item[this.key]) : this.key === 'category' ?
+                    this.dateFormatter(this.item[this.key]) : this.key === 'category' ?
                     this.item[this.key].title : this.item[this.key]
                     }}
                 </td>
@@ -47,7 +47,7 @@
         </tbody>
     </table>
 
-   <div cv-if="this.data.length" class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
+   <div cv-if="this.data.length && this.paging" class="table-footer w-full flex items-center justify-between px-[25px] border-x-[2px] border-b-[2px] p-[12px] rounded-b-[8px]">
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
         @click="this.$emit('previous')"
@@ -74,6 +74,7 @@
             keys: [],
             edit: false,
             delete: false,
+            paging: false,
             currentpage: 1,
             totalpages: 1
         },
@@ -91,7 +92,7 @@
             }
         },
         methods: {
-            dateFormater(date){
+            dateFormatter(date){
                 const parts = date.split("-");
                 const year = parts[0];
                 const month = parts[1];

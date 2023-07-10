@@ -13,7 +13,9 @@ class QueryBuilder {
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
         
-        $request = self::$db->prepare("SELECT " . $select . " FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options);
+        $stringRequest = "SELECT " . $select . " FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options;
+        if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
+        $request = self::$db->prepare($stringRequest);
         $request->execute($values);
         return $request;
     }
@@ -45,7 +47,9 @@ class QueryBuilder {
 
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
-        $request = self::$db->prepare("INSERT INTO  " . $to . (count($keys) !== 0 ? " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " : " DEFAULT VALUES ") . $options);
+        $stringRequest = "INSERT INTO  " . $to . (count($keys) !== 0 ? " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " : " DEFAULT VALUES ") . $options;
+        if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
+        $request = self::$db->prepare($stringRequest);
         $request->execute($values);
         return $request;
     }
@@ -59,7 +63,9 @@ class QueryBuilder {
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
 
-        $request = self::$db->prepare("UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options);
+        $stringRequest = "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options;
+        if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
+        $request = self::$db->prepare($stringRequest);
         $request->execute($values);
         return $request;
         
@@ -72,7 +78,9 @@ class QueryBuilder {
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
 
-        $request = self::$db->prepare("SELECT count(*) FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options);
+        $stringRequest = "SELECT count(*) FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options;
+        if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
+        $request = self::$db->prepare($stringRequest);
         $request->execute($values);
         return $request;
     }
@@ -84,7 +92,9 @@ class QueryBuilder {
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
 
-        $request = self::$db->prepare("DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " " . $options);
+        $stringRequest = "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " " . $options;
+        if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
+        $request = self::$db->prepare($stringRequest);
         $request->execute($values);
         return $request;
     }

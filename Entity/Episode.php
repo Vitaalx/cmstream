@@ -3,6 +3,7 @@
 namespace Entity;
 
 use Core\Entity;
+use Core\Logger;
 
 class Episode extends Entity
 {
@@ -99,6 +100,7 @@ class Episode extends Entity
     }
 
     /** 
+     * @groups{serie}
      * @notnullable{}
      */
     private Serie $serie;
@@ -106,6 +108,11 @@ class Episode extends Entity
     public function getSerie(): Serie
     {
         return parent::get("serie");
+    }
+
+    public function getSerieId(): int
+    {
+        return parent::get("serie_id");
     }
 
     public function setSerie(Serie $serie): self

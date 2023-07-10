@@ -1,38 +1,38 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
     <cv-form
-            @submit="addContent"
+    @submit="addContent"
     >
-        <div class="flex flex-col items-start m-[5px]">
-            <label>Type de contenu</label>
+    <div class="flex flex-col items-start m-[5px]">
+        <label>Type de contenu</label>
 
-            <select-input class="w-full max-w-[300px]" :items="this.contentType" :return-value="v => v.value"
-                          :return-text="t => t.text" cv-model="currentType"/>
-        </div>
-
+        <select-input 
+        class="w-full max-w-[300px]" :items="this.contentType" :return-value="v => v.value"
+        :return-text="t => t.text" cv-model="currentType"
+        />
+    </div>
         <div class="mt-[30px] flex flex-col gap-[20px] movie-inputs">
-
             <div class="w-full flex gap-[20px] inputs-group">
                 <div class="w-full flex flex-col items-start m-[5px]">
                     <label>Titre</label>
 
                     <text-input
-                            type="text"
-                            :placeholder="`Titre ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
-                            cv-model="formTitle"
-                            :rules="this.titleRule"
-                            class="w-full"
-                    ></text-input>
+                    type="text"
+                    :placeholder="`Titre ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
+                    cv-model="formTitle"
+                    :rules="this.titleRule"
+                    class="w-full"
+                    />
                 </div>
 
                 <div class="w-full flex flex-col items-start m-[5px]">
                     <label>Miniature</label>
 
                     <text-input
-                            type="text"
-                            :placeholder="`Mignature ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
-                            cv-model="formImage"
-                            :rules="this.imageRules"
-                            class="w-full"
+                    type="text"
+                    :placeholder="`Mignature ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
+                    cv-model="formImage"
+                    :rules="this.imageRules"
+                    class="w-full"
                     />
                 </div>
             </div>
@@ -41,36 +41,40 @@
                 <label>Description</label>
 
                 <textarea
-                        rows="4"
-                        class="w-full border-[2px] p-[5px] focus:outline-none focus:border-skyblue"
-                        cv-model="formDescription"
-                        :placeholder="`Description ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
+                rows="4"
+                class="w-full border-[2px] p-[5px] focus:outline-none focus:border-skyblue"
+                cv-model="formDescription"
+                :placeholder="`Description ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
                 />
             </div>
+
             <div class="w-full flex flex-col items-start m-[5px]">
                 <label>Date de sortie</label>
 
                 <text-input
-                        type="date"
-                        :placeholder="`Date sortie ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
-                        cv-model="formReleaseDate"
-                        :rules="this.releaseDateRule"
+                type="date"
+                :placeholder="`Date sortie ${this.currentType === 'serie' ? 'de la série' : 'du film'}`"
+                cv-model="formReleaseDate"
+                :rules="this.releaseDateRule"
                 />
             </div>
+
             <div class="flex flex-col items-start m-[5px]">
                 <label>Catégorie</label>
+
                 <div class="flex gap-[5px]">
                     <search-input
-                            :filter="false"
-                            :items="this.categories"
-                            @search="searchCategory"
-                            placeholder="Rechercher une catégorie"
-                            :rules="this.categoryRule"
-                            :return-text="v => v.title"
-                            cv-model="formCategory"
+                    :filter="false"
+                    :items="this.categories"
+                    @search="searchCategory"
+                    placeholder="Rechercher"
+                    :rules="this.categoryRule"
+                    :return-text="v => v.title"
+                    cv-model="formCategory"
                     />
+
                     <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
-                        <icon name="plus-circle" class="text-[24px] text-skyblue hover:text-[#1da1f2]"></icon>
+                        <icon name="plus-circle" class="text-[24px] text-skyblue hover:text-[#1da1f2]" />
                     </button>
                 </div>
             </div>
@@ -78,8 +82,8 @@
 
         <div class="mt-[30px] text-center submit text-white">
             <button
-                    type="submit"
-                    class="px-[20px] py-[10px] rounded bg-skyblue"
+            type="submit"
+            class="px-[20px] py-[10px] rounded bg-skyblue"
             >
                 Ajouter
             </button>
@@ -136,8 +140,8 @@
         methods: {
             async addContent() {
                 let close = loaderStore.push();
-                if (this.currentType === "serie") {
 
+                if (this.currentType === "serie") {
                     await taob.post("serie", {
                         description: this.formDescription === "" ? "Cette série n'a pas de description !" : this.formDescription,
                         image: this.formImage,
@@ -147,10 +151,9 @@
                     }).s(data => {
                         router.push("/dashboard/edit-video/serie/" + data.id);
                     })
-                        .info(info => console.log(info))
-                        .result;
+                    .info(info => console.log(info))
+                    .result;
                 } else if (this.currentType === "movie") {
-
                     await taob.post("movie", {
                         description: this.formDescription === "" ? "Ce film n'a pas de description !" : this.formDescription,
                         image: this.formImage,
@@ -160,10 +163,11 @@
                     }).s(data => {
                         router.push("/dashboard/edit-video/movie/" + data.id);
                     })
-                        .info(info => console.log(info))
-                        .e(err => console.log(err))
-                        .result;
+                    .info(info => console.log(info))
+                    .e(err => console.log(err))
+                    .result;
                 }
+
                 close();
             },
             async addCategory() {
@@ -172,11 +176,12 @@
                 await taob.post("category", {
                     category_name: this.formCategory
                 })
-                    .s(() => this.pushToast("success", "La category à bien été ajoutée."))
-                    .info(info => {
-                        if (info === "category.exist") this.pushToast("error", "La category existe déjà.");
-                    })
-                    .result
+                .s(() => this.pushToast("success", "La category à bien été ajoutée."))
+                .info(info => {
+                    if (info === "category.exist") this.pushToast("error", "La category existe déjà.");
+                    if (info === "category.name") this.pushToast("error", "Le nom de la categorie doit faire au minimum 4 caractères et maximum 20 caratères.");
+                })
+                .result
 
                 close();
             },
@@ -206,4 +211,6 @@
     }
 </script>
 
-<style></style>
+<style>
+
+</style>

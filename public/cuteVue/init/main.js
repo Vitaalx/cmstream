@@ -1,5 +1,5 @@
 import CuteVue, {importer} from "../../js/cuteVue/index.js";
-import "../loader.js";
+import "../stores/loader.js";
 
 const [view, cv_form, text_input, page_loader] = await Promise.all([
     importer("/public/cuteVue/init/view.html"),

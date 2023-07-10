@@ -1,5 +1,5 @@
 <header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
-    <div class="flex items-center justify-center gap-[30px] left">
+    <div class="flex items-center justify-center gap-[30px] grow overflow-hidden">
         <router_link 
         href="/" 
         class="h-full w-[100px] h-[20px] flex items-center logo overflow-hidden"
@@ -11,8 +11,14 @@
             >
         </router_link>
 
-        <nav class="h-full hidden lg:block">
-            <ul class="h-full flex items-center justify-center gap-[30px]">
+        <nav
+        cv-ref="nav"
+        class="h-full hidden lg:flex grow overflow-hidden gap-[30px]"
+        >
+            <ul 
+            cv-ref="defaultNav"
+            class="h-full flex items-center justify-center gap-[30px]"
+            >
                 <li class="h-full">
                     <router_link href="/" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Accueil
@@ -24,20 +30,61 @@
                         Catalogue
                     </router_link>
                 </li>
+            </ul>
 
+            <ul
+            cv-if="this.pagesFilter.length !== 0 && this.sizeNav === null"
+            cv-ref="pagesNav"
+            class="h-full flex items-center justify-center gap-[30px]"
+            >
                 <li
                 cv-for="page of this.pagesFilter"
                 class="h-full"
                 >
                     <router_link :href="'/pages/' + this.page.name" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        {{this.page.name}}
+                        {{this.page.navTitle || this.page.name}}
                     </router_link>
                 </li>
             </ul>
+
+            <div 
+            class="h-full"
+            cv-if="this.sizeNav !== null"
+            tabindex="1"
+            @blur="this.showPagesDrower = false"
+            @focus="this.showPagesDrower = true"
+            cv-ref="drowerNav"
+            >
+                <button
+                @click="this.$refs.drowerNav.focus()"
+                class="flex gap-[10px] h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless"
+                >
+                    Plus
+
+                    <icon :name="this.showPagesDrower ? 'chevron-up' : 'chevron-down'"/>
+                </button>
+
+                <ul
+                cv-if="this.showPagesDrower === true"
+                class="flex flex-col gap-[10px] top-[60px] z-[1] fixed bg-darkblue p-[10px] w-[200px]"
+                >
+                    <li
+                    cv-for="page of this.pagesFilter"
+                    >
+                        <router_link 
+                        :href="'/pages/' + this.page.name" 
+                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" 
+                        @click="this.$refs.drowerNav.blur()"
+                        >
+                            {{this.page.navTitle || this.page.name}}
+                        </router_link>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </div>
 
-    <div class="flex items-center justify-center gap-[40px] right">
+    <div class="flex items-center justify-center gap-[40px]">
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
@@ -46,7 +93,7 @@
                     </router_link>
                 </li>
 
-                <li class="h-full">
+                <li cv-if="this.isConnected" class="h-full">
                     <router_link href="/lists" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         <icon name="bookmark-outline" class="text-[24px]"/>
                     </router_link>
@@ -172,6 +219,16 @@
                     </a>
                 </li>
                 <li>
+                    <router_link
+                    cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')"
+                    href="/dashboard"
+                    class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless"
+                    @click="this.displayNaveBar = false"
+                    >
+                        Accéder au dashboard
+                    </router_link>
+                </li>
+                <li>
                     <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
                         Notifications
                     </a>
@@ -218,6 +275,9 @@
         data: {
             displayOptionsMenu: false,
             displayNaveBar: false,
+            sizeNav: null,
+            showPagesDrower: false,
+            interval: null,
         },
 
         props: {},
@@ -268,6 +328,28 @@
                     ) this.displayNaveBar = false;
                 }
             },
+
+            computedNav(){
+                if(!this.$refs.pagesNav || !this.$refs.defaultNav || this.$refs.nav) return;
+                const {width: widthNav} = this.$refs.nav.getBoundingClientRect();
+
+                if(this.sizeNav !== null){
+                    const {widthDefault, widthPages} = this.sizeNav;
+                    if(widthDefault + widthPages + 30 < widthNav){
+                        this.sizeNav = null;
+                    }
+
+                    return;
+                }
+
+                const {width: widthDefault} = this.$refs.defaultNav.getBoundingClientRect();
+                const {width: widthPages} = this.$refs.pagesNav.getBoundingClientRect();
+
+                if(widthDefault + widthPages + 30 > widthNav){
+                    this.sizeNav = {widthDefault, widthPages};
+                }
+            },
+
             async toDisconnect(){
                 let close = loaderStore.push();
 
@@ -281,17 +363,19 @@
         mounted() {
             window.addEventListener("resize", this.resized);
             window.addEventListener("click", this.autoClose);
+            this.interval = setInterval(this.computedNav, 200);
         },
 
         unmounted() {
             window.removeEventListener("resize", this.resized);
             window.removeEventListener("click", this.autoClose);
+            clearInterval(this.interval);
         },
 
         stores: [
             {
                 name: "user",
-                states: ["isConnected", "role", "username", "permissions"],
+                states: ["isConnected", "role", "permissions"],
                 actions: ["disconnect", "hasPermission"]
             },
             {

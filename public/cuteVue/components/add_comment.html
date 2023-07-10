@@ -1,7 +1,8 @@
 <div class="w-full flex gap-[20px] add-comment">
     <div class="avatar">
-        <user-image cv-if="this.isConnected" size="48"/>
-        <icon cv-if="!this.isConnected" name="account-circle" class="block mt-[-15px] text-[48px]"/>
+        <user-image
+        size="48"
+        />
     </div>
     <cv-form 
     class="flex-1 flex flex-col items-end comment"
@@ -25,63 +26,53 @@
 </div>
 
 <script>
-    const [impLoader, impTaob, user_image] = await Promise.all([
-        import("/public/cuteVue/stores/loader.js"),
+    const [{default: taob}, user_image] = await Promise.all([
         import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/account/user-image.html'),
     ]);
 
-    const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
         components: {
             "user-image": user_image
         },
+        props: {
+            "video-id": null
+        },
         data: {
             content: "",
-            success: false
         },
         static: {
             commentRule: [
                 (value) => !!value || "Ce champs est obligatoire",
+                (value) => value.length <= 1500 || "Maximum 1500 caractéres",
             ]
         },
         methods: {
             async submit(){
-                let close = loaderStore.push();
-
-                this.success = false;
-
-                const comment = {
-                    content: this.content, // TODO: change video_id and user_id
-                    video_id: 1,
-                    user_id: this.userId,
-                    status: 1,
-                }
-
-                await taob.post("/comment", comment)
-                .s(() => {
-                    this.success = true;
-                    comment.user = {
-                        username: this.username
+                await taob.post(
+                    "/video/{id}/comment", 
+                    {content: this.content}, 
+                    {
+                        params: {id: this["video-id"]},
+                        loader: true,
                     }
-                    this.$emit("add-comment", comment);
-                    this.content = "";
+                )
+                .info((info, ok) => {
+                    if(!ok){
+                        this.pushToast("error", "Erreur lors de la publication du commentaire.");
+                    }
                 })
-                .e(() => {
-                    alert("Une erreur est survenue lors de l'ajout du commentaire");
-                })
-                .result;
-
-                close();
+                .sd();
+                this.content = "";
+                this.$emit("add-comment");
             }
         },
         stores: [
             {
-                name: "user",
-                states: ["isConnected", "userId", "username"],
-            }
+                name: "toast",
+                actions: ["pushToast"]
+            },
         ]
     }
 </script>

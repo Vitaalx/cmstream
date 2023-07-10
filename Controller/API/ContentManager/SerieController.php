@@ -3,14 +3,17 @@
 namespace Controller\API\ContentManager\SerieController;
 
 use Core\Controller;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
 use Entity\Category;
+use Entity\Content;
 use Entity\Serie;
 use Entity\Episode;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
 use Services\Back\VideoManagerService as VideoManager;
+use Services\MustBeConnected;
 
 /**
  * @POST{/api/serie}
@@ -41,14 +44,14 @@ class createSerie extends AccessContentsManager
     {
         return [
             ["type/string", $request->getBody()['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["video/description", fn() => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
-            ["video/image", fn () => $this->floor->pickup("image"), "image"],
+            ["video/image", fn() => $this->floor->pickup("image"), "image"],
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
-            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
-            ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
+            ["serie/title", fn() => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/notexist", fn() => $this->floor->pickup("title_serie")],
             ["type/string", $request->getBody()['category_name'], "category_name"],
-            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["category/existByName", fn() => $this->floor->pickup("category_name"), "category"],
             ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
@@ -63,6 +66,9 @@ class createSerie extends AccessContentsManager
             "category_id" => $this->floor->pickup("category")->getId(),
             "release_date" => $this->floor->pickup("release_date")
         ]);
+        Content::insertOne(
+            fn(Content $content) => $content->setValue($serie)
+        );
         $response->info("serie.created")->code(201)->send($serie);
     }
 }
@@ -83,7 +89,7 @@ class deleteSerie extends AccessContentsManager
     {
         return [
             ["type/int", $request->getParam("id"), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"]
         ];
     }
 
@@ -106,13 +112,13 @@ class deleteSerie extends AccessContentsManager
  * @param int id
  * @return Response
  */
-class getSerie extends AccessContentsManager
+class getSerie extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam('id'), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"]
         ];
     }
 
@@ -121,8 +127,7 @@ class getSerie extends AccessContentsManager
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
 
-        Serie::groups("serieCategory");
-
+        Serie::groups("content", "vote", "category");
         $response->send($serie);
     }
 }
@@ -162,7 +167,7 @@ class getSeries extends AccessContentsManager
         );
 
         Serie::groups("dateProps", "category");
-        
+
         $response->code(200)->info("series.get")->send($series);
     }
 }
@@ -213,16 +218,20 @@ class updateSerie extends AccessContentsManager
     {
         return [
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
-            ["serie/title", fn () => $this->floor->pickup("title_serie"), "title_serie"],
+            ["serie/title", fn() => $this->floor->pickup("title_serie"), "title_serie"],
             ["type/int", $request->getParam("id"), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
-            ["serie/notexist", fn () => $this->floor->pickup("title_serie")],
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"],
+            ["serie/notexist", [
+                "title" => $request->getBody()['title_serie'],
+                "serie_id" => $request->getParam("id")
+            ]],
             ["type/string", $request->getBody()['image'], "image"],
-            ["video/image", fn () => $this->floor->pickup("image"), "image"],
+            ["video/image", fn() => $this->floor->pickup("image"), "image"],
             ["type/string", $request->getBody()['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["video/description", fn() => $this->floor->pickup("description"), "description"],
             ["type/int", $request->getBody()['category_id'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["category/exist", fn() => $this->floor->pickup("category_id"), "category"],
+            ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
@@ -235,14 +244,15 @@ class updateSerie extends AccessContentsManager
         $serie->setTitle($this->floor->pickup("title_serie"));
         $serie->setImage($this->floor->pickup("image"));
         $serie->setDescription($this->floor->pickup("description"));
-        $serie->setCategory($category);
+        $serie->setReleaseDate($this->floor->pickup("release_date"));
+        $serie->getContent()->setCategory($category)->save();
         $serie->save();
         $response->info("serie.updated")->code(200)->send();
     }
 }
 
 /**
- * @POST{/api/episode}
+ * @POST{/api/episode/{serie_id}}
  * @apiName AddEpisode
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -273,30 +283,42 @@ class addEpisodeBySerie extends AccessContentsManager
         $episode = $request->getBody();
         return [
             ["type/string", $episode['title_video'], "title_video"],
-            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["video/title", fn() => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $episode['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"],
-            ["type/int", $episode['serie_id'], "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
+            ["video/description", fn() => $this->floor->pickup("description"), "description"],
+            ["type/int", $request->getParam('serie_id'), "serie_id"],
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"],
             ["type/int", $episode['episode'], "episode"],
-            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
+            ["serie/episode", fn() => $this->floor->pickup("episode"), "episode"],
             ["type/int", $episode['season'], "season"],
-            ["serie/season", fn () => $this->floor->pickup("season"), "season"],
+            ["serie/season", fn() => $this->floor->pickup("season"), "season"],
             [
                 "episode/notexist", [
-                    fn () => $this->floor->pickup("serie_id"),
-                    fn () => $this->floor->pickup("episode"),
-                    fn () => $this->floor->pickup("season")
-                ]
+                    "episode" => $episode["episode"],
+                    "season" => $episode["season"],
+                    "serie_id" => $request->getParam("serie_id"),
+            ]
             ]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        $video = VideoManager::createVideo();
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
+
+        $episodes = Episode::findMany([
+            "serie_id" => $serie->getId()
+        ]);
+
+        $nbMaxSeason = max(array_map(function ($episode) {
+            return $episode->getSeason();
+        }, $episodes));
+
+        if ($nbMaxSeason + 1 !== intval($this->floor->pickup("season"))) $response->code(400)->info("episode.season.invalid")->send();
+
+        $video = VideoManager::createVideo();
+
         /** @var Episode $episode */
         $episode = Episode::insertOne([
             "episode" => $this->floor->pickup("episode"),
@@ -311,58 +333,121 @@ class addEpisodeBySerie extends AccessContentsManager
 }
 
 /**
- * @GET{/api/episode/{serie_id}/{season}/{episode}}
- * @apiName GetEpisode
- * @apiGroup ContentManager/SerieController
- * @apiVersion 1.0.0
- * @Feature ContentManager
- * @Description Get an episode
- * @param int serie_id
- * @param int episode
- * @param int season
- * @return Response
+ * @GET{/api/serie/{id}/season/{season}/episode/{episode}}
  */
-class getEpisodeBySerie extends Controller
+class GetEpisode extends Controller
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParam('serie_id'), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
-            ["type/int", $request->getParam('episode'), "episode"],
-            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
-            ["type/int", $request->getParam('season'), "season"],
-            ["serie/season", fn () => $this->floor->pickup("season"), "season"]
+            ["type/int", $request->getParam("id"), "serieId"],
+            ["serie/exist", fn() => $this->floor->pickup("serieId"), "serie"],
+            ["type/int", $request->getParam("episode"), "episodeNumber"],
+            ["type/int", $request->getParam("season"), "seasonNumber"],
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Episode $episode */
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
+        $episodeNumber = $this->floor->pickup("episodeNumber");
+        $seasonNumber = $this->floor->pickup("seasonNumber");
+
         $episode = Episode::findFirst([
-            "serie_id" => $this->floor->pickup("serie")->getId(),
-            "episode" => $this->floor->pickup("episode"),
-            "season" => $this->floor->pickup("season")
+            "serie" => $serie,
+            "episode" => $episodeNumber,
+            "season" => $seasonNumber,
         ]);
-        if (empty($episode)) $response->info("episode.notfound")->code(404)->send();
-        $episodeMapped = [
-            "id" => $episode->getId(),
-            "episode" => $episode->getEpisode(),
-            "season" => $episode->getSeason(),
-            "image" => $episode->getSerie()->getImage(),
-            "title" => $episode->getVideo()->getTitle(),
-            "description" => $episode->getVideo()->getDescription(),
-            "category" => $episode->getSerie()->getCategory()->getTitle(),
-            "url" => $episode->getVideo()->getUrls(),
-            "created_at" => $episode->getCreatedAt(),
-            "updated_at" => $episode->getUpdatedAt()
-        ];
-        $response->code(200)->info("episode.get")->send(["episode" => $episodeMapped]);
+
+        if ($episode === null) $response->info("episode.notfound")->code(404)->send();
+        
+        Episode::groups("video", "content", "vote", "category", "urls", "serie");
+        $response->code(200)->info("episode.get")->send($episode);
     }
 }
 
 /**
- * @GET{/api/episodes/{serie_id}}
+ * @GET{/api/serie/{id}/all}
+ */
+class GetAllSerie extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "serieId"],
+            ["serie/exist", fn() => $this->floor->pickup("serieId"), "serie"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Serie $serie */
+        $serie = $this->floor->pickup("serie");
+
+        $response->code(200)->info("episode.get.all")->send(Episode::findMany(["serie" => $serie]));
+    }
+}
+
+/**
+ * @GET{/api/episode/{episode_id}}
+ */
+class getEpisodeById extends AccessContentsManager {
+
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam('episode_id'), "episode_id"],
+            ["episode/exist", fn () => $this->floor->pickup('episode_id'), "episode"]
+        ];
+    }
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Episode $episode */
+        $episode = $this->floor->pickup("episode");
+
+        Episode::groups("video");
+
+        $response->code(200)->info("episode.get")->send($episode);
+    }
+}
+
+/**
+ * @PUT{/api/episode/{episode_id}}
+ */
+class updateEpisodeById extends AccessContentsManager {
+
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam('episode_id'), "episode_id"],
+            ["episode/exist", fn () => $this->floor->pickup('episode_id'), "episode"],
+            ["type/int", $request->getBody()["episodeNumber"], "episodeNumber"],
+            ["serie/episode", fn () => $this->floor->pickup("episodeNumber"), "episodeNumber"],
+            ["type/int", $request->getBody()["seasonNumber"], "seasonNumber"],
+            ["serie/season", fn () => $this->floor->pickup("seasonNumber"), "seasonNumber"],
+            ["type/string", $request->getBody()["title"], "title"],
+            ["type/string", $request->getBody()["description"], "description"]
+        ];
+    }
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Episode $episode */
+        $episode = $this->floor->pickup("episode");
+
+        $episode->setTitle($this->floor->pickup("title"));
+        $episode->setDescription($this->floor->pickup("description"));
+        $episode->setEpisode($this->floor->pickup("episodeNumber"));
+        $episode->setSeason($this->floor->pickup("seasonNumber"));
+
+        $episode->save();
+
+        $response->code(200)->info("episode.updated")->send($episode);
+    }
+}
+
+/**
+ * @GET{/api/series/{serie_id}/episodes/season/{seasonNumber}}
  * @apiName GetEpisodes
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -371,23 +456,66 @@ class getEpisodeBySerie extends Controller
  * @param int serie_id
  * @return Response
  */
-class getEpisodesBySerie extends Controller
+class getEpisodesSeriesBySeason extends AccessContentsManager
 {
     public function checkers(Request $request): array
     {
         return [
             ["type/int", $request->getParam('serie_id'), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"]
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"],
+            ["type/int", $request->getParam('seasonNumber'), "seasonNumber"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Episode[] $episodes */
+        $episodes = Episode::findMany([
+            "serie_id" => $this->floor->pickup("serie")->getId(),
+            "season" => $this->floor->pickup("seasonNumber")
+        ],
+            ["ORDER_BY" => ["episode"]]);
+
+        if (empty($episodes)) $response->code(400)->info("season.notexist")->send();
+
+        $response->code(200)->info("episodes.get")->send($episodes);
+    }
+}
+
+/**
+ * @GET{/api/series/{serie_id}/season/count}
+ * @Description Get max season number of series
+ * @param int serie_id
+ * @return int
+ */
+class getSeasonCountBySeries extends AccessContentsManager
+{
+
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam('serie_id'), "serie_id"],
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
         $episodes = Episode::findMany([
             "serie_id" => $this->floor->pickup("serie")->getId()
-        ]);
-        $response->code(200)->info("episodes.get")->send(["episodes" => $episodes]);
+        ],
+        ["ORDER_BY" => ["season"]]);
+        $seasons = [];
+        foreach ($episodes as $episode) {
+            array_push($seasons, $episode->getSeason());
+        }
+
+        foreach ($seasons as $key => $value) {
+            if ($key !== count($seasons)) {
+                if ($seasons[$key] === $seasons[$key + 1]) unset($seasons[$key]);
+            }
+        }
+
+        $response->code(200)->info("season.count")->send($seasons);
     }
 }
 
@@ -407,7 +535,7 @@ class deleteEpisode extends AccessContentsManager
     {
         return [
             ["type/int", $request->getParam('id'), "episode_id"],
-            ["episode/exist", fn () => $this->floor->pickup("episode_id"), "episode"]
+            ["episode/exist", fn() => $this->floor->pickup("episode_id"), "episode"]
         ];
     }
 
@@ -421,7 +549,7 @@ class deleteEpisode extends AccessContentsManager
 }
 
 /**
- * @PUT{/api/episode/data/{serie_id}}
+ * @PUT{/api/episode/{serie_id}}
  * @apiName UpdateEpisodeInfo
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -452,33 +580,29 @@ class updateEpisodeInfo extends AccessContentsManager
     {
         return [
             ["type/int", $request->getParam('serie_id'), "serie_id"],
-            ["serie/exist", fn () => $this->floor->pickup("serie_id"), "serie"],
+            ["serie/exist", fn() => $this->floor->pickup("serie_id"), "serie"],
             ["type/string", $request->getBody()['title_video'], "title_video"],
-            ["video/title", fn () => $this->floor->pickup("title_video"), "title_video"],
+            ["video/title", fn() => $this->floor->pickup("title_video"), "title_video"],
             ["type/string", $request->getBody()['description'], "description"],
-            ["video/description", fn () => $this->floor->pickup("description"), "description"],
+            ["video/description", fn() => $this->floor->pickup("description"), "description"],
             ["type/int", $request->getBody()['episode'], "episode"],
-            ["serie/episode", fn () => $this->floor->pickup("episode"), "episode"],
+            ["serie/episode", fn() => $this->floor->pickup("episode"), "episode"],
+            ["episode/exist", fn() => $this->floor->pickup("episode"), "episode"],
             ["type/int", $request->getBody()['season'], "season"],
-            ["serie/season", fn () => $this->floor->pickup("season"), "season"],
-            ["type/int", $request->getBody()['category_id'], "category_id"],
-            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"]
+            ["serie/season", fn() => $this->floor->pickup("season"), "season"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
         /** @var Episode $episode */
-        $episode = Episode::findFirst([
-            "serie_id" => $this->floor->pickup("serie")->getId(),
-            "episode" => $this->floor->pickup("episode"),
-            "season" => $this->floor->pickup("season")
-        ]);
-        VideoManager::updateVideo(
-            $episode->getVideo()->getId(),
-            $this->floor->pickup("title_video"),
-            $this->floor->pickup("description"),
-        );
+        $episode = $this->floor->pickup("episode");
+
+        $episode->setTitle($this->floor->pickup("title_video"));
+        $episode->setDescription($this->floor->pickup("description"));
+        $episode->setSeason($this->floor->pickup("episode"));
+        $episode->setEpisode($this->floor->pickup("season"));
+
         $response->info("episode.updated")->code(200)->send();
     }
 }
@@ -509,17 +633,17 @@ class updateEpisode extends AccessContentsManager
     {
         return [
             ["type/int", $request->getParam('id'), "episode_id"],
-            ["episode/exist", fn () => $this->floor->pickup("episode_id"), "episode"],
+            ["episode/exist", fn() => $this->floor->pickup("episode_id"), "episode"],
             ["type/int", $request->getBody()['season'], "season"],
             ["type/int", $request->getBody()['episode_order'], "episode_nb"],
-            ["serie/episode", fn () => $this->floor->pickup("episode_nb"), "episode_nb"],
-            ["serie/season", fn () => $this->floor->pickup("season"), "season"],
+            ["serie/episode", fn() => $this->floor->pickup("episode_nb"), "episode_nb"],
+            ["serie/season", fn() => $this->floor->pickup("season"), "season"],
             [
                 "episode/notexist", [
-                    fn () => $this->floor->pickup("episode")->getSerie()->getId(),
-                    fn () => $this->floor->pickup("episode_nb"),
-                    fn () => $this->floor->pickup("season")
-                ]
+                fn() => $this->floor->pickup("episode")->getSerie()->getId(),
+                fn() => $this->floor->pickup("episode_nb"),
+                fn() => $this->floor->pickup("season")
+            ]
             ]
         ];
     }

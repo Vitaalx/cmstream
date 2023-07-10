@@ -14,6 +14,7 @@ const {
     __mount__,
     __props__,
     __properties__,
+    __computed__
 } = symbol; 
 
 export default function makeProxy(properties, template){
@@ -35,6 +36,7 @@ export default function makeProxy(properties, template){
     proxy[__mount__] = {};
     proxy[__parent__] = undefined;
     proxy[__props__] = props;
+    proxy[__computed__] = [];
     Object.defineProperty(
         proxy,
         "$events",
@@ -215,7 +217,7 @@ export default function makeProxy(properties, template){
             }
         }
 
-        subscriber();
+        proxy[__computed__].push(subscriber);
     });
 
     Object.entries(watch).forEach(([key, fnc]) => {

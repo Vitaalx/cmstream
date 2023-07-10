@@ -3,6 +3,7 @@
 namespace Controller\API\CommentController;
 
 use Core\Controller;
+use Core\Logger;
 use Core\Request;
 use Core\Response;
 use Entity\Comment;
@@ -12,7 +13,7 @@ use Services\Access\AccessCommentsManager;
 use Services\MustBeConnected;
 
 /**
- * @POST{/api/comment}
+ * @POST{/api/video/{id}/comment}
  * @Body Json Request
  * @param $content
  * @param $video_id
@@ -22,13 +23,13 @@ use Services\MustBeConnected;
 class addComment extends MustBeConnected
 {
     public function checkers(Request $request): array
-    {
+    {  
+
         return [
-            ["type/int", $request->getBody()["video_id"], "videoId"],
-            ["type/int", $request->getBody()["user_id"], "userId"],
-            ["user/exist", fn () => $this->floor->pickup("userId"), "user"],
+            ["type/int", $request->getParam("id"), "videoId"],
             ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
-            ["type/flawless", $request->getBody()['content'], "content"],
+            ["type/flawless", $request->getBody()["content"], "content"],
+            ["comment/size", fn () => $this->floor->pickup("content"), "content"],
         ];
     }
 
@@ -44,8 +45,6 @@ class addComment extends MustBeConnected
                 ->setUser($user)
                 ->setContent($this->floor->pickup("content"))
         );
-
-        //Comment::groups("commentVideo", "commentAuthor");
 
         $response->code(200)->info("comment.posted")->send($commentToInsert);
     }
@@ -95,6 +94,7 @@ class getComments extends Controller
         return [
             ["type/int", $request->getParam("id"), "videoId"],
             ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
+            ["type/int", $request->getQuery("page") ?? 0, "page"],
         ];
     }
 
@@ -102,10 +102,38 @@ class getComments extends Controller
     {
         /** @var Video $video */
         $video = $this->floor->pickup("video");
+        $page = $this->floor->pickup("page");
 
-        $comments = $video->getComments();
+        $comments = Comment::findMany(["video" => $video, "status" => 1], ["OFFSET" => 10 * $page, "LIMIT" => 10]);
         Comment::groups("commentAuthor", "dateProps");
+        $response->code(200)->info("comments.get")->send($comments);
+    }
+}
 
+/**
+ * @GET{/api/video/{id}/comment/self}
+ * @param $videoId
+ */
+class GetCommentsSlef extends MustBeConnected
+{
+
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("id"), "videoId"],
+            ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var Video $video */
+        $video = $this->floor->pickup("video");
+        /** @var Video $user */
+        $user = $this->floor->pickup("user");
+
+        $comments = Comment::findMany(["video" => $video, "user" => $user]);
+        Comment::groups("commentAuthor", "dateProps");
         $response->code(200)->info("comments.get")->send($comments);
     }
 }

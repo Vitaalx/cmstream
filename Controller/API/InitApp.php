@@ -4,6 +4,7 @@ namespace Controller\API\InitApp;
 
 use Core\Controller;
 use Core\Entity;
+use Core\File;
 use Core\Logger;
 use Core\QueryBuilder;
 use Core\Request;
@@ -225,6 +226,10 @@ class postInit extends Controller
                     ->setPassword(password_hash($this->floor->pickup("password"), PASSWORD_DEFAULT))
             );
 
+            $file = new File(__DIR__ . "/../../public/cuteVue/pages.json");
+            $file->write('[{"name":"home","rows":[]}]');
+
+            $response->code(204)->info("config.create")->send();
         } 
         catch (\Throwable $th) {
             exec("php " . __DIR__ . "/../../bin/reset.php", $output, $retval);
@@ -238,7 +243,5 @@ class postInit extends Controller
 
             $response->code(500)->info("config.uncreated")->send($data);
         }
-
-        $response->code(204)->info("config.create")->send();
     }
 }
