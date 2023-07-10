@@ -2,6 +2,11 @@
     <div class="bg-[white] p-[20px] rounded-[4px] flex flex-col items-center gap-[20px] w-[500px] max-h-[90%]">
         <div class="flex justify-between items-center w-full">
             <text-input
+            label="Titre de la navigation"
+            cv-model="navTitle"
+            />
+
+            <text-input
             label="Titre de la page"
             cv-model="title"
             />
@@ -215,6 +220,7 @@
             "editing-page": null
         },
         data: {
+            navTitle: "",
             title: "",
             rows: [],
             editingRow: false,
@@ -246,6 +252,7 @@
             async init(){
                 const page = this.pages.find(p => p.name === this["editing-page"]);
                 this.title = page.title || "";
+                this.navTitle = page.navTitle || "";
                 const rows = [...page.rows];
 
                 const requests = [];
@@ -337,6 +344,7 @@
                 pages[index] = {
                     name: this["editing-page"],
                     title: this.title,
+                    navTitle: this.navTitle,
                     rows: this.rows,
                 };
 

@@ -30,7 +30,7 @@
                 class="h-full"
                 >
                     <router_link :href="'/pages/' + this.page.name" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        {{this.page.name}}
+                        {{this.page.navTitle || this.page.name}}
                     </router_link>
                 </li>
             </ul>
@@ -46,7 +46,7 @@
                     </router_link>
                 </li>
 
-                <li class="h-full">
+                <li cv-if="this.isConnected" class="h-full">
                     <router_link href="/lists" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         <icon name="bookmark-outline" class="text-[24px]"/>
                     </router_link>

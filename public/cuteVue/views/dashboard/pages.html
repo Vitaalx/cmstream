@@ -54,12 +54,16 @@
         static: {
             cols: [
                 {
-                    name: "nom", 
+                    name: "Nom", 
                     display: (item) => item.name,
                     sort: true
                 },
                 {
-                    name: "title", 
+                    name: "Titre de la navigation", 
+                    display: (item) => item.navTitle || "[sans titre]",
+                },
+                {
+                    name: "Titre", 
                     display: (item) => item.title || "[sans titre]",
                 },
             ]
