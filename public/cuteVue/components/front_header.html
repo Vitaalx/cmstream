@@ -320,6 +320,7 @@
             },
 
             computedNav(){
+                if(!this.$refs.pagesNav || !this.$refs.defaultNav || this.$refs.nav) return;
                 const {width: widthNav} = this.$refs.nav.getBoundingClientRect();
 
                 if(this.sizeNav !== null){
@@ -358,6 +359,7 @@
         unmounted() {
             window.removeEventListener("resize", this.resized);
             window.removeEventListener("click", this.autoClose);
+            clearInterval(this.interval);
         },
 
         stores: [
