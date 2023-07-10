@@ -177,6 +177,32 @@ class GetVoteContent extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
 
-        $response->code(204)->info("content.vote")->send(Vote::findFirst(["content" => $content, "user" => $user]));
+        $response->code(204)->info("content.vote.get")->send(Vote::findFirst(["content" => $content, "user" => $user]));
+    }
+}
+
+/**
+ * @DELETE{/api/content/{id}/vote}
+ */
+class DeleteVoteContent extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["content/exist", $request->getParam("id"), "content"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        /** @var Content $content */
+        $content = $this->floor->pickup("content");
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+
+        $vote = Vote::findFirst(["content" => $content, "user" => $user]);
+        if($vote !== null) $vote->delete();
+
+        $response->code(204)->info("content.vote.delete")->send();
     }
 }
