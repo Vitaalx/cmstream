@@ -30,6 +30,7 @@
                 />
 
                 <btn
+                cv-if="this.type === 'serie'"
                 @click="this.selecting = true"
                 :small="true"
                 >
@@ -108,7 +109,7 @@
     cv-if="this.selecting === true"
     class="fixed z-20 flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
     >
-        <div class="bg-darkblue p-[20px] flex flex-col items-start w-[600px] max-w-[90%] gap-[15px]">
+        <div class="bg-darkblue p-[20px] flex flex-col items-start w-[600px] max-w-[90%] gap-[15px] select-none">
             <select-input
             label="Saison"
             class="w-[150px]"
