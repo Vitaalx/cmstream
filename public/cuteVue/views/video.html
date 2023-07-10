@@ -4,19 +4,41 @@
     </div>
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
-        <div cv-if="this.type === null" class="h-[32px] mb-[40px]"/>
+        <div cv-if="this.type === null" class="h-[32px] mb-[40px]"></div>
         <h1
         cv-if="this.type === 'movie'"
         class="mb-[40px] text-2xl font-bold"
         >
-            {{this.title}}
+            {{ this.title }}
         </h1>
         <h1 
         cv-if="this.type === 'serie'"
         class="mb-[40px] text-2xl font-bold"
         >
-            {{this.serieName}} : {{this.title}} S{{this.season}} E{{this.episode}}
+            {{ this.serieName }} : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
         </h1>
+
+        <div cv-if="this.type === 'movie'" class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
+            <p>{{ this.description }}</p>
+
+            <div class="flex items-center gap-[30px] info">
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
+        
+                <div class="flex gap-[15px] rate">
+                    <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
+                        {{ this.up_vote }}
+
+                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                    </div>
+
+                    <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
+                        {{ this.down_vote }}
+
+                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
             <div class="flex gap-[20px] player-otions items-center">
@@ -36,23 +58,6 @@
                 >
                     Sélectionner un épisode
                 </btn>
-
-                <div 
-                cv-if="this.type === 'movie'"
-                class="flex gap-[15px] rate select-none"
-                >
-                    <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
-                        {{ this.up_vote }}
-
-                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
-                    </div>
-
-                    <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
-                        {{ this.down_vote }}
-
-                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
-                    </div>
-                </div>
             </div>
 
             <div class="w-full aspect-video bg-white player-video">
@@ -69,7 +74,7 @@
             </div>
 
             <div class="flex justify-between player-bottom">
-                <h2 class="text-xl font-bold">{{this.description}}</h2>
+                <p cv-if="this.type === 'serie'" class="text-xl font-bold">{{ this.description }}</p>
 
                 <div 
                 cv-if="this.type === 'serie'"
@@ -142,7 +147,7 @@
                 >   
                     <p class="w-full h-full overflow-hidden text-ellipsis whitespace-nowrap hover:underline">
                         ep {{this.e.episode}} : <strong>{{ " " + this.e.title + " "}}</strong> 
-                        <i class="text-[12px]">{{this.e.description || "rg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg dz dsd qsd sqd  ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qrg rgreg erg ergerger ggerg ergeg gerg e egerg eger gergerg ergerger  dzd zqd zqd zd qzd qdzdq d z qzdg"}}</i>
+                        <i class="text-[12px]">{{this.e.description }}</i>
                     </p>
                 </router_link>
             </div>
@@ -158,7 +163,7 @@
 </div>
 
 <script>
-    const [{default: taob}, add_comment, comment] = await Promise.all([
+    const [{ default: taob }, add_comment, comment] = await Promise.all([
         import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/add_comment.html'),
         importer('/public/cuteVue/components/comment.html')
@@ -169,7 +174,6 @@
             "add-comment": add_comment,
             comment
         },
-
         data: {
             type: null,
             title: "",
@@ -201,7 +205,6 @@
             selecting: false,
             selectedSeason: null,
         },
-
         computed: {
             hasNext(){
                 if(this.serie === null) return false;
@@ -237,7 +240,6 @@
                 return true;
             }
         },
-
         methods: {
             async init(){
                 if(this.pathname.startsWith("/movie")){
@@ -263,7 +265,7 @@
 
                     this.title = movie.title;
                     this.img = movie.image;
-                    this.category = movie.content.category.name;
+                    this.category = movie.content.category.title;
                     this.description = movie.description || "";
                     this.release_date = movie.release_date;
                     this.videoId = movie.video.id;
@@ -366,17 +368,15 @@
                     );
                     this.selectedSeason = String(episode.season);
                 }
-                
                 this.getComments();
                 if(this.isConnected)this.getMyComments();
             },
-
-           async getComments(){
+            async getComments(){
                 const comments = await taob.get(
                     "/video/{id}/comment", 
                     {
-                        params: {id: this.videoId},
-                        query: {page: this.pageComment},
+                        params: { id: this.videoId },
+                        query: { page: this.pageComment },
                         loader: true
                     }
                 ) 
@@ -386,7 +386,6 @@
                 this.pageComment++;
                 this.comments = [...this.comments, ...comments.filter(c => c.user.id !== this.userId)];
             },
-
             async getMyComments(){
                 const comments = await taob.get(
                     "/video/{id}/comment/self", 
@@ -399,7 +398,62 @@
                 
                 this.myComments = comments
             },
+            async vote(type){
+                if(type === "like" && !this.liked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: 1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+                    
+                    this.up_vote++;
+                    if(this.disliked) this.down_vote--;
+                    this.disliked = false;
+                    this.liked = true;
+                } 
+                else if(type === "like" && this.liked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
 
+                    this.up_vote--;
+                    this.liked = false;
+                }
+                else if(type === "dislike" && !this.disliked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: -1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote++;
+                    if(this.liked) this.up_vote--;
+                    this.liked = false;
+                    this.disliked = true;
+                } 
+                else if(type === "dislike" && this.disliked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote--;
+                    this.disliked = false;
+                }
+            },
             next(){
                 let season = this.params.season;
                 let episode = this.params.episode;
@@ -417,7 +471,6 @@
 
                 router.push(`/serie/${this.params.id}/season/${season}/episode/${episode}`);
             },
-
             previous(){
                 let season = this.params.season;
                 let episode = this.params.episode;
@@ -494,11 +547,9 @@
                 }
             },   
         },
-
         mounted(){
             this.init();
         },
-
         stores: [
             {
                 name: "router",
