@@ -219,6 +219,16 @@
                     </a>
                 </li>
                 <li>
+                    <router_link
+                    cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')"
+                    href="/dashboard"
+                    class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless"
+                    @click="this.displayNaveBar = false"
+                    >
+                        Accéder au dashboard
+                    </router_link>
+                </li>
+                <li>
                     <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
                         Notifications
                     </a>
@@ -365,7 +375,7 @@
         stores: [
             {
                 name: "user",
-                states: ["isConnected", "role", "username", "permissions"],
+                states: ["isConnected", "role", "permissions"],
                 actions: ["disconnect", "hasPermission"]
             },
             {
