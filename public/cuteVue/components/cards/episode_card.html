@@ -1,22 +1,24 @@
-<router_link href="#" class="episode-card">
+<router_link :href="`/serie/${this.serie.id}/season/${this.episode.season}/episode/${this.episode.episode}`" class="episode-card">
     <div class="w-full h-[135px] mb-[10px] thumbnail">
         <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded-large.png" alt="show title">
     </div>
 
     <div class="content">
-        <h3 class="text-xs text-grey text-bold show-title">Show title</h3>
+        <h3 cv-if="this.serie.title" class="text-xs text-grey text-bold show-title">{{ this.serie.title }}</h3>
 
-        <h2 class="text-sm episode-title">SXXEXX - Episode title</h2>
+        <h2 class="text-sm episode-title">
+        S{{this.episode.season < 10 ? '0' + this.episode.season : this.episode.season}}E{{this.episode.episode < 10 ? '0' + this.episode.episode : this.episode.episode}} - {{ this.episode.title }}</h2>
+    
+        <p cv-if="this.episode.description" class="text-xs description" :title="this.episode.description">{{ this.episode.description }}</p>
     </div>
 </router_link>
 
 <script>
     export default {
-        data: {},
-
-        props: {},
-
-        methods: {},
+        props: {
+            serie: {},
+            episode: {},
+        },
     }
 </script>
 
@@ -54,7 +56,15 @@
     }
 
     .episode-card:hover .thumbnail::after {
-    content: "\F0F1B";
-    opacity: 1;
-}
+        content: "\F0F1B";
+        opacity: 1;
+    }
+
+    .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1; /* number of lines to show */
+        -webkit-box-orient: vertical;
+    }
 </style>

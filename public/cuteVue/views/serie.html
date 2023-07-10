@@ -1,0 +1,242 @@
+<div>
+    <div class="h-[300px] mb-[40px] bg-skyblue hero">
+        <img class="w-full h-full object-cover" :src="this.img || '/public/img/banners/unloaded.png'">
+    </div>
+    
+    <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
+        <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
+            <h1 class="text-2xl font-bold">{{ this.title }}</h1>
+
+            <p>{{ this.description }}</p>
+
+            <div class="flex items-center gap-[30px] info">
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
+        
+                <div class="flex gap-[15px] rate">
+                    <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
+                        {{ this.up_vote }}
+
+                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                    </div>
+
+                    <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
+                        {{ this.down_vote }}
+
+                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="show-content">
+            <select-input
+            label="Saison"
+            class="w-[150px]"
+            :items="Object.keys(this.seasons)"
+            cv-model="selectedSeason"
+            />
+
+            <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
+                <episode_card
+                cv-for="episode of this.seasons[this.selectedSeason] || []"
+                :serie="{ id: this.params.id }"
+                :episode="this.episode" 
+                />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const [{ default: taob }, impLoader, episode_card] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
+        import("/public/cuteVue/stores/loader.js"),
+        importer('/public/cuteVue/components/cards/episode_card.html')
+    ]);
+
+    const loaderStore = impLoader.loaderStore;
+
+    export default {
+        components: {
+            episode_card
+        },
+        data: {
+            title: "",
+            img: "",
+            category: "",
+            description: "",
+            release_date: "",
+            seasons: [],
+            episodes: [],
+            selectedSeason: 1,
+            up_vote: 0,
+            down_vote: 0,
+            liked: false,
+            disliked: false
+        },
+        methods: {
+            async init(){
+                const [serie, episodes] = await Promise.all([
+                    taob.get(
+                        "/serie/{id}", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true
+                        }
+                    )
+                    .info((info, ok) => {
+                            if(info === "serie.notfound"){
+                                this.pushToast("error", "Série introuvable.");
+                                router.push("/");
+                            }
+                            else if(!ok){
+                                this.pushToast("error", "Erreur lors de la récupération de la série.");
+                                router.push("/");
+                            }
+                        })
+                    .sd(),
+                    taob.get(
+                        "/serie/{id}/all", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true
+                        }
+                    )
+                    .info((info, ok) => {
+                        if(!ok){
+                            this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                            router.push("/");
+                        }
+                    })
+                    .sd()
+                ])
+
+                this.title = serie.title;
+                this.img = serie.image;
+                this.category = serie.content.category.title;
+                this.description = serie.description || "Cette série n'a pas de description.";
+                this.release_date = serie.release_date;
+                this.up_vote = serie.content.up_vote;
+                this.down_vote = serie.content.down_vote;
+
+                let seasons = episodes.reduce(
+                    (pv, cv) => {
+                        if(pv[cv.season] === undefined)pv[cv.season] = []
+                        pv[cv.season].push(cv);
+                        return pv;
+                    },
+                    {}
+                );
+                
+                Object.keys(seasons).forEach(key => seasons[key] = seasons[key].sort((a, b) => a.episode - b.episode));
+                const sort = Object.keys(seasons).sort((a, b) => a.episode - b.episode);
+                
+                seasons = sort.reduce(
+                    (pv, cv) => {
+                        pv[cv] = seasons[cv];
+                        return pv;
+                    },
+                    {}
+                );
+
+                this.selectedSeason = String(seasons[sort[0]][0].season);
+                this.seasons = seasons;
+
+                taob.get(
+                    "/content/{id}/vote", 
+                    {
+                        params: { id: serie.content.id },
+                        loader: true
+                    }
+                )
+                .s(data => {
+                    console.log(data);
+
+                    if(!data) return;
+                    if(data.value === 1) this.liked = true;
+                    else if(data.value === -1) this.disliked = true;
+                })
+            },
+            async vote(type){
+                if(type === "like" && !this.liked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: 1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+                    
+                    this.up_vote++;
+                    if(this.disliked) this.down_vote--;
+                    this.disliked = false;
+                    this.liked = true;
+                } 
+                else if(type === "like" && this.liked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.up_vote--;
+                    this.liked = false;
+                }
+                else if(type === "dislike" && !this.disliked){ 
+                    taob.post(
+                        "/content/{id}/vote", 
+                        { vote: -1 }, 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote++;
+                    if(this.liked) this.up_vote--;
+                    this.liked = false;
+                    this.disliked = true;
+                } 
+                else if(type === "dislike" && this.disliked) {
+                    taob.delete(
+                        "/content/{id}/vote", 
+                        {
+                            params: { id: this.params.id },
+                            loader: true,
+                        }
+                    )
+
+                    this.down_vote--;
+                    this.disliked = false;
+                }
+            },            
+        },
+        mounted(){
+            this.init();
+        },
+        unmounted(){
+
+        },
+        stores: [
+            {
+                name: "router",
+                states: ["params", "pathname"]
+            },
+            {
+                name: "toast",
+                states: ["pushToast"]
+            },
+            {
+                name: "user",
+                states: ["isConnected"],
+            }
+        ]
+    }
+</script>
+
+<style>
+
+</style>

@@ -112,7 +112,7 @@ class deleteSerie extends AccessContentsManager
  * @param int id
  * @return Response
  */
-class getSerie extends AccessContentsManager
+class getSerie extends Controller
 {
     public function checkers(Request $request): array
     {

@@ -16,9 +16,9 @@ use Services\Permissions;
 /**
  * @GET{/}
  * @GET{/catalog}
- * @GET{/movies/{id}}
+ * @GET{/movie/{id}}
  * @GET{/serie/{id}/season/{season}/episode/{episode}}
- * @GET{/show}
+ * @GET{/serie/{id}}
  * @GET{/pages/{name}}
  */
 class index extends IndexHandler{}

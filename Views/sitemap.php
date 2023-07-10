@@ -47,7 +47,7 @@
 
     <?php foreach($movies as $movie) echo "
         <url>
-            <loc>{$config['HOST']}/movies/{$movie->getId()}</loc>
+            <loc>{$config['HOST']}/movie/{$movie->getId()}</loc>
 
             <lastmod>{$movie->getUpdatedAt()}</lastmod>
 

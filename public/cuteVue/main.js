@@ -38,7 +38,7 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/catalog.html"),
                 },
                 {
-                    path: "/movies/{id}",
+                    path: "/movie/{id}",
                     view: () => importer("/public/cuteVue/views/video.html"),
                 },
                 {
@@ -46,8 +46,8 @@ createRoute(
                     view: () => importer("/public/cuteVue/views/video.html"),
                 },
                 {
-                    path: "/show",
-                    view: () => importer("/public/cuteVue/views/show.html"),
+                    path: "/serie/{id}",
+                    view: () => importer("/public/cuteVue/views/serie.html"),
                 },
                 {
                     path: "/lists",

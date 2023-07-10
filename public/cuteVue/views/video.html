@@ -15,7 +15,7 @@
         cv-if="this.type === 'serie'"
         class="mb-[40px] text-2xl font-bold"
         >
-            {{this.serieName}} : {{this.title}} S{{this.season}} EP{{this.episode}}
+            {{this.serieName}} : {{this.title}} S{{this.season}} E{{this.episode}}
         </h1>
         
         <div class="mb-[60px] flex flex-col gap-[20px] player">
@@ -220,7 +220,7 @@
 
         methods: {
             async init(){
-                if(this.pathname.startsWith("/movies")){
+                if(this.pathname.startsWith("/movie")){
                     const movie = await taob.get(
                         "/movie/{id}", 
                         {
@@ -321,8 +321,8 @@
                         },
                         {}
                     );
-                    Object.keys(serie).forEach(key => serie[key] = serie[key].sort((a, b) => a.episode > b.episode));
-                    const sort = Object.keys(serie).sort((a, b) => a.episode > b.episode);
+                    Object.keys(serie).forEach(key => serie[key] = serie[key].sort((a, b) => a.episode - b.episode));
+                    const sort = Object.keys(serie).sort((a, b) => a.episode - b.episode);
                     this.serie = sort.reduce(
                         (pv, cv) => {
                             pv[cv] = serie[cv];
