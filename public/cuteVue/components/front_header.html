@@ -1,5 +1,5 @@
 <header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
-    <div class="flex items-center justify-center gap-[30px] left">
+    <div class="flex items-center justify-center gap-[30px] grow overflow-hidden">
         <router_link 
         href="/" 
         class="h-full w-[100px] h-[20px] flex items-center logo overflow-hidden"
@@ -11,8 +11,14 @@
             >
         </router_link>
 
-        <nav class="h-full hidden lg:block">
-            <ul class="h-full flex items-center justify-center gap-[30px]">
+        <nav
+        cv-ref="nav"
+        class="h-full hidden lg:flex grow overflow-hidden gap-[30px]"
+        >
+            <ul 
+            cv-ref="defaultNav"
+            class="h-full flex items-center justify-center gap-[30px]"
+            >
                 <li class="h-full">
                     <router_link href="/" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
                         Accueil
@@ -24,7 +30,13 @@
                         Catalogue
                     </router_link>
                 </li>
+            </ul>
 
+            <ul
+            cv-if="this.pagesFilter.length !== 0 && this.sizeNav === null"
+            cv-ref="pagesNav"
+            class="h-full flex items-center justify-center gap-[30px]"
+            >
                 <li
                 cv-for="page of this.pagesFilter"
                 class="h-full"
@@ -34,10 +46,45 @@
                     </router_link>
                 </li>
             </ul>
+
+            <div 
+            class="h-full"
+            cv-if="this.sizeNav !== null"
+            tabindex="1"
+            @blur="this.showPagesDrower = false"
+            @focus="this.showPagesDrower = true"
+            cv-ref="drowerNav"
+            >
+                <button
+                @click="this.$refs.drowerNav.focus()"
+                class="flex gap-[10px] h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless"
+                >
+                    Plus
+
+                    <icon :name="this.showPagesDrower ? 'chevron-up' : 'chevron-down'"/>
+                </button>
+
+                <ul
+                cv-if="this.showPagesDrower === true"
+                class="flex flex-col gap-[10px] top-[60px] z-[1] fixed bg-darkblue p-[10px] w-[200px]"
+                >
+                    <li
+                    cv-for="page of this.pagesFilter"
+                    >
+                        <router_link 
+                        :href="'/pages/' + this.page.name" 
+                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" 
+                        @click="this.$refs.drowerNav.blur()"
+                        >
+                            {{this.page.navTitle || this.page.name}}
+                        </router_link>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </div>
 
-    <div class="flex items-center justify-center gap-[40px] right">
+    <div class="flex items-center justify-center gap-[40px]">
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
@@ -218,6 +265,9 @@
         data: {
             displayOptionsMenu: false,
             displayNaveBar: false,
+            sizeNav: null,
+            showPagesDrower: false,
+            interval: null,
         },
 
         props: {},
@@ -268,6 +318,27 @@
                     ) this.displayNaveBar = false;
                 }
             },
+
+            computedNav(){
+                const {width: widthNav} = this.$refs.nav.getBoundingClientRect();
+
+                if(this.sizeNav !== null){
+                    const {widthDefault, widthPages} = this.sizeNav;
+                    if(widthDefault + widthPages + 30 < widthNav){
+                        this.sizeNav = null;
+                    }
+
+                    return;
+                }
+
+                const {width: widthDefault} = this.$refs.defaultNav.getBoundingClientRect();
+                const {width: widthPages} = this.$refs.pagesNav.getBoundingClientRect();
+
+                if(widthDefault + widthPages + 30 > widthNav){
+                    this.sizeNav = {widthDefault, widthPages};
+                }
+            },
+
             async toDisconnect(){
                 let close = loaderStore.push();
 
@@ -281,6 +352,7 @@
         mounted() {
             window.addEventListener("resize", this.resized);
             window.addEventListener("click", this.autoClose);
+            this.interval = setInterval(this.computedNav, 200);
         },
 
         unmounted() {

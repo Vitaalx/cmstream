@@ -3,13 +3,17 @@
         <div class="top flex flex-col lg:flex-row justify-between">
             <nav class="navigation-nav">
                 <h2 class="text-xl font-bold leading-normal mt-0 mb-2 text-white">Navigation</h2>
-                <ul>
+                <ul class="flex flex-col flex-wrap max-h-[100px] gap-[10px]">
                     <li>
                         <router_link href="/" class="text-sm text-whiteless hover:text-white">Accueil</router_link>
                     </li>
                     
                     <li>
                         <router_link href="/catalog" class="text-sm text-whiteless hover:text-white">Catalogue</router_link>
+                    </li>
+
+                    <li cv-for="page of this.pagesFilter">
+                        <router_link :href="'/pages/' + this.page.name" class="text-sm text-whiteless hover:text-white">{{this.page.navTitle || this.page.name}}</router_link>
                     </li>
                 </ul>
             </nav>
@@ -99,6 +103,10 @@
                 name: "user",
                 states: ["isConnected"],
                 actions: ["disconnect"]
+            },
+            {
+                name: "pages",
+                computed: ["pagesFilter"],
             }
         ]
     }
