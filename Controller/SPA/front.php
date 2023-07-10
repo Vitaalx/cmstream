@@ -2,10 +2,15 @@
 
 namespace Controller\SPA\front;
 
+use Core\File;
+use Core\LiteController;
 use Core\Logger;
 use Services\IndexHandler;
 use Core\Request;
 use Core\Response;
+use Entity\Episode;
+use Entity\Movie;
+use Entity\Serie;
 use Services\Permissions;
 
 /**
@@ -156,5 +161,25 @@ class adminContent extends IndexHandler
             ["page/mustHavePermission", Permissions::AccessDashboard],
             ["page/mustHavePermission", Permissions::ContentsManager]
         ];
+    }
+}
+
+/**
+ * @GET{/sitemap.xml}
+ */
+class GetSitemap extends LiteController
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $pages = new File(__DIR__ . "/../../public/cuteVue/pages.json");
+        
+        $vars = [
+            "config" => CONFIG,
+            "pages" => json_decode($pages->read(), true),
+            "movies" => Movie::findIterator([]),
+            "episodes" => Episode::findIterator([]),
+        ];
+
+        $response->code(200)->info("sitemap")->setHeader("Content-Type", "text/xml")->render("sitemap", "none", $vars);
     }
 }
