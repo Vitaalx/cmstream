@@ -5,6 +5,7 @@ namespace Core;
 class Logger
 {
     private static $disabled = false;
+    private static $allowRequestDB = false;
 
     private static function insert(mixed $message, string $header): void
     {
@@ -66,5 +67,14 @@ class Logger
     public static function disable(): void
     {
         self::$disabled = true;
+    }
+
+    public static function allowRequestDB(): void
+    {
+        self::$allowRequestDB = true;
+    }
+    public static function getAllowRequestDB(): bool
+    {
+        return self::$allowRequestDB;
     }
 }
