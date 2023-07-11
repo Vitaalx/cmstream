@@ -1,48 +1,62 @@
-<router_link href="#" class="h-[135px] flex gap-[20px] show-card">
-    <div class="grow-0 shrink-0 basis-[240px] object-cover thumbnail">
+<router_link :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id" class="h-[135px] flex gap-[20px] show-card">
+    <div class="aspect-square sm:aspect-video object-cover thumbnail">
         <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded-large.png" alt="show title">
     </div>
     <div class="content flex flex-col justify-center gap-[10px]">
-        <h3 class="text-bold show-title">Show title</h3>
-        <p class="text-sm show-description">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Culpa praesentium libero cum aut soluta, error quisquam mollitia, odit ab impedit corporis, sint minus iste. Sunt possimus vitae atque saepe sed?
-        </p>
-        <div class="mt-[5px] text-xs tags">
-            <span class="inline-block p-1 rounded tag tag-1">tag1</span>
-            <span class="inline-block p-1 rounded tag tag-2">tag2</span>
-            <span class="inline-block p-1 rounded tag tag-3">tag3</span>
+        <div class="top">
+            <h3 class="font-bold show-title">{{ this.content.value.title }}</h3>
+        
+            <p class="text-sm show-description">
+                {{ this.content.value.description || 'Aucune description disponible.' }}
+            </p>
+        </div>
+
+        <div class="bot flex max-[450px]:flex-col max-[450px]:items-start items-center gap-[20px]">
+            <div class="flex gap-[5px] categories">
+                <span
+                class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+                cv-class="{
+                    'bg-orange-500': this.content.type === 'S',
+                    'bg-red-500': this.content.type === 'M'
+                }"
+                >
+                    {{ this.content.type === 'S' ? 'Série' : 'Film' }}
+                </span>
+
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category.title }}</span>
+            </div>
+
+            <div class="flex gap-[15px] rate select-none">
+                <div class="flex items-center gap-[5px] like">
+                    {{ this.content.up_vote }}
+
+                    <icon name="thumb-up" size="16" />
+                </div>
+
+                <div class="flex items-center gap-[5px] dislike">
+                    {{ this.content.down_vote }}
+
+                    <icon name="thumb-down" size="16" />
+                </div>
+            </div>
         </div>
     </div>
 </router_link>
 
 <script>
     export default {
-        data: {},
-
-        props: {},
-
-        methods: {},
+        props: {
+            content: {}
+        },
     }
 </script>
 
 <style>
-    .tag-1 {
-        background-color: #F5B041;
-    }
-
-    .tag-2 {
-        background-color: #5DADE2;
-    }
-
-    .tag-3 {
-        background-color: #58D68D;
-    }
-
     .show-description {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
-        -webkit-line-clamp: 3; /* number of lines to show */
+        -webkit-line-clamp: 2; /* number of lines to show */
         -webkit-box-orient: vertical;
     }
 </style>
