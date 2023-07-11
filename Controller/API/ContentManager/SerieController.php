@@ -450,7 +450,7 @@ class updateEpisodeById extends AccessContentsManager {
 }
 
 /**
- * @GET{/api/series/{serie_id}/episodes/season/{seasonNumber}}
+ * @GET{/api/serie/{serie_id}/episodes/season/{seasonNumber}}
  * @apiName GetEpisodes
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -485,7 +485,7 @@ class getEpisodesSeriesBySeason extends AccessContentsManager
 }
 
 /**
- * @GET{/api/series/{serie_id}/season/count}
+ * @GET{/api/serie/{serie_id}/season/count}
  * @Description Get max season number of series
  * @param int serie_id
  * @return int

@@ -227,8 +227,8 @@
     />
 
     <div class="flex flex-col gap-[20px]">
-        <select-input cv-if="this.typeEdit === 'serie' && this.seasonText.length > 0" class="w-full max-w-[300px]"
-        :items="this.seasonText"
+        <select-input cv-if="this.typeEdit === 'serie' && this.seasons.length > 0" class="w-full max-w-[300px]"
+        :items="this.seasons"
         :return-value="v => v.value"
         :return-text="t => t.text" cv-model="selectedSeason"
         />
@@ -280,7 +280,7 @@
             descriptionEpisode: "",
             episodeNumber: "",
             seasonNumber: "",
-            seasonText: [],
+            seasons: [],
             releaseDateVideo: "",
             selectedSeason: 1,
             urlId: null,
@@ -457,12 +457,12 @@
             async getSeasonNb() {
                 let close = loaderStore.push();
 
-                await taob.get("series/" + this.idVideo + "/season/count")
+                await taob.get("serie/" + this.idVideo + "/season/count")
                 .s(data => {
                     for (const dataKey in data) {
-                        this.seasonText.push({text: "Saison " + data[dataKey].season, value: data[dataKey].season})
+                        this.seasons.push({text: "Saison " + data[dataKey].season, value: data[dataKey].season})
                     }
-                    this.$update("seasonText");
+                    this.$update("seasons");
                 })
                 .info(info => {
                     if (info === "serie.notfound") this.pushToast("error", "La série n'a pas été trouvée.");
@@ -529,7 +529,7 @@
             async getEpisodeBySeason(seasonNb) {
                 let close = loaderStore.push();
 
-                await taob.get("series/" + this.idVideo + "/episodes/season/" + seasonNb).s(data => {
+                await taob.get("serie/" + this.idVideo + "/episodes/season/" + seasonNb).s(data => {
                     this.episodes = data;
                 })
                 .info(info => {
@@ -560,7 +560,7 @@
                     this.descriptionEpisode = "";
                     this.seasonNumber = "";
                     this.episodeNumber = "";
-                    this.seasonText = [];
+                    this.seasons = [];
                     this.refreshEpisode();
                 })
                 .info(info => {
@@ -613,7 +613,7 @@
                     })
                     .result;
                     await this.getSeasonNb();
-                    if (this.seasonText.length > 0) await this.getEpisodeBySeason(1);
+                    if (this.seasons.length > 0) await this.getEpisodeBySeason(1);
                 } else if (this.typeEdit === "movie") {
                     await taob.get("movie/" + this.idVideo)
                     .s(data => {
