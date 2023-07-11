@@ -124,6 +124,107 @@ class GetLastContent extends Controller
 }
 
 /**
+ * @GET{/api/contents}
+ */
+class GetContents extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") || 0, "page", "content.page.not.number"],
+            ["type/string", $request->getQuery("type") ?? "", "type", "content.get.badType"],
+            ["type/int", $request->getQuery("category_id") ?? -1, "category_id", "content.category_id.not.number"],
+            ["type/string", $request->getQuery("title") ?? "", "title", "content.title.not.title"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        $page = $this->floor->pickup("page");
+        $type = $this->floor->pickup("type");
+        $category_id = $this->floor->pickup("category_id");
+        $title = $this->floor->pickup("title");
+        
+        $where = [];
+        $joins = [];
+
+        if($type === "movie"){
+            $where["c.value_type"] = "M";
+            if($title !== "") $where["LOWER(m.title)"] = ["\$CTN" => $title];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins[] = [
+                "TABLE" => "_movie as m",
+                "WHERE" => [
+                    "c.value_type" => "M",
+                    "c.value_id" => ["m.id"],
+                ]
+            ];
+        }
+        else if($type === "serie"){
+            $where["c.value_type"] = "S";
+            if($title !== "") $where["LOWER(s.title)"] = ["\$CTN" => $title];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins[] = [
+                "TABLE" => "_serie as s",
+                "WHERE" => [
+                    "c.value_type" => "S",
+                    "c.value_id" => ["s.id"],
+                ]
+            ];
+        }
+        else {
+            $where["\$OR"] = [
+                [
+                    "LOWER(m.title)" => ["\$CTN" => $title]
+                ],
+                [
+                    "LOWER(s.title)" => ["\$CTN" => $title]
+                ]
+            ];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins = [
+                [
+                    "TABLE" => "_movie as m",
+                    "WHERE" => [
+                        "c.value_type" => "M",
+                        "c.value_id" => ["m.id"],
+                    ]
+                ],
+                [
+                    "TABLE" => "_serie as s",
+                    "WHERE" => [
+                        "c.value_type" => "S",
+                        "c.value_id" => ["s.id"],
+                    ]
+                ]
+            ];
+        }
+
+        $request = QueryBuilder::createSelectRequest(
+            "_content as c",
+            ["c.id"],
+            $where,
+            [
+                "ORDER_BY" => ["m.title", "s.title"],
+                "OFFSET" => $page * 10,
+                "LIMIT" => 10,
+            ],
+            [
+                "LEFT_JOIN" => $joins
+            ]
+        );
+
+        $contents = [];
+        foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $value) {
+            $contents[] = Content::findFirst(["id" => $value["id"]]);
+        }
+
+        Content::groups("value", "vote", "category");
+        $response->code(200)->info("content.get")->send($contents);
+    }
+}
+
+/**
  * @POST{/api/content/{id}/vote}
  */
 class VoteContent extends MustBeConnected
