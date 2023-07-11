@@ -21,23 +21,39 @@
             :src="this.video[1].value.image"
             />
 
-            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[280px] px-[10px] py-[5px] flex flex-col items-start gap-[10px] content">
-                <div class="w-full p-[10px] flex flex-col items-start gap-[10px] bg-[rgba(0,0,0,0.5)] top">
+            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[280px] px-[10px] py-[5px] flex flex-col items-start gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+                <div class="w-full p-[10px] flex flex-col items-start gap-[10px] top">
                     <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.video[1].value.title }}</h2>
 
                     <p class="w-full max-h-[70px] description">{{ this.video[1].value.description || "" }}</p>
-
-                    <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
                 </div>
 
-                <router_link 
-                :href="(this.video[1].type === 'M' ? '/movie/' : '/serie/')  + this.video[1].value.id" 
-                class="flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition px-[10px]"
-                >
-                    <icon name="play-circle-outline" size="60"/>
+                <div class="bot flex items-center gap-[30px]">
+                    <router_link 
+                    :href="(this.video[1].type === 'M' ? '/movie/' : '/serie/')  + this.video[1].value.id" 
+                    class="flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition px-[10px]"
+                    >
+                        <icon name="play-circle-outline" size="60"/>
 
-                    <span>Regarder</span>
-                </router_link>
+                        <span>Regarder</span>
+                    </router_link>
+
+                    <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
+
+                    <div class="flex gap-[15px] rate select-none">
+                        <div class="flex items-center gap-[5px] like">
+                            {{ this.video[1].up_vote }}
+    
+                            <icon name="thumb-up" />
+                        </div>
+    
+                        <div class="flex items-center gap-[5px] dislike">
+                            {{ this.video[1].down_vote }}
+    
+                            <icon name="thumb-down" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -104,7 +120,7 @@
         },
         methods: {
             init(){
-                taob.get(this.options.url, {query: this.options.query}).s(data => this.videos = data);
+                taob.get(this.options.url, {query: this.options.query}).s(data => {this.videos = data; console.log(data);});
             },
             right(){
                 let width = this.$refs.videos.getBoundingClientRect().width;
