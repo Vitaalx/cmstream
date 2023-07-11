@@ -141,6 +141,7 @@
                                     </router_link>
                                     <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
                                         <icon name="bell-outline" class="text-[24px]"/>
+
                                         <span>Notifications</span>
                                     </div>
                                     <router_link href="/account" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
@@ -189,19 +190,19 @@
         <nav>
             <ul>
                 <li>
+                    <router_link href="/" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Accueil
+                    </router_link>
+                </li>
+                <li>
                     <router_link href="/catalog" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Catalogue
                     </router_link>
                 </li>
-                <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
-                        Boutique
-                    </a>
-                </li>
-                <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
-                        News
-                    </a>
+                <li cv-for="page of this.pagesFilter">
+                    <router_link :href="'/pages/' + this.page.name" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        {{this.page.navTitle || this.page.name}}
+                    </router_link>
                 </li>
             </ul>
         </nav>
@@ -209,12 +210,16 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="magnify" class="text-[24px]"/>
+                        
                         Rechercher
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="bookmark-outline" class="text-[24px]"/>
+                        
                         Watchlist
                     </a>
                 </li>
@@ -222,34 +227,42 @@
                     <router_link
                     cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')"
                     href="/dashboard"
-                    class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless"
+                    class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless"
                     @click="this.displayNaveBar = false"
                     >
+                        <icon name="security" class="text-[24px]"/>
+
                         Accéder au dashboard
                     </router_link>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="bell-outline" class="text-[24px]"/>
+                        
                         Notifications
                     </a>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="/account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/account" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        <icon name="account" class="text-[24px]"/>
+                        
                         Paramètres du compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
-                    <router_link href="/signup" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/signup" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Créer un compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
-                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Se connecter
                     </router_link>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                        <icon name="logout" class="text-[24px]"/>
+                        
                         Se déconnecter
                     </router_link>
                 </li>

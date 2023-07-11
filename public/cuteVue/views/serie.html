@@ -16,13 +16,13 @@
                     <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
                         {{ this.up_vote }}
 
-                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                        <icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
                     </div>
 
                     <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
                         {{ this.down_vote }}
 
-                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                        <icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
                     </div>
                 </div>
             </div>
