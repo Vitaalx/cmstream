@@ -4,25 +4,33 @@
     </div>
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
-        <div cv-if="this.type === null" class="h-[32px] mb-[40px]"></div>
+        <div cv-if="this.type === null" class="h-[32px]"></div>
+
         <h1
         cv-if="this.type === 'movie'"
-        class="mb-[40px] text-2xl font-bold"
+        class="text-2xl font-bold"
         >
             {{ this.title }}
         </h1>
+
         <h1 
         cv-if="this.type === 'serie'"
-        class="mb-[40px] text-2xl font-bold"
+        class="text-2xl font-bold select-none"
         >
-            {{ this.serieName }} : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
+            <router_link
+            :href="'/serie/' + this.serieId"
+            class="hover:underline"
+            >
+                {{ this.serieName + " " }}
+            </router_link> 
+            : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
         </h1>
 
         <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
             <p>{{ this.description }}</p>
 
             <div class="flex items-center gap-[30px] info">
-                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue h-[22px]">{{ this.category }}</span>
         
                 <div 
                 cv-if="this.type === 'movie'"
@@ -187,6 +195,7 @@
 
             serie: null,
             serieName: "",
+            serieId: null,
             season: null,
             episode: null,
             videoId: null,
@@ -345,6 +354,7 @@
                     this.episode = episode.episode;
                     this.season = episode.season;
                     this.serieName = episode.serie.title;
+                    this.serieId = episode.serie.id;
 
                     this.players = episode.video.urls;
                     this.currentPlayer = episode.video.urls[0]?.value || null;
