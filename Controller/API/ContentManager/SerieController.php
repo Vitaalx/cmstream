@@ -4,6 +4,7 @@ namespace Controller\API\ContentManager\SerieController;
 
 use Core\Controller;
 use Core\Logger;
+use Core\QueryBuilder;
 use Core\Request;
 use Core\Response;
 use Entity\Category;
@@ -49,7 +50,9 @@ class createSerie extends AccessContentsManager
             ["video/image", fn() => $this->floor->pickup("image"), "image"],
             ["type/string", $request->getBody()['title_serie'], "title_serie"],
             ["serie/title", fn() => $this->floor->pickup("title_serie"), "title_serie"],
-            ["serie/notexist", fn() => $this->floor->pickup("title_serie")],
+            ["serie/notexist", [
+                "title" => $request->getBody()['title_serie']
+            ]],
             ["type/string", $request->getBody()['category_name'], "category_name"],
             ["category/existByName", fn() => $this->floor->pickup("category_name"), "category"],
             ["type/string", $request->getBody()['release_date'], "release_date"]
@@ -166,7 +169,7 @@ class getSeries extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
 
-        Serie::groups("dateProps", "category");
+        Serie::groups("dateProps", "category", "content");
 
         $response->code(200)->info("series.get")->send($series);
     }
@@ -406,7 +409,7 @@ class getEpisodeById extends AccessContentsManager {
         /** @var Episode $episode */
         $episode = $this->floor->pickup("episode");
 
-        Episode::groups("video");
+        Episode::groups("video", "content", "urls");
 
         $response->code(200)->info("episode.get")->send($episode);
     }
@@ -500,20 +503,9 @@ class getSeasonCountBySeries extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        $episodes = Episode::findMany([
-            "serie_id" => $this->floor->pickup("serie")->getId()
-        ],
-        ["ORDER_BY" => ["season"]]);
-        $seasons = [];
-        foreach ($episodes as $episode) {
-            array_push($seasons, $episode->getSeason());
-        }
-
-        foreach ($seasons as $key => $value) {
-            if ($key !== count($seasons)) {
-                if ($seasons[$key] === $seasons[$key + 1]) unset($seasons[$key]);
-            }
-        }
+        $sql = QueryBuilder::createSelectRequest("_episode", ["season"], ["serie_id" => $this->floor->pickup("serie")->getId()], ["GROUP_BY" => ["season"], "ORDER_BY" => ["season"]]);
+        Logger::allowRequestDB();
+        $seasons = $sql->fetchAll(\PDO::FETCH_ASSOC);
 
         $response->code(200)->info("season.count")->send($seasons);
     }

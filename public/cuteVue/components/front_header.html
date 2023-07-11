@@ -15,7 +15,7 @@
         cv-ref="nav"
         class="h-full hidden lg:flex grow overflow-hidden gap-[30px]"
         >
-            <ul 
+            <ul
             cv-ref="defaultNav"
             class="h-full flex items-center justify-center gap-[30px]"
             >
@@ -47,7 +47,7 @@
                 </li>
             </ul>
 
-            <div 
+            <div
             class="h-full"
             cv-if="this.sizeNav !== null"
             tabindex="1"
@@ -71,9 +71,9 @@
                     <li
                     cv-for="page of this.pagesFilter"
                     >
-                        <router_link 
-                        :href="'/pages/' + this.page.name" 
-                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" 
+                        <router_link
+                        :href="'/pages/' + this.page.name"
+                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless"
                         @click="this.$refs.drowerNav.blur()"
                         >
                             {{this.page.navTitle || this.page.name}}

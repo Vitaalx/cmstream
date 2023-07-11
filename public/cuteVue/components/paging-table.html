@@ -62,6 +62,9 @@
     <div
     cv-if="this['total-pages'] !== 0"
     class="bg-white w-full flex items-center justify-between px-[25px] p-[12px] bottom-0 sticky flex h-[70px]"
+    cv-class="{
+            'border-t-[2px]': this.displayitems.length < this.limitToDisplay,
+        }"
     >
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
@@ -92,6 +95,7 @@
             "total-pages": 1,
         },
         data: {
+            limitToDisplay: 5,
             sortColumn: null,
             canEdit: false,
             canDelete: false,

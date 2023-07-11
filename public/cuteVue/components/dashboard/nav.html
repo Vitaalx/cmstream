@@ -171,11 +171,7 @@
         },
         methods: {
             setDropdownContentManager() {
-                if (this.pathname === "/dashboard/categories" || this.pathname === "/dashboard/movies" || this.pathname === "/dashboard/series" || this.pathname === "/dashboard/add-content") {
-                    this.dropdownContentManager = true
-                } else {
-                    this.dropdownContentManager = false
-                }
+                this.dropdownContentManager = this.pathname === "/dashboard/categories" || this.pathname === "/dashboard/movies" || this.pathname === "/dashboard/series" || this.pathname === "/dashboard/add-content" || this.pathname === "/dashboard/pages";
             },
             toggleDropdownContentManager() {
                 this.dropdownContentManager = !this.dropdownContentManager

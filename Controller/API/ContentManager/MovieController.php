@@ -6,6 +6,7 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
+use Entity\Category;
 use Entity\Content;
 use Entity\Movie;
 use Entity\Video;
@@ -54,7 +55,7 @@ class createMovie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Category $category*/
+        /** @var Category $category*/
         $category = $this->floor->pickup("category");
 
         $video = Video::insertOne([]);
@@ -167,7 +168,7 @@ class getMovies extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
         
-        Movie::groups("dateProps", "category");
+        Movie::groups("dateProps", "category", "content");
 
         $response->code(200)->info("movies.get")->send($movies);
     }

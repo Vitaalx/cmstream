@@ -26,7 +26,7 @@
                 <div class="flex gap-[5px] items-center">
                     <user-image size="30" :user="this.comment.user"/>
                 
-                    {{this.comment.user.username}}
+                    {{this.comment.user?.username}}
                 </div>
                 
                 <div class="flex gap-[5px] items-center">
@@ -84,8 +84,8 @@
             getCount(){
                 taob.get("/comments/verify/count", {loader: true}).s(({count}) => this.commentsCount = count);
             },
-            getComment(){
-                taob.get("/comments/verify", {loader: true}).s(comment => this.comment = comment);
+            async getComment(){
+                await taob.get("/comments/verify", {loader: true}).s(comment => this.comment = comment);
             },
             deleteComment(){
                 taob.delete(
