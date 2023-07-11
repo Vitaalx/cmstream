@@ -18,13 +18,16 @@
             {{ this.serieName }} : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
         </h1>
 
-        <div cv-if="this.type === 'movie'" class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
+        <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
             <p>{{ this.description }}</p>
 
             <div class="flex items-center gap-[30px] info">
                 <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.category }}</span>
         
-                <div class="flex gap-[15px] rate">
+                <div 
+                cv-if="this.type === 'movie'"
+                class="flex gap-[15px] rate"
+                >
                     <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
                         {{ this.up_vote }}
 
@@ -147,7 +150,7 @@
                 >   
                     <p class="w-full h-full overflow-hidden text-ellipsis whitespace-nowrap hover:underline">
                         ep {{this.e.episode}} : <strong>{{ " " + this.e.title + " "}}</strong> 
-                        <i class="text-[12px]">{{this.e.description }}</i>
+                        <i class="text-[12px]">{{this.e.description || null}}</i>
                     </p>
                 </router_link>
             </div>
@@ -335,7 +338,7 @@
 
                     this.title = episode.title;
                     this.img = episode.serie.image;
-                    this.category = episode.serie.content.category.name;
+                    this.category = episode.serie.content.category.title;
                     this.description = episode.description || "";
                     this.release_date = episode.release_date;
                     this.videoId = episode.video.id;
