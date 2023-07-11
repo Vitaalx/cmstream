@@ -30,7 +30,10 @@
                     <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
                 </div>
 
-                <router_link href="show" class="ml-[-5px] flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition">
+                <router_link 
+                :href="(this.video[1].type === 'M' ? '/movie/' : '/serie/')  + this.video[1].value.id" 
+                class="flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition px-[10px]"
+                >
                     <icon name="play-circle-outline" size="60"/>
 
                     <span>Regarder</span>

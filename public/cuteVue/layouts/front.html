@@ -16,8 +16,8 @@
             front_footer
         },
         watch: {
-            pathname(n){
-                if(!n.startsWith("/movie") && !n.startsWith("/serie"))window.scrollTo(0, 0);
+            pathname(){
+                window.scrollTo(0, 0);
             }
         },
         stores: [

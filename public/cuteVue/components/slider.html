@@ -9,13 +9,14 @@
         class="slides-container" 
         cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
         >
-            <div 
+            <router_link 
             cv-ref="slides" 
             class="slide relative" 
             cv-for="content of Object.entries(this.contents)" 
             cv-class="{'active': this.content[0] == this.currentSlide}"
             :test="this.currentSlide + ':' + this.content[0]"
             cv-style="{'left': this.content[0] * 100 + '%'}"
+            :href="(this.content[1].type === 'M' ? '/movie/' : '/serie/')  + this.content[1].value.id"
             >
                 <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1].value.image">
 
@@ -24,7 +25,7 @@
     
                     <p class="w-full description">{{ this.content[1].value.description || "" }}</p>
                 </div>
-            </div>
+            </router_link>
         </div>
         <div class="next-btn" @click="this.currentSlide++">
             <icon name="chevron-right"/>
