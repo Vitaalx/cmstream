@@ -368,7 +368,7 @@ class GetEpisode extends Controller
 }
 
 /**
- * @GET{/api/serie/{id}/all}
+ * @GET{/api/serie/{id}/episodes}
  */
 class GetAllSerie extends Controller
 {
