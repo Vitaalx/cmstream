@@ -24,6 +24,20 @@
                     <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.content[1].value.title }}</h2>
     
                     <p class="w-full description">{{ this.content[1].value.description || "" }}</p>
+
+                    <div class="flex gap-[5px] categories">
+                        <span
+                        class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+                        cv-class="{
+                            'bg-orange-500': this.content[1].type === 'S',
+                            'bg-red-500': this.content[1].type === 'M'
+                        }"
+                        >
+                            {{ this.content[1].type === 'S' ? 'Série' : 'Film' }}
+                        </span>
+    
+                        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content[1].category.title }}</span>
+                    </div>
                 </div>
             </router_link>
         </div>

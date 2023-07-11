@@ -19,7 +19,19 @@ class="show-card"
             {{this.content.value.description || ""}}
         </p>
 
-        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{this.content.category.title}}</span>
+        <div class="flex gap-[5px] categories">
+            <span
+            class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+            cv-class="{
+                'bg-orange-500': this.content.type === 'S',
+                'bg-red-500': this.content.type === 'M'
+            }"
+            >
+                {{ this.content.type === 'S' ? 'Série' : 'Film' }}
+            </span>
+
+            <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{this.content.category.title}}</span>
+        </div>
     </div>
 </router_link>
 
