@@ -10,7 +10,7 @@ class QueryBuilder {
         $where = self::arrayToArrayWhere($where, $values);
         $where = implode(" AND ", $where);
         $select = implode(", ", $select);
-        $options = self::arrayToArrayOptions($options);
+        $options = self::arrayToArrayOptions($options, $values);
         $options = implode(" ", $options);
         
         $stringRequest = "SELECT " . $select . " FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options;
@@ -45,7 +45,7 @@ class QueryBuilder {
             array_push($values, $value);
         }
 
-        $options = self::arrayToArrayOptions($options);
+        $options = self::arrayToArrayOptions($options, $values);
         $options = implode(" ", $options);
         $stringRequest = "INSERT INTO  " . $to . (count($keys) !== 0 ? " ( " . implode(", ", $keys) . " ) VALUES ( " . implode(", ", $vs) . " ) " : " DEFAULT VALUES ") . $options;
         if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
@@ -60,7 +60,7 @@ class QueryBuilder {
         $where = self::arrayToArrayWhere($where, $values);
         $where = implode(" AND ", $where);
         $set = implode(", ", $set);
-        $options = self::arrayToArrayOptions($options);
+        $options = self::arrayToArrayOptions($options, $values);
         $options = implode(" ", $options);
 
         $stringRequest = "UPDATE " . $from . " SET " . $set . ($where !== ""? " WHERE " : "") . $where . " " . $options;
@@ -75,7 +75,7 @@ class QueryBuilder {
         $values = [];
         $where = self::arrayToArrayWhere($where, $values);
         $where = implode(" AND ", $where);
-        $options = self::arrayToArrayOptions($options);
+        $options = self::arrayToArrayOptions($options, $values);
         $options = implode(" ", $options);
 
         $stringRequest = "SELECT count(*) FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options;
@@ -89,7 +89,7 @@ class QueryBuilder {
         $values = [];
         $where = self::arrayToArrayWhere($where, $values);
         $where = implode(" AND ", $where);
-        $options = self::arrayToArrayOptions($options);
+        $options = self::arrayToArrayOptions($options, $values);
         $options = implode(" ", $options);
 
         $stringRequest = "DELETE FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " " . $options;
@@ -207,7 +207,7 @@ class QueryBuilder {
         return $selects;
     }
 
-    static function arrayToArrayOptions(array $array){
+    static function arrayToArrayOptions(array $array, array &$values){
         $options = [];
         foreach($array as $key => $value){
             if($key === "ORDER_BY"){
@@ -218,6 +218,18 @@ class QueryBuilder {
                 }
 
                 $options[] = "ORDER BY " . implode(", ", $orderOptions);
+            }
+            else if($key === "GROUP_BY"){
+                $orderOptions = [];
+
+                foreach ($value as $v) {
+                    $orderOptions[] = $v;
+                }
+
+                $options[] = "GROUP BY " . implode(", ", $orderOptions);
+            }
+            else if($key === "LEFT_JOIN" || $key === "RIGHT_JOIN" || $key === "JOIN"){
+                $options[] = $key . " " . $value["TABLE"] . " ON " . self::arrayToArrayWhere($value["WHERE"], $values);
             }
             else if($key === "RETURNING") array_push($options, "RETURNING " . implode(", ", $value));
             else array_push($options, $key . " " . $value);
