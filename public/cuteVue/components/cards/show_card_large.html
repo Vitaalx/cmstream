@@ -1,6 +1,6 @@
 <router_link :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id" class="h-[135px] flex gap-[20px] show-card">
     <div class="aspect-square sm:aspect-video object-cover thumbnail">
-        <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded-large.png" alt="show title">
+        <img class="w-full h-full object-cover rounded pointer-events-none" :src="this.content.value.image || '/public/img/thumbnails/unloaded-large.png'" alt="show title">
     </div>
     <div class="content flex flex-col justify-center gap-[10px]">
         <div class="top">
@@ -48,6 +48,9 @@
         props: {
             content: {}
         },
+        mounted(){
+            console.log(this.content);
+        }
     }
 </script>
 

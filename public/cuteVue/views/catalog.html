@@ -1,37 +1,94 @@
 <div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 content">
-    <h1 class="mb-[40px] text-2xl font-bold">Catalogue</h1>
-    <div class="mb-[30px] flex justify-center gap-4 alphabet">
-        <a :href="'#' + this.letter" class="hover:text-skyblue hover:underline" cv-for="letter of this.getAlphabet()">{{ this.letter }}</a>
+    <div class="mb-[20px] flex justify-center search-container">
+        <text-input
+        cv-ref="search"
+        class="relative w-[300px]"
+        placeholder="Rechercher un film ou une série"
+        cv-model="searchValue"
+        >
+            <icon name="magnify" class="absolute right-0 bottom-[7px] mr-[10px] cursor-pointer"/>
+        </text-input>
     </div>
-    <div class="content">
-        <div id="#A" class="show-group">
-            <h2 class="pb-[10px] mb-[10px] text-lg font-bold border-b-[4px] border-skyblue">#A</h2>
-            <div class="show-list">
-                <show_card_large />
-            </div>
-        </div>
+    
+    <h1 class="mb-[40px] pb-[10px] text-2xl font-bold border-b-[4px] border-skyblue">Catalogue</h1>
+
+    <div class="flex flex-col gap-[20px] show-list content" cv-ref="content">
+        <show_card_large cv-for="element of this.content" :content="this.element" />
+    </div>
+
+    <div class="flex justify-center mt-[40px]">
+        <button class="px-[20px] py-[10px] rounded-full bg-skyblue text-white font-bold" @click="loadMore">Voir plus</button>
     </div>
 </div>
 
 <script>
-    const [show_card_large] = await Promise.all([
+    const [{ default: taob }, impLoader, show_card_large] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
+        import("/public/cuteVue/stores/loader.js"),
         importer('/public/cuteVue/components/cards/show_card_large.html')
     ]);
+
+    const loaderStore = impLoader.loaderStore;
 
     export default {
         components: {
             show_card_large
         },
-
-        mounted(){
+        data: {
+            content: [],
+            searchValue: "",
+            page: 0
         },
-
-        methods: {
-            getAlphabet(){
-                let alphabet = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                return alphabet.split("");
+        watch: {
+            searchValue(value){
+                console.log(value);
             }
-        }
+        },
+        methods: {
+            async init(){
+                await taob.get(
+                    "/contents"
+                )
+                .s(data => {
+                    if(!data) return;
+
+                    this.content = data;
+                })
+            },
+            async loadMore(){
+                this.page++;
+
+                console.log(this.page);
+
+                // await taob.get(
+                //     "/contents?page={page}",
+                //     {
+                //         params: { page: this.page },
+                //         loader: true
+                //     }
+                // )
+                await taob.get(
+                    `/contents?page=${this.page}`,
+                    {
+                        loader: true
+                    }
+                )
+                .s(data => {
+                    if(!data) return;
+
+                    const newContent = data.filter(element => !this.content.some(item => item.id === element.id));
+
+                    this.content = [...this.content, ...newContent];
+
+                    console.log(this.content);
+                })
+            }
+        },
+        mounted(){
+            this.init();
+
+            const contenDiv = this.$refs.content;
+        },
     }
 </script>
 
