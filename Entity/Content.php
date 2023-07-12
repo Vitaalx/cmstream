@@ -105,7 +105,7 @@ class Content extends Entity
     {
         parent::set(
             "unique_key",
-            parent::get("value_id") . "_" .  parent::get("value_type") . "_" . parent::get("user_id")
+            parent::get("value_id") . "_" .  parent::get("value_type")
         );
     }
 

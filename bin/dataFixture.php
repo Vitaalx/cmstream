@@ -388,13 +388,13 @@ function main(): void
         //     createHistory($user["user_id"], getRandomVideo());
         // }
 
-        for ($j = 0; $j < $argument["watchlist"]; $j++) {
-            if (rand(0, 1) === 0) {
-                addRandomMovieInWatchlist($user["user_id"], getRandomVideo());
-            } else {
-                addRandomSerieInWatchlist($user["user_id"], getRandomVideo());
-            }
-        }
+        // for ($j = 0; $j < $argument["watchlist"]; $j++) {
+        //     if (rand(0, 1) === 0) {
+        //         addRandomMovieInWatchlist($user["user_id"], getRandomVideo());
+        //     } else {
+        //         addRandomSerieInWatchlist($user["user_id"], getRandomVideo());
+        //     }
+        // }
     }
     print_r("Process finished !");
 }
