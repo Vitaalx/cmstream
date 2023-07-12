@@ -142,7 +142,7 @@ class GetContents extends Controller
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getQuery("page") || 0, "page", "content.page.not.number"],
+            ["type/int", $request->getQuery("page") ?? 0, "page", "content.page.not.number"],
             ["type/string", $request->getQuery("type") ?? "", "type", "content.get.badType"],
             ["type/int", $request->getQuery("category_id") ?? -1, "category_id", "content.category_id.not.number"],
             ["type/string", $request->getQuery("title") ?? "", "title", "content.title.not.title"],

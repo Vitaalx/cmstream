@@ -146,5 +146,8 @@ class Movie extends Entity
 
     protected function onDelete(){
         Content::findFirst(["value_id" => $this->getId(), "value_type" => "M"])->delete();
+        foreach (History::findIterator(["value_id" => $this->getId(), "value_type" => "M"]) as $value) {
+            $value->delete();
+        }
     }
 }

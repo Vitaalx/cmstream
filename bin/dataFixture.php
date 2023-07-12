@@ -384,9 +384,9 @@ function main(): void
             createRandomVote($user["user_id"]);
         }
 
-        for ($j = 0; $j < $argument["history"]; $j++) {
-            createHistory($user["user_id"], getRandomVideo());
-        }
+        // for ($j = 0; $j < $argument["history"]; $j++) {
+        //     createHistory($user["user_id"], getRandomVideo());
+        // }
 
         for ($j = 0; $j < $argument["watchlist"]; $j++) {
             if (rand(0, 1) === 0) {

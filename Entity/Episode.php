@@ -150,4 +150,10 @@ class Episode extends Entity
         parent::set("updated_at", $updated_at);
         return $this;
     }
+
+    protected function onDelete(){
+        foreach (History::findIterator(["value_id" => $this->getId(), "value_type" => "E"]) as $value) {
+            $value->delete();
+        }
+    }
 }

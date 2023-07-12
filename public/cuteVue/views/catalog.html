@@ -63,7 +63,7 @@
                 this.page++;
                 this.contents = [
                     ...this.contents,
-                    ...await this.getPage(this.page)
+                    ...await this.getPage()
                 ];
             }
         },
