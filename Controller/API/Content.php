@@ -158,6 +158,7 @@ class GetContents extends Controller
         
         $where = [];
         $joins = [];
+        $case = [];
 
         if($type === "movie"){
             $where["c.value_type"] = "M";
@@ -170,6 +171,7 @@ class GetContents extends Controller
                     "c.value_id" => ["m.id"],
                 ]
             ];
+            $case[] = ["WHEN", ["c.value_type" => "M"], "m.title"];
         }
         else if($type === "serie"){
             $where["c.value_type"] = "S";
@@ -182,6 +184,7 @@ class GetContents extends Controller
                     "c.value_id" => ["s.id"],
                 ]
             ];
+            $case[] = ["WHEN", ["c.value_type" => "S"], "s.title"];
         }
         else {
             $where["\$OR"] = [
@@ -209,14 +212,21 @@ class GetContents extends Controller
                     ]
                 ]
             ];
+            $case[] = ["WHEN", ["c.value_type" => "S"], "s.title"];
+            $case[] = ["WHEN", ["c.value_type" => "M"], "m.title"];
         }
+
+        $case[] = ["END", "title"];
 
         $request = QueryBuilder::createSelectRequest(
             "_content as c",
-            ["c.id"],
+            [
+                "c.id",
+                "\$CASE" => $case,
+            ],
             $where,
             [
-                "ORDER_BY" => ["m.title", "s.title"],
+                "ORDER_BY" => ["title"],
                 "OFFSET" => $page * 10,
                 "LIMIT" => 10,
             ],
