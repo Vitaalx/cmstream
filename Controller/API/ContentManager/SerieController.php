@@ -310,16 +310,6 @@ class addEpisodeBySerie extends AccessContentsManager
         /** @var Serie $serie */
         $serie = $this->floor->pickup("serie");
 
-        $episodes = Episode::findMany([
-            "serie_id" => $serie->getId()
-        ]);
-
-        $nbMaxSeason = max(array_map(function ($episode) {
-            return $episode->getSeason();
-        }, $episodes));
-
-        if ($nbMaxSeason + 1 !== intval($this->floor->pickup("season"))) $response->code(400)->info("episode.season.invalid")->send();
-
         $video = VideoManager::createVideo();
 
         /** @var Episode $episode */
