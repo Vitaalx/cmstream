@@ -198,7 +198,7 @@
 
             <text-input
             type="text"
-            :placeholder="`Url ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+            :placeholder="`Url ${this.typeEdit === 'episode' ? 'de l\'épisode' : 'du film'}`"
             cv-model="urlVideo"
             :rules="this.urlRule"
             class="w-full"
@@ -241,7 +241,7 @@
         :cols="this.episodesCols"
         :total-pages="0"
         @edit="this.refreshPageForEpisode($event.id)"
-        @delete="this.openUrlDeleteModal($event.id)"
+        @delete="this.openEpisodeDeleteModal($event.id)"
         />
     </div>
 </div>
@@ -572,7 +572,6 @@
                     if (info === "serie.episode") this.pushToast("error", "Le numéro de l'épisode doit être supérieur à 1.");
                     if (info === "serie.saison") this.pushToast("error", "Le numéro de la saison doit être supérieur à 1.");
                     if (info === "episode.exist") this.pushToast("error", "L'épisode existe déjà.");
-                    if (info === "episode.season.invalid") this.pushToast("error", "Vous ne pouvez pas sauter une saison.");
                 })
                 .e(err => console.log(err))
                 .result

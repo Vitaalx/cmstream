@@ -21,7 +21,7 @@ function url(array $url, Floor $floor, Response $response): array
 function title(string $title, Floor $floor, Response $response): string
 {
     $title = trim($title);
-    if (strlen($title) < 4 || strlen($title) > 20) {
+    if (strlen($title) < 4 || strlen($title) > 100) {
         $response->info("video.title")->code(400)->send();
     }
     return $title;
@@ -30,7 +30,7 @@ function title(string $title, Floor $floor, Response $response): string
 function description(string $description, Floor $floor, Response $response): string
 {
     $description = trim($description);
-    if (strlen($description) < 4 || strlen($description) > 200) {
+    if (strlen($description) < 4 || strlen($description) > 500) {
         $response->info("video.description")->code(400)->send();
     }
     return $description;
