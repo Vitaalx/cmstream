@@ -88,8 +88,12 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <div class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        <content_search />
+                    <div class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless">
+                        <icon 
+                        name="magnify" 
+                        class="text-[24px]"
+                        @click="this.showSearch = true"
+                        />
                     </div>
                 </li>
 
@@ -270,21 +274,32 @@
         </nav>
         
     </div>
+
+    <div
+    cv-if="this.showSearch === true"
+    class="fixed top-0 left-0 z-10 w-full h-full bg-[rgba(0,0,0,0.5)] flex items-center justify-center"
+    @click="if(this.$refs.searchDiv === $event.target)this.showSearch = false"
+    cv-ref="searchDiv"
+    >
+        <catalog 
+        class="w-[50%] h-[80%] bg-darkblue p-[20px] overflow-y-auto"
+        />
+    </div>
 </header>
 
 <script>
-    const [impLoader, content_search, user_image] = await Promise.all([
+    const [impLoader, user_image, catalog] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
-        importer('/public/cuteVue/components/content_search.html'),
         importer('/public/cuteVue/components/account/user-image.html'),
+        importer('/public/cuteVue/views/catalog.html'),
     ]);
 
     const loaderStore = impLoader.loaderStore;
 
     export default {
         components: {
-            content_search,
             "user-image": user_image,
+            catalog,
         },
 
         data: {
@@ -293,9 +308,14 @@
             sizeNav: null,
             showPagesDrower: false,
             interval: null,
+            showSearch: false,
         },
 
-        props: {},
+        watch: {
+            params(){
+                this.showSearch = false;
+            }
+        },
 
         methods: {
             resized(){
@@ -396,6 +416,10 @@
             {
                 name: "pages",
                 computed: ["pagesFilter"],
+            },
+            {
+                name: "router",
+                computed: ["params"],
             }
         ]
     }

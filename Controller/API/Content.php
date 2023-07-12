@@ -186,10 +186,10 @@ class GetContents extends Controller
         else {
             $where["\$OR"] = [
                 [
-                    "LOWER(m.title)" => ["\$CTN" => $title]
+                    "LOWER(m.title)" => ["\$CTN" => strtolower($title)]
                 ],
                 [
-                    "LOWER(s.title)" => ["\$CTN" => $title]
+                    "LOWER(s.title)" => ["\$CTN" => strtolower($title)]
                 ]
             ];
             if($category_id !== -1) $where["category_id"] = $category_id;
