@@ -8,14 +8,23 @@
 
         <h1
         cv-if="this.type === 'movie'"
-        class="text-2xl font-bold"
+        class="mb-[10px] flex items-center gap-[5px] text-2xl font-bold"
         >
             {{ this.title }}
+
+            <router_link
+            cv-if="this.hasPermission('comments_manager')"
+            :href="`/dashboard/edit-video/movie/${this.params.id}`"
+            class="hover:text-skyblue"
+            title="Éditer"
+            >
+                <icon name="square-edit-outline" size="24" />
+            </router_link>
         </h1>
 
         <h1 
         cv-if="this.type === 'serie'"
-        class="text-2xl font-bold select-none"
+        class="mb-[10px] items-center gap-[5px] text-2xl font-bold select-none"
         >
             <router_link
             :href="'/serie/' + this.serieId"
@@ -24,6 +33,15 @@
                 {{ this.serieName + " " }}
             </router_link> 
             : {{ this.title }} S{{ this.season > 10 ? this.season : '0' + this.season }}E{{ this.episode > 10 ? this.episode : '0' + this.episode }}
+
+            <router_link
+            cv-if="this.hasPermission('comments_manager')"
+            :href="`/dashboard/edit-video/episode/${this.episodeId}`"
+            class="hover:text-skyblue"
+            title="Éditer"
+            >
+                <icon name="square-edit-outline" size="24" />
+            </router_link>
         </h1>
 
         <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
@@ -71,40 +89,39 @@
                 </btn>
             </div>
 
-            <div class="w-full aspect-video bg-white player-video">
-                <iframe 
+            <div class="w-full aspect-video flex items-center justify-center bg-white player-video">
+                <iframe
+                cv-if="this.players.length > 0 && this.currentPlayer !== null"
                 width="100%" 
                 height="100%" 
                 :src="this.currentPlayer"
-                title="YouTube video player" 
+                title="player" 
                 frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowfullscreen
                 >
                 </iframe>
+
+                <p cv-if="this.players.length <= 0" class="text-black">Il n'y a aucun lien pour cet épisode :(</p>
             </div>
 
-            <div class="flex justify-between player-bottom">
-                <p cv-if="this.type === 'serie'" class="text-xl font-bold">{{ this.description || "" }}</p>
-
-                <div 
-                cv-if="this.type === 'serie'"
-                class="flex gap-[10px] player-controls"
+            <div 
+            cv-if="this.type === 'serie'"
+            class="flex items-end justify-between player-bottom"
+            >
+                <btn
+                @click="previous"
+                cv-class="{invisible: !this.hasPrevious}"
                 >
-                    <btn
-                    @click="previous"
-                    cv-class="{invisible: !this.hasPrevious}"
-                    >
-                        Précédent
-                    </btn>
+                    Précédent
+                </btn>
 
-                    <btn 
-                    @click="next"
-                    cv-class="{invisible: !this.hasNext}"
-                    >
-                        Suivant
-                    </btn>
-                </div>
+                <btn 
+                @click="next"
+                cv-class="{invisible: !this.hasNext}"
+                >
+                    Suivant
+                </btn>
             </div>
         </div>
 
@@ -198,6 +215,7 @@
             serieName: "",
             serieId: null,
             season: null,
+            episodeId: null,
             episode: null,
             actualEpisode: null,
             videoId: null,
@@ -269,6 +287,7 @@
                     this.videoId = movie.video.id;
 
                     this.players = movie.video.urls;
+                    console.log(this.players);
                     this.currentPlayer = movie.video.urls[0]?.value || null;
 
                     this.up_vote = movie.content.up_vote;
@@ -340,6 +359,7 @@
                     this.release_date = episode.release_date;
                     this.videoId = episode.video.id;
                     this.episode = episode.episode;
+                    this.episodeId = episode.id;
                     this.season = episode.season;
                     this.serieName = episode.serie.title;
                     this.serieId = episode.serie.id;
@@ -347,7 +367,6 @@
                     this.currentPlayer = episode.video.urls[0]?.value || null;
                     this.up_vote = episode.serie.content.up_vote;
                     this.down_vote = episode.serie.content.down_vote;
-                    
                     this.seasons = seasons.map(s => s.season);
                     this.selectedSeason = Number(this.params.season);
                     this.getEpisodeBySeason(this.selectedSeason);
@@ -485,7 +504,6 @@
                     router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason - 1]}`);
                 }
             },
-
             async vote(type){
                 if(this.isConnected === false) return;
                 if(type === "like" && !this.liked){ 
@@ -554,7 +572,8 @@
             },
             {
                 name: "user",
-                states: ["isConnected", "userId"]
+                states: ["isConnected", "userId", "role", "permissions"],
+                actions: ["hasPermission"]
             },
             {
                 name: "toast",
