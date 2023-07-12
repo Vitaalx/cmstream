@@ -88,9 +88,9 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        <icon name="magnify" class="text-[24px]"/>
-                    </router_link>
+                    <div class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        <content_search />
+                    </div>
                 </li>
 
                 <li cv-if="this.isConnected" class="h-full">
@@ -273,8 +273,9 @@
 </header>
 
 <script>
-    const [impLoader, user_image] = await Promise.all([
+    const [impLoader, content_search, user_image] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
+        importer('/public/cuteVue/components/content_search.html'),
         importer('/public/cuteVue/components/account/user-image.html'),
     ]);
 
@@ -282,6 +283,7 @@
 
     export default {
         components: {
+            content_search,
             "user-image": user_image,
         },
 

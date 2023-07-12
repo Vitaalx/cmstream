@@ -1,0 +1,45 @@
+<div class="w-full h-full flex items-center justify-center" @click="this.toggleSearch()">
+    <icon name="magnify" class="text-[24px]"/>
+
+    <div cv-if="this.displaySearch" class="absolute top-[60px] left-0 z-10 w-full h-[calc(100vh-60px)] bg-[rgba(0,0,0,0.5)] overlay">
+        <div class="mt-[60px] mb-[20px] flex justify-center search-container">
+            <text-input
+            cv-ref="search"
+            class="relative w-[300px]"
+            placeholder="Rechercher un film ou une série"
+            cv-model="searchValue"
+            >
+                <icon name="magnify" class="absolute right-0 bottom-[7px] mr-[10px] cursor-pointer"/>
+            </text-input>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const [user_image] = await Promise.all([
+        importer('/public/cuteVue/components/account/user-image.html'),
+    ]);
+
+    export default {
+        data: {
+            displaySearch: false,
+            searchValue: ""
+        },
+        methods: {
+            toggleSearch(){
+                this.displaySearch = !this.displaySearch;
+
+                if(this.displaySearch){
+                    document.body.style.overflow = "hidden";
+                } else {
+                    document.body.style.overflow = "auto";
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+
+</style>
