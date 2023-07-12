@@ -99,7 +99,7 @@ class Movie extends Entity
         return $this;
     }
 
-    public function getContent(): Content
+    public function getContent(): Content|null
     {
         return Content::findFirst(["value" => $this, "value_type" => "M"]);
     }

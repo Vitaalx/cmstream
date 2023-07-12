@@ -459,6 +459,7 @@
 
                 await taob.get("serie/" + this.idVideo + "/season/count")
                 .s(data => {
+                    this.seasons = [];
                     for (const dataKey in data) {
                         this.seasons.push({text: "Saison " + data[dataKey].season, value: data[dataKey].season})
                     }
@@ -543,8 +544,15 @@
                 .e(err => console.log(err))
                 .result;
             },
-            refreshEpisode() {
+            refreshEpisode(action) {
                 this.getSeasonNb();
+                let indexSeason = this.seasons.findIndex(s => s.value == this.selectedSeason);
+                if (action === "delete") {
+                    if (indexSeason >= 0 && this.selectedSeason !== 1 && this.episodes.length === 1) {
+                        indexSeason = indexSeason - 1;
+                    }
+                }
+                this.selectedSeason = this.seasons[indexSeason].value;
                 this.getEpisodeBySeason(this.selectedSeason);
             },
             async addEpisode() {
@@ -562,8 +570,7 @@
                     this.descriptionEpisode = "";
                     this.seasonNumber = "";
                     this.episodeNumber = "";
-                    this.seasons = [];
-                    this.refreshEpisode();
+                    this.refreshEpisode("add");
                 })
                 .info(info => {
                     if (info === "video.title") this.pushToast("error", "Le titre de l'épisode doit contenir au minimum 4 caractères et au maximum 20.");

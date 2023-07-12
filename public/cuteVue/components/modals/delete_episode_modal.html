@@ -36,7 +36,9 @@
           this.$emit("delete-episode", "delete");
           this.pushToast("successfull", "L'épisode à bien été supprimé.");
         })
-        .info(info => console.log(info)).result;
+        .info(info => console.log(info))
+        .e(err => console.log(err))
+        .result;
 
         this.closeModal();
         close();
