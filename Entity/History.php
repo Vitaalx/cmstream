@@ -68,6 +68,24 @@ class History extends Entity
     private int $unique_key;
 
     /**
+     * @type{int}
+     * @notnullable{}
+     * @default{date_part('epoch'::text, now())}
+     */
+    private int $timestamp;
+
+    public function getTimestamp(): int
+    {
+        return parent::get("timestamp");
+    }
+
+    public function setTimeStamp(int $timestamp): self
+    {
+        parent::set("timestamp", $timestamp);
+        return $this;
+    }
+
+    /**
      * @type{Date}
      * @notnullable{}
      * @default{CURRENT_TIMESTAMP}
@@ -104,7 +122,6 @@ class History extends Entity
     protected function onSerialize(array $array): array
     {
         if(in_array("HistoryValue", self::$groups)){
-            $array["type"] = parent::get("value_type");
             $array["value"] = $this->getValue();
         }
         return $array;

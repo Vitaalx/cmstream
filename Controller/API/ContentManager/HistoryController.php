@@ -1,12 +1,14 @@
 <?php
 
-namespace Controller\API\ContentManager;
+namespace Controller\API\ContentManager\HistoryController;
 
 use Core\Request;
 use Core\Response;
 
 use Entity\History;
 
+use Entity\User;
+use Entity\Video;
 use Services\Access\AccessContentsManager;
 use Services\MustBeConnected;
 
@@ -20,7 +22,8 @@ use Services\MustBeConnected;
 /*
 Entry:
 {
-    "video_id" : 1
+    "value_id" : 1,
+    "value_type": "E"
 }
 */
 class addHistory extends MustBeConnected
@@ -28,19 +31,38 @@ class addHistory extends MustBeConnected
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getBody()['video_id'], "video_id"],
-            ["video/exist", fn () => $this->floor->pickup("video_id"), "video"]
+            ["type/int", $request->getBody()['value_id'], "value_id"],
+            ["type/string", $request->getBody()['value_type'], "value_type"],
+            ["history/valueType", $request->getBody()['value_type'], "value_type"],
+            ["history/videoExist", [
+                "id" => $request->getBody()['value_id'],
+                "type" => $request->getBody()['value_type']
+            ], "video"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var History $history */
-        $history = History::insertOne(
-            fn (History $history) => $history
-                ->setVideo($this->floor->pickup("video"))
-                ->setUser($this->floor->pickup("user"))
-        );
+        /** @var Video $video */
+        $video = $this->floor->pickup("video");
+
+        $historyExist = History::findFirst([
+            "user_id" => $this->floor->pickup("user")->getId(),
+            "value_id" => $video->getId(),
+            "value_type" => $this->floor->pickup("value_type")
+        ]);
+
+        if($historyExist !== null) {
+            $historyExist->setTimeStamp(time());
+            $historyExist->save();
+        } else {
+            /** @var History $history */
+            $history = History::insertOne(
+                fn (History $history) => $history
+                    ->setValue($video)
+                    ->setUser($this->floor->pickup("user"))
+            );
+        }
 
         $response->code(201)->info("history.added")->send();
     }
@@ -51,18 +73,45 @@ class addHistory extends MustBeConnected
  * @Description Get the history of the user
  * @return Response
  */
-class getHistory extends MustBeConnected
+class getHistoryByUserId extends MustBeConnected
 {
     public function handler(Request $request, Response $response): void
     {
-        /** @var History $history */
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
         $history = History::findMany([
-            "user_id" => $this->floor->pickup("user")->getId()
+            "user_id" => $user->getId()
         ]);
 
-        $response->code(200)->info("history.found")->send([
-            "history" => $history
-        ]);
+        History::groups("HistoryValue", "contentValue");
+
+        $response->code(200)->info("history.get")->send($history);
+    }
+}
+
+/**
+ * @DELETE{/api/histories}
+ * @Description Delete a history of user
+ * @param int id
+ * @return Response
+ */
+class deleteAllHistory extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["history/existByUser", fn () => $this->floor->pickup("user")->getId(), "histories"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var History $history */
+        $histories = $this->floor->pickup("histories");
+        foreach ($histories as $history) {
+            $history->delete();
+        }
+        $response->code(200)->info("histories.deleted")->send();
     }
 }
 
@@ -72,13 +121,13 @@ class getHistory extends MustBeConnected
  * @param int id
  * @return Response
  */
-class deleteHistory extends AccessContentsManager
+class deleteHistoryById extends MustBeConnected
 {
     public function checkers(Request $request): array
     {
         return [
-            ["type/int", $request->getParams()['id'], "user_id"],
-            ["history/exist", fn () => $this->floor->pickup("user_id"), "history"]
+            ["type/int", $request->getParam('id'), "history_id"],
+            ["history/exist", fn () => $this->floor->pickup("history_id"), "history"]
         ];
     }
 
@@ -89,31 +138,5 @@ class deleteHistory extends AccessContentsManager
         $history->delete();
 
         $response->code(200)->info("history.deleted")->send();
-    }
-}
-
-/**
- * @GET{/api/history/{id}}
- * @Description get history of user
- * @return Response
- */
-class getHistoryById extends AccessContentsManager
-{
-    public function checkers(Request $request): array
-    {
-        return [
-            ["type/int", $request->getParams()['id'], "user_id"],
-            ["history/exist", fn () => $this->floor->pickup("user_id"), "history"]
-        ];
-    }
-
-    public function handler(Request $request, Response $response): void
-    {
-        /** @var History $history */
-        $history = $this->floor->pickup("history");
-
-        $response->code(200)->info("history.found")->send([
-            "history" => $history
-        ]);
     }
 }
