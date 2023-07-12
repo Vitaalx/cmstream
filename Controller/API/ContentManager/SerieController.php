@@ -450,7 +450,7 @@ class updateEpisodeById extends AccessContentsManager {
 }
 
 /**
- * @GET{/api/serie/{serie_id}/episodes/season/{seasonNumber}}
+ * @GET{/api/serie/{serie_id}/season/{seasonNumber}/episodes}
  * @apiName GetEpisodes
  * @apiGroup ContentManager/SerieController
  * @apiVersion 1.0.0
@@ -459,7 +459,7 @@ class updateEpisodeById extends AccessContentsManager {
  * @param int serie_id
  * @return Response
  */
-class getEpisodesSeriesBySeason extends AccessContentsManager
+class getEpisodesSeriesBySeason extends Controller
 {
     public function checkers(Request $request): array
     {
@@ -490,7 +490,7 @@ class getEpisodesSeriesBySeason extends AccessContentsManager
  * @param int serie_id
  * @return int
  */
-class getSeasonCountBySeries extends AccessContentsManager
+class getSeasonCountBySeries extends Controller
 {
 
     public function checkers(Request $request): array

@@ -33,8 +33,6 @@
             class="w-[150px]"
             label="Saison"
             :items="this.seasons"
-            :return-value="v => v.season"
-            :return-text="t => t.season"
             cv-model="selectedSeason"
             />
 
@@ -70,7 +68,7 @@
             release_date: "",
             seasons: [],
             episodes: [],
-            selectedSeason: 1,
+            selectedSeason: null,
             up_vote: 0,
             down_vote: 0,
             liked: false,
@@ -79,13 +77,12 @@
         },
         watch: {
             selectedSeason(val) {
-                console.log(val);
                 this.getEpisodeBySeason(val);
             }
         },
         methods: {
             async init(){
-                const [serie, episodes, seasons] = await Promise.all([
+                const [serie, seasons] = await Promise.all([
                     taob.get(
                         "/serie/{id}", 
                         {
@@ -105,20 +102,6 @@
                         })
                     .sd(),
                     taob.get(
-                        "/serie/{id}/episodes/season/{season}",
-                        {
-                            params: { id: this.params.id, season: this.selectedSeason},
-                            loader: true
-                        }
-                    )
-                    .info((info, ok) => {
-                        if(!ok){
-                            this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
-                            router.push("/");
-                        }
-                    })
-                    .sd(),
-                    taob.get(
                         "serie/{id}/season/count",
                         {
                             params: { id: this.params.id},
@@ -136,10 +119,9 @@
                         }
                     })
                     .sd()
-                ])
-                this.episodes = episodes;
-                this.seasons = seasons;
-
+                ]);
+                this.seasons = seasons.map(s => s.season);
+                this.selectedSeason = Number(this.query.season) || this.seasons[0];
                 this.title = serie.title;
                 this.img = serie.image;
                 this.category = serie.content.category.title;
@@ -147,9 +129,9 @@
                 this.release_date = serie.release_date;
                 this.up_vote = serie.content.up_vote;
                 this.down_vote = serie.content.down_vote;
-
                 this.contentId = serie.content.id;
-
+                
+                this.getEpisodeBySeason(this.selectedSeason);
                 taob.get(
                     "/content/{id}/vote", 
                     {
@@ -163,28 +145,31 @@
                     else if(data.value === -1) this.disliked = true;
                 });
             },
-            async getEpisodeBySeason(seasonNb) {
-                await taob.get(
-                    "/serie/{id}/episodes/season/{season}",
+            getEpisodeBySeason(seasonNb){
+                taob.get(
+                    "/serie/{id}/season/{season}/episodes",
                     {
                         params: { id: this.params.id, season: seasonNb},
                         loader: true
                     }
-                ).s(data => {
-                    this.episodes = data;
+                )
+                .s(episodes => {
+                    this.episodes = episodes.map(e => {
+                        e.image = this.img;
+                        return e;
+                    });
                 })
-                    .info(info => {
-                        if (info === "season.notexist") {
-                            this.selectedSeason = 1;
-                            this.pushToast("error", "La saison demandée n'existe pas.");
-                        }
-                        if (info === "serie.notfound") {
-                            this.pushToast("error", "La série demandée n'existe pas.");
-                            router.push("/");
-                        }
-                    })
-                    .e(err => console.log(err))
-                    .result;
+                .info(info => {
+                    if (info === "season.notexist") {
+                        this.selectedSeason = 1;
+                        this.pushToast("error", "La saison demandée n'existe pas.");
+                    }
+                    if (info === "serie.notfound") {
+                        this.pushToast("error", "La série demandée n'existe pas.");
+                        router.push("/");
+                    }
+                })
+                .e(err => console.log(err))
             },
             async vote(type){
                 if(this.isConnected === false) return;
@@ -250,7 +235,7 @@
         stores: [
             {
                 name: "router",
-                states: ["params", "pathname"]
+                states: ["params", "pathname", "query"]
             },
             {
                 name: "toast",

@@ -526,10 +526,14 @@
                 string = string.toLowerCase();
                 return string.charAt(0).toUpperCase() + string.slice(1);
             },
-            async getEpisodeBySeason(seasonNb) {
-                let close = loaderStore.push();
-
-                await taob.get("serie/" + this.idVideo + "/episodes/season/" + seasonNb).s(data => {
+            getEpisodeBySeason(seasonNb) {
+                taob.get(
+                    "/serie/{id}/season/{season}/episodes",
+                    {
+                        params: {id: this.idVideo, season: seasonNb},
+                        loader: true,
+                    }
+                ).s(data => {
                     this.episodes = data;
                 })
                 .info(info => {
@@ -538,8 +542,6 @@
                 })
                 .e(err => console.log(err))
                 .result;
-
-                close();
             },
             refreshEpisode() {
                 this.getSeasonNb();

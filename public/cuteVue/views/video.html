@@ -147,8 +147,6 @@
             class="w-[150px]"
             label="Saison"
             :items="this.seasons"
-            :return-value="v => v.season"
-            :return-text="t => t.season"
             cv-model="selectedSeason"
             />
 
@@ -223,14 +221,16 @@
         computed: {
             hasNext(){
                 if(this.episodes === null) return false;
-                let indexEpisode = this.episodes.findIndex(e => e.episode == this.actualEpisode);
-                return indexEpisode !== this.episodes.length - 1;
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                return this.episodes[indexEpisode + 1] || this.seasons[indexSeason + 1];
 
             },
             hasPrevious(){
                 if(this.episodes === null) return false;
-                let indexEpisode = this.episodes.findIndex(e => e.episode == this.actualEpisode);
-                return indexEpisode > 0;
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                return this.episodes[indexEpisode - 1] || this.seasons[indexSeason - 1];
             }
         },
         watch: {
@@ -289,7 +289,7 @@
                     });
                 }
                 else {
-                    const [episode, episodes, seasons] = await Promise.all([
+                    const [episode, seasons] = await Promise.all([
                         taob.get(
                             "/serie/{id}/season/{season}/episode/{episode}", 
                             {
@@ -307,23 +307,6 @@
                                 router.push("/");
                             }
                             else if(!ok){
-                                this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
-                                router.push("/");
-                            }
-                        })
-                        .sd(),
-                        taob.get(
-                            "/serie/{id}/episodes/season/{season}",
-                            {
-                                params: {
-                                    id: this.params.id,
-                                    season: this.params.season,
-                                },
-                                loader: true
-                            }
-                        )
-                        .info((info, ok) => {
-                            if(!ok){
                                 this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
                                 router.push("/");
                             }
@@ -348,10 +331,8 @@
                             })
                             .sd()
                     ]);
+
                     this.type = "serie";
-
-                    this.selectedSeason = seasons[this.params.season - 1].season;
-
                     this.title = episode.title;
                     this.img = episode.serie.image;
                     this.category = episode.serie.content.category.title;
@@ -362,41 +343,44 @@
                     this.season = episode.season;
                     this.serieName = episode.serie.title;
                     this.serieId = episode.serie.id;
-
                     this.players = episode.video.urls;
                     this.currentPlayer = episode.video.urls[0]?.value || null;
-
                     this.up_vote = episode.serie.content.up_vote;
                     this.down_vote = episode.serie.content.down_vote;
-
-                    this.seasons = seasons;
-                    this.episodes = episodes;
+                    
+                    this.seasons = seasons.map(s => s.season);
+                    this.selectedSeason = Number(this.params.season);
+                    this.getEpisodeBySeason(this.selectedSeason);
                 }
+
                 await this.getComments();
                 if(this.isConnected)await this.getMyComments();
             },
-            async getEpisodeBySeason(seasonNb) {
-                await taob.get(
-                    "/serie/{id}/episodes/season/{season}",
+            getEpisodeBySeason(seasonNb){
+                taob.get(
+                    "/serie/{id}/season/{season}/episodes",
                     {
                         params: { id: this.params.id, season: seasonNb},
                         loader: true
                     }
-                ).s(data => {
-                    this.episodes = data;
+                )
+                .s(episodes => {
+                    this.episodes = episodes.map(e => {
+                        e.image = this.img;
+                        return e;
+                    });
                 })
-                    .info(info => {
-                        if (info === "season.notexist") {
-                            this.selectedSeason = this.params.season;
-                            this.pushToast("error", "La saison demandée n'existe pas.");
-                        }
-                        if (info === "serie.notfound") {
-                            this.pushToast("error", "La série demandée n'existe pas.");
-                            router.push("/");
-                        }
-                    })
-                    .e(err => console.log(err))
-                    .result;
+                .info(info => {
+                    if (info === "season.notexist") {
+                        this.selectedSeason = this.params.season;
+                        this.pushToast("error", "La saison demandée n'existe pas.");
+                    }
+                    if (info === "serie.notfound") {
+                        this.pushToast("error", "La série demandée n'existe pas.");
+                        router.push("/");
+                    }
+                })
+                .e(err => console.log(err))
             },
             async getComments(){
                 const comments = await taob.get(
@@ -482,10 +466,24 @@
                 }
             },
             next(){
-                router.push(`/serie/${this.params.id}/season/${this.selectedSeason}/episode/${this.episode++}`);
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                if(this.episodes[indexEpisode + 1]){
+                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode + 1].episode}`);
+                }
+                else if(this.seasons[indexSeason + 1]){
+                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason + 1]}`);
+                }
             },
             previous(){
-                router.push(`/serie/${this.params.id}/season/${this.selectedSeason}/episode/${this.episode--}`);
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                if(this.episodes[indexEpisode - 1]){
+                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode - 1].episode}`);
+                }
+                else if(this.seasons[indexSeason - 1]){
+                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason - 1]}`);
+                }
             },
 
             async vote(type){
@@ -548,8 +546,6 @@
         },
         mounted(){
             this.init();
-            this.actualEpisode = this.params.episode;
-            this.selectedSeason = this.params.season;
         },
         stores: [
             {
