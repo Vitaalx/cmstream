@@ -68,21 +68,32 @@ class GetTopContent extends Controller
         $type = $this->floor->pickup("type");
         $category_id = $this->floor->pickup("category_id");
 
-        $requestString = "SELECT SUM(_vote.value), _content.id from _content JOIN _vote ON _vote.content_id = _content.id";
-
         $where = [];
-        if($type === "serie") $where[] = "_content.value_type = 'S'";
-        else if($type === "movie") $where[] = "_content.value_type = 'M'";
-        if($category_id !== -1) $where[] = "_content.category_id = ?";
+        if($type === "serie") $where["c.value_type"] = "S";
+        else if($type === "movie") $where["c.value_type"] = "M";
+        if($category_id !== -1) $where["c.category_id"] = $category_id;
 
-        $requestString .= (count($where) !== 0 ? " WHERE " . implode(" AND ", $where) : "") . " GROUP BY _content.id ORDER BY SUM DESC limit ?";
-        
-        $request = $dataBase->prepare($requestString);
-        $request->execute($category_id !== -1 ? [$category_id, $number] : [$number]);
-        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
+        $request = QueryBuilder::createSelectRequest(
+            "_content as c", 
+            ["SUM(v.value)", "c.id"],
+            $where,
+            [
+                "GROUP_BY" => ["c.id"],
+                "ORDER_BY" => ["SUM DESC"],
+                "LIMIT" => $number,
+            ],
+            [
+                "JOIN" => [
+                    [
+                        "TABLE" => "_vote as v",
+                        "WHERE" => ["v.content_id" => ["c.id"]],
+                    ]
+                ]
+            ]
+        );
 
         $contents = [];
-        foreach ($result as $value) {
+        foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $value) {
             $contents[] = Content::findFirst(["id" => $value["id"]]);
         }
 
