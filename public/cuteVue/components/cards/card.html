@@ -2,7 +2,7 @@
 :href="(this.content.type === 'M' ? '/movie/' : '/serie/')  + this.content.value.id" 
 class="show-card"
 >
-    <div class="mb-[10px] object-cover thumbnail aspect-[47/63]">
+    <div class="relative mb-[10px] object-cover thumbnail aspect-[47/63]">
         <img 
         class="w-full h-full object-cover pointer-events-none" 
         :src="this.content.value.image" alt="show title"
@@ -50,10 +50,6 @@ class="show-card"
 </script>
 
 <style>
-    .thumbnail {
-        position: relative;
-    }
-
     .show-card .thumbnail::before {
         content: "";
         position: absolute;

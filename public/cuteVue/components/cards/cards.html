@@ -26,23 +26,21 @@
             </div>
         </div>
 
-        <div class="next-btn" @click="this.currentSlide++">
-            <icon name="chevron-right"/>
+        <div class="absolute z-10 top-2/4 left-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 prev-btn" @click="this.currentSlide--">
+            <icon name="chevron-left"/>
         </div>
 
-        <div class="prev-btn" @click="this.currentSlide--">
-            <icon name="chevron-left"/>
+        <div class="absolute z-10 top-2/4 right-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 next-btn" @click="this.currentSlide++">
+            <icon name="chevron-right"/>
         </div>
     </div>
 </div>
 
 <script>
-    const [card, impTaob] = await Promise.all([
-        importer('/public/cuteVue/components/cards/card.html'),
-        import("/public/cuteVue/taob.js")
+    const [{ default: taob }, card] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
+        importer('/public/cuteVue/components/cards/card.html')
     ]);
-
-    const taob = impTaob.default;
 
     export default {
         props: {
@@ -57,34 +55,38 @@
             widthCard: 150,
             slideWidth: 0,
             currentSlide: 0,
-            allCard: [],
+            allCard: []
+        },
+        watch: {
+            async currentSlide(n){
+                this.setNumCardDisplayed();
+
+                if(n === -1) this.currentSlide = this.packs.length - 1;
+                else if(n === this.packs.length) this.currentSlide = 0;
+            },
+            allCard(){
+                setTimeout(this.setNumCardDisplayed, 100);
+            }
         },
         computed: {
             packs(){
                 if(this.numCardDisplayed === 0) return [];
+
                 let packs = [];
 
                 if(this.allCard.length < this.numCardDisplayed) return [this.allCard];
 
                 for(let index = 0; index < Math.floor(this.allCard.length / this.numCardDisplayed); index++){
                     let cards = [];
+
                     for(let i = 0; i < this.numCardDisplayed; i++){
                         cards.push(this.allCard[(index * this.numCardDisplayed) + i]);
                     }
+
                     packs.push(cards);
                 }
 
                 return packs;
-            }
-        },
-        watch: {
-            async currentSlide(n){
-                this.setNumCardDisplayed();
-                if(n === -1) this.currentSlide = this.packs.length-1;
-                else if(n === this.packs.length) this.currentSlide = 0;
-            },
-            allCard(){
-                setTimeout(this.setNumCardDisplayed, 100);
             }
         },
         methods: {
@@ -93,7 +95,9 @@
             },
             setNumCardDisplayed(){
                 this.slideWidth = this.$refs.div.getBoundingClientRect().width + 30;
+
                 let numCardDisplayed = Math.floor(this.slideWidth / (this.widthCard + 20));
+
                 if(numCardDisplayed !== this.numCardDisplayed)this.numCardDisplayed = numCardDisplayed;
             }
         },
@@ -110,40 +114,5 @@
 <style>
     .slides-container {
         transition: 900ms cubic-bezier(0.48, 0.15, 0.18, 1)
-    }
-
-    .next-btn,
-    .prev-btn {
-        padding: 16px;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 20px;
-        background-color: #FFFFFF;
-        color: #5499C7;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        z-index: 5;
-        cursor: pointer;
-        transition: 400ms;
-    }
-
-    .prev-btn {
-        left: 0;
-    }
-
-    .next-btn {
-        right: 0;
-    }
-
-    .tag-1 {
-        background-color: #F5B041;
-    }
-
-    .tag-2 {
-        background-color: #5DADE2;
-    }
-
-    .tag-3 {
-        background-color: #58D68D;
     }
 </style>

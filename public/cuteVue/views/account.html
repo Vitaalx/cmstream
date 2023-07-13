@@ -17,7 +17,7 @@
             :disabled="this.editing !== 'ln'"
             :rules="this.lastnameRule"
             >
-                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                <div class="absolute top-2/4 -translate-y-[50%] right-0 flex gap-[10px]">
                     <icon 
                     cv-show="this.editing !== 'ln'"
                     @click="this.editing = 'ln';" 
@@ -50,7 +50,7 @@
             :disabled="this.editing !== 'fn'"
             :rules="this.firstnameRule"
             >
-                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                <div class="absolute top-2/4 -translate-y-[50%] right-0 flex gap-[10px]">
                     <icon 
                     cv-show="this.editing !== 'fn'"
                     @click="this.editing = 'fn';" 
@@ -84,7 +84,7 @@
             :rules="this.usernameRule"
             cv-ref="username"
             >
-                <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[10px]">
+                <div class="absolute top-2/4 -translate-y-[50%] right-0 flex gap-[10px]">
                     <icon 
                     cv-show="this.editing !== 'p'"
                     @click="this.editing = 'p';" 

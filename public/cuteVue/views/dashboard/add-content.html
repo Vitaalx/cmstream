@@ -73,9 +73,10 @@
                     cv-model="formCategory"
                     />
 
-                    <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
+                    <!-- TO DO: fix category refresh when new one added -->
+                    <!-- <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
                         <icon name="plus-circle" class="text-[24px] text-skyblue hover:text-[#1da1f2]" />
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>
@@ -115,7 +116,7 @@
             formTitle: "",
             formImage: "",
             formDescription: "",
-            formCategory: "",
+            formCategory: null,
             formReleaseDate: ""
         },
         static: {
@@ -143,10 +144,10 @@
 
                 if (this.currentType === "serie") {
                     await taob.post("serie", {
-                        description: this.formDescription === "" ? "Cette série n'a pas de description !" : this.formDescription,
+                        description: this.formDescription === "" ? "Cette série n'a pas de description." : this.formDescription,
                         image: this.formImage,
                         title_serie: this.formTitle,
-                        category_name: this.formCategory.title,
+                        category_id: this.formCategory.id,
                         release_date: this.formReleaseDate
                     }).s(data => {
                         router.push("/dashboard/edit-video/serie/" + data.id);
@@ -156,10 +157,10 @@
                     .result;
                 } else if (this.currentType === "movie") {
                     await taob.post("movie", {
-                        description: this.formDescription === "" ? "Ce film n'a pas de description !" : this.formDescription,
+                        description: this.formDescription === "" ? "Ce film n'a pas de description." : this.formDescription,
                         image: this.formImage,
                         title_video: this.formTitle,
-                        category_name: this.formCategory.title,
+                        category_id: this.formCategory.id,
                         release_date: this.formReleaseDate
                     }).s(data => {
                         router.push("/dashboard/edit-video/movie/" + data.id);
