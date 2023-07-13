@@ -278,7 +278,7 @@
     <div
     cv-if="this.showSearch === true"
     class="fixed top-0 left-0 z-10 w-full h-full bg-[rgba(0,0,0,0.5)] flex items-center justify-center"
-    @click="if(this.$refs.searchDiv === $event.target)this.showSearch = false"
+    @click="this.$refs.searchDiv === $event.target ? this.showSearch = false : this.showSearch = true"
     cv-ref="searchDiv"
     >
         <catalog 

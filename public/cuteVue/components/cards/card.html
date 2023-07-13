@@ -10,13 +10,19 @@ class="show-card"
     </div>
 
     <div class="content">
-        <h3 class="text-bold show-title">{{this.content.value.title}}</h3>
+        <h3 
+        class="text-bold overflow-hidden title"
+        :title="this.content.value.title"
+        >
+            {{ this.content.value.title }}
+        </h3>
 
         <p 
-        class="text-xs show-description text-ellipsis overflow-hidden w-full"
-        :title="this.content.value.description || ''"
+        cv-if="this.content.value.description"
+        class="text-xs show-description overflow-hidden w-full description"
+        :title="this.content.value.description"
         >
-            {{this.content.value.description || ""}}
+            {{ this.content.value.description }}
         </p>
 
         <div class="flex gap-[5px] categories">
@@ -77,7 +83,15 @@ class="show-card"
     }
 
     .show-card:hover .thumbnail::after {
-    content: "\F0F1B";
-    opacity: 1;
-}
+        content: "\F0F1B";
+        opacity: 1;
+    }
+
+    .title, .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1; /* number of lines to show */
+        -webkit-box-orient: vertical;
+    }
 </style>
