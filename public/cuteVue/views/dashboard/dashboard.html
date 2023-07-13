@@ -1,39 +1,123 @@
 <div class="max-h-[calc(100vh-100px)] p-[24px] lg:p-[48px] content">
-    <canvas cv-ref="myChart"/>
+    <div class="grid grid-cols-2 gap-12 charts">
+        <div class="max-h-[400px] flex items-center justify-center chart">
+            <canvas cv-ref="movieSerieChart"></canvas>
+        </div>
+
+        <div class="max-h-[400px] flex items-center justify-center chart">
+            <canvas cv-ref="contentChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <script>
+    const [{ default: taob }] = await Promise.all([
+        import("/public/cuteVue/taob.js")
+    ]);
+
     export default {
         data: {
-            chart: null
+            charts: [],
+            movieSerieChartData: [],
+            contentChartData: [],
         },
         methods: {
+            async init(){
+                this.createMovieSerieChart();
+                this.createContentChart();
+            },
+            async createMovieSerieChart(){
+                const chartDiv = this.$refs.movieSerieChart;
+                const [moviesCount, seriesCount] = await Promise.all([
+                    await taob.get(
+                        "/movies/count"
+                    )
+                    .s(data => {
+                        this.movieSerieChartData[0] = data.count;
+                    })
+                    .e(err => console.log(err)),
+                    await taob.get(
+                        "/series/count"
+                    )
+                    .s(data => {
+                        this.movieSerieChartData[1] = data.count;
+                    })
+                    .e(err => console.log(err))
+                ]);
+                const chart = new Chart(chartDiv, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Films", "Séries"],
+                        datasets: [{
+                            data: this.movieSerieChartData,
+                            backgroundColor: [
+                                "rgb(255, 99, 132)",
+                                "rgb(255, 205, 86)"
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                });
 
+                this.charts.push(chart);
+            },
+            async createContentChart(){
+                const chartDiv = this.$refs.contentChart;
+                const [userCount, roleCount, categorieCount] = await Promise.all([
+                    await taob.get(
+                        "/users/count"
+                    )
+                    .s(data => {
+                        this.contentChartData[0] = data.count;
+                    })
+                    .e(err => console.log(err)),
+                    await taob.get(
+                        "/roles/count"
+                    )
+                    .s(data => {
+                        this.contentChartData[1] = data;
+                    })
+                    .e(err => console.log(err)),
+                    await taob.get(
+                        "/categories/count"
+                    )
+                    .s(data => {
+                        this.contentChartData[2] = data;
+                    })
+                    .e(err => console.log(err))
+                ]);
+                const chart = new Chart(chartDiv, {
+                    type: "bar",
+                    data: {
+                        labels: ["Nombre d'utilisateurs", "Nombre de rôles", "Nombre de catégories"],
+                        datasets: [{
+                            label: 'Contenu du site',
+                            data: this.contentChartData,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                                "rgba(153, 102, 255, 0.2)",
+                                "rgba(54, 162, 235, 0.2)"
+                            ],
+                            borderColor: [
+                                'rgb(75, 192, 192)',
+                                'rgb(153, 102, 255)',
+                                'rgb(54, 162, 235)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                });
+
+                this.charts.push(chart);
+            }
         },
         mounted(){
-            const ctx = this.$refs.myChart;
-            
-            this.chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                    datasets: [{
-                        label: '# of Votes',
-                        data: [12, 19, 3, 5, 2, 3],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+            this.init();
         },
         unmounted(){
-            this.chart.destroy();
+            this.charts.forEach(chart => {
+                chart.destroy();
+            });
         }
     }
 </script>
