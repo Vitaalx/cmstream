@@ -12,10 +12,11 @@
     
     <h1 class="mb-[40px] pb-[10px] text-2xl font-bold border-b-[4px] border-skyblue">Catalogue</h1>
 
-    <div class="flex flex-col gap-[20px] show-list content">
+    <div class="flex flex-col gap-[20px] show-list content overflow-hidden">
         <show_card_large 
         cv-for="content of this.contents" 
-        :content="this.content" 
+        :content="this.content"
+        class="w-full"
         />
     </div>
 
