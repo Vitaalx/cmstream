@@ -47,8 +47,8 @@ class createMovie extends AccessContentsManager
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
-            ["type/string", $request->getBody()['category_name'], "category_name"],
-            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
             ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
