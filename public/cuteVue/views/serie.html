@@ -172,7 +172,12 @@
                 .e(err => console.log(err))
             },
             async vote(type){
-                if(this.isConnected === false) return;
+                if(!this.isConnected){
+                    this.pushToast("error", "Connectez-vous pour voter.");
+
+                    return;
+                };
+                
                 if(type === "like" && !this.liked){ 
                     taob.post(
                         "/content/{id}/vote", 

@@ -429,83 +429,12 @@
                 this.myComments = comments
             },
             async vote(type){
-                if(type === "like" && !this.liked){ 
-                    taob.post(
-                        "/content/{id}/vote", 
-                        { vote: 1 }, 
-                        {
-                            params: { id: this.params.id },
-                            loader: true,
-                        }
-                    )
-                    
-                    this.up_vote++;
-                    if(this.disliked) this.down_vote--;
-                    this.disliked = false;
-                    this.liked = true;
-                } 
-                else if(type === "like" && this.liked) {
-                    taob.delete(
-                        "/content/{id}/vote", 
-                        {
-                            params: { id: this.params.id },
-                            loader: true,
-                        }
-                    )
+                if(!this.isConnected){
+                    this.pushToast("error", "Connectez-vous pour voter.");
 
-                    this.up_vote--;
-                    this.liked = false;
-                }
-                else if(type === "dislike" && !this.disliked){ 
-                    taob.post(
-                        "/content/{id}/vote", 
-                        { vote: -1 }, 
-                        {
-                            params: { id: this.params.id },
-                            loader: true,
-                        }
-                    )
+                    return;
+                };
 
-                    this.down_vote++;
-                    if(this.liked) this.up_vote--;
-                    this.liked = false;
-                    this.disliked = true;
-                } 
-                else if(type === "dislike" && this.disliked) {
-                    taob.delete(
-                        "/content/{id}/vote", 
-                        {
-                            params: { id: this.params.id },
-                            loader: true,
-                        }
-                    )
-
-                    this.down_vote--;
-                    this.disliked = false;
-                }
-            },
-            next(){
-                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
-                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
-                if(this.episodes[indexEpisode + 1]){
-                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode + 1].episode}`);
-                }
-                else if(this.seasons[indexSeason + 1]){
-                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason + 1]}`);
-                }
-            },
-            previous(){
-                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
-                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
-                if(this.episodes[indexEpisode - 1]){
-                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode - 1].episode}`);
-                }
-                else if(this.seasons[indexSeason - 1]){
-                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason - 1]}`);
-                }
-            },
-            async vote(type){
-                if(this.isConnected === false) return;
                 if(type === "like" && !this.liked){ 
                     taob.post(
                         "/content/{id}/vote", 
@@ -561,6 +490,26 @@
                     this.disliked = false;
                 }
             },   
+            next(){
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                if(this.episodes[indexEpisode + 1]){
+                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode + 1].episode}`);
+                }
+                else if(this.seasons[indexSeason + 1]){
+                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason + 1]}`);
+                }
+            },
+            previous(){
+                let indexEpisode = this.episodes.findIndex(e => e.episode == this.params.episode);
+                let indexSeason = this.seasons.findIndex(s => s == this.params.season);
+                if(this.episodes[indexEpisode - 1]){
+                    router.push(`/serie/${this.params.id}/season/${this.params.season}/episode/${this.episodes[indexEpisode - 1].episode}`);
+                }
+                else if(this.seasons[indexSeason - 1]){
+                    router.push(`/serie/${this.params.id}?season=${this.seasons[indexSeason - 1]}`);
+                }
+            },
         },
         mounted(){
             this.init();
