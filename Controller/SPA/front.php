@@ -16,9 +16,6 @@ use Services\Permissions;
 /**
  * @GET{/}
  * @GET{/catalog}
- * @GET{/movie/{id}}
- * @GET{/serie/{id}/season/{season}/episode/{episode}}
- * @GET{/serie/{id}}
  * @GET{/pages/{name}}
  */
 class index extends IndexHandler{}
@@ -161,6 +158,55 @@ class adminContent extends IndexHandler
             ["page/mustHavePermission", Permissions::AccessDashboard],
             ["page/mustHavePermission", Permissions::ContentsManager]
         ];
+    }
+}
+
+/**
+ * @GET{/movie/{id}}
+ */
+class GetMovie extends IndexHandler{
+    public function extendHandler(Request $request, Response $response): void
+    {
+        if($request->getHeader("Page-Access") === null){
+            $movie = Movie::findFirst(["id" => $request->getParam("id")]);
+            if($movie === null) return;
+            $this->description = $movie->getDescription();
+            $this->keywords = "movie, {$movie->getTitle()}";
+        }
+    }
+}
+
+/**
+ * @GET{/serie/{id}}
+ */
+class GetSerie extends IndexHandler{
+    public function extendHandler(Request $request, Response $response): void
+    {
+        if($request->getHeader("Page-Access") === null){
+            $serie = Serie::findFirst(["id" => $request->getParam("id")]);
+            if($serie === null) return;
+            $this->description = $serie->getDescription();
+            $this->keywords = "serie, {$serie->getTitle()}";
+        }
+    }
+}
+
+/**
+ * @GET{/serie/{id}/season/{season}/episode/{episode}}
+ */
+class GetEpisode extends IndexHandler{
+    public function extendHandler(Request $request, Response $response): void
+    {
+        if($request->getHeader("Page-Access") === null){
+            $episode = Episode::findFirst([
+                "serie_id" => $request->getParam("id"), 
+                "season" => $request->getParam("season"),
+                "episode" => $request->getParam("episode")
+            ]);
+            if($episode === null) return;
+            $this->description = $episode->getDescription();
+            $this->keywords = "episode, {$episode->getTitle()}";
+        }
     }
 }
 

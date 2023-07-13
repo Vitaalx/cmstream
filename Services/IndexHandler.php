@@ -10,6 +10,8 @@ abstract class IndexHandler extends OverrideController{
     public int $code = 200;
 
     public string $appName = CONFIG["APP_NAME"];
+    public ?string $description = null;
+    public ?string $keywords = null;
 
     public function extendCheckers(Request $request): array
     {
@@ -33,6 +35,14 @@ abstract class IndexHandler extends OverrideController{
 
         $response
         ->code($this->code)
-        ->render("index", "none", ["appName" => $this->appName]);
+        ->render(
+            "index", 
+            "none", 
+            [
+                "appName" => $this->appName,
+                "description" => $this->description,
+                "keywords" => $this->keywords,
+            ]
+        );
     }
 }

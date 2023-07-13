@@ -88,11 +88,13 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <div class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless">
+                    <div
+                    @click="this.showSearch = true"
+                    class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless"
+                    >
                         <icon 
                         name="magnify" 
                         class="text-[24px]"
-                        @click="this.showSearch = true"
                         />
                     </div>
                 </li>
