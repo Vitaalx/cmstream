@@ -28,7 +28,7 @@
                     <p class="w-full max-h-[70px] description">{{ this.video[1].value.description || "" }}</p>
                 </div>
 
-                <div class="p-[10px] flex flex-col sm:flex-raw items-center gap-[10px] sm:gap-[30px] bot">
+                <div class="p-[10px] flex flex-col sm:flex-row items-center gap-[10px] sm:gap-[30px] bot">
                     <router_link 
                     :href="(this.video[1].type === 'M' ? '/movie/' : '/serie/')  + this.video[1].value.id" 
                     class="px-[10px] scale-75 sm:scale-100 flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition"
