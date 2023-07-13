@@ -68,7 +68,7 @@
     >
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
-        @click="this.$emit('previous')"
+        @click="this.$emit('previous', this['current-page'] - 1)"
         >
             Précédant
         </button>
@@ -79,7 +79,7 @@
 
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
-        @click="this.$emit('next')"
+        @click="this.$emit('next', this['current-page'] + 1)"
         >
             Suivant
         </button>
