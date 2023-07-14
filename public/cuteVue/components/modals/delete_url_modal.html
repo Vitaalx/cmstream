@@ -36,7 +36,8 @@
           this.$emit("delete-url", "delete");
           this.pushToast("successfull", "L'url à bien été supprimée.");
         })
-        .info(info => console.log(info)).result;
+        .info(info => console.log(info))
+        .result;
 
         this.closeModal();
         close();

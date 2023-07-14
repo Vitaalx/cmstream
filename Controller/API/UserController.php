@@ -8,6 +8,7 @@ use Core\Response;
 use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
+use Services\Access\AccessDashboard;
 use Services\Access\AccessUserEditor;
 use Services\Back\MailService;
 use Services\MustBeConnected;
@@ -327,10 +328,10 @@ class mailResetPassword extends Controller
 
         MailService::send(
             $user->getEmail(),
-            "Récupération de mot de passe",
+            "Changement de mot de passe",
             "Bonjour " . $user->getFirstname() . " " . $user->getLastname() . ",<br><br>" .
-            "Pour valider votre nouveau mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
-            "<a href='" . CONFIG["HOST"] . "/reset-password?token=" . $token . "'>Valider mon compte</a><br><br>" .
+            "Pour Changer votre mot de passe, veuillez cliquer sur le lien suivant :<br><br>" .
+            "<a href='" . CONFIG["HOST"] . "/reset-password?token=" . $token . "'>Changer mon mot de passe</a><br><br>" .
             "Cordialement,<br>" .
             "L'&eacutequipe de notre site."
         );
@@ -460,7 +461,7 @@ class getUsers extends AccessUserEditor
 /**
  * @GET{/api/users/count}
  */
-class getUsersCount extends AccessUserEditor
+class getUsersCount extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

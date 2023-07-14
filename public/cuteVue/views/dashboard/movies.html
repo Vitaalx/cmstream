@@ -1,6 +1,6 @@
 <div class="w-full h-full p-[20px] overflow-y-auto flex flex-col gap-[20px]">
-    <delete_serie_modal
-    cv-if="this.isDeleteModalOpen" :serieid="this.serieId"
+    <delete_movie_modal
+    cv-if="this.isDeleteModalOpen" :movieid="this.movieId"
     @close="this.isDeleteModalOpen = false"
     @ondelete="refresh"
     />
@@ -75,7 +75,7 @@
                 },
                 {
                     name: "Catégorie", 
-                    display: (item) => item.category?.title || "Aucune",
+                    display: (item) => item.content?.category?.title || "Aucune",
                     sort: true
                 },
                 {

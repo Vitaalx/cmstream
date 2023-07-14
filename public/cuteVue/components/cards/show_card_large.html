@@ -1,48 +1,122 @@
-<router_link href="#" class="h-[135px] flex gap-[20px] show-card">
-    <div class="grow-0 shrink-0 basis-[240px] object-cover thumbnail">
-        <img class="w-full h-full object-cover pointer-events-none" src="/public/img/thumbnails/unloaded-large.png" alt="show title">
-    </div>
-    <div class="content flex flex-col justify-center gap-[10px]">
-        <h3 class="text-bold show-title">Show title</h3>
-        <p class="text-sm show-description">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Culpa praesentium libero cum aut soluta, error quisquam mollitia, odit ab impedit corporis, sint minus iste. Sunt possimus vitae atque saepe sed?
-        </p>
-        <div class="mt-[5px] text-xs tags">
-            <span class="inline-block p-1 rounded tag tag-1">tag1</span>
-            <span class="inline-block p-1 rounded tag tag-2">tag2</span>
-            <span class="inline-block p-1 rounded tag tag-3">tag3</span>
+<div
+class="h-[135px] flex gap-[20px] show-card-large"
+>
+    <router_link
+    :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id"
+    class="relative aspect-square sm:aspect-video object-cover thumbnail">
+        <img
+        class="w-full h-full object-cover pointer-events-none"
+        :src="this.content.value.image || '/public/img/thumbnails/unloaded-large.png'"
+        alt="show title"
+        >
+    </router_link>
+
+    <div class="content flex flex-col justify-center gap-[10px] grow overflow-hidden">
+        <div class="top">
+            <h3 class="mb-[5px] text-ellipsis whitespace-nowrap font-bold overflow-hidden show-title" :title="this.content.value.title">{{ this.content.value.title }}</h3>
+
+            <p class="text-sm overflow-hidden text-ellipsis description">
+                {{ this.content.value.description || 'Aucune description disponible.' }}
+            </p>
+        </div>
+
+        <div class="bot flex max-[640px]:flex-col max-[450px]:items-start items-center gap-[10px] sm:gap-[20px]">
+            <div class="flex gap-[5px] categories">
+                <span
+                class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+                cv-class="{
+                    'bg-orange-500': this.content.type === 'S',
+                    'bg-red-500': this.content.type === 'M'
+                }"
+                >
+                    {{ this.content.type === 'S' ? 'Série' : 'Film' }}
+                </span>
+
+                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category.title }}</span>
+            </div>
+
+            <div class="flex gap-[15px] rate select-none">
+                <div class="flex items-center gap-[5px] like">
+                    {{ this.content.up_vote }}
+
+                    <icon name="thumb-up" size="16" />
+                </div>
+
+                <div class="flex items-center gap-[5px] dislike">
+                    {{ this.content.down_vote }}
+
+                    <icon name="thumb-down" size="16" />
+                </div>
+                <watchlist-input
+                        cv-if="this.isConnected"
+                        :id="this.content.id"
+                />
+            </div>
         </div>
     </div>
-</router_link>
+</div>
 
 <script>
     export default {
-        data: {},
-
-        props: {},
-
-        methods: {},
+        props: {
+            content: {}
+        },
+        mounted(){
+        },
+        stores: [
+            {
+                name: "user",
+                states: ["isConnected"],
+            },
+        ]
     }
 </script>
 
-<style>
-    .tag-1 {
-        background-color: #F5B041;
+<style unscope>
+    .show-card-large .thumbnail::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0);
+        transition: 0.3s ease;
     }
 
-    .tag-2 {
-        background-color: #5DADE2;
+    .show-card-large .thumbnail::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Material Design Icons";
+        font-size: 60px;
+        color: #fff;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
-    .tag-3 {
-        background-color: #58D68D;
+    .show-card-large .thumbnail:hover::before {
+        background: rgba(0, 0, 0, 0.5);
     }
 
-    .show-description {
+    .show-card-large .thumbnail:hover::after {
+        content: "\F0F1B";
+        opacity: 1;
+    }
+
+    .show-card-large .description {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
-        -webkit-line-clamp: 3; /* number of lines to show */
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
+    }
+
+    @media screen and (max-width: 640px) {
+        .show-card-large .description {
+            -webkit-line-clamp: 2;
+        }
     }
 </style>

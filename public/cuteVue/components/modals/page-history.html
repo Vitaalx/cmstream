@@ -1,0 +1,109 @@
+<div 
+class="fixed flex justify-center items-center w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.5)] z-20 p-[20px]"
+@click="this.$emit('close')"
+>
+    <paging-table 
+    class="w-[70%] h-[80%] bg-white"
+    :cols="this.cols"
+    :total-pages="this.maxPage"
+    :items="this.contents"
+    :current-page="this.currentPage"
+    @edit="edit"
+    @next="getHistory"
+    @previous="getHistory"
+    onclick="event.stopPropagation()"
+    />
+</div>
+
+<script>
+    const [paging_table, { default: taob }] = await Promise.all([
+        importer("/public/cuteVue/components/paging-table.html"),
+        import("/public/cuteVue/taob.js")
+    ]);
+
+    export default {
+        components: {
+            "paging-table": paging_table,
+        },
+        data: {
+            contents: [],
+            maxPage: 1,
+            currentPage: 1,
+        },
+        static: {
+            cols: [
+                {
+                    name: "ID", 
+                    display: (item) => item.id,
+                },
+                {
+                    name: "Date", 
+                    display: (item) => {
+                        let dateIso = new Date(item.timestamp * 1000).toISOString().split("T")
+                        let time = dateIso[1].split(":");
+                        return `${dateIso[0].split("-").reverse().join("/")} ${time[0]}h ${time[1]}m ${time[2].split(".")[0]}s`;
+                    },
+                },
+            ]
+        },
+        methods: {
+            setCount(){
+                taob.get("/page-history/count")
+                .s(count => this.maxPage = Math.ceil(count / 10) || 1);
+            },
+            getHistory(page){
+                if(page < 1 || page > this.maxPage) return;
+                taob.get(
+                    "/page-history",
+                    {
+                        query: {page: page - 1},
+                        loader: true,
+                    }
+                )
+                .s(contents => this.contents = contents)
+                .finally(() => this.page = page);
+            },
+            async edit(item){
+                let result = await this.pushPopup("Revenir a cette date ?", "Cette action définira les pages sur les valeurs enregister à ce moment.");
+                if(result === true){
+                    await taob.put(
+                        "/pages/page-history/{id}",
+                        {},
+                        {
+                            params: {id: item.id},
+                            loader: true,
+                        }
+                    )
+                    .info((info, ok) => {
+                        if(!ok) this.pushToast("error", "Une erreur est survenue lors de la redéfinition des pages.");
+                    })
+                    .sd();
+                    await this.getPages();
+                    this.$emit('close');
+                }
+            }
+        },
+        mounted(){
+            this.setCount();
+            this.getHistory(1);
+        },
+        stores: [
+            {
+                name: "pages",
+                actions: ["getPages"]
+            },
+            {
+                name: "popup",
+                actions: ["pushPopup"]
+            },
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            },
+        ]
+    }
+</script>
+
+<style>
+    
+</style>

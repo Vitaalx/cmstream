@@ -69,7 +69,7 @@ class Serie extends Entity
      */
     private string $description;
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return parent::get("description");
     }
@@ -97,7 +97,7 @@ class Serie extends Entity
         return $this;
     }
 
-    public function getContent(): Content
+    public function getContent(): Content|null
     {
         return Content::findFirst(["value" => $this, "value_type" => "S"]);
     }

@@ -34,6 +34,14 @@
                     :rules="this.imageRules"
                     class="w-full"
                     />
+
+                    <img
+                    cv-if="this.formImage"
+                    class="aspect-video mt-[10px]" 
+                    id="imagePreview" 
+                    :src="this.formImage" 
+                    alt="Image Preview"
+                    >
                 </div>
             </div>
 
@@ -73,9 +81,10 @@
                     cv-model="formCategory"
                     />
 
-                    <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
+                    <!-- TO DO: fix category refresh when new one added -->
+                    <!-- <button cv-if="this.categories.length === 0" type="button" @click="addCategory">
                         <icon name="plus-circle" class="text-[24px] text-skyblue hover:text-[#1da1f2]" />
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>
@@ -115,7 +124,7 @@
             formTitle: "",
             formImage: "",
             formDescription: "",
-            formCategory: "",
+            formCategory: null,
             formReleaseDate: ""
         },
         static: {
@@ -125,10 +134,7 @@
             ],
             imageRules: [
                 (value) => !!value || "Ce champs est obligatoire.",
-                (value) => {
-                    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
-                    return urlPattern.test(value) || "Ce champ doit contenir un lien valide.";
-                }
+                (value) => /^(ftp|http|https):\/\/[^ "]+$/.test(value) || "Ce champ doit contenir un lien valide.",
             ],
             categoryRule: [
                 (value) => !!value || "Ce champs est obligatoire.",
@@ -143,28 +149,31 @@
 
                 if (this.currentType === "serie") {
                     await taob.post("serie", {
-                        description: this.formDescription === "" ? "Cette série n'a pas de description !" : this.formDescription,
+                        description: this.formDescription === "" ? "Cette série n'a pas de description." : this.formDescription,
                         image: this.formImage,
                         title_serie: this.formTitle,
-                        category_name: this.formCategory.title,
+                        category_id: this.formCategory.id,
                         release_date: this.formReleaseDate
-                    }).s(data => {
+                    })
+                    .s(data => {
                         router.push("/dashboard/edit-video/serie/" + data.id);
                     })
                     .info(info => console.log(info))
+                    .e(err => this.pushToast("error", "Une erreur est survenu lors de l'ajout du contenu."))
                     .result;
                 } else if (this.currentType === "movie") {
                     await taob.post("movie", {
-                        description: this.formDescription === "" ? "Ce film n'a pas de description !" : this.formDescription,
+                        description: this.formDescription === "" ? "Ce film n'a pas de description." : this.formDescription,
                         image: this.formImage,
                         title_video: this.formTitle,
-                        category_name: this.formCategory.title,
+                        category_id: this.formCategory.id,
                         release_date: this.formReleaseDate
-                    }).s(data => {
+                    })
+                    .s(data => {
                         router.push("/dashboard/edit-video/movie/" + data.id);
                     })
                     .info(info => console.log(info))
-                    .e(err => console.log(err))
+                    .e(err => this.pushToast("error", "Une erreur est survenu lors de l'ajout du contenu."))
                     .result;
                 }
 

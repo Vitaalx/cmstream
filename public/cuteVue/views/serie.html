@@ -5,7 +5,18 @@
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
         <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
-            <h1 class="text-2xl font-bold">{{ this.title }}</h1>
+            <h1 class="flex items-center gap-[5px] text-2xl font-bold">
+                {{ this.title }}
+
+                <router_link
+                cv-if="this.hasPermission('comments_manager')"
+                :href="`/dashboard/edit-video/serie/${this.params.id}`"
+                class="hover:text-skyblue"
+                title="Éditer"
+                >
+                    <icon name="square-edit-outline" size="24" />
+                </router_link>
+            </h1>
 
             <p>{{ this.description }}</p>
 
@@ -16,32 +27,42 @@
                     <div class="flex items-center gap-[5px] like" @click="this.vote('like')">
                         {{ this.up_vote }}
 
-                        <Icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
+                        <icon :name="!this.liked ? 'thumb-up-outline' : 'thumb-up'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.liked }" />
                     </div>
 
                     <div class="flex items-center gap-[5px] dislike" @click="this.vote('dislike')">
                         {{ this.down_vote }}
 
-                        <Icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
+                        <icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
                     </div>
+
+                    <watchlist-input
+                    cv-if="this.isConnected"
+                    :id="this.contentId"
+                    />
+
                 </div>
             </div>
         </div>
 
         <div class="show-content">
             <select-input
-            label="Saison"
             class="w-[150px]"
-            :items="Object.keys(this.seasons)"
+            label="Saison"
+            :items="this.seasons"
             cv-model="selectedSeason"
             />
 
-            <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
+            <div cv-if="this.episodes.length > 0" class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
                 <episode_card
-                cv-for="episode of this.seasons[this.selectedSeason] || []"
+                cv-for="episode of this.episodes"
                 :serie="{ id: this.params.id }"
                 :episode="this.episode" 
                 />
+            </div>
+
+            <div cv-if="this.episodes.length <= 0" class="my-[30px]">
+                <p>Aucun épisode disponible...</p>
             </div>
         </div>
     </div>
@@ -68,16 +89,21 @@
             release_date: "",
             seasons: [],
             episodes: [],
-            selectedSeason: 1,
+            selectedSeason: null,
             up_vote: 0,
             down_vote: 0,
             liked: false,
             disliked: false,
             contentId: null
         },
+        watch: {
+            selectedSeason(val) {
+                this.getEpisodeBySeason(val);
+            }
+        },
         methods: {
             async init(){
-                const [serie, episodes] = await Promise.all([
+                const [serie, seasons] = await Promise.all([
                     taob.get(
                         "/serie/{id}", 
                         {
@@ -97,21 +123,26 @@
                         })
                     .sd(),
                     taob.get(
-                        "/serie/{id}/all", 
+                        "serie/{id}/season/count",
                         {
-                            params: { id: this.params.id },
+                            params: { id: this.params.id},
                             loader: true
                         }
                     )
                     .info((info, ok) => {
+                        if (info === "serie.notfound") {
+                            this.pushToast("error", "La série n'a pas été trouvée.");
+                            router.push("/");
+                        }
                         if(!ok){
-                            this.pushToast("error", "Erreur lors de la récupération de l'épisode.");
+                            this.pushToast("error", "Erreur lors de la récupération des saisons.");
                             router.push("/");
                         }
                     })
                     .sd()
-                ])
-
+                ]);
+                this.seasons = seasons.map(s => s.season);
+                this.selectedSeason = Number(this.query.season) || this.seasons[0];
                 this.title = serie.title;
                 this.img = serie.image;
                 this.category = serie.content.category.title;
@@ -119,32 +150,9 @@
                 this.release_date = serie.release_date;
                 this.up_vote = serie.content.up_vote;
                 this.down_vote = serie.content.down_vote;
-
-                let seasons = episodes.reduce(
-                    (pv, cv) => {
-                        cv.image = cv.image || serie.image;
-                        if(pv[cv.season] === undefined)pv[cv.season] = []
-                        pv[cv.season].push(cv);
-                        return pv;
-                    },
-                    {}
-                );
-                
-                Object.keys(seasons).forEach(key => seasons[key] = seasons[key].sort((a, b) => a.episode - b.episode));
-                const sort = Object.keys(seasons).sort((a, b) => a.episode - b.episode);
-                
-                seasons = sort.reduce(
-                    (pv, cv) => {
-                        pv[cv] = seasons[cv];
-                        return pv;
-                    },
-                    {}
-                );
-
-                this.selectedSeason = String(seasons[sort[0]][0].season);
-                this.seasons = seasons;
                 this.contentId = serie.content.id;
-
+                
+                this.getEpisodeBySeason(this.selectedSeason);
                 taob.get(
                     "/content/{id}/vote", 
                     {
@@ -158,8 +166,40 @@
                     else if(data.value === -1) this.disliked = true;
                 });
             },
+            getEpisodeBySeason(seasonNb){
+                taob.get(
+                    "/serie/{id}/season/{season}/episodes",
+                    {
+                        params: { id: this.params.id, season: seasonNb},
+                        loader: true
+                    }
+                )
+                .s(episodes => {
+                    this.episodes = episodes.map(e => {
+                        e.image = this.img;
+                        return e;
+                    });
+                    console.log(this.episodes);
+                })
+                .info(info => {
+                    if (info === "season.notexist") {
+                        this.selectedSeason = 1;
+                        this.pushToast("error", "La saison demandée n'existe pas.");
+                    }
+                    if (info === "serie.notfound") {
+                        this.pushToast("error", "La série demandée n'existe pas.");
+                        router.push("/");
+                    }
+                })
+                .e(err => console.log(err))
+            },
             async vote(type){
-                if(this.isConnected === false) return;
+                if(!this.isConnected){
+                    this.pushToast("error", "Connectez-vous pour voter.");
+
+                    return;
+                };
+                
                 if(type === "like" && !this.liked){ 
                     taob.post(
                         "/content/{id}/vote", 
@@ -222,7 +262,7 @@
         stores: [
             {
                 name: "router",
-                states: ["params", "pathname"]
+                states: ["params", "pathname", "query"]
             },
             {
                 name: "toast",
@@ -230,7 +270,8 @@
             },
             {
                 name: "user",
-                states: ["isConnected"],
+                states: ["isConnected", "userId", "role", "permissions"],
+                computed: ["hasPermission"],
             }
         ]
     }

@@ -17,7 +17,7 @@ class="relative"
         <label 
         cv-if="this.label !== false"
         :for="this.name"
-        class="absolute top-[50%] -translate-y-[50%] transition-all select-none cursor-pointer"
+        class="absolute top-2/4 -translate-y-[50%] transition-all select-none cursor-pointer"
         cv-class="{
             '!top-0 text-[0.8em]': this.isFocus || this.value,
             'opacity-[0.5]': this.disabled,
@@ -38,7 +38,7 @@ class="relative"
         
         <span class="invisible select-none">V</span>
 
-        <div class="absolute top-[50%] -translate-y-[50%] right-0 flex gap-[5px]">
+        <div class="absolute top-2/4 -translate-y-[50%] right-0 flex gap-[5px]">
             <slot/>
 
             <icon

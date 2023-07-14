@@ -1,0 +1,80 @@
+<icon
+        @click="addWish"
+        class="text-[24px] cursor-pointer"
+        :name="this.state == 0 ? 'bookmark' : 'bookmark-outline'"
+/>
+<script>
+    const [{default: taob}] = await Promise.all([
+        import("/public/cuteVue/taob.js")
+    ]);
+    export default {
+        data: {
+            state: null,
+        },
+        props: {
+            id: "",
+        },
+        watch: {
+            id() {
+                if (this.id !== null) this.getState();
+            }
+        },
+        methods: {
+            async addWish() {
+                if (this.state == 0) {
+                    await taob.delete(
+                        "/watchlist/wish/{id}",
+                        {
+                            params: {id: this.id},
+                            loader: true,
+                        }
+                    )
+                        .s(() => {
+                            this.state = 1;
+                            this.pushToast("successfull", "Le contenue vient d'être supprimé de votre watchlist.");
+                        })
+                        .info((info) => {
+                            if (info === "watchlist.notfound") this.pushToast("error", "Le contenue que vous essayer de supprimer n'existe pas.")
+                        })
+                } else {
+                    await taob.post(
+                        "/watchlist/wish",
+                        {content_id: this.id},
+                        {loader: true}
+                    )
+                        .s(() => {
+                            this.state = 0;
+                            this.pushToast("successfull", "Le contenue vient d'être ajouté à votre watchlist.");
+                        })
+                        .info((info) => {
+                            if (info === "content.notfound") this.pushToast("error", "Le contenue que vous essayer d'ajouter n'existe pas.")
+                            if (info === "watchlist.already.exist") this.pushToast("error", "Ce contenue est déjà dans votre watchlist.")
+                        })
+                }
+
+            },
+            async getState() {
+                const state = await taob.get(
+                    "/wish/state/{id}",
+                    {
+                        params: {id: this.id},
+                        loader: true,
+                    }
+                )
+                    .sd();
+                this.state = state;
+                console.log(this.state);
+            }
+        },
+        mounted() {
+        },
+        stores: [
+            {
+                name: "toast",
+                actions: ["pushToast"]
+            },
+        ]
+    }
+</script>
+
+<style></style>

@@ -36,7 +36,9 @@
                     this.$emit("delete-role", "delete")
                     this.pushToast("successfull", "Le rôle à bien été supprimé.");
                 })
-                .info(info => console.log(info)).result;
+                .info(info => {
+                    if (info === "role.protected.admin") this.pushToast("error", "Vous ne pouvez pas supprimer l'administrateur.");
+                }).result;
 
                 this.closeModal();
                 close();

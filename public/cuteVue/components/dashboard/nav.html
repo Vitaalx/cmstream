@@ -38,10 +38,10 @@
                     </router_link>
                 </li>
 
-                <li cv-if="this.hasPermission('contents_manager')" class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
+                <li cv-if="this.hasPermission('comments_manager')" class="text-whiteless hover:text-white hover:bg-adminblacker" cv-class="{
                     'border-l-4 border-white-500': this.pathname === '/dashboard/comments'
                 }">
-                    <router_link cv-if="this.hasPermission('comments_manager')" href="/dashboard/comments"
+                    <router_link href="/dashboard/comments"
                         class="px-[24px] py-[18px] flex items-center gap-[24px] cursor-pointer">
                         <icon name="forum"/>
                         Gérer les commentaires
@@ -171,11 +171,7 @@
         },
         methods: {
             setDropdownContentManager() {
-                if (this.pathname === "/dashboard/categories" || this.pathname === "/dashboard/movies" || this.pathname === "/dashboard/series" || this.pathname === "/dashboard/add-content") {
-                    this.dropdownContentManager = true
-                } else {
-                    this.dropdownContentManager = false
-                }
+                this.dropdownContentManager = this.pathname === "/dashboard/categories" || this.pathname === "/dashboard/movies" || this.pathname === "/dashboard/series" || this.pathname === "/dashboard/add-content" || this.pathname === "/dashboard/pages";
             },
             toggleDropdownContentManager() {
                 this.dropdownContentManager = !this.dropdownContentManager
@@ -203,7 +199,7 @@
             },
             {
                 name: "user",
-                actions: ["hasPermission"]
+                computed: ["hasPermission"],
             }
         ]
     }

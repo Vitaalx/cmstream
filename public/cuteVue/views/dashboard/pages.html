@@ -1,9 +1,9 @@
 <div class="w-full h-full p-[20px] overflow-y-auto flex flex-col gap-[20px]">
-    <cv-form 
-    @submit="addPage"
-    class="flex align-center gap-[10px]"
-    >
-        <div class="px-[20px] py-[10px] flex items-center border rounded-[8px]">
+    <div class="flex justify-between gap-[10px]">
+        <cv-form 
+        @submit="addPage" 
+        class="px-[20px] py-[10px] flex items-center border rounded-[8px]"
+        >
             <input 
             type="text" 
             cv-model="newPageName" 
@@ -17,8 +17,12 @@
             >
                 Ajouter
             </button>
-        </div>
-    </cv-form>
+        </cv-form>
+
+        <btn @click="this.showHistory = true">
+            Historique
+        </btn>
+    </div>
 
     <paging-table
     :items="this.pages"
@@ -33,23 +37,31 @@
     :editing-page="this.editingPage"
     @close="this.editingPage = null"
     />
+
+    <page-history
+    cv-if="this.showHistory === true"
+    @close="this.showHistory = null"
+    />
 </div>
 
 <script>
-    const [paging_table, { default: taob }, edit_page] = await Promise.all([
+    const [paging_table, { default: taob }, edit_page, page_history] = await Promise.all([
         importer("/public/cuteVue/components/paging-table.html"),
         import("/public/cuteVue/taob.js"),
         importer("/public/cuteVue/components/modals/edit-page.html"),
+        importer("/public/cuteVue/components/modals/page-history.html"),
     ]);
 
     export default {
         components: {
             "paging-table": paging_table,
             "edit-page": edit_page,
+            "page-history": page_history,
         },
         data: {
             newPageName: "",
             editingPage: null,
+            showHistory: false,
         },
         static: {
             cols: [

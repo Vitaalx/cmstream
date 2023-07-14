@@ -236,7 +236,7 @@ abstract class Entity implements \JsonSerializable
 
     protected function get(string $propName)
     {
-        $prop = self::$reflections[static::class][$propName];
+        $prop = self::$reflections[static::class][$propName] ?? null;
 
         if($prop === null) return $this->props[$propName];
         else if ($prop["entityProp"] !== null || $prop["type"] === "array") $this->join($prop);

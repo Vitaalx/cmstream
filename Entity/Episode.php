@@ -37,12 +37,12 @@ class Episode extends Entity
      */
     private string $description;
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return parent::get("description");
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         parent::set("description", $description);
         return $this;
@@ -149,5 +149,11 @@ class Episode extends Entity
     {
         parent::set("updated_at", $updated_at);
         return $this;
+    }
+
+    protected function onDelete(){
+        foreach (History::findIterator(["value_id" => $this->getId(), "value_type" => "E"]) as $value) {
+            $value->delete();
+        }
     }
 }

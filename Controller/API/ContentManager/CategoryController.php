@@ -9,6 +9,7 @@ use Core\Response;
 use Entity\Category;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
+use Services\Access\AccessDashboard;
 
 /**
  * @POST{/api/category}
@@ -210,7 +211,7 @@ class updateCategory extends AccessContentsManager
 /**
  * @GET{/api/categories/count}
  */
-class getCountCategories extends Controller
+class getCountCategories extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

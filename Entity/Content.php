@@ -74,6 +74,20 @@ class Content extends Entity
         return $this;
     }
 
+    /** 
+     * @many{Entity\Watchlist,content}
+     * @cascade{}
+     */
+    private array $watch_list;
+
+    /** 
+     * @type{VARCHAR(50)}
+     * @groups{uniqueKey}
+     * @notnullable{}
+     * @unique{}
+     */
+    private int $unique_key;
+
     /**
      * @type{Date}
      * @notnullable{}
@@ -85,6 +99,14 @@ class Content extends Entity
     function getCreatedAt(): string
     {
         return parent::get("created_at");
+    }
+
+    protected function onSave(bool $isInsert): void
+    {
+        parent::set(
+            "unique_key",
+            parent::get("value_id") . "_" .  parent::get("value_type")
+        );
     }
 
     protected function onSerialize(array $array): array

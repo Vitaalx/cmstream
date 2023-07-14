@@ -30,8 +30,9 @@
         >
             <div 
             cv-for="col of this.cols" 
-            class="p-[22px] grow-0 w-full overflow-hidden text-ellipsis"
+            class="p-[22px] grow-0 w-full overflow-hidden whitespace-nowrap text-ellipsis"
             cv-class="{[this.col.class || 'EmPtY']: true}"
+            :title="this.col.display(this.item)"
             >
                 {{ this.col.display(this.item) }}
             </div>
@@ -62,10 +63,13 @@
     <div
     cv-if="this['total-pages'] !== 0"
     class="bg-white w-full flex items-center justify-between px-[25px] p-[12px] bottom-0 sticky flex h-[70px]"
+    cv-class="{
+            'border-t-[2px]': this.displayitems.length < this.limitToDisplay,
+        }"
     >
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
-        @click="this.$emit('previous')"
+        @click="this.$emit('previous', this['current-page'] - 1)"
         >
             Précédant
         </button>
@@ -76,7 +80,7 @@
 
         <button
         class="px-[20px] py-[10px] border rounded-[8px]"
-        @click="this.$emit('next')"
+        @click="this.$emit('next', this['current-page'] + 1)"
         >
             Suivant
         </button>
@@ -92,6 +96,7 @@
             "total-pages": 1,
         },
         data: {
+            limitToDisplay: 5,
             sortColumn: null,
             canEdit: false,
             canDelete: false,

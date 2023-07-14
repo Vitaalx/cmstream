@@ -33,7 +33,7 @@ class Movie extends Entity
     }
 
     /** 
-     * @type{VARCHAR(255)}
+     * @type{text}
      * @notnullable{}
      */
     private string $image;
@@ -71,12 +71,12 @@ class Movie extends Entity
      */
     private string $description;
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return parent::get("description");
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         parent::set("description", $description);
         return $this;
@@ -99,7 +99,7 @@ class Movie extends Entity
         return $this;
     }
 
-    public function getContent(): Content
+    public function getContent(): Content|null
     {
         return Content::findFirst(["value" => $this, "value_type" => "M"]);
     }
@@ -146,5 +146,8 @@ class Movie extends Entity
 
     protected function onDelete(){
         Content::findFirst(["value_id" => $this->getId(), "value_type" => "M"])->delete();
+        foreach (History::findIterator(["value_id" => $this->getId(), "value_type" => "M"]) as $value) {
+            $value->delete();
+        }
     }
 }

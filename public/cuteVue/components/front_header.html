@@ -1,4 +1,4 @@
-<header class="fixed z-10 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
+<header class="fixed z-50 w-full h-[60px] px-7 lg:px-14 flex justify-between bg-darkblue shadow-[0_5px_8px_10px_rgba(0,0,0,0.1)] select-none">
     <div class="flex items-center justify-center gap-[30px] grow overflow-hidden">
         <router_link 
         href="/" 
@@ -15,7 +15,7 @@
         cv-ref="nav"
         class="h-full hidden lg:flex grow overflow-hidden gap-[30px]"
         >
-            <ul 
+            <ul
             cv-ref="defaultNav"
             class="h-full flex items-center justify-center gap-[30px]"
             >
@@ -47,7 +47,7 @@
                 </li>
             </ul>
 
-            <div 
+            <div
             class="h-full"
             cv-if="this.sizeNav !== null"
             tabindex="1"
@@ -71,9 +71,9 @@
                     <li
                     cv-for="page of this.pagesFilter"
                     >
-                        <router_link 
-                        :href="'/pages/' + this.page.name" 
-                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" 
+                        <router_link
+                        :href="'/pages/' + this.page.name"
+                        class="px-[10px] py-[5px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless"
                         @click="this.$refs.drowerNav.blur()"
                         >
                             {{this.page.navTitle || this.page.name}}
@@ -88,9 +88,15 @@
         <nav class="h-full hidden lg:block">
             <ul class="h-full flex items-center justify-center gap-[30px]">
                 <li class="h-full">
-                    <router_link href="#" class="h-full px-[10px] flex items-center text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
-                        <icon name="magnify" class="text-[24px]"/>
-                    </router_link>
+                    <div
+                    @click="this.showSearch = true"
+                    class="h-full px-[10px] flex items-center text-sm text-whiteless cursor-pointer hover:text-white hover:bg-blackless"
+                    >
+                        <icon 
+                        name="magnify" 
+                        class="text-[24px]"
+                        />
+                    </div>
                 </li>
 
                 <li cv-if="this.isConnected" class="h-full">
@@ -134,13 +140,14 @@
 
                             <div cv-if="this.isConnected" class="py-4 flex flex-col gap-4">
                                 <div class="options">
-                                    <router_link cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')" href="/dashboard" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
+                                    <router_link cv-if="this.hasPermission('access_dashboard')" href="/dashboard" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer admin">
                                         <icon name="security" class="text-[24px]"/>
 
                                         <span>Accéder au dashboard</span>
                                     </router_link>
                                     <div class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue hover:cursor-pointer notifications">
                                         <icon name="bell-outline" class="text-[24px]"/>
+
                                         <span>Notifications</span>
                                     </div>
                                     <router_link href="/account" class="px-4 py-2 flex gap-[10px] items-center text-whiteless hover:text-white hover:bg-darkblue account" @click="this.displayOptionsMenu = false">
@@ -189,19 +196,19 @@
         <nav>
             <ul>
                 <li>
+                    <router_link href="/" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        Accueil
+                    </router_link>
+                </li>
+                <li>
                     <router_link href="/catalog" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Catalogue
                     </router_link>
                 </li>
-                <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
-                        Boutique
-                    </a>
-                </li>
-                <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
-                        News
-                    </a>
+                <li cv-for="page of this.pagesFilter">
+                    <router_link :href="'/pages/' + this.page.name" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayOptionsMenu = false">
+                        {{this.page.navTitle || this.page.name}}
+                    </router_link>
                 </li>
             </ul>
         </nav>
@@ -209,12 +216,16 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="magnify" class="text-[24px]"/>
+                        
                         Rechercher
                     </a>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="bookmark-outline" class="text-[24px]"/>
+                        
                         Watchlist
                     </a>
                 </li>
@@ -222,34 +233,42 @@
                     <router_link
                     cv-if="this.hasPermission('access_dashboard') && this.hasPermission('stats_viewer')"
                     href="/dashboard"
-                    class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless"
+                    class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless"
                     @click="this.displayNaveBar = false"
                     >
+                        <icon name="security" class="text-[24px]"/>
+
                         Accéder au dashboard
                     </router_link>
                 </li>
                 <li>
-                    <a class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                        <icon name="bell-outline" class="text-[24px]"/>
+                        
                         Notifications
                     </a>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="/account" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/account" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                        <icon name="account" class="text-[24px]"/>
+                        
                         Paramètres du compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
-                    <router_link href="/signup" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/signup" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Créer un compte
                     </router_link>
                 </li>
                 <li cv-if="!this.isConnected">
-                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false">
                         Se connecter
                     </router_link>
                 </li>
                 <li cv-if="this.isConnected">
-                    <router_link href="/signin" class="w-full px-6 py-4 flex text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                    <router_link href="/signin" class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" @click="this.displayNaveBar = false; this.toDisconnect()">
+                        <icon name="logout" class="text-[24px]"/>
+                        
                         Se déconnecter
                     </router_link>
                 </li>
@@ -257,12 +276,24 @@
         </nav>
         
     </div>
+
+    <div
+    cv-if="this.showSearch === true"
+    class="fixed top-0 left-0 z-10 w-full h-full bg-[rgba(0,0,0,0.5)] flex items-center justify-center"
+    @click="this.$refs.searchDiv === $event.target ? this.showSearch = false : this.showSearch = true"
+    cv-ref="searchDiv"
+    >
+        <catalog 
+        class="lg:w-[60%] w-[90%] h-[80%] bg-black p-[20px] overflow-y-auto overflow-x-hidden"
+        />
+    </div>
 </header>
 
 <script>
-    const [impLoader, user_image] = await Promise.all([
+    const [impLoader, user_image, catalog] = await Promise.all([
         import("/public/cuteVue/stores/loader.js"),
         importer('/public/cuteVue/components/account/user-image.html'),
+        importer('/public/cuteVue/views/catalog.html'),
     ]);
 
     const loaderStore = impLoader.loaderStore;
@@ -270,6 +301,7 @@
     export default {
         components: {
             "user-image": user_image,
+            catalog,
         },
 
         data: {
@@ -278,9 +310,14 @@
             sizeNav: null,
             showPagesDrower: false,
             interval: null,
+            showSearch: false,
         },
 
-        props: {},
+        watch: {
+            params(){
+                this.showSearch = false;
+            }
+        },
 
         methods: {
             resized(){
@@ -353,8 +390,8 @@
             async toDisconnect(){
                 let close = loaderStore.push();
 
-                await this.disconnect();
                 router.push("/");
+                await this.disconnect();
 
                 close();
             }
@@ -376,11 +413,16 @@
             {
                 name: "user",
                 states: ["isConnected", "role", "permissions"],
-                actions: ["disconnect", "hasPermission"]
+                actions: ["disconnect"],
+                computed: ["hasPermission"],
             },
             {
                 name: "pages",
                 computed: ["pagesFilter"],
+            },
+            {
+                name: "router",
+                computed: ["params"],
             }
         ]
     }

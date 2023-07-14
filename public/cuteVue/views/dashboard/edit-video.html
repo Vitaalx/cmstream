@@ -198,7 +198,7 @@
 
             <text-input
             type="text"
-            :placeholder="`Url ${this.typeEdit === 'serie' ? 'de la série' : 'du film'}`"
+            :placeholder="`Url ${this.typeEdit === 'episode' ? 'de l\'épisode' : 'du film'}`"
             cv-model="urlVideo"
             :rules="this.urlRule"
             class="w-full"
@@ -227,8 +227,8 @@
     />
 
     <div class="flex flex-col gap-[20px]">
-        <select-input cv-if="this.typeEdit === 'serie' && this.seasonText.length > 0" class="w-full max-w-[300px]"
-        :items="this.seasonText"
+        <select-input cv-if="this.typeEdit === 'serie' && this.seasons.length > 0" class="w-full max-w-[300px]"
+        :items="this.seasons"
         :return-value="v => v.value"
         :return-text="t => t.text" cv-model="selectedSeason"
         />
@@ -241,7 +241,7 @@
         :cols="this.episodesCols"
         :total-pages="0"
         @edit="this.refreshPageForEpisode($event.id)"
-        @delete="this.openUrlDeleteModal($event.id)"
+        @delete="this.openEpisodeDeleteModal($event.id)"
         />
     </div>
 </div>
@@ -270,6 +270,7 @@
             typeEdit: "",
             idVideo: "",
             categories: [],
+            content: [],
             imgVideo: "",
             titleVideo: "",
             descriptionVideo: "",
@@ -279,7 +280,7 @@
             descriptionEpisode: "",
             episodeNumber: "",
             seasonNumber: "",
-            seasonText: [],
+            seasons: [],
             releaseDateVideo: "",
             selectedSeason: 1,
             urlId: null,
@@ -456,12 +457,13 @@
             async getSeasonNb() {
                 let close = loaderStore.push();
 
-                await taob.get("series/" + this.idVideo + "/season/count")
+                await taob.get("serie/" + this.idVideo + "/season/count")
                 .s(data => {
+                    this.seasons = [];
                     for (const dataKey in data) {
-                        this.seasonText.push({text: "Saison " + data[dataKey], value: data[dataKey]})
+                        this.seasons.push({text: "Saison " + data[dataKey].season, value: data[dataKey].season})
                     }
-                    this.$update("seasonText");
+                    this.$update("seasons");
                 })
                 .info(info => {
                     if (info === "serie.notfound") this.pushToast("error", "La série n'a pas été trouvée.");
@@ -525,10 +527,14 @@
                 string = string.toLowerCase();
                 return string.charAt(0).toUpperCase() + string.slice(1);
             },
-            async getEpisodeBySeason(seasonNb) {
-                let close = loaderStore.push();
-
-                await taob.get("series/" + this.idVideo + "/episodes/season/" + seasonNb).s(data => {
+            getEpisodeBySeason(seasonNb) {
+                taob.get(
+                    "/serie/{id}/season/{season}/episodes",
+                    {
+                        params: {id: this.idVideo, season: seasonNb},
+                        loader: true,
+                    }
+                ).s(data => {
                     this.episodes = data;
                 })
                 .info(info => {
@@ -537,10 +543,19 @@
                 })
                 .e(err => console.log(err))
                 .result;
-
-                close();
             },
-            refreshEpisode() {
+            async refreshEpisode(action) {
+                await this.getSeasonNb();
+
+                let indexSeason = this.seasons.findIndex(s => s.value == this.selectedSeason);
+                
+                if (action === "delete") {
+                    if (indexSeason >= 0 && this.selectedSeason !== 1 && this.episodes.length === 1) {
+                        indexSeason = indexSeason - 1;
+                    }
+                }
+
+                this.selectedSeason = this.seasons[indexSeason].value;
                 this.getEpisodeBySeason(this.selectedSeason);
             },
             async addEpisode() {
@@ -552,13 +567,13 @@
                     season: this.seasonNumber,
                     episode: this.episodeNumber,
                 })
-                .s(data => {
+                .s(() => {
                     this.pushToast("successfull", "L'épisode à bien été ajouté.");
                     this.titleEpisode = "";
                     this.descriptionEpisode = "";
                     this.seasonNumber = "";
                     this.episodeNumber = "";
-                    this.refreshEpisode();
+                    this.refreshEpisode("add");
                 })
                 .info(info => {
                     if (info === "video.title") this.pushToast("error", "Le titre de l'épisode doit contenir au minimum 4 caractères et au maximum 20.");
@@ -567,7 +582,6 @@
                     if (info === "serie.episode") this.pushToast("error", "Le numéro de l'épisode doit être supérieur à 1.");
                     if (info === "serie.saison") this.pushToast("error", "Le numéro de la saison doit être supérieur à 1.");
                     if (info === "episode.exist") this.pushToast("error", "L'épisode existe déjà.");
-                    if (info === "episode.season.invalid") this.pushToast("error", "Vous ne pouvez pas sauter une saison.");
                 })
                 .e(err => console.log(err))
                 .result
@@ -600,47 +614,58 @@
                     .s(data => {
                         this.imgVideo = data.image;
                         this.titleVideo = data.title;
-                        this.descriptionVideo = data.description;
-                        this.categoryVideo = data.category || null;
-                        this.categories = data.category ? [data.category] : [];
+                        this.descriptionVideo = data.description || "Cette série n'a pas de description.";
+                        this.categoryVideo = data.content.category || null;
+                        this.categories = data.content.category ? [data.content.category] : [];
                         this.releaseDateVideo = data.release_date;
                     })
                     .info(info => {
                         if (info === "serie.notfound") this.pushToast("error", "La série demandée n'existe pas.");
                     })
                     .result;
+                    
                     await this.getSeasonNb();
-                    if (this.seasonText.length > 0) await this.getEpisodeBySeason(1);
+
+                    if (this.seasons.length > 0) await this.getEpisodeBySeason(1);
                 } else if (this.typeEdit === "movie") {
                     await taob.get("movie/" + this.idVideo)
                     .s(data => {
                         this.imgVideo = data.image;
                         this.titleVideo = data.title;
-                        this.descriptionVideo = data.description;
-                        this.categoryVideo = data.category || null;
+                        this.descriptionVideo = data.description || "Ce film n'a pas de description.";
+                        this.categoryVideo = data.content.category || null;
                         this.video = data.video;
-                        this.categories = data.category ? [data.category] : [];
+                        this.urls = this.video.urls.map(item => ({
+                            id: item.id,
+                            url: item.value,
+                            domain_name: this.extractUrlDomain(item.value)
+                        }));
+                        this.categories = data.content.category ? [data.content.category] : [];
                         this.releaseDateVideo = data.release_date;
                     })
                     .info(info => {
                         if (info === "movie.notfound") this.pushToast("error", "Le film demandé n'existe pas.");
                     })
                     .result;
-                    await this.getUrlByVideoId();
                 } else if (this.typeEdit === "episode") {
                     await taob.get("episode/" + this.idVideo)
                     .s(data => {
                         this.titleVideo = data.title;
-                        this.descriptionVideo = data.description;
+                        this.descriptionVideo = data.description || "Cet épisode n'a pas de description.";
                         this.seasonNumber = data.season;
                         this.episodeNumber = data.episode;
                         this.video = data.video;
+                        this.urls = this.video.urls.map(item => ({
+                            id: item.id,
+                            url: item.value,
+                            domain_name: this.extractUrlDomain(item.value)
+                        }));
+
                     })
                     .info(info => {
                         if (info === "episode.notexist") this.pushToast("error", "L'épisode demandé n'existe pas.");
                     })
                     .result;
-                    await this.getUrlByVideoId();
                 }
 
                 close();

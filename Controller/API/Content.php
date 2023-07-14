@@ -68,21 +68,32 @@ class GetTopContent extends Controller
         $type = $this->floor->pickup("type");
         $category_id = $this->floor->pickup("category_id");
 
-        $requestString = "SELECT SUM(_vote.value), _content.id from _content JOIN _vote ON _vote.content_id = _content.id";
-
         $where = [];
-        if($type === "serie") $where[] = "_content.value_type = 'S'";
-        else if($type === "movie") $where[] = "_content.value_type = 'M'";
-        if($category_id !== -1) $where[] = "_content.category_id = ?";
+        if($type === "serie") $where["c.value_type"] = "S";
+        else if($type === "movie") $where["c.value_type"] = "M";
+        if($category_id !== -1) $where["c.category_id"] = $category_id;
 
-        $requestString .= (count($where) !== 0 ? " WHERE " . implode(" AND ", $where) : "") . " GROUP BY _content.id ORDER BY SUM DESC limit ?";
-        
-        $request = $dataBase->prepare($requestString);
-        $request->execute($category_id !== -1 ? [$category_id, $number] : [$number]);
-        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
+        $request = QueryBuilder::createSelectRequest(
+            "_content as c", 
+            ["SUM(v.value)", "c.id"],
+            $where,
+            [
+                "GROUP_BY" => ["c.id"],
+                "ORDER_BY" => ["SUM DESC"],
+                "LIMIT" => $number,
+            ],
+            [
+                "JOIN" => [
+                    [
+                        "TABLE" => "_vote as v",
+                        "WHERE" => ["v.content_id" => ["c.id"]],
+                    ]
+                ]
+            ]
+        );
 
         $contents = [];
-        foreach ($result as $value) {
+        foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $value) {
             $contents[] = Content::findFirst(["id" => $value["id"]]);
         }
 
@@ -120,6 +131,117 @@ class GetLastContent extends Controller
 
         Content::groups("value", "vote", "category", "dateProps");
         $response->code(200)->info("content.get")->send(Content::findMany($where, ["ORDER_BY" => ["created_at DESC"], "LIMIT" => $number]));
+    }
+}
+
+/**
+ * @GET{/api/contents}
+ */
+class GetContents extends Controller
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page", "content.page.not.number"],
+            ["type/string", $request->getQuery("type") ?? "", "type", "content.get.badType"],
+            ["type/int", $request->getQuery("category_id") ?? -1, "category_id", "content.category_id.not.number"],
+            ["type/string", $request->getQuery("title") ?? "", "title", "content.title.not.title"],
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {  
+        $page = $this->floor->pickup("page");
+        $type = $this->floor->pickup("type");
+        $category_id = $this->floor->pickup("category_id");
+        $title = $this->floor->pickup("title");
+        
+        $where = [];
+        $joins = [];
+        $case = [];
+
+        if($type === "movie"){
+            $where["c.value_type"] = "M";
+            if($title !== "") $where["LOWER(m.title)"] = ["\$CTN" => $title];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins[] = [
+                "TABLE" => "_movie as m",
+                "WHERE" => [
+                    "c.value_type" => "M",
+                    "c.value_id" => ["m.id"],
+                ]
+            ];
+            $case[] = ["WHEN", ["c.value_type" => "M"], "m.title"];
+        }
+        else if($type === "serie"){
+            $where["c.value_type"] = "S";
+            if($title !== "") $where["LOWER(s.title)"] = ["\$CTN" => $title];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins[] = [
+                "TABLE" => "_serie as s",
+                "WHERE" => [
+                    "c.value_type" => "S",
+                    "c.value_id" => ["s.id"],
+                ]
+            ];
+            $case[] = ["WHEN", ["c.value_type" => "S"], "s.title"];
+        }
+        else {
+            $where["\$OR"] = [
+                [
+                    "LOWER(m.title)" => ["\$CTN" => strtolower($title)]
+                ],
+                [
+                    "LOWER(s.title)" => ["\$CTN" => strtolower($title)]
+                ]
+            ];
+            if($category_id !== -1) $where["category_id"] = $category_id;
+            $joins = [
+                [
+                    "TABLE" => "_movie as m",
+                    "WHERE" => [
+                        "c.value_type" => "M",
+                        "c.value_id" => ["m.id"],
+                    ]
+                ],
+                [
+                    "TABLE" => "_serie as s",
+                    "WHERE" => [
+                        "c.value_type" => "S",
+                        "c.value_id" => ["s.id"],
+                    ]
+                ]
+            ];
+            $case[] = ["WHEN", ["c.value_type" => "S"], "s.title"];
+            $case[] = ["WHEN", ["c.value_type" => "M"], "m.title"];
+        }
+
+        $case[] = ["END", "title"];
+
+        $request = QueryBuilder::createSelectRequest(
+            "_content as c",
+            [
+                "c.id",
+                "\$CASE" => $case,
+            ],
+            $where,
+            [
+                "ORDER_BY" => ["title"],
+                "OFFSET" => $page * 10,
+                "LIMIT" => 10,
+            ],
+            [
+                "LEFT_JOIN" => $joins
+            ]
+        );
+
+        $contents = [];
+        foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $value) {
+            $contents[] = Content::findFirst(["id" => $value["id"]]);
+        }
+
+        Content::groups("value", "vote", "category");
+        $response->code(200)->info("content.get")->send($contents);
     }
 }
 

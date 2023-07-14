@@ -6,10 +6,12 @@ use Core\Controller;
 use Core\Request;
 use Core\Response;
 
+use Entity\Category;
 use Entity\Content;
 use Entity\Movie;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
+use Services\Access\AccessDashboard;
 use Services\Back\VideoManagerService as VideoManager;
 
 /**
@@ -46,15 +48,15 @@ class createMovie extends AccessContentsManager
             ["video/description", fn () => $this->floor->pickup("description"), "description"],
             ["type/string", $request->getBody()['image'], "image"],
             ["video/image", fn () => $this->floor->pickup("image"), "image"],
-            ["type/string", $request->getBody()['category_name'], "category_name"],
-            ["category/existByName", fn () => $this->floor->pickup("category_name"), "category"],
+            ["type/int", $request->getBody()['category_id'], "category_id"],
+            ["category/exist", fn () => $this->floor->pickup("category_id"), "category"],
             ["type/string", $request->getBody()['release_date'], "release_date"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var \Entity\Category $category*/
+        /** @var Category $category*/
         $category = $this->floor->pickup("category");
 
         $video = Video::insertOne([]);
@@ -167,7 +169,7 @@ class getMovies extends AccessContentsManager
             ["ORDER_BY" => ["id"], "OFFSET" => $number * $page, "LIMIT" => $number]
         );
         
-        Movie::groups("dateProps", "category");
+        Movie::groups("dateProps", "category", "content");
 
         $response->code(200)->info("movies.get")->send($movies);
     }
@@ -176,7 +178,7 @@ class getMovies extends AccessContentsManager
 /**
  * @GET{/api/movies/count}
  */
-class getMoviesCount extends AccessContentsManager
+class getMoviesCount extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

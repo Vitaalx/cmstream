@@ -1,22 +1,43 @@
 <router_link 
-href="#" 
+:href="(this.content.type === 'M' ? '/movie/' : '/serie/')  + this.content.value.id" 
 class="show-card"
 >
-    <div class="mb-[10px] object-cover thumbnail aspect-[47/63]">
-        <img class="w-full h-full object-cover pointer-events-none" :src="this.content.value.image" alt="show title">
+    <div class="relative mb-[10px] object-cover thumbnail aspect-[47/63]">
+        <img 
+        class="w-full h-full object-cover pointer-events-none" 
+        :src="this.content.value.image" alt="show title"
+        />
     </div>
 
     <div class="content">
-        <h3 class="text-bold show-title">{{this.content.value.title}}</h3>
+        <h3 
+        class="text-bold overflow-hidden title"
+        :title="this.content.value.title"
+        >
+            {{ this.content.value.title }}
+        </h3>
 
         <p 
-        class="text-sm show-description text-ellipsis overflow-hidden w-full"
-        :title="this.content.value.description || ''"
+        cv-if="this.content.value.description"
+        class="text-xs show-description overflow-hidden w-full description"
+        :title="this.content.value.description"
         >
-            {{this.content.value.description || ""}}
+            {{ this.content.value.description }}
         </p>
 
-        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{this.content.category.title}}</span>
+        <div class="flex gap-[5px] categories">
+            <span
+            class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+            cv-class="{
+                'bg-orange-500': this.content.type === 'S',
+                'bg-red-500': this.content.type === 'M'
+            }"
+            >
+                {{ this.content.type === 'S' ? 'Série' : 'Film' }}
+            </span>
+
+            <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category?.title || "Aucune" }}</span>
+        </div>
     </div>
 </router_link>
 
@@ -29,10 +50,6 @@ class="show-card"
 </script>
 
 <style>
-    .thumbnail {
-        position: relative;
-    }
-
     .show-card .thumbnail::before {
         content: "";
         position: absolute;
@@ -62,7 +79,15 @@ class="show-card"
     }
 
     .show-card:hover .thumbnail::after {
-    content: "\F0F1B";
-    opacity: 1;
-}
+        content: "\F0F1B";
+        opacity: 1;
+    }
+
+    .title, .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1; /* number of lines to show */
+        -webkit-box-orient: vertical;
+    }
 </style>

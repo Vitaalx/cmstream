@@ -10,6 +10,7 @@ use Entity\Comment;
 use Entity\User;
 use Entity\Video;
 use Services\Access\AccessCommentsManager;
+use Services\Access\AccessDashboard;
 use Services\MustBeConnected;
 
 /**
@@ -28,7 +29,7 @@ class addComment extends MustBeConnected
         return [
             ["type/int", $request->getParam("id"), "videoId"],
             ["video/exist", fn () => $this->floor->pickup("videoId"), "video"],
-            ["type/flawless", $request->getBody()["content"], "content"],
+            ["type/string", $request->getBody()["content"], "content"],
             ["comment/size", fn () => $this->floor->pickup("content"), "content"],
         ];
     }
@@ -51,16 +52,30 @@ class addComment extends MustBeConnected
 }
 
 /**
- * @GET{/api/comments/verify/count}
+ * @GET{/api/comments/unverified/count}
  */
-class GetCommentsVerifyCount extends AccessCommentsManager
+class GetCommentsUnverifiedCount extends AccessDashboard
 {
     public function handler(Request $request, Response $response): void
     {
         $response
         ->code(200)
-        ->info("comment.get.count")
+        ->info("comment.unverified.get.count")
         ->send(["count" => Comment::count(["status" => 0])]);
+    }
+}
+
+/**
+ * @GET{/api/comments/verified/count}
+ */
+class GetCommentsVerifiedCount extends AccessDashboard
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $response
+        ->code(200)
+        ->info("comment.verified.get.count")
+        ->send(["count" => Comment::count(["status" => 1])]);
     }
 }
 

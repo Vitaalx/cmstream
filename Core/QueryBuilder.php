@@ -4,16 +4,18 @@ namespace Core;
 class QueryBuilder {
     static private \PDO $db;
     
-    static function createSelectRequest(string $from, array $select, array $where, array $options = []){
+    static function createSelectRequest(string $from, array $select, array $where, array $options = [], array $joins = []){
         $values = [];
         $select = self::arrayToArraySelect($select, $values);
+        $joins = self::arrayToArrayJoin($joins, $values);
+        $joins = implode(" ", $joins);
         $where = self::arrayToArrayWhere($where, $values);
         $where = implode(" AND ", $where);
         $select = implode(", ", $select);
         $options = self::arrayToArrayOptions($options);
         $options = implode(" ", $options);
-        
-        $stringRequest = "SELECT " . $select . " FROM " . $from . ($where !== ""? " WHERE " : "") . $where . " ". $options;
+
+        $stringRequest = "SELECT " . $select . " FROM " . $from . " " . $joins . ($where !== ""? " WHERE " : "") . $where . " ". $options;
         if(Logger::getAllowRequestDB() === true) Logger::debug($stringRequest);
         $request = self::$db->prepare($stringRequest);
         $request->execute($values);
@@ -133,7 +135,12 @@ class QueryBuilder {
                 }
                 else if(gettype($value) === "array"){
                     $where = "";
-                    foreach ($value as $k => $v) {
+
+                    if($value[0] !== null){
+                        $where = $key . " " . $operator . " " . $value[0];
+                        array_push($wheres, $where);
+                    }
+                    else foreach ($value as $k => $v) {
                         if($k === "\$CTN"){
                             array_push($values, "%$v%");
                             array_push($wheres, $key . " LIKE ?");
@@ -185,16 +192,16 @@ class QueryBuilder {
             if($key === "\$CASE"){
                 $case = [];
                 foreach($value as $v){
-                    if($v[0] === "when"){
+                    if($v[0] === "WHEN"){
                         $where = self::arrayToArrayWhere($v[1], $values);
-                        array_push($case, "when " . implode(" AND ", $where) . " then " . $v[2]);
+                        array_push($case, "WHEN " . implode(" AND ", $where) . " THEN " . $v[2]);
 
                     }
-                    else if($v[0] === "else"){
-                        array_push($case, $v[1]);
+                    else if($v[0] === "ELSE"){
+                        array_push($case, "ELSE " . $v[1]);
                     }
-                    else if($v[0] === "end"){
-                        array_push($case, "end as " . $v[1]);
+                    else if($v[0] === "END"){
+                        array_push($case, "END as " . $v[1]);
                     }
                 }
                 array_push($selects, "CASE " . implode(" ", $case));
@@ -219,11 +226,33 @@ class QueryBuilder {
 
                 $options[] = "ORDER BY " . implode(", ", $orderOptions);
             }
+            else if($key === "GROUP_BY"){
+                $orderOptions = [];
+
+                foreach ($value as $v) {
+                    $orderOptions[] = $v;
+                }
+
+                $options[] = "GROUP BY " . implode(", ", $orderOptions);
+            }
             else if($key === "RETURNING") array_push($options, "RETURNING " . implode(", ", $value));
             else array_push($options, $key . " " . $value);
         }
 
         return $options;
+    }
+
+    static function arrayToArrayJoin(array $array, array &$values){
+        $joins = [];
+        foreach($array as $key => $value){
+            if($key === "LEFT_JOIN" || $key === "RIGHT_JOIN" || $key === "JOIN" || $key === "INNER_JOIN"){
+                foreach ($value as $v) {
+                    $joins[] = str_replace("_", " ", $key) . " " . $v["TABLE"] . " ON " . implode(" AND ", self::arrayToArrayWhere($v["WHERE"], $values));
+                }
+            }
+        }
+
+        return $joins;
     }
 
     static function arrayToArraySet(array $array, array &$values){

@@ -9,17 +9,81 @@ class History extends Entity
     /** @type{int} */
     private int $id;
 
-    /**
-     * @many{Entity\Video,id}
-     * @groups{videos}
-     */
-    private array $video;
+    public function getId(): int
+    {
+        return parent::get("id");
+    }
 
     /**
-     * @many{Entity\User,id}
      * @groups{users}
      */
-    private array $user;
+    private User $user;
+
+    public function getUser(): User
+    {
+        return parent::get("user");
+    }
+
+    public function setUser(User $user): self
+    {
+        parent::set("user", $user);
+
+        return $this;
+    }
+
+    /** 
+     * @type{int}
+     * @groups{contentValue}
+     * @notnullable{}
+     */
+    private int $value_id;
+
+    /** 
+     * @type{CHAR(1)}
+     * @groups{contentValue}
+     * @notnullable{}
+     */
+    private string $value_type;
+
+    public function getValue(): Movie | Episode
+    {
+        if(parent::get("value_type") === "E") return Episode::findFirst(["id" => parent::get("value_id")]);
+        else return Movie::findFirst(["id" => parent::get("value_id")]);
+    }
+
+    public function setValue(Movie | Episode $value): self
+    {
+        if($value instanceof Episode)parent::set("value_type", "E");
+        else parent::set("value_type", "M");
+        parent::set("value_id", $value->getId());
+        return $this;
+    }
+
+    /** 
+     * @type{VARCHAR(50)}
+     * @groups{uniqueKey}
+     * @notnullable{}
+     * @unique{}
+     */
+    private int $unique_key;
+
+    /**
+     * @type{int}
+     * @notnullable{}
+     * @default{date_part('epoch'::text, now())}
+     */
+    private int $timestamp;
+
+    public function getTimestamp(): int
+    {
+        return parent::get("timestamp");
+    }
+
+    public function setTimeStamp(int $timestamp): self
+    {
+        parent::set("timestamp", $timestamp);
+        return $this;
+    }
 
     /**
      * @type{Date}
@@ -29,6 +93,11 @@ class History extends Entity
      */
     private string $created_at;
 
+    public function getCreatedAt(): string
+    {
+        return parent::get("created_at");
+    }
+
     /**
      * @type{Date}
      * @notnullable{}
@@ -37,71 +106,24 @@ class History extends Entity
      */
     private string $updated_at;
 
-    // Getters and Setters
-
-    /**
-     * Get the value of id
-     *
-     * @return int
-     */
-    public function getId(): int
-    {
-        return parent::get("id");
-    }
-
-    /**
-     * Get the value of video
-     */
-    public function getVideo(): Video
-    {
-        return parent::get("video");
-    }
-
-    /**
-     * Get the value of user
-     */
-    public function getUser(): User
-    {
-        return parent::get("user");
-    }
-
-    /**
-     * Get the value of created_at
-     */
-    public function getCreatedAt(): string
-    {
-        return parent::get("created_at");
-    }
-
-    /**
-     * Get the value of updated_at
-     */
     public function getUpdatedAt(): string
     {
         return parent::get("updated_at");
     }
 
-    /**
-     * Set the value of video
-     *
-     * @return  self
-     */
-    public function setVideo(Video $video): self
+    protected function onSave(bool $isInsert): void
     {
-        parent::set("video", $video);
-
-        return $this;
+        parent::set(
+            "unique_key",
+            parent::get("value_id") . "_" .  parent::get("value_type") . "_" . parent::get("user_id")
+        );
     }
 
-    /**
-     * Set the value of user
-     *
-     * @return  self
-     */
-    public function setUser(User $user): self
+    protected function onSerialize(array $array): array
     {
-        parent::set("user", $user);
-
-        return $this;
+        if(in_array("HistoryValue", self::$groups)){
+            $array["value"] = $this->getValue();
+        }
+        return $array;
     }
 }

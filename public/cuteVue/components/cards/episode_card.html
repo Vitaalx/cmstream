@@ -1,5 +1,5 @@
 <router_link :href="`/serie/${this.serie.id}/season/${this.episode.season}/episode/${this.episode.episode}`" class="episode-card">
-    <div class="w-full h-[135px] mb-[10px] thumbnail">
+    <div class="relative w-full h-[135px] mb-[10px] thumbnail">
         <img class="w-full h-full object-cover pointer-events-none" :src="this.episode.image" alt="show title">
     </div>
 
@@ -23,10 +23,6 @@
 </script>
 
 <style>
-    .thumbnail {
-        position: relative;
-    }
-
     .episode-card .thumbnail::before {
         content: "";
         position: absolute;

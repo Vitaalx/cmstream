@@ -17,24 +17,57 @@
         }"
         >
             <img 
-            class="absolute top-[50%] left-0 w-full h-full object-cover pointer-events-none -translate-y-[50%]"
+            class="absolute top-2/4 left-0 w-full h-full object-cover pointer-events-none -translate-y-[50%]"
             :src="this.video[1].value.image"
             />
 
-            <div class="absolute top-[20px] left-[20px] w-2/3 max-h-[280px] px-[10px] py-[5px] flex flex-col items-start gap-[10px] content">
-                <div class="w-full p-[10px] flex flex-col items-start gap-[10px] bg-[rgba(0,0,0,0.5)] top">
-                    <h2 class="text-[40px] text-ellipsis overflow-hidden">{{ this.video[1].value.title }}</h2>
+            <div class="absolute top-[20px] left-[20px] w-[calc(100%-40px)] sm:w-2/3 max-h-[280px] px-[10px] py-[5px] flex flex-col items-center sm:items-start gap-0 sm:gap-[10px] bg-[rgba(0,0,0,0.5)] content">
+                <div class="w-full p-[10px] flex flex-col items-start gap-[10px] top">
+                    <h2 class="w-full text-2xl sm:text-4xl whitespace-nowrap text-ellipsis overflow-hidden h-[50px]">{{ this.video[1].value.title }}</h2>
 
                     <p class="w-full max-h-[70px] description">{{ this.video[1].value.description || "" }}</p>
-
-                    <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
                 </div>
 
-                <router_link href="show" class="ml-[-5px] flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition">
-                    <icon name="play-circle-outline" size="60"/>
+                <div class="p-[10px] flex flex-col sm:flex-row items-center gap-[10px] sm:gap-[30px] bot">
+                    <router_link 
+                    :href="(this.video[1].type === 'M' ? '/movie/' : '/serie/')  + this.video[1].value.id" 
+                    class="px-[10px] scale-75 sm:scale-100 flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition"
+                    >
+                        <icon name="play-circle-outline" size="60"/>
 
-                    <span>Regarder</span>
-                </router_link>
+                        <span>Regarder</span>
+                    </router_link>
+
+                    <div class="flex items-center gap-[10px] sm:gap-[30px] infos">
+                        <div class="flex gap-[5px] categories">
+                            <span
+                            class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+                            cv-class="{
+                                'bg-orange-500': this.video[1].type === 'S',
+                                'bg-red-500': this.video[1].type === 'M'
+                            }"
+                            >
+                                {{ this.video[1].type === 'S' ? 'Série' : 'Film' }}
+                            </span>
+    
+                            <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.video[1].category.title }}</span>
+                        </div>
+    
+                        <div class="flex gap-[15px] rate select-none">
+                            <div class="flex items-center gap-[5px] like">
+                                {{ this.video[1].up_vote }}
+        
+                                <icon name="thumb-up" />
+                            </div>
+        
+                            <div class="flex items-center gap-[5px] dislike">
+                                {{ this.video[1].down_vote }}
+        
+                                <icon name="thumb-down" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -45,7 +78,7 @@
         >
             <div 
             cv-for="video of Object.entries(this.videos)"
-            class="relative h-full aspect-video shrink-0 overflow-hidden cursor-pointer shadow-[0px_0px_20px_rgba(0,0,0,0.5)] transition duration-[0.5s] hover:shadow-[0px_0px_30px_rgba(0,0,0,0.75)] hover:scale-[1.02]"
+            class="relative h-full aspect-video scale-75 sm:scale-100 shrink-0 overflow-hidden cursor-pointer shadow-[0px_0px_20px_rgba(0,0,0,0.5)] transition duration-[0.5s] hover:shadow-[0px_0px_30px_rgba(0,0,0,0.75)] sm:hover:scale-[1.02]"
             @click="this.index = this.video[0]"
             >
                 <img
@@ -113,9 +146,14 @@
                 if(this.xpos - 600 < 0)this.xpos = 0;
                 else this.xpos -= 400;
             },
+            onResize(){
+                this.hover = window.innerWidth < 640;
+            }
         },
         mounted(){
             this.init();
+            this.onResize();
+            window.addEventListener("resize", this.onResize);
         },
     }
 </script>
