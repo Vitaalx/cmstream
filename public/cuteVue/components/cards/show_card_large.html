@@ -1,14 +1,15 @@
-<router_link 
-:href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id" 
+<div 
 class="h-[135px] flex gap-[20px] show-card-large"
 >
-    <div class="relative aspect-square sm:aspect-video object-cover thumbnail">
+    <router_link 
+    :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id" 
+    class="relative aspect-square sm:aspect-video object-cover thumbnail">
         <img 
         class="w-full h-full object-cover pointer-events-none" 
         :src="this.content.value.image || '/public/img/thumbnails/unloaded-large.png'" 
         alt="show title"
         >
-    </div>
+    </router_link>
 
     <div class="content flex flex-col justify-center gap-[10px] grow overflow-hidden">
         <div class="top">
@@ -49,7 +50,7 @@ class="h-[135px] flex gap-[20px] show-card-large"
             </div>
         </div>
     </div>
-</router_link>
+</div>
 
 <script>
     export default {
