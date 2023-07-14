@@ -11,6 +11,7 @@ use Entity\Content;
 use Entity\Movie;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
+use Services\Access\AccessDashboard;
 use Services\Back\VideoManagerService as VideoManager;
 
 /**
@@ -177,7 +178,7 @@ class getMovies extends AccessContentsManager
 /**
  * @GET{/api/movies/count}
  */
-class getMoviesCount extends AccessContentsManager
+class getMoviesCount extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

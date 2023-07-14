@@ -8,6 +8,7 @@ use Core\Response;
 use Services\Permissions;
 use Entity\Role;
 use Entity\User;
+use Services\Access\AccessDashboard;
 use Services\Access\AccessRoleEditor;
 
 
@@ -115,7 +116,7 @@ class getRoles extends AccessRoleEditor
  *
  * @return $role
  */
-class getRolesCount extends AccessRoleEditor
+class getRolesCount extends AccessDashboard
 {
     public function handler(Request $request, Response $response): void
     {

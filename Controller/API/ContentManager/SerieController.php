@@ -13,6 +13,7 @@ use Entity\Serie;
 use Entity\Episode;
 use Entity\Video;
 use Services\Access\AccessContentsManager;
+use Services\Access\AccessDashboard;
 use Services\Back\VideoManagerService as VideoManager;
 use Services\MustBeConnected;
 
@@ -184,7 +185,7 @@ class getSeries extends AccessContentsManager
 /**
  * @GET{/api/series/count}
  */
-class getSeriesCount extends AccessContentsManager
+class getSeriesCount extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

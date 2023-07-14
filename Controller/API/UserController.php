@@ -8,6 +8,7 @@ use Core\Response;
 use Entity\Reset_Password;
 use Entity\User;
 use Entity\Waiting_validate;
+use Services\Access\AccessDashboard;
 use Services\Access\AccessUserEditor;
 use Services\Back\MailService;
 use Services\MustBeConnected;
@@ -460,7 +461,7 @@ class getUsers extends AccessUserEditor
 /**
  * @GET{/api/users/count}
  */
-class getUsersCount extends AccessUserEditor
+class getUsersCount extends AccessDashboard
 {
     public function checkers(Request $request): array
     {

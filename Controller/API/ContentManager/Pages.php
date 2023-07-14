@@ -7,6 +7,7 @@ use Core\Request;
 use Core\Response;
 use Entity\Page_history;
 use Services\Access\AccessContentsManager;
+use Services\Access\AccessDashboard;
 
 /**
  * @PUT{/api/pages}
@@ -51,7 +52,7 @@ class GetPageHistory extends AccessContentsManager
 /**
  * @GET{/api/page-history/count}
  */
-class CountPageHistory extends AccessContentsManager
+class CountPageHistory extends AccessDashboard
 {
     public function handler(Request $request, Response $response): void
     {
