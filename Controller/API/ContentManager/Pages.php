@@ -16,7 +16,7 @@ class SetPages extends AccessContentsManager
     public function handler(Request $request, Response $response): void
     {
         $file = new File(__DIR__ . "/../../../public/cuteVue/pages.json");
-        Page_history::insertOne(fn (Page_history $ph) => $ph->setValue($request->getBody()));
+        Page_history::insertOne(fn (Page_history $ph) => $ph->setValue($file->read()));
         $file->write($request->getBody());
         $response->code(204)->info("pages.set")->send();
     }
