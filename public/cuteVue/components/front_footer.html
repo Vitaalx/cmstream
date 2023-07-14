@@ -3,6 +3,7 @@
         <div class="top flex flex-col lg:flex-row justify-between">
             <nav class="navigation-nav">
                 <h2 class="text-xl font-bold leading-normal mt-0 mb-2 text-white">Navigation</h2>
+
                 <ul class="flex flex-col flex-wrap max-h-[100px]">
                     <li class="h-[20px]">
                         <router_link href="/" class="text-sm text-whiteless hover:text-white">Accueil</router_link>
@@ -17,37 +18,10 @@
                     </li>
                 </ul>
             </nav>
-            <nav class="social-nav">
-                <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Suivez-nous !</h2>
-                <ul>
-                    <li>
-                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="facebook" size="18"/>
-                            Facebook
-                        </a>
-                    </li>
-                    <li>
-                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="twitter" size="18"/>
-                            Twitter
-                        </a>
-                    </li>
-                    <li>
-                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="instagram" size="18"/>
-                            Instagram
-                        </a>
-                    </li>
-                    <li>
-                        <a class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white" href="#">
-                            <icon name="youtube" size="18"/>
-                            Youtube
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+
             <nav class="account-nav">
                 <h2 class="text-xl font-bold leading-normal mt-4 lg:mt-0 mb-2 text-white">Compte</h2>
+
                 <ul>
                     <li cv-if="!this.isConnected">
                         <router_link href="/signup" class="flex items-center gap-[5px] text-sm text-whiteless hover:text-white">
@@ -95,7 +69,9 @@
                 </ul>
             </nav>
         </div>
+
         <hr class="my-6">
+        
         <div class="bot">
             <small class="text-whiteless">&copy; CMStream {{ this.currentYear }}</small>
         </div>
