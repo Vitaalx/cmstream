@@ -544,14 +544,17 @@
                 .e(err => console.log(err))
                 .result;
             },
-            refreshEpisode(action) {
-                this.getSeasonNb();
+            async refreshEpisode(action) {
+                await this.getSeasonNb();
+
                 let indexSeason = this.seasons.findIndex(s => s.value == this.selectedSeason);
+                
                 if (action === "delete") {
                     if (indexSeason >= 0 && this.selectedSeason !== 1 && this.episodes.length === 1) {
                         indexSeason = indexSeason - 1;
                     }
                 }
+
                 this.selectedSeason = this.seasons[indexSeason].value;
                 this.getEpisodeBySeason(this.selectedSeason);
             },
@@ -620,7 +623,9 @@
                         if (info === "serie.notfound") this.pushToast("error", "La série demandée n'existe pas.");
                     })
                     .result;
+                    
                     await this.getSeasonNb();
+
                     if (this.seasons.length > 0) await this.getEpisodeBySeason(1);
                 } else if (this.typeEdit === "movie") {
                     await taob.get("movie/" + this.idVideo)
