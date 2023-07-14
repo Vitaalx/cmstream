@@ -50,3 +50,9 @@ function configEditor(User $user, Floor $floor, Response $response){
         $response->code(401)->info("permission.unauthorized.config_editor")->send();
     }
 }
+
+function dashboard(User $user, Floor $floor, Response $response){
+    if($user->hasPermission(Permissions::AccessDashboard) === false){
+        $response->code(401)->info("permission.unauthorized.dashboard")->send();
+    }
+}
