@@ -26,6 +26,7 @@ Entry:
     "value_type": "E"
 }
 */
+
 class addHistory extends MustBeConnected
 {
     public function checkers(Request $request): array
@@ -52,13 +53,13 @@ class addHistory extends MustBeConnected
             "value_type" => $this->floor->pickup("value_type")
         ]);
 
-        if($historyExist !== null) {
+        if ($historyExist !== null) {
             $historyExist->setTimeStamp(time());
             $historyExist->save();
         } else {
             /** @var History $history */
             $history = History::insertOne(
-                fn (History $history) => $history
+                fn(History $history) => $history
                     ->setValue($video)
                     ->setUser($this->floor->pickup("user"))
             );
@@ -75,15 +76,29 @@ class addHistory extends MustBeConnected
  */
 class getHistoryByUserId extends MustBeConnected
 {
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getQuery("page") ?? 0, "page", "content.page.not.number"],
+        ];
+    }
     public function handler(Request $request, Response $response): void
     {
+        $page = $this->floor->pickup("page");
         /** @var User $user */
         $user = $this->floor->pickup("user");
-        $history = History::findMany([
-            "user_id" => $user->getId()
-        ]);
+        $history = History::findMany(
+            [
+                "user_id" => $user->getId()
+            ],
+            [
+                "ORDER_BY" => ["timestamp DESC"],
+                "OFFSET" => $page * 10,
+                "LIMIT" => 10,
+            ]
+        );
 
-        History::groups("HistoryValue", "contentValue");
+        History::groups("HistoryValue", "contentValue", "serie");
 
         $response->code(200)->info("history.get")->send($history);
     }
@@ -100,7 +115,7 @@ class deleteAllHistory extends MustBeConnected
     public function checkers(Request $request): array
     {
         return [
-            ["history/existByUser", fn () => $this->floor->pickup("user")->getId(), "histories"]
+            ["history/existByUser", fn() => $this->floor->pickup("user")->getId(), "histories"]
         ];
     }
 
@@ -127,7 +142,7 @@ class deleteHistoryById extends MustBeConnected
     {
         return [
             ["type/int", $request->getParam('id'), "history_id"],
-            ["history/exist", fn () => $this->floor->pickup("history_id"), "history"]
+            ["history/exist", fn() => $this->floor->pickup("history_id"), "history"]
         ];
     }
 

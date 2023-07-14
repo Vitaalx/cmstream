@@ -1,31 +1,41 @@
 <div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 content">
     <h1 class="mb-[40px] text-2xl font-bold">Mes lists</h1>
 
-    <div class="mb-[30px] flex justify-center gap-4 alphabet">
+    <div class="mb-[30px] flex justify-between gap-4 alphabet">
         <ul class="flex items-center gap-[30px]">
             <li>
                 <span
-                class="pb-[5px] text-xl cursor-pointer"
-                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'watchlist' }"
-                @click="this.showedList = 'watchlist'"
+                        class="pb-[5px] text-xl cursor-pointer"
+                        cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'watchlist' }"
+                        @click="this.showedList = 'watchlist'"
                 >Watchlist
             </span>
             </li>
 
             <li>
                 <span
-                class="pb-[5px] text-xl cursor-pointer"
-                cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'historical' }"
-                @click="this.showedList = 'historical'"
+                        class="pb-[5px] text-xl cursor-pointer"
+                        cv-class="{ 'border-b-[2px] border-skyblue text-white': this.showedList === 'historical' }"
+                        @click="this.showedList = 'historical'"
                 >Historique
             </span>
             </li>
         </ul>
+        <btn
+                @click="deleteAllHistorical"
+                :popup="{ title: 'Vider mon historique', subtitle: 'Êtes-vous sûr de vouloir vider TOUT votre historique ?' }"
+                :small="true"
+                cv-class="{
+                    'invisible': this.showedList !== 'historical' || this.historical.length === 0,
+                }"
+        >
+            Vider mon historique
+        </btn>
     </div>
 
     <div class="content">
         <div cv-if="this.showedList === 'watchlist'" class="watchlist">
-            <div cv-if="!this.whatchlist.length" class="flex flex-col gap-[30px] empty-watchlist">
+            <div cv-if="!this.watchlist.length" class="flex flex-col gap-[30px] empty-watchlist">
                 <p>Vous avez rien dans votre watchlist...</p>
 
                 <router_link href="/catalog" class="flex items-center gap-[5px] hover:text-skyblue">
@@ -35,9 +45,12 @@
                 </router_link>
             </div>
 
-            <div cv-if="this.whatchlist.length" class="shows">
+            <div cv-if="this.watchlist.length" class="shows">
                 <div class="flex flex-col gap-[40px]">
-                    <show_card_large cv-for="show in this.whatchlist" />
+                    <show_card_large
+                            cv-for="content of this.watchlist"
+                            :content="this.content"
+                    />
                 </div>
             </div>
         </div>
@@ -51,37 +64,112 @@
                     <icon name="arrow-right" class="mb-[-3px]"/>
                 </router_link>
             </div>
-            
-            <div cv-if="this.historical.length" class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
-                <episode_card cv-for="episode in this.historical" />
+
+            <div cv-if="this.historical.length"
+                 class="grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,224px)] gap-[40px] content">
+                <historic_card
+                        cv-for="content of this.historical"
+                        :content="this.content"
+                        @delete-content="refreshHistorical"
+                />
             </div>
         </div>
+    </div>
+    <div class="flex justify-center mt-[40px]">
+        <button class="px-[20px] py-[10px] rounded-full bg-skyblue text-white font-bold" @click="loadMore">Voir plus</button>
     </div>
 </div>
 
 <script>
-    const [show_card_large, episode_card] = await Promise.all([
+    const [{default: taob}, show_card_large, historic_card] = await Promise.all([
+        import("/public/cuteVue/taob.js"),
         importer('/public/cuteVue/components/cards/show_card_large.html'),
-        importer('/public/cuteVue/components/cards/episode_card.html')
+        importer('/public/cuteVue/components/cards/historic_card.html')
     ]);
 
     export default {
         components: {
             show_card_large,
-            episode_card
+            historic_card
         },
 
         data: {
             showedList: 'watchlist',
-            whatchlist: [],
-            historical: [1, 2, 3, 4]
-        },
-
-        mounted(){
+            watchlist: [],
+            historical: [],
+            page: 0,
+            isDeleteModalOpen: false
         },
 
         methods: {
-        }
+            async init() {
+                this.watchlist = await this.getWatchlist();
+                this.historical = await this.getHistorical();
+                console.log(this.historical);
+            },
+            async getHistorical() {
+                return await taob.get(
+                    "/history",
+                    {
+                        query: {
+                            page: this.page
+                        },
+                        loader: true,
+                    }
+                )
+                    .sd();
+            },
+            async getWatchlist() {
+                let watchlist = await taob.get(
+                    "/watchlist",
+                    {
+                        query: {
+                            page: this.page
+                        },
+                        loader: true,
+                    }
+                )
+                    .sd();
+                return watchlist.map(item => watchlist = item.content);
+            },
+            async loadMore(){
+                this.page++;
+                if(this.showedList === 'historical') {
+                    this.historical = [
+                        ...this.historical,
+                        ...await this.getHistorical()
+                    ];
+                } else if(this.showedList === 'watchlist') {
+                    this.watchlist = [
+                        ...this.watchlist,
+                        ...await this.getWatchlist()
+                    ];
+                }
+            },
+            async refreshHistorical() {
+                this.page = 0;
+                this.historical = await this.getHistorical();
+            },
+            async refreshWatchlist() {
+                this.page = 0;
+                this.watchlist = await this.getWatchlist();
+            },
+            async deleteAllHistorical() {
+                if(this.showedList !== 'historical') return;
+                await taob.delete(
+                    "/histories",
+                    {
+                        loader: true,
+                    }
+                )
+                    .sd();
+                this.historical = [];
+            }
+        },
+
+        mounted() {
+            this.init();
+        },
     }
 </script>
 

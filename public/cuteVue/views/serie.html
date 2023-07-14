@@ -35,6 +35,12 @@
 
                         <icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
                     </div>
+
+                    <watchlist-input
+                    cv-if="this.isConnected"
+                    :id="this.contentId"
+                    />
+
                 </div>
             </div>
         </div>
@@ -173,6 +179,7 @@
                         e.image = this.img;
                         return e;
                     });
+                    console.log(this.episodes);
                 })
                 .info(info => {
                     if (info === "season.notexist") {

@@ -59,6 +59,42 @@ class addWishWatchlist extends MustBeConnected
 }
 
 /**
+ * @GET{/api/wish/state/{content_id}}
+ * @apiName AddWichWatchlist
+ * @apiGroup ContentManager/WatchlistController
+ * @apiVersion 1.0.0
+ * @Feature WatchList
+ * @Description Add wish to a watchlist.
+ * @param int video_id
+ * @return Response
+ */
+/*
+Entry:
+{
+ "content_id": 1
+}
+*/
+class getState extends MustBeConnected
+{
+    public function checkers(Request $request): array
+    {
+        return [
+            ["type/int", $request->getParam("content_id"), "content_id"],
+            ["content/exist", fn () => $this->floor->pickup("content_id"), "content"],
+            ["watchlist/state", [
+                "user_id" => $this->floor->pickup("user")->getId(),
+                "content_id" => $request->getParam("content_id")
+            ], "state"]
+        ];
+    }
+
+    public function handler(Request $request, Response $response): void
+    {
+        $response->info("wish.state.get")->code(200)->send($this->floor->pickup("state"));
+    }
+}
+
+/**
  * @GET{/api/watchlist}
  */
 /*
@@ -72,18 +108,30 @@ class getWatchlistByUserId extends MustBeConnected
     public function checkers(Request $request): array
     {
         return [
-            ["watchlist/existByUser", fn () => $this->floor->pickup("user")->getId(), "watchlist"]
+            ["type/int", $request->getQuery("page") ?? 0, "page", "content.page.not.number"]
         ];
     }
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Watchlist $watchlist */
-        $watchlist = $this->floor->pickup("watchlist");
+        $page = $this->floor->pickup("page");
+        $user = $this->floor->pickup("user");
 
-        Watchlist::groups("value", "watchlistContent");
+        $watchlist = Watchlist::findMany(
+            [
+                "user_id" => $user->getId(),
+            ],
+            [
+                "OFFSET" => $page * 10,
+                "LIMIT" => 10,
+            ]
+        );
 
-        $response->info("wish.created")->code(201)->send($watchlist);
+        if ($watchlist === null) $response->info("watchlist.empty")->code(404)->send();
+
+        Watchlist::groups("value", "watchlistContent", "value", "vote", "category");
+
+        $response->info("watchlist.get")->code(201)->send($watchlist);
     }
 }
 

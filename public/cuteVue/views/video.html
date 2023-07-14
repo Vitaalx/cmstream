@@ -65,6 +65,11 @@
 
                         <icon :name="!this.disliked ? 'thumb-down-outline' : 'thumb-down'" class="cursor-pointer" cv-class="{ 'text-skyblue': this.disliked }" />
                     </div>
+
+                    <watchlist-input
+                    :id="this.contentId"
+                    />
+
                 </div>
             </div>
         </div>
@@ -270,8 +275,7 @@
                         if(info === "movie.notfound"){
                             this.pushToast("error", "Film introuvable.");
                             router.push("/");
-                        }
-                        else if(!ok){
+                        } else if(!ok) {
                             this.pushToast("error", "Erreur lors de la récupération du film.");
                             router.push("/");
                         }
@@ -292,6 +296,8 @@
                     this.up_vote = movie.content.up_vote;
                     this.down_vote = movie.content.down_vote;
                     this.contentId = movie.content.id;
+
+                    this.addVideoInHistory(movie.id, "M");
 
                     taob.get(
                         "/content/{id}/vote", 
@@ -369,10 +375,18 @@
                     this.seasons = seasons.map(s => s.season);
                     this.selectedSeason = Number(this.params.season);
                     this.getEpisodeBySeason(this.selectedSeason);
+                    this.addVideoInHistory(episode.id, "E");
                 }
 
                 await this.getComments();
                 if(this.isConnected)await this.getMyComments();
+            },
+            addVideoInHistory(idVideo, type) {
+                taob.post(
+                    "/history",
+                    { value_id: idVideo, value_type: type },
+                    { loader: true }
+                )
             },
             getEpisodeBySeason(seasonNb){
                 taob.get(

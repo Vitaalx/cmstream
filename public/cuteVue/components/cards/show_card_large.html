@@ -1,12 +1,12 @@
-<div 
+<div
 class="h-[135px] flex gap-[20px] show-card-large"
 >
-    <router_link 
-    :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id" 
+    <router_link
+    :href="this.content.type === 'M' ? '/movie/' + this.content.value.id : '/serie/' + this.content.value.id"
     class="relative aspect-square sm:aspect-video object-cover thumbnail">
-        <img 
-        class="w-full h-full object-cover pointer-events-none" 
-        :src="this.content.value.image || '/public/img/thumbnails/unloaded-large.png'" 
+        <img
+        class="w-full h-full object-cover pointer-events-none"
+        :src="this.content.value.image || '/public/img/thumbnails/unloaded-large.png'"
         alt="show title"
         >
     </router_link>
@@ -14,7 +14,7 @@ class="h-[135px] flex gap-[20px] show-card-large"
     <div class="content flex flex-col justify-center gap-[10px] grow overflow-hidden">
         <div class="top">
             <h3 class="mb-[5px] text-ellipsis whitespace-nowrap font-bold overflow-hidden show-title" :title="this.content.value.title">{{ this.content.value.title }}</h3>
-        
+
             <p class="text-sm overflow-hidden text-ellipsis description">
                 {{ this.content.value.description || 'Aucune description disponible.' }}
             </p>
@@ -47,6 +47,10 @@ class="h-[135px] flex gap-[20px] show-card-large"
 
                     <icon name="thumb-down" size="16" />
                 </div>
+                <watchlist-input
+                        cv-if="this.isConnected"
+                        :id="this.content.id"
+                />
             </div>
         </div>
     </div>
@@ -57,6 +61,14 @@ class="h-[135px] flex gap-[20px] show-card-large"
         props: {
             content: {}
         },
+        mounted(){
+        },
+        stores: [
+            {
+                name: "user",
+                states: ["isConnected"],
+            },
+        ]
     }
 </script>
 

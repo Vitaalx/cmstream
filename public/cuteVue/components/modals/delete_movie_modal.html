@@ -6,11 +6,12 @@
 
         <div class="flex gap-[10px] buttons">
             <button @click="this.deleteMovie()" class="w-[110px] px-[16px] py-[12px] text-center text-white bg-pinkred hover:bg-pinkredhover rounded-lg">Supprimer</button>
-            
+
             <button @click="this.closeModal()" class="w-[100px] px-[16px] py-[12px] text-center text-black bg-white hover:bg-whiteless border-solid border-2 border-whiteless rounded-lg">Annuler</button>
         </div>
     </div>
 </div>
+
 
 <script>
     const [impLoader, { default: taob }] = await Promise.all([
