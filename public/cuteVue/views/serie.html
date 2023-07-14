@@ -5,7 +5,18 @@
     
     <div class="max-w-[1130px] mx-auto mb-[40px] px-7 lg:px-14 content">
         <div class="mb-[60px] flex flex-col items-start gap-[40px] show-info">
-            <h1 class="text-2xl font-bold">{{ this.title }}</h1>
+            <h1 class="flex items-center gap-[5px] text-2xl font-bold">
+                {{ this.title }}
+
+                <router_link
+                cv-if="this.hasPermission('comments_manager')"
+                :href="`/dashboard/edit-video/serie/${this.params.id}`"
+                class="hover:text-skyblue"
+                title="Éditer"
+                >
+                    <icon name="square-edit-outline" size="24" />
+                </router_link>
+            </h1>
 
             <p>{{ this.description }}</p>
 
@@ -252,7 +263,8 @@
             },
             {
                 name: "user",
-                states: ["isConnected"],
+                states: ["isConnected", "userId", "role", "permissions"],
+                actions: ["hasPermission"]
             }
         ]
     }
