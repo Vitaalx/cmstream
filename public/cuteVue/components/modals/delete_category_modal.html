@@ -35,8 +35,7 @@
                 .s(async () => {
                     this.$emit("delete-category", "delete")
                     this.pushToast("successfull", "La catégorie à bien été supprimée.");
-                })
-                .info(info => console.log(info)).result;
+                }).result;
 
                 this.closeModal();
                 close();

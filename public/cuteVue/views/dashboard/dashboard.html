@@ -29,20 +29,18 @@
             async createMovieSerieChart(){
                 const chartDiv = this.$refs.movieSerieChart;
                 const [moviesCount, seriesCount] = await Promise.all([
-                    await taob.get(
+                    taob.get(
                         "/movies/count"
                     )
                     .s(data => {
                         this.movieSerieChartData[0] = data.count;
-                    })
-                    .e(err => console.log(err)),
-                    await taob.get(
+                    }).sd(),
+                    taob.get(
                         "/series/count"
                     )
                     .s(data => {
                         this.movieSerieChartData[1] = data.count;
-                    })
-                    .e(err => console.log(err))
+                    }).sd()
                 ]);
                 const chart = new Chart(chartDiv, {
                     type: "doughnut",
@@ -64,27 +62,24 @@
             async createContentChart(){
                 const chartDiv = this.$refs.contentChart;
                 const [userCount, roleCount, categorieCount] = await Promise.all([
-                    await taob.get(
+                    taob.get(
                         "/users/count"
                     )
                     .s(data => {
                         this.contentChartData[0] = data.count;
-                    })
-                    .e(err => console.log(err)),
-                    await taob.get(
+                    }).sd(),
+                    taob.get(
                         "/roles/count"
                     )
                     .s(data => {
                         this.contentChartData[1] = data;
-                    })
-                    .e(err => console.log(err)),
-                    await taob.get(
+                    }).sd(),
+                    taob.get(
                         "/categories/count"
                     )
                     .s(data => {
                         this.contentChartData[2] = data;
-                    })
-                    .e(err => console.log(err))
+                    }).sd()
                 ]);
                 const chart = new Chart(chartDiv, {
                     type: "bar",
