@@ -30,8 +30,9 @@
         >
             <div 
             cv-for="col of this.cols" 
-            class="p-[22px] grow-0 w-full overflow-hidden text-ellipsis"
+            class="p-[22px] grow-0 w-full overflow-hidden whitespace-nowrap text-ellipsis"
             cv-class="{[this.col.class || 'EmPtY']: true}"
+            :title="this.col.display(this.item)"
             >
                 {{ this.col.display(this.item) }}
             </div>

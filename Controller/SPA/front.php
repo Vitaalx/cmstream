@@ -171,7 +171,7 @@ class GetMovie extends IndexHandler{
             $movie = Movie::findFirst(["id" => $request->getParam("id")]);
             if($movie === null) return;
             $this->description = $movie->getDescription();
-            $this->keywords = "movie, {$movie->getTitle()}";
+            $this->keywords = "streaming, {$movie->getTitle()}, movie";
         }
     }
 }
@@ -186,7 +186,7 @@ class GetSerie extends IndexHandler{
             $serie = Serie::findFirst(["id" => $request->getParam("id")]);
             if($serie === null) return;
             $this->description = $serie->getDescription();
-            $this->keywords = "serie, {$serie->getTitle()}";
+            $this->keywords = "streaming, {$serie->getTitle()}, serie";
         }
     }
 }
@@ -205,7 +205,7 @@ class GetEpisode extends IndexHandler{
             ]);
             if($episode === null) return;
             $this->description = $episode->getDescription();
-            $this->keywords = "episode, {$episode->getTitle()}";
+            $this->keywords = "streaming, {$episode->getTitle()}, s{$episode->getSeason()}, ep{$episode->getEpisode()}, episode";
         }
     }
 }

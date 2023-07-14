@@ -277,7 +277,7 @@
             hostRule: [
                 (value) => value === "" ? "Ce champ est obligatoire" : true,
                 (value) => !value.startsWith("https://") && !value.startsWith("http://") ? "La valeur de ce champ doit commencer par 'https://' ou 'http://'." : true,
-                (value) => !value.match(/^(https:\/\/|http:\/\/)[a-z0-9.:-_]+/) ? "Ce champ n'est pas valide." : true
+                (value) => !value.match(/^(https:\/\/|http:\/\/)([a-z0-9.:\-_]+)$/) ? "Ce champ n'est pas valide." : true
             ],
 
             passwordUserRule: [

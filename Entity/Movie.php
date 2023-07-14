@@ -33,7 +33,7 @@ class Movie extends Entity
     }
 
     /** 
-     * @type{VARCHAR(255)}
+     * @type{text}
      * @notnullable{}
      */
     private string $image;
