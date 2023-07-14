@@ -74,8 +74,7 @@ class admin extends IndexHandler
     {
         return [
             ["page/onlyConnected", "", "user"],
-            ["page/mustHavePermission", Permissions::AccessDashboard],
-            ["page/mustHavePermission", Permissions::StatsViewer]
+            ["page/mustHavePermission", Permissions::AccessDashboard]
         ];
     }
 }

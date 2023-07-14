@@ -82,7 +82,7 @@
         },
         methods: {
             getCount(){
-                taob.get("/comments/verify/count", {loader: true}).s(({count}) => this.commentsCount = count);
+                taob.get("/comments/unverified/count", {loader: true}).s(({count}) => this.commentsCount = count);
             },
             async getComment(){
                 await taob.get("/comments/verify", {loader: true}).s(comment => this.comment = comment);

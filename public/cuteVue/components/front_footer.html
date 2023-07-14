@@ -126,7 +126,8 @@
             {
                 name: "user",
                 states: ["isConnected", "role", "permissions"],
-                actions: ["disconnect", "hasPermission"]
+                actions: ["disconnect"],
+                computed: ["hasPermission"],
             },
             {
                 name: "pages",

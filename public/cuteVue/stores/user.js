@@ -43,10 +43,6 @@ export const userStore =  CuteVue.createStore(
                 }
 
             },
-            hasPermission(permissionName) {
-              return this.permissions.indexOf(permissionName) !== -1;
-
-            }
         },
         computed: {
             avatarColor() {
@@ -61,6 +57,9 @@ export const userStore =  CuteVue.createStore(
 			  	}
                 couleurHex = couleurHex.substring(0, 6);
 				return "#" + couleurHex;
+            },
+            hasPermission(){
+                return (permissionName)  => this.permissions.indexOf(permissionName) !== -1;
             }
         }
     }
