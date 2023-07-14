@@ -36,12 +36,16 @@
             cv-model="selectedSeason"
             />
 
-            <div class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
+            <div cv-if="this.episodes.length > 0" class="my-[30px] grid grid-flow-row auto-rows-max grid-cols-[repeat(auto-fill,240px)] gap-[40px] episodes">
                 <episode_card
                 cv-for="episode of this.episodes"
                 :serie="{ id: this.params.id }"
                 :episode="this.episode" 
                 />
+            </div>
+
+            <div cv-if="this.episodes.length <= 0" class="my-[30px]">
+                <p>Aucun épisode disponible...</p>
             </div>
         </div>
     </div>
