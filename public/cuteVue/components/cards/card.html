@@ -36,7 +36,7 @@ class="show-card"
                 {{ this.content.type === 'S' ? 'Série' : 'Film' }}
             </span>
 
-            <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{this.content.category.title}}</span>
+            <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category?.title || "Aucune" }}</span>
         </div>
     </div>
 </router_link>
