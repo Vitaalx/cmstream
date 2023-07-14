@@ -28,3 +28,4 @@ logs/*.txt
 
 generate.index.php
 generate.methods.php
+start.sh
