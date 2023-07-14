@@ -61,17 +61,23 @@ class createSerie extends AccessContentsManager
 
     public function handler(Request $request, Response $response): void
     {
-        /** @var Serie $serie */
-        $serie = Serie::insertOne([
-            "description" => $this->floor->pickup("description"),
-            "image" => $this->floor->pickup("image"),
-            "title" => $this->floor->pickup("title_serie"),
-            "category_id" => $this->floor->pickup("category")->getId(),
-            "release_date" => $this->floor->pickup("release_date")
-        ]);
-        Content::insertOne(
-            fn(Content $content) => $content->setValue($serie)
+        /** @var Category $category */
+        $category = $this->floor->pickup("category");
+
+        $serie = Serie::insertOne(
+            fn (Serie $s) => $s
+                ->setImage($this->floor->pickup("image"))
+                ->setDescription($this->floor->pickup("description"))
+                ->setTitle($this->floor->pickup("title_serie"))
+                ->setReleaseDate($this->floor->pickup("release_date"))
         );
+
+        Content::insertOne(
+            fn(Content $content) => $content
+                ->setValue($serie)
+                ->setCategory($category)
+        );
+
         $response->info("serie.created")->code(201)->send($serie);
     }
 }
