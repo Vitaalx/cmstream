@@ -57,7 +57,7 @@
         static: {
             emailRule: [
                 (value) => !!value || "Ce champs est obligatoire",
-                (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide",
+                (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{1,4}$/.test(value) || "Email invalide",
             ],
             passwordRule: [
             ]
