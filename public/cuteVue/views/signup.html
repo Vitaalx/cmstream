@@ -103,7 +103,7 @@
                     (value) => this.alreadyUseEmail !== value || "Cette email est déjà utilisé",
                     (value) => !!value || "Ce champs est obligatoire",
                     (value) => value.length > 100 ? "Email trop long" : true,
-                    (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{2,4}$/.test(value) || "Email invalide",
+                    (value) => /^[\w-\.]+@([\w-]+\.)+[\w-].{1,4}$/.test(value) || "Email invalide",
                 ];
             },
             usernameRule(){

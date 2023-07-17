@@ -158,7 +158,6 @@
                     .s(data => {
                         router.push("/dashboard/edit-video/serie/" + data.id);
                     })
-                    .info(info => console.log(info))
                     .e(err => this.pushToast("error", "Une erreur est survenu lors de l'ajout du contenu."))
                     .result;
                 } else if (this.currentType === "movie") {
@@ -172,7 +171,6 @@
                     .s(data => {
                         router.push("/dashboard/edit-video/movie/" + data.id);
                     })
-                    .info(info => console.log(info))
                     .e(err => this.pushToast("error", "Une erreur est survenu lors de l'ajout du contenu."))
                     .result;
                 }

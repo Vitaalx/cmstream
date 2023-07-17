@@ -179,7 +179,6 @@
                         e.image = this.img;
                         return e;
                     });
-                    console.log(this.episodes);
                 })
                 .info(info => {
                     if (info === "season.notexist") {
@@ -191,7 +190,6 @@
                         router.push("/");
                     }
                 })
-                .e(err => console.log(err))
             },
             async vote(type){
                 if(!this.isConnected){

@@ -105,7 +105,6 @@
             async init() {
                 this.watchlist = await this.getWatchlist();
                 this.historical = await this.getHistorical();
-                console.log(this.historical);
             },
             async getHistorical() {
                 return await taob.get(

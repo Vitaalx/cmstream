@@ -405,9 +405,6 @@
                         if (info === "serie.exist") this.pushToast("error", "Une série avec ce titre existe déjà.");
                         if (info === "video.image") this.pushToast("error", "Veuillez vérifier le lien de l'image.");
                     })
-                    .e(err => {
-                        console.log(err);
-                    })
                     .result
                 } else if (this.typeEdit === "movie") {
                     await taob.put("movie/" + this.idVideo, {
@@ -426,9 +423,6 @@
                         if (info === "video.image") this.pushToast("error", "Le lien de l'image est invalide.");
                         if (info === "category.notfound") this.pushToast("error", "La catégorie n'a pas été trouvée.");
                     })
-                    .e(err => {
-                        console.log(err);
-                    })
                     .result
                 } else if (this.typeEdit === 'episode') {
                     await taob.put("episode/" + this.idVideo, {
@@ -445,9 +439,6 @@
                         if (info === "episode.notexist") this.pushToast("error", "L'épisode n'existe pas.");
                         if (info === "serie.episode") this.pushToast("error", "Le numéro de l'épisode est invalide.");
                         if (info === "serie.season") this.pushToast("error", "Le numéro de la saison est invalide.");
-                    })
-                    .e(err => {
-                        console.log(err);
                     })
                     .result
                 }
@@ -467,9 +458,6 @@
                 })
                 .info(info => {
                     if (info === "serie.notfound") this.pushToast("error", "La série n'a pas été trouvée.");
-                })
-                .e(err => {
-                    console.log(err);
                 })
                 .result;
 
@@ -497,9 +485,6 @@
                 .info(info => {
                     if (info === "video.notfound") this.pushToast("error", "La vidéo n'a pas été trouvée.");
                     if (info === "url.invalid") this.pushToast("error", "L'url est invalide.");
-                })
-                .e(err => {
-                    console.log(err);
                 })
                 .result;
 
@@ -541,7 +526,6 @@
                     if (info === "season.notexist") this.pushToast("error", "La saison demandée n'existe pas.");
                     if (info === "serie.notfound") this.pushToast("error", "La série demandée n'existe pas.");
                 })
-                .e(err => console.log(err))
                 .result;
             },
             async refreshEpisode(action) {
@@ -583,7 +567,6 @@
                     if (info === "serie.saison") this.pushToast("error", "Le numéro de la saison doit être supérieur à 1.");
                     if (info === "episode.exist") this.pushToast("error", "L'épisode existe déjà.");
                 })
-                .e(err => console.log(err))
                 .result
 
                 close();
