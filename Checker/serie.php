@@ -25,7 +25,7 @@ function season(int $season, Floor $floor, Response $response): int
 function title(string $title, Floor $floor, Response $response): string
 {
     $title = trim($title);
-    if (strlen($title) < 4 || strlen($title) > 20) {
+    if (strlen($title) < 4 || strlen($title) > 100) {
         $response->info("video.title")->code(400)->send();
     }
     return $title;
