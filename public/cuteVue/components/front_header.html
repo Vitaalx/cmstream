@@ -215,15 +215,19 @@
         <nav>
             <ul>
                 <li>
-                    <a class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" href="#" @click="this.displayNaveBar = false">
+                    <div 
+                    class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless" 
+                    @click="this.displayNaveBar = false; this.showSearch = true"
+                    >
                         <icon name="magnify" class="text-[24px]"/>
                         
                         Rechercher
-                    </a>
+                    </div>
                 </li>
 
                 <li>
                     <router_link 
+                    cv-if="this.isConnected"
                     href="/lists"
                     class="w-full px-6 py-4 flex items-center gap-[10px] text-sm text-whiteless hover:text-white hover:bg-blackless"
                     @click="this.displayNaveBar = false"
