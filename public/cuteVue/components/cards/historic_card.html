@@ -2,33 +2,48 @@
     <router_link :href="this.href" class="content-card">
         <div class="w-full h-[135px] mb-[10px] thumbnail">
             <img
-                    class="w-full h-full object-cover pointer-events-none"
-                    :src="this.content.value_type === 'M' ? this.content.value.image : this.content.value.serie.image"
-                    alt="content image">
-
+            class="w-full h-full object-cover pointer-events-none"
+            :src="this.content.value_type === 'M' ? this.content.value.image : this.content.value.serie.image"
+            alt="content image"
+            >
         </div>
     </router_link>
 
     <div class="content flex justify-between items-center">
         <div class="flex flex-col">
-            <h3 cv-if="this.content.value_type === 'E' && this.content.value.serie.title"
-                class="text-xs text-grey text-bold show-title">{{ this.content.value.serie.title }}</h3>
+            <router_link
+            cv-if="this.content.value_type === 'E' && this.content.value.serie.title"
+            :href="'/serie/' + this.content.value.serie.id"
+            class="mb-[2px]"
+            >
+                <h3 class="text-xs text-grey text-bold show-title">{{ this.content.value.serie.title }}</h3>
+            </router_link>
 
-            <h2 cv-if="this.content.value_type === 'E'" class="text-sm content-title">
+            <h2
+            cv-if="this.content.value_type === 'E'"
+            class="mb-[4px] text-sm content-title">
                 S{{this.content.value.season < 10 ? '0' + this.content.value.season :
                 this.content.value.season}}E{{this.content.value.episode < 10 ? '0' + this.content.value.episode :
-                this.content.value.episode}} - {{ this.content.value.title }}</h2>
-            <h2 cv-if="this.content.value_type === 'M'" class="text-sm content-title">
-                {{ this.content.value.title }}</h2>
+                this.content.value.episode}} - {{ this.content.value.title }}
+            </h2>
 
-            <p cv-if="this.content.value.description" class="text-xs description"
-               :title="this.content.value.description">{{
-                this.content.value.description }}</p>
+            <h2 
+            cv-if="this.content.value_type === 'M'"
+            class="mb-[4px] text-sm content-title">
+                {{ this.content.value.title }}
+            </h2>
+
+            <p
+            cv-if="this.content.value.description" class="text-xs description"
+            :title="this.content.value.description">{{
+            this.content.value.description }}
+            </p>
         </div>
+        
         <icon
-                name="trash-can-outline"
-                class="cursor-pointer"
-                @click="deleteContent"
+        name="trash-can-outline"
+        class="cursor-pointer"
+        @click="deleteContent"
         />
     </div>
 </div>

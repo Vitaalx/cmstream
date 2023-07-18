@@ -6,7 +6,7 @@
     <div class="content">
         <h3 cv-if="this.serie.title" class="text-xs text-grey text-bold show-title">{{ this.serie.title }}</h3>
 
-        <h2 class="text-sm episode-title">
+        <h2 class="mb-[4px] text-sm episode-title">
         S{{this.episode.season < 10 ? '0' + this.episode.season : this.episode.season}}E{{this.episode.episode < 10 ? '0' + this.episode.episode : this.episode.episode}} - {{ this.episode.title }}</h2>
     
         <p cv-if="this.episode.description" class="text-xs description" :title="this.episode.description">{{ this.episode.description }}</p>
