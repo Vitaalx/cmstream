@@ -3,7 +3,7 @@
 
     <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
         <div class="hidden sm:block absolute z-10 top-2/4 left-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 prev-btn"
-             @click="this.currentSlide--">
+             @click="this.currentSlide--; this.resetInterval()">
             <icon name="chevron-left"/>
         </div>
 
@@ -32,7 +32,6 @@
                         </p>
                     </div>
 
-                    <!-- <div class="flex items-center gap-[10px] categories"> -->
                     <div class="p-[10px] flex flex-col sm:flex-row items-center gap-[10px] sm:gap-[30px] bot">
                         <router_link
                         :href="(this.content[1].type === 'M' ? '/movie/' : '/serie/')  + this.content[1].value.id"
@@ -77,13 +76,12 @@
                             </div>
                         </div>
                     </div>
-                    <!-- </div> -->
                 </div>
             </div>
         </div>
 
         <div class="hidden sm:block absolute z-10 top-2/4 right-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 next-btn"
-             @click="this.currentSlide++">
+             @click="this.currentSlide++; this.resetInterval()">
             <icon name="chevron-right"/>
         </div>
     </div>
@@ -132,6 +130,13 @@
             updateWidth() {
                 this.slideWidth = this.$refs.slides?.[0]?.clientWidth || 0;
             },
+            resetInterval() {
+                clearInterval(this.interval);
+                
+                this.interval = setInterval(() => {
+                    this.currentSlide++;
+                }, this.switchDelay);
+            }
         },
 
         mounted() {
