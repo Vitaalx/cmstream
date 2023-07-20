@@ -20,10 +20,10 @@ class="h-[135px] flex gap-[20px] show-card-large"
             </p>
         </div>
 
-        <div class="bot flex max-[640px]:flex-col max-[450px]:items-start items-center gap-[10px] sm:gap-[20px]">
-            <div class="flex gap-[5px] categories">
+        <div class="bot mt-[5px] flex max-[640px]:flex-col max-[450px]:items-start items-center gap-[10px] sm:gap-[20px]">
+            <div class="flex fixes gap-[5px] categories">
                 <span
-                class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
+                class="inline-block px-[6px] py-[3px] text-xs rounded-full"
                 cv-class="{
                     'bg-orange-500': this.content.type === 'S',
                     'bg-red-500': this.content.type === 'M'
@@ -32,7 +32,7 @@ class="h-[135px] flex gap-[20px] show-card-large"
                     {{ this.content.type === 'S' ? 'Série' : 'Film' }}
                 </span>
 
-                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category.title }}</span>
+                <span class="inline-block px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category.title }}</span>
             </div>
 
             <div class="flex gap-[15px] rate select-none">
