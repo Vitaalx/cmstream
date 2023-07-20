@@ -2,7 +2,7 @@
     <h2 cv-if="this.options.title" class="mb-[20px] self-start text-2xl font-bold">{{ this.options.title }}</h2>
 
     <div class="relative w-full h-full overflow-hidden flex items-center wrapper">
-        <div class="absolute z-10 top-2/4 left-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 prev-btn"
+        <div class="hidden sm:block absolute z-10 top-2/4 left-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 prev-btn"
              @click="this.currentSlide--">
             <icon name="chevron-left"/>
         </div>
@@ -21,15 +21,19 @@
             >
                 <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1].value.image">
 
-                <div class="absolute bottom-[50px] left-[25px] w-[calc(100%-50px)] sm:w-[42%] max-h-[160px] px-[10px] py-[5px] flex flex-col gap-[10px] overflow-hidden bg-[rgba(0,0,0,0.5)] content">
-                    <h2 class="w-full text-2xl h-[50px] line sm:text-4xl whitespace-nowrap text-ellipsis overflow-hidden"
-                        :title="this.content[1].value.title">{{ this.content[1].value.title }}</h2>
+                <div class="absolute bottom-[45px] left-[30px] sm:left-[60px] w-[calc(100%-60px)] sm:w-[42%] max-h-[280px] px-[10px] py-[5px] flex flex-col gap-[10px] overflow-hidden bg-[rgba(0,0,0,0.5)] content">
+                    <div class="w-full p-[10px] flex flex-col items-start gap-[10px] top">
+                        <h2 class="w-full text-2xl h-[50px] line sm:text-4xl whitespace-nowrap text-ellipsis overflow-hidden"
+                            :title="this.content[1].value.title">{{ this.content[1].value.title }}
+                        </h2>
 
-                    <p class="w-full text-ellipsis overflow-hidden description">
-                        {{ this.content[1].value.description || ""}}
-                    </p>
+                        <p class="w-full text-ellipsis overflow-hidden description">
+                            {{ this.content[1].value.description || ""}}
+                        </p>
+                    </div>
 
-                    <div class="flex items-center gap-[10px] categories">
+                    <!-- <div class="flex items-center gap-[10px] categories"> -->
+                    <div class="p-[10px] flex flex-col sm:flex-row items-center gap-[10px] sm:gap-[30px] bot">
                         <router_link
                         :href="(this.content[1].type === 'M' ? '/movie/' : '/serie/')  + this.content[1].value.id"
                         class="px-[10px] scale-75 sm:scale-100 flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition"
@@ -39,39 +43,46 @@
                             <span>Regarder</span>
                         </router_link>
 
-                        <span
+                        <div class="flex items-center gap-[10px] sm:gap-[30px] infos">
+                            <div class="flex gap-[5px] categories">
+                                <span
                                 class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full"
                                 cv-class="{
-                            'bg-orange-500': this.content[1].type === 'S',
-                            'bg-red-500': this.content[1].type === 'M'
-                        }"
-                        >
-                            {{ this.content[1].type === 'S' ? 'Série' : 'Film' }}
-                        </span>
+                                    'bg-orange-500': this.content[1].type === 'S',
+                                    'bg-red-500': this.content[1].type === 'M'
+                                }"
+                                >
+                                    {{ this.content[1].type === 'S' ? 'Série' : 'Film' }}
+                                </span>
 
-                        <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content[1].category.title }}</span>
+                                <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content[1].category.title }}</span>
+                            </div>
 
-                        <div class="flex items-center gap-[5px] like">
-                            {{ this.content[1].up_vote }}
-    
-                            <icon name="thumb-up" />
+                            <div class="flex gap-[15px] rate select-none">
+                                <div class="flex items-center gap-[5px] like">
+                                    {{ this.content[1].up_vote }}
+            
+                                    <icon name="thumb-up" />
+                                </div>
+            
+                                <div class="flex items-center gap-[5px] dislike">
+                                    {{ this.content[1].down_vote }}
+            
+                                    <icon name="thumb-down" />
+                                </div>
+        
+                                <watchlist-input
+                                :id="this.content[1].id"
+                                />
+                            </div>
                         </div>
-    
-                        <div class="flex items-center gap-[5px] dislike">
-                            {{ this.content[1].down_vote }}
-    
-                            <icon name="thumb-down" />
-                        </div>
-
-                        <watchlist-input
-                        :id="this.content[1].id"
-                        />
                     </div>
+                    <!-- </div> -->
                 </div>
             </div>
         </div>
 
-        <div class="absolute z-10 top-2/4 right-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 next-btn"
+        <div class="hidden sm:block absolute z-10 top-2/4 right-0 p-[16px] translate-y-[-50%] text-[20px] text-skyblue bg-white hover:bg-[#DADADA] shadow-lg cursor-pointer duration-500 next-btn"
              @click="this.currentSlide++">
             <icon name="chevron-right"/>
         </div>
