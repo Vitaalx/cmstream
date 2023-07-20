@@ -48,7 +48,6 @@ class="h-[135px] flex gap-[20px] show-card-large"
                     <icon name="thumb-down" size="16" />
                 </div>
                 <watchlist-input
-                        cv-if="this.isConnected"
                         :id="this.content.id"
                 />
             </div>
@@ -63,12 +62,6 @@ class="h-[135px] flex gap-[20px] show-card-large"
         },
         mounted(){
         },
-        stores: [
-            {
-                name: "user",
-                states: ["isConnected"],
-            },
-        ]
     }
 </script>
 

@@ -1,13 +1,15 @@
-<router_link 
-:href="(this.content.type === 'M' ? '/movie/' : '/serie/')  + this.content.value.id" 
-class="show-card"
->
+<div>
+    <router_link
+            :href="(this.content.type === 'M' ? '/movie/' : '/serie/')  + this.content.value.id"
+            class="show-card"
+    >
     <div class="relative mb-[10px] object-cover thumbnail aspect-[47/63]">
         <img 
         class="w-full h-full object-cover pointer-events-none" 
         :src="this.content.value.image" alt="show title"
         />
     </div>
+    </router_link>
 
     <div class="content">
         <h3 
@@ -37,9 +39,13 @@ class="show-card"
             </span>
 
             <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content.category?.title || "Aucune" }}</span>
+
+            <watchlist-input
+                    :id="this.content.id"
+            />
         </div>
     </div>
-</router_link>
+</div>
 
 <script>
     export default {

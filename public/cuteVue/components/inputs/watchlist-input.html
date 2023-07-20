@@ -1,5 +1,6 @@
 <icon
         @click="addWish"
+        cv-show="this.isConnected"
         class="text-[24px] cursor-pointer"
         :name="this.state == 0 ? 'bookmark' : 'bookmark-outline'"
 />
@@ -72,6 +73,10 @@
                 name: "toast",
                 actions: ["pushToast"]
             },
+            {
+                name: "user",
+                states: ["isConnected"],
+            }
         ]
     }
 </script>

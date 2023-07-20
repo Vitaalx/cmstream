@@ -4,7 +4,7 @@
 
 # color liste
 START='\033[0;'
-EDD='\033[0m'
+END='\033[0m'
 
 BLUE='34m'
 GREEN='32m'
