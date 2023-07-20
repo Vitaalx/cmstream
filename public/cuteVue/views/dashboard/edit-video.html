@@ -561,7 +561,7 @@
                 })
                 .info(info => {
                     if (info === "video.title") this.pushToast("error", "Le titre de l'épisode doit contenir au minimum 4 caractères et au maximum 20.");
-                    if (info === "video.description") this.pushToast("error", "La description de l'épisode doit contenir au minimum 4 caractères et au maximum 200.");
+                    if (info === "video.description") this.pushToast("error", "La description de l'épisode doit contenir au minimum 4 caractères et au maximum 500.");
                     if (info === "serie.notfound") this.pushToast("error", "La série demandée n'existe pas.");
                     if (info === "serie.episode") this.pushToast("error", "Le numéro de l'épisode doit être supérieur à 1.");
                     if (info === "serie.saison") this.pushToast("error", "Le numéro de la saison doit être supérieur à 1.");
