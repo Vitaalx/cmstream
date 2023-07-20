@@ -126,6 +126,7 @@
         methods: {
             init() {
                 taob.get(this.options.url, {query: this.options.query}).s(data => this.contents = data);
+                this.resetInterval();
             },
             updateWidth() {
                 this.slideWidth = this.$refs.slides?.[0]?.clientWidth || 0;
@@ -140,12 +141,7 @@
         },
 
         mounted() {
-            this.interval = setInterval(() => {
-                this.currentSlide++;
-            }, this.switchDelay);
-
             window.addEventListener("resize", this.updateWidth);
-
             this.init();
         },
 
