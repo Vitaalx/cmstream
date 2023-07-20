@@ -45,6 +45,23 @@ class Route{
     static private int $count = 0;
     static private array $info;
 
+    /**
+     * @param array $info
+     * @param string $info["method"] : GET, POST, PUT, DELETE
+     * @param string $info["path"] : /path/{id}/path
+     * @param string $info["controller"] : controller/Controller
+     * @return void
+     * @example
+     * Route::match([
+     *     "method" => "GET",
+     *    "path" => "/path/{id}/path",
+     *   "controller" => "controller/Controller"
+     * ]);
+     * 
+     * Check if the route matches the request.
+     * If the route matches the request, the controller is called.
+     * If the route does not match the request, the next route is checked.
+     */
     static public function match(array $info): void
     {
         self::$count++;
@@ -71,6 +88,14 @@ class Route{
         }
     }
 
+    /**
+     * @param string $path
+     * @return string
+     * @example
+     * Route::setRegexPath("/path/{id}/path");
+     * 
+     * Convert the path to a regular expression.
+     */
     static private function setRegexPath(string $path)
     {
         preg_match_all('/({[^\/]*})/', $path, $groups);
@@ -85,6 +110,23 @@ class Route{
         return "/^" . $path  . "$/";
     }
 
+    /**
+     * @param array $info
+     * @param string $info["method"] : GET, POST, PUT, DELETE
+     * @param string $info["path"] : /path/{id}/path
+     * @param string $info["controller"] : controller/Controller
+     * @return void
+     * @example
+     * Route::checkInfo([
+     *     "method" => "GET",
+     *    "path" => "/path/{id}/path",
+     *   "controller" => "controller/Controller"
+     * ]);
+     * 
+     * Check if the route is correct.
+     * If the route is not correct, an exception is thrown.
+     * @throws \Exception
+     */
     static function checkInfo($info): void
     {
         if(isset($info["method"]) === false)
@@ -101,6 +143,16 @@ class Route{
         }
     }
 
+    /**
+     * @param string $controller
+     * @return string
+     * @example
+     * Route::autoLoadController("controller/Controller");
+     * 
+     * Autoload the controller.
+     * If the controller is not found, an exception is thrown.
+     * @throws \Exception
+     */
     static function autoLoadController(string $controller)
     {
         $class = "controller/{$controller}";
@@ -129,10 +181,28 @@ class Route{
         return $class;
     }
 
+    /**
+     * @return array
+     * @example
+     * Route::getInfo();
+     * 
+     * Get the information of the route that matches the request.
+     */
     static function getInfo(){
         return self::$info ?? ["path" => "BEFORE_MATCH"];
     }
 
+    /**
+     * @return void
+     * @example
+     * Route::initRoute();
+     * 
+     * Initialize the route.
+     * Get the request path.
+     * If the request method is OPTIONS, check if the origin is correct.
+     * If the origin is not correct, a bad request is return.
+     * If the origin is correct, the route is initialized.
+     */
     static function initRoute(): void
     {
         $origin = getallheaders()["Origin"] ?? null;

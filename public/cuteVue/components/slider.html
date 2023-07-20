@@ -8,16 +8,16 @@
         </div>
 
         <div
-                class="relative w-full h-full slides-container"
-                cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
+        class="relative w-full h-full slides-container"
+        cv-style="{'transform': `translateX(-${this.slideWidth * this.currentSlide}px)`}"
         >
             <div
-                    cv-ref="slides"
-                    class="absolute w-full h-full slide"
-                    cv-for="content of Object.entries(this.contents)"
-                    cv-class="{'active': this.content[0] == this.currentSlide}"
-                    :test="this.currentSlide + ':' + this.content[0]"
-                    cv-style="{'left': this.content[0] * 100 + '%'}"
+            cv-ref="slides"
+            class="absolute w-full h-full slide"
+            cv-for="content of Object.entries(this.contents)"
+            cv-class="{'active': this.content[0] == this.currentSlide}"
+            :test="this.currentSlide + ':' + this.content[0]"
+            cv-style="{'left': this.content[0] * 100 + '%'}"
             >
                 <img class="w-full h-full object-cover pointer-events-none" :src="this.content[1].value.image">
 
@@ -25,14 +25,14 @@
                     <h2 class="w-full text-2xl h-[50px] line sm:text-4xl whitespace-nowrap text-ellipsis overflow-hidden"
                         :title="this.content[1].value.title">{{ this.content[1].value.title }}</h2>
 
-                    <p class="w-full text-ellipsis overflow-hidden description">{{ this.content[1].value.description ||
-                        ""
-                        }}</p>
+                    <p class="w-full text-ellipsis overflow-hidden description">
+                        {{ this.content[1].value.description || ""}}
+                    </p>
 
                     <div class="flex items-center gap-[10px] categories">
                         <router_link
-                                :href="(this.content[1].type === 'M' ? '/movie/' : '/serie/')  + this.content[1].value.id"
-                                class="px-[10px] scale-75 sm:scale-100 flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition"
+                        :href="(this.content[1].type === 'M' ? '/movie/' : '/serie/')  + this.content[1].value.id"
+                        class="px-[10px] scale-75 sm:scale-100 flex items-center gap-[5px] cursor-pointer hover:text-skyblue transition"
                         >
                             <icon name="play-circle-outline" size="60"/>
 
@@ -51,8 +51,20 @@
 
                         <span class="inline-block mt-[5px] px-[6px] py-[3px] text-xs rounded-full bg-skyblue">{{ this.content[1].category.title }}</span>
 
+                        <div class="flex items-center gap-[5px] like">
+                            {{ this.content[1].up_vote }}
+    
+                            <icon name="thumb-up" />
+                        </div>
+    
+                        <div class="flex items-center gap-[5px] dislike">
+                            {{ this.content[1].down_vote }}
+    
+                            <icon name="thumb-down" />
+                        </div>
+
                         <watchlist-input
-                                :id="this.content[1].id"
+                        :id="this.content[1].id"
                         />
                     </div>
                 </div>
