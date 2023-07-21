@@ -17,6 +17,7 @@ use Services\Permissions;
  * @GET{/}
  * @GET{/catalog}
  * @GET{/pages/{name}}
+ * @GET{/notfound}
  */
 class index extends IndexHandler{}
 

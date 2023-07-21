@@ -157,6 +157,23 @@ class selfInfo extends MustBeConnected
 }
 
 /**
+ * @DELETE{/api/user}
+ */
+class selfDelete extends MustBeConnected
+{
+    public function handler(Request $request, Response $response): void
+    {
+        /** @var User $user */
+        $user = $this->floor->pickup("user");
+        $user->delete();
+        
+        AccessToken::delete();
+
+        $response->code(204)->info("user.delete")->send();
+    }
+}
+
+/**
  * @GET{/api/logout}
  */
 class logout extends MustBeConnected

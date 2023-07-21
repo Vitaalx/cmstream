@@ -1,5 +1,8 @@
 <div class="max-w-[1130px] mt-[60px] mx-auto mb-[40px] px-7 lg:px-14 pb-[30px]">
-    <div class="flex flex-col items-center">
+    <div
+    cv-if="this.isConnected"
+    class="flex flex-col items-center"
+    >
         
         <div class="mb-[30px] flex items-center gap-[32px] color-white">
             <user-image size="120"/>
@@ -108,33 +111,39 @@
                 </div>
             </text-input>
 
-            <button
-            type="button"
-            @click="changePassWord"
-            class="px-[20px] py-[10px] rounded bg-skyblue self-center"
-            cv-show="this.success === false"
-            >
-                Changer de mot de passe
-            </button>
+            <div class="flex justify-center items-center gap-[20px]">
+                <button
+                type="button"
+                @click="changePassWord"
+                class="px-[20px] py-[10px] rounded bg-skyblue self-center"
+                cv-show="this.success === false"
+                >
+                    Changer de mot de passe
+                </button>
+
+                <btn
+                @click="deleteAccount"
+                :popup="{ title: 'Supprimer le compte', subtitle: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }"
+                :small="false"
+                theme="red"
+                >
+                    Supprimer le compte
+                </btn>
+            </div>
         </cv-form>
     </div>
 </div>
 
 <script>
-    const [user_image, impLoader, impTaob] = await Promise.all([
+    const [user_image, { default: taob }] = await Promise.all([
         importer('/public/cuteVue/components/account/user-image.html'),
-        import("/public/cuteVue/stores/loader.js"),
         import("/public/cuteVue/taob.js"),
     ]);
-
-    const loaderStore = impLoader.loaderStore;
-    const taob = impTaob.default;
 
     export default {
         components: {
             "user-image": user_image,
         },
-
         data: {
             fn: "",
             ln: "",
@@ -144,7 +153,6 @@
             alreadyUseUsername: false,
             success: false,
         },
-
         computed: {
             usernameRule(){
                 return [
@@ -155,7 +163,6 @@
                 ];
             },
         },
-
         static: {
             lastnameRule: [
                 (value) => !!value || "Ce champs est obligatoire",
@@ -169,7 +176,6 @@
                 (value) => /^[a-zA-Z]+$/.test(value) || "Prénom invalide",
             ],
         },
-        
         methods: {
             init(){
                 this.fn = this.firstname;
@@ -179,9 +185,10 @@
                 if(this.editing !== false)this.editing = false;
             },
             async submited(){
-                let close = loaderStore.push();
-
-                await taob.put("/user", {firstname: this.fn, lastname: this.ln, username: this.p})
+                await taob.put("/user",
+                { firstname: this.fn, lastname: this.ln, username: this.p },
+                { loader: true }
+                )
                 .info(info => {
                     if(info === "username.already.used"){
                         this.alreadyUseUsername = this.p;
@@ -194,15 +201,14 @@
                     this.init();
                 })
                 .result;
-
-                close();
             }, 
             async changePassWord(e){
                 e.preventDefault();
 
-                let close = loaderStore.push();
-
-                await taob.post("/user/password", { email: this.email})
+                await taob.post("/user/password",
+                { email: this.email },
+                { loader: true }
+                )
                 .info(info => {
                     if(info === "Reset_Password.already.use") this.pushToast("error", "Une demande a déjà été envoyée.");
                     else if(info === "user.notfound.mail") this.pushToast("error", "Aucun utilisateur est associé à cette adresse email.");
@@ -212,20 +218,27 @@
                     this.pushToast("successfull", "Un mail de confirmation vous a été envoyé.");
                 })
                 .result;
-
-                close();
-            }
+            },
+            async deleteAccount(){
+                await taob.delete("/user",
+                    { loader: true }
+                )
+                .s(() => {
+                    this.disconnect(false);
+                    this.pushToast("successfull", "Votre compte a bien été supprimé.");
+                    router.push("/");
+                })
+                .result;
+            },
         },
-
         mounted(){
             this.init();
         },
-
         stores: [
             {
                 name: "user",
-                states: ["firstname", "lastname", "username", "avatar", "email"], // TODO: add avatar, email
-                actions: ["connect"]
+                states: ["firstname", "lastname", "username", "avatar", "email", "isConnected"],
+                actions: ["connect", "disconnect"]
             },
             {
                 name: "toast",

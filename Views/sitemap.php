@@ -30,6 +30,12 @@
     </url>
 
     <url>
+        <loc><?= $config['HOST'] ?>/notfound</loc>
+
+        <priority>0</priority>
+    </url>
+
+    <url>
         <loc><?= $config['HOST'] ?>/forgot-password</loc>
 
         <priority>0</priority>
