@@ -1,7 +1,7 @@
-<div class="bottom-0 left-0 fixed w-full h-0 flex flex-col items-center justify-end pb-[20px] gap-[10px]">
+<div class="bottom-0 left-0 fixed w-full h-0 flex flex-col items-center justify-end pb-[20px] gap-[10px] z-[10]">
     <div 
     cv-for="toast of this.toasts" 
-    class="flex lg:max-w-[500px] lg:min-w-[300px] lg:w-auto w-[90%] max-w-[300px] justify-between bg-darkblue rounded-[4px] gap-[5px] z-10 px-[5px] items-center"
+    class="flex lg:max-w-[500px] lg:min-w-[300px] lg:w-auto w-[90%] max-w-[300px] justify-between bg-darkblue rounded-[4px] gap-[5px] z-[10] px-[5px] items-center"
     >
         <icon 
         :name="this.toast.status === 'error'? 'close' : 'check'"
