@@ -5,6 +5,9 @@ namespace Services\Access;
 use Core\OverrideController;
 use Core\Request;
 
+/**
+ * This class is used to check if the user has the right to access the comments manager.
+ */
 abstract class AccessCommentsManager extends OverrideController
 {
     function extendCheckers(Request $request): array

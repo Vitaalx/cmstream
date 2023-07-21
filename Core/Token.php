@@ -36,6 +36,15 @@ abstract class Token
         return false;
     }
 
+    /**
+     * @param array $payload
+     * @param boolean $generateOnly
+     * @return string
+     * 
+     * Generate a token and set it in the response.
+     * If $generateOnly is true, the token will not be set in the response.
+     * Paylod is an array of data that will be encoded with header and signature.
+     */
     public static function generate(array $payload, bool $generateOnly = false): string
     {
         $header = base64_encode(json_encode([
@@ -66,6 +75,13 @@ abstract class Token
         return $token;
     }
 
+    /**
+     * @param string|null $token
+     * @return array|null
+     * 
+     * Verify a token and return the payload if it is valid.
+     * For verify token, this function will check the signature, the algorithm, the name, and the expiration time.
+     */
     public static function verify(string $token = null): ?array
     {
         $token = $token ?? Request::getCurrentRequest()->getCookie(self::name());
@@ -99,6 +115,13 @@ abstract class Token
         return $payload;
     }
 
+    /**
+     * @return boolean
+     * 
+     * Delete a token from the response.
+     * If the token is not set in the response, this function will return false.
+     * If the token is set in the response, this function will crush the last token.
+     */
     public static function delete(): bool
     {
         if(Request::getCurrentRequest()->getCookie(self::name()) === null) return false;

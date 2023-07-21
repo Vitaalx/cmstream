@@ -14,6 +14,9 @@ class VideoManagerService
      * @param string $title
      * @param string $description
      * @param integer $category
+     * @return Video
+     * 
+     * This function return a video
      */
     public static function createVideo(): Video
     {
@@ -44,6 +47,13 @@ class VideoManagerService
         }
     }
 
+    /**
+     * @param integer $id
+     * @param string $title
+     * @return Url
+     * 
+     * This function return a url where video
+     */
     public static function createUrlWhereVideo(int $video_id, string $content): Url
     {
         return Url::insertOne([

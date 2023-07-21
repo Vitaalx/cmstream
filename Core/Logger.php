@@ -7,6 +7,14 @@ class Logger
     private static $disabled = false;
     private static $allowRequestDB = false;
 
+    /**
+     * @param mixed $message
+     * @param string $header
+     * @return void
+     * 
+     * Insert a message in the log file.
+     * Set Log with request method, uri, response info, response code and message.
+     */
     private static function insert(mixed $message, string $header): void
     {
         if(self::$disabled === true) return;
@@ -35,7 +43,12 @@ class Logger
             $header
         );
     }
-
+    /**
+     * @param mixed $message
+     * @return void
+     * 
+     * Set auto heading of log in function of the response code.
+     */
     public static function auto(mixed $message): void
     {
         $code = Response::getCurrentResponse()->getCode();
