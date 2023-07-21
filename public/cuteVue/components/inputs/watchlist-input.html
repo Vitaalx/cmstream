@@ -1,7 +1,8 @@
 <icon
-        @click="addWish"
-        class="text-[24px] cursor-pointer"
-        :name="this.state == 0 ? 'bookmark' : 'bookmark-outline'"
+@click="addWish"
+cv-show="this.isConnected"
+class="text-[24px] cursor-pointer"
+:name="this.state == 0 ? 'bookmark' : 'bookmark-outline'"
 />
 <script>
     const [{default: taob}] = await Promise.all([
@@ -15,8 +16,9 @@
             id: "",
         },
         watch: {
-            id() {
-                if (this.id !== null) this.getState();
+            isConnected(){
+                if(this.isConnected === true && this.state === null)this.getState();
+                else if(this.isConnected === false && this.state !== null) this.state = null;
             }
         },
         methods: {
@@ -60,18 +62,22 @@
                         params: {id: this.id},
                         loader: true,
                     }
-                )
-                    .sd();
+                ).sd();
                 this.state = state;
             }
         },
         mounted() {
+            if(this.isConnected === true)this.getState();
         },
         stores: [
             {
                 name: "toast",
                 actions: ["pushToast"]
             },
+            {
+                name: "user",
+                states: ["isConnected"],
+            }
         ]
     }
 </script>

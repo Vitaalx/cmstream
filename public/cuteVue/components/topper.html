@@ -16,6 +16,7 @@
             'z-[1]': this.video[0] == this.index,
         }"
         >
+            {{ this.video.type }}
             <img 
             class="absolute top-2/4 left-0 w-full h-full object-cover pointer-events-none -translate-y-[50%]"
             :src="this.video[1].value.image"
@@ -65,6 +66,10 @@
         
                                 <icon name="thumb-down" />
                             </div>
+
+                            <watchlist-input
+                            :id="this.video[1].id"
+                            />
                         </div>
                     </div>
                 </div>

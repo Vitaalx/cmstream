@@ -13,7 +13,7 @@ services:
       context: ./.docker/nginx/
       dockerfile: Dockerfile
     ports:
-      - 1506:80
+      - 3380:80
     volumes:
      - ./:/var/www
 
