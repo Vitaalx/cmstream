@@ -77,6 +77,10 @@ createRoute(
                     path: "/reset-password",
                     view: () => importer("/public/cuteVue/views/reset-password.html"),
                 },
+                {
+                    path: "/notfound",
+                    view: () => importer("/public/cuteVue/views/notfound.html"),
+                }
             ],
         },
         {
@@ -155,9 +159,14 @@ createRoute(
             return result.url.replace(location.origin, "");
         }
         else if (result.status === 200) {
+            close();
             let appName = result.headers.get("App-Name");
             if (document.title !== appName) document.title = appName;
             return path;
+        }
+        else if (result.status === 404) {
+            close();
+            return "/notfound";
         }
         else if(result.headers.get("info") === "token.invalid"){
             close();
