@@ -1,5 +1,19 @@
-<div>
+<div class="h-[calc(100vh-60px)] flex flex-col justify-center items-center gap-[30px]">
+    <h1 class="text-2xl sm:text-4xl text-center">On dirait que vous vous êtes perdu...</h1>
 
+    <span class="text-4xl sm:text-9xl">404</span>
+
+    <img src="/public/img/lost.gif">
+
+    <div class="flex flex-col justify-center items-center gap-[5px] text-base sm:text-xl">
+        <p>Revenir en lieu sûr :</p>
+
+        <router_link href="/" class="flex items-center gap-[5px] hover:text-skyblue">
+            Accueil
+
+            <icon name="arrow-right" class="mb-[-3px]"/>
+        </router_link>
+    </div>
 </div>
 
 <script>
