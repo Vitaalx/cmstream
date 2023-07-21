@@ -15,6 +15,11 @@ function callController(string $controller){
     return new $controllerClass(Request::getCurrentRequest(), Response::getCurrentResponse());
 }
 
+/**
+ * @return void
+ * 
+ * Get the error, send the error to the logger and send a 500 error and info of error to the client.
+ */
 function error_handler(){
     $error = error_get_last();
     if($error === null) return;
@@ -31,8 +36,10 @@ function error_handler(){
     ]);
 }
 
+// Enregistre une fonction de rappel pour exécution à l'extinction
 register_shutdown_function("Core\\error_handler");
 
+// Use function error_handler() as gestion of error
 set_error_handler("Core\\error_handler", E_COMPILE_ERROR);
 set_error_handler("Core\\error_handler", E_CORE_ERROR);
 set_error_handler("Core\\error_handler", E_ERROR);

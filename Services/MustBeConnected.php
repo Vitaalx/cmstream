@@ -5,6 +5,10 @@ namespace Services;
 use Core\OverrideController;
 use Core\Request;
 
+/**
+ * This class is used to check if the user is connected.
+ * Allows preset checker to be used in other Controllers.
+ */
 abstract class MustBeConnected extends OverrideController
 {
     function extendCheckers(Request $request): array

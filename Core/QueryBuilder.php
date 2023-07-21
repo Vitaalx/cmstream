@@ -4,6 +4,17 @@ namespace Core;
 class QueryBuilder {
     static private \PDO $db;
     
+    /**
+     * @param string $from
+     * @param array $select
+     * @param array $where
+     * @param array $options
+     * @param array $joins
+     * @return void
+     * 
+     * Create a select request.
+     * If request is allowed, the request is logged.
+     */
     static function createSelectRequest(string $from, array $select, array $where, array $options = [], array $joins = []){
         $values = [];
         $select = self::arrayToArraySelect($select, $values);
@@ -22,6 +33,15 @@ class QueryBuilder {
         return $request;
     }
 
+    /**
+     * @param string $to
+     * @param array $tableValue
+     * @param array $options
+     * @return void
+     * 
+     * Create an insert request.
+     * If request is allowed, the request is logged.
+     */
     static function createInsertRequest(string $to, array $tableValue, array $options = []){
         $keys = [];
         $values = [];
@@ -56,6 +76,16 @@ class QueryBuilder {
         return $request;
     }
 
+    /**
+     * @param string $from
+     * @param array $set
+     * @param array $where
+     * @param array $options
+     * @return void
+     * 
+     * Create an update request.
+     * If request is allowed, the request is logged.
+     */
     static function createUpdateRequest(string $from, array $set, array $where, array $options = []){
         $values = [];
         $set = self::arrayToArraySet($set, $values);
@@ -73,6 +103,15 @@ class QueryBuilder {
         
     }
 
+    /**
+     * @param string $from
+     * @param array $where
+     * @param array $options
+     * @return int $request
+     * 
+     * Create a count where argument is the number of row.
+     * If request is allowed, the request is logged.
+     */
     static function createCountRequest(string $from, array $where, array $options = []){
         $values = [];
         $where = self::arrayToArrayWhere($where, $values);
@@ -87,6 +126,15 @@ class QueryBuilder {
         return $request;
     }
 
+    /**
+     * @param string $from
+     * @param array $where
+     * @param array $options
+     * @return void
+     * 
+     * Create a delete request.
+     * If request is allowed, the request is logged.
+     */
     static function createDeleteRequest(string $from, array $where, array $options = []){
         $values = [];
         $where = self::arrayToArrayWhere($where, $values);
@@ -101,6 +149,15 @@ class QueryBuilder {
         return $request;
     }
 
+    /**
+     * @param array $array
+     * @param array $values
+     * @param string $operator
+     * @return array $wheres
+     * 
+     * Convert an array to a where for a select request.
+     * In function of the value, the "where" is different.
+     */
     static function arrayToArrayWhere(array $array, array &$values, string $operator = "="){
         $wheres = [];
         foreach($array as $key => $value){
@@ -186,6 +243,15 @@ class QueryBuilder {
         return $wheres;
     }
 
+    /**
+     * @param array $array
+     * @param array $values
+     * @return array $selects
+     * 
+     * Convert an array to a select for a select request.
+     * If the key is $CASE, the value is converted to a case.
+     * Return stack request with select
+     */
     static function arrayToArraySelect(array $array, array &$values){
         $selects = [];
         foreach($array as $key => $value){
@@ -214,6 +280,14 @@ class QueryBuilder {
         return $selects;
     }
 
+    /**
+     * @param array $array
+     * @return array $options
+     * 
+     * Convert an array to options for a request.
+     * If the key is ORDER_BY, GROUP_BY or RETURNING, the value is converted to a string.
+     * Return stack request with options
+     */
     static function arrayToArrayOptions(array $array){
         $options = [];
         foreach($array as $key => $value){
@@ -242,6 +316,14 @@ class QueryBuilder {
         return $options;
     }
 
+    /**
+     * @param array $array
+     * @param array $values
+     * @return array $joins
+     * 
+     * Convert an array to a join for a select request.
+     * If key is LEFT_JOIN, RIGHT_JOIN, JOIN or INNER_JOIN, the value is converted to a join.
+     */
     static function arrayToArrayJoin(array $array, array &$values){
         $joins = [];
         foreach($array as $key => $value){
@@ -255,6 +337,17 @@ class QueryBuilder {
         return $joins;
     }
 
+    /**
+     * @param array $array
+     * @param array $values
+     * @return array $sets
+     * 
+     * Convert an array to a set for an update request.
+     * If the value is null, the value is set to null.
+     * If the value is an object, the value is set to the id of the object.
+     * Else the value is set to the value.
+     * Ignore the key if the value is an array.
+     */
     static function arrayToArraySet(array $array, array &$values){
         $sets = [];
         foreach ($array as $key => $value) {
@@ -278,6 +371,12 @@ class QueryBuilder {
         return self::$db;
     }
 
+    /**
+     * @param array $CONFIG
+     * @return void
+     * 
+     * Set the database connection
+     */
     static public function dataBaseConnection(array $CONFIG): void
     {
         $pdo = new \PDO(
@@ -292,5 +391,5 @@ class QueryBuilder {
     }
 
 }
-
+// if the config file is loaded and config db, the database connection is set
 if(isset(CONFIG["DB_HOST"]) === true)QueryBuilder::dataBaseConnection(CONFIG);

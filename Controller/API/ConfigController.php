@@ -13,6 +13,13 @@ use Services\Access\AccessConfigEditor;
 
 /**
  * @POST{/api/config/logo}
+ * @apiName UploadLogo
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @return Response
+ * 
+ * This controller is used to upload the logo of the application.
  */
 class uploadLogo extends AccessConfigEditor
 {
@@ -34,6 +41,15 @@ class uploadLogo extends AccessConfigEditor
 }
 /**
  * @PUT{/api/config/app}
+ * @apiName UpdateAppConfig
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @param CONFIG
+ * return Response
+ * 
+ * This controller is used to update the application configuration.
+ * This configuration is stored in the config.php file.
  */
 class updateConfigApp extends AccessConfigEditor
 {
@@ -73,6 +89,14 @@ class updateConfigApp extends AccessConfigEditor
 
 /**
  * @PUT{/api/config/mail}
+ * @apiName UpdateMailConfig
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @param CONFIG
+ * 
+ * This controller is used to update the mail configuration.
+ * This configuration is stored in the config.php file.
  */
 class updateConfigMail extends AccessConfigEditor
 {
@@ -111,6 +135,14 @@ class updateConfigMail extends AccessConfigEditor
 
 /**
  * @GET{/api/config/app}
+ * @apiName GetAppConfig
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @param CONFIG
+ * @return Response
+ * 
+ * This controller is used to get the application configuration.
  */
 class getConfigApp extends AccessConfigEditor
 {
@@ -125,6 +157,14 @@ class getConfigApp extends AccessConfigEditor
 
 /**
  * @GET{/api/config/mail}
+ * @apiName GetMailConfig
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @param CONFIG
+ * @return Response
+ * 
+ * This controller is used to get the mail configuration.
  */
 class getConfigMail extends AccessConfigEditor
 {

@@ -11,6 +11,11 @@ class File
         $this->path = $path;
     }
 
+    /**
+     * @return void
+     * 
+     * return the content in string format of the file.
+     */
     public function read()
     {
         $file = fopen($this->path, "r");
@@ -19,6 +24,12 @@ class File
         return $content;
     }
 
+    /**
+     * @param string $data
+     * @return File
+     * 
+     * Write data in the file.
+     */
     public function write($data): File
     {
         $file = fopen($this->path, "w");
@@ -27,6 +38,12 @@ class File
         return $this;
     }
 
+    /**
+     * @param string $data
+     * @return File
+     * 
+     * Append data in the file.
+     */
     public function append($data): File
     {
         $file = fopen($this->path, "a+");
@@ -35,6 +52,12 @@ class File
         return $this;
     }
 
+    /**
+     * @param string $path
+     * @return File
+     * 
+     * Change the path of the file.
+     */
     public function rename($path): File
     {
         rename($this->path, $path);
@@ -42,6 +65,12 @@ class File
         return $this;
     }
 
+    /**
+     * @param string $path
+     * @return File
+     * 
+     * Copy the file in the path.
+     */
     public function copyTo($path): File
     {
         copy($this->path, $path);
@@ -49,11 +78,21 @@ class File
         return $this;
     }
 
+    /**
+     * @return void
+     * 
+     * Delete the file in tmp folder of the server.
+     */
     public function delete(): void
     {
         unlink($this->path);
     }
 
+    /**
+     * @return int
+     * 
+     * Return the size of the file.
+     */
     public function getSize(): int
     {
         return filesize($this->path);

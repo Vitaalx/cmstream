@@ -30,6 +30,18 @@ abstract class Controller {
     abstract public function checkers(Request $request): array;
     abstract public function handler(Request $request, Response $response): void;
 
+    /**
+     * @param array $checkers
+     * @param Floor $floor
+     * @param Response $response
+     * @return void
+     * 
+     * Execute all checkers.
+     * If input value of checker is data on this floor, the data is used.
+     * This response of checker is droped in floor.
+     * 
+     * @throws TypeError
+     */
     static private function launchCheckers(array $checkers, Floor $floor, Response $response): void
     {
         $lastChecker = "";
@@ -60,6 +72,14 @@ abstract class Controller {
         }
     }
 
+    /**
+     * @param string $checker
+     * @return string $function
+     * 
+     * Include checker file.
+     * if checker is already include, return function name.
+     * Otherwise, include file and return function name.
+     */
     static function autoLoadChecker(string $checker): string
     {
         $function = "checker/{$checker}";
@@ -89,6 +109,9 @@ abstract class Controller {
     }
 }
 
+/**
+ * This abstract class is used to create a controller with add custom checkers and handlers in function of need.
+ */
 abstract class OverrideController extends Controller {
     public function extendCheckers(Request $request): array
     {
@@ -101,6 +124,9 @@ abstract class OverrideController extends Controller {
     }
 }
 
+/**
+ * This abstract class is used to create a controller with only a handler.
+ */
 abstract class LiteController {
     public function __construct(Request $request, Response $response){
         $this->handler($request, $response);
@@ -108,6 +134,13 @@ abstract class LiteController {
     abstract public function handler(Request $request, Response $response): void;
 }
 
+/**
+ * @param string $checker
+ * @param mixed $value
+ * @return void
+ * 
+ * Call checker.
+ */
 function callChecker(string $checker, mixed $value){
     $checkerFunction = Controller::autoLoadChecker($checker);
     $floor = new Floor();

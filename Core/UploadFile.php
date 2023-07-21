@@ -34,6 +34,12 @@ class UploadFile
         return $this->save;
     }
 
+    /**
+     * @param string $path
+     * @return File|null
+     * 
+     * Save the file in function of the path and return a File object.
+     */
     public function saveTo(string $path): ?File
     {
         if ($this->save !== null) return null;
@@ -43,6 +49,11 @@ class UploadFile
         return new File($path);
     }
 
+    /**
+     * @return string
+     * 
+     * Return the content of the uploaded file.
+     */
     public function read()
     {
         $file = fopen($this->file["tmp_name"], "r");

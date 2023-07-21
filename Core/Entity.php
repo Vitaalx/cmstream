@@ -15,6 +15,7 @@ abstract class Entity implements \JsonSerializable
 
     public function __construct(array $array)
     {
+        // singleton pattern to avoid multiple reflection
         if (array_key_exists(static::class, self::$reflections) === false) {
             self::$reflections[static::class] = [];
             $rp = new \ReflectionObject($this);
@@ -62,6 +63,10 @@ abstract class Entity implements \JsonSerializable
         return $this->onSerialize($this->toArray());
     }
 
+    /**
+     * @return array<string, mixed>
+     * transform object to array
+     */
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
@@ -73,6 +78,11 @@ abstract class Entity implements \JsonSerializable
         return $array;
     }
 
+    /**
+     * @param array $prop
+     * @return boolean
+     * Join the property if it is an entity or an array
+     */
     private function join(array $prop): bool
     {
         if ($prop["type"] === "array") {
@@ -111,6 +121,13 @@ abstract class Entity implements \JsonSerializable
         }
     }
 
+    /**
+     * @return array
+     * 
+     * If the property is array, the array is join
+     * 
+     * @throws \Throwable
+     */
     public function toArray(): array
     {
         $array = [];
@@ -138,7 +155,12 @@ abstract class Entity implements \JsonSerializable
 
         return $array;
     }
-
+    
+    /**
+     * @return void
+     * 
+     * Save the current entity.
+     */
     public function save(): void
     {
         $isInsert = !array_key_exists("id", $this->props);
@@ -190,6 +212,12 @@ abstract class Entity implements \JsonSerializable
         
     }
 
+    /**
+     * @return boolean
+     * 
+     * Delete the current entity.
+     * If the entity is join to another entity, the other entity is also deleted.
+     */
     public function delete(): bool
     {
         $this->onDelete();
@@ -223,6 +251,17 @@ abstract class Entity implements \JsonSerializable
         
     }
 
+    /**
+     * @param string $prop
+     * @param mixed $value
+     * @return void
+     * 
+     * Get Property of Object.
+     * Set value of property.
+     * If the property is an entity or an array, the id of the entity is set.
+     * Otherwise the value is set.
+     * The property is marked as changed.
+     */
     protected function set(string $prop, mixed $value): void
     {
         $prop = self::$reflections[static::class][$prop];
@@ -234,6 +273,14 @@ abstract class Entity implements \JsonSerializable
         $this->propsChange[$prop["name"]] = true;
     }
 
+    /**
+     * @param string $propName
+     * @return mixed
+     * 
+     * Get Property of Object
+     * Join if the property is an entity or an array then return the property
+     * Otherwise return the property
+     */
     protected function get(string $propName)
     {
         $prop = self::$reflections[static::class][$propName] ?? null;
@@ -244,6 +291,15 @@ abstract class Entity implements \JsonSerializable
         return $this->props[$prop["name"]];
     }
 
+    /**
+     * @param array $where
+     * @param array $options
+     * @return static|null
+     * 
+     * If no options are specified, the LIMIT option is set to 1
+     * If no result is found, null is returned
+     * Otherwise the first result formated as an instance of the current class is returned
+     */
     static public function findFirst(array $where = [], array $options = []): ?static
     {
         $currentEntityName = explode("\\", static::class);
@@ -262,7 +318,11 @@ abstract class Entity implements \JsonSerializable
     }
 
     /**
+     * @param array $where
+     * @param array $options
      *  @return static[]
+     * 
+     * return an array of instances of the current class
      */
     static public function findMany(array $where = [], array $options = []): array
     {
@@ -279,6 +339,15 @@ abstract class Entity implements \JsonSerializable
         return $result;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array $where
+     * @param array $options
+     * @return EntityIterator
+     * 
+     * return an iterator of instances of the current class
+     */
     static public function findIterator(array $where = [], array $options = []): EntityIterator
     {
         $currentEntityName = explode("\\", static::class);
@@ -304,6 +373,14 @@ abstract class Entity implements \JsonSerializable
         return $instance;
     }
 
+    /**
+     * @param array $where
+     * @return boolean
+     * 
+     * Delete all rows matching the where clause.
+     * If no where clause is specified, all rows are deleted.
+     * Return true if the request is successful, false otherwise.
+     */
     static public function deleteMany(array $where = []): bool
     {
         $currentEntityName = explode("\\", static::class);
@@ -318,6 +395,12 @@ abstract class Entity implements \JsonSerializable
         return true;
     }
 
+    /**
+     * @param array $where
+     * @return integer
+     * 
+     * return the number of rows found
+     */
     static public function count(array $where = []): int
     {
         $currentEntityName = explode("\\", static::class);
@@ -335,6 +418,8 @@ abstract class Entity implements \JsonSerializable
     }
 }
 
+// Interface for external iterators or objects that can be iterated themselves internally.
+// Allows iteration over entities
 class EntityIterator implements Iterator
 {
     public Iterator $iterator;
