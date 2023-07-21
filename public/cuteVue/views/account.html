@@ -198,8 +198,6 @@
                     this.init();
                 })
                 .result;
-
-                close();
             }, 
             async changePassWord(e){
                 e.preventDefault();
@@ -217,8 +215,6 @@
                     this.pushToast("successfull", "Un mail de confirmation vous a été envoyé.");
                 })
                 .result;
-
-                close();
             },
             async deleteAccount(){
                 await taob.delete("/user",
@@ -230,8 +226,6 @@
                     router.push("/");
                 })
                 .result;
-
-                close();
             },
         },
         mounted(){
