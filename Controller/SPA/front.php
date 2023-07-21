@@ -167,9 +167,12 @@ class adminContent extends IndexHandler
 class GetMovie extends IndexHandler{
     public function extendHandler(Request $request, Response $response): void
     {
+        $movie = Movie::findFirst(["id" => $request->getParam("id")]);
+        if($movie === null){ 
+            $this->code = 404;
+            return;
+        }
         if($request->getHeader("Page-Access") === null){
-            $movie = Movie::findFirst(["id" => $request->getParam("id")]);
-            if($movie === null) return;
             $this->description = $movie->getDescription();
             $this->keywords = "streaming, {$movie->getTitle()}, movie";
         }
@@ -182,9 +185,12 @@ class GetMovie extends IndexHandler{
 class GetSerie extends IndexHandler{
     public function extendHandler(Request $request, Response $response): void
     {
+        $serie = Serie::findFirst(["id" => $request->getParam("id")]);
+        if($serie === null){
+            $this->code = 404;
+            return;
+        }
         if($request->getHeader("Page-Access") === null){
-            $serie = Serie::findFirst(["id" => $request->getParam("id")]);
-            if($serie === null) return;
             $this->description = $serie->getDescription();
             $this->keywords = "streaming, {$serie->getTitle()}, serie";
         }
@@ -197,13 +203,16 @@ class GetSerie extends IndexHandler{
 class GetEpisode extends IndexHandler{
     public function extendHandler(Request $request, Response $response): void
     {
+        $episode = Episode::findFirst([
+            "serie_id" => $request->getParam("id"), 
+            "season" => $request->getParam("season"),
+            "episode" => $request->getParam("episode")
+        ]);
+        if($episode === null){
+            $this->code = 404;
+            return;
+        }
         if($request->getHeader("Page-Access") === null){
-            $episode = Episode::findFirst([
-                "serie_id" => $request->getParam("id"), 
-                "season" => $request->getParam("season"),
-                "episode" => $request->getParam("episode")
-            ]);
-            if($episode === null) return;
             $this->description = $episode->getDescription();
             $this->keywords = "streaming, {$episode->getTitle()}, s{$episode->getSeason()}, ep{$episode->getEpisode()}, episode";
         }

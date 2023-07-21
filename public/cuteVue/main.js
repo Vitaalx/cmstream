@@ -154,12 +154,12 @@ createRoute(
             }
         )
         .result;
+
         if (result.redirected === true) {
             close();
             return result.url.replace(location.origin, "");
         }
         else if (result.status === 200) {
-            close();
             let appName = result.headers.get("App-Name");
             if (document.title !== appName) document.title = appName;
             return path;
