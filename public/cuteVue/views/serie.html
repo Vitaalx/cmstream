@@ -112,34 +112,22 @@
                         }
                     )
                     .info((info, ok) => {
-                            if(info === "serie.notfound"){
-                                this.pushToast("error", "Série introuvable.");
-                                router.push("/");
-                            }
-                            else if(!ok){
-                                this.pushToast("error", "Erreur lors de la récupération de la série.");
-                                router.push("/");
-                            }
-                        })
-                    .sd(),
+                        if(info === "serie.notfound"){
+                            this.pushToast("error", "Série introuvable.");
+                            router.push("/");
+                        }
+                        else if(!ok){
+                            this.pushToast("error", "Erreur lors de la récupération de la série.");
+                            router.push("/");
+                        }
+                    }).sd(),
                     taob.get(
                         "serie/{id}/season/count",
                         {
                             params: { id: this.params.id},
                             loader: true
                         }
-                    )
-                    .info((info, ok) => {
-                        if (info === "serie.notfound") {
-                            this.pushToast("error", "La série n'a pas été trouvée.");
-                            router.push("/");
-                        }
-                        if(!ok){
-                            this.pushToast("error", "Erreur lors de la récupération des saisons.");
-                            router.push("/");
-                        }
-                    })
-                    .sd()
+                    ).sd()
                 ]);
                 this.seasons = seasons.map(s => s.season);
                 this.selectedSeason = Number(this.query.season) || this.seasons[0];
@@ -157,7 +145,6 @@
                     "/content/{id}/vote", 
                     {
                         params: { id: this.contentId },
-                        loader: true
                     }
                 )
                 .s(data => {

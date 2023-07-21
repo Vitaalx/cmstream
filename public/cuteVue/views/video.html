@@ -303,8 +303,7 @@
                     taob.get(
                         "/content/{id}/vote", 
                         {
-                            params: { id: this.contentId},
-                            loader: true
+                            params: { id: this.contentId}
                         }
                     )
                     .s(data => {
@@ -343,18 +342,7 @@
                                 params: { id: this.params.id},
                                 loader: true
                             }
-                        )
-                            .info((info, ok) => {
-                                if (info === "serie.notfound") {
-                                    this.pushToast("error", "La série n'a pas été trouvée.");
-                                    router.push("/");
-                                }
-                                if(!ok){
-                                    this.pushToast("error", "Erreur lors de la récupération des saisons.");
-                                    router.push("/");
-                                }
-                            })
-                            .sd()
+                        ).sd()
                     ]);
 
                     this.type = "serie";
