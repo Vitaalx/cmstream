@@ -166,6 +166,8 @@ class selfDelete extends MustBeConnected
         /** @var User $user */
         $user = $this->floor->pickup("user");
         $user->delete();
+        
+        AccessToken::delete();
 
         $response->code(204)->info("user.delete")->send();
     }
