@@ -3,6 +3,9 @@
 namespace Services\token;
 use Core\Token;
 
+/**
+ * Allows get information in config file to create a token.
+ */
 class AccessToken extends Token{
     static protected function duration(): ?int
     {

@@ -7,6 +7,11 @@ use PHPMailer\Exception;
 use PHPMailer\PHPMailer;
 use PHPMailer\SMTP;
 
+/**
+ * This class is used to send mails.
+ * This class use PHPMailer.
+ * Check documentation here: https://github.com/PHPMailer/PHPMailer/tree/master/docs
+ */
 class MailService
 {
     public static function send(string $to, string $subject, string $message): void

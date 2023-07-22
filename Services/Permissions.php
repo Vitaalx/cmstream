@@ -12,6 +12,11 @@ enum Permissions : string
     case UserEditor = "user_editor";
     case ConfigEditor = "config_editor";
 
+    /**
+     * @return array<string>
+     * 
+     * This function returns all the permissions.
+     */
     public static function getAllPermissions(): array
     {
         return [
@@ -24,11 +29,23 @@ enum Permissions : string
             Permissions::ConfigEditor->value
         ];
     }
+    /**
+     * @param string $name
+     * @return boolean
+     * 
+     * This function checks if the permission exists.
+     */
     public static function exist(string $name): bool
     {
         return in_array($name, Permissions::getAllPermissions());
     }
 
+    /**
+     * @param string $name
+     * @return Permissions|null
+     * 
+     * This function returns the permission by its name.
+     */
     public static function getPermissionByName(string $name): ?Permissions
     {
         return match ($name) {

@@ -34,6 +34,8 @@ use Services\token\ResetToken;
  *  "email": "jdoe@mail.com",
  *  "password": "jdo123!"
  * }
+ * 
+ * This controller is used to register a new user.
  */
 class register extends Controller
 {
@@ -100,6 +102,8 @@ class register extends Controller
  *  "email": "jdoe@mail.com",
  *  "password": "jdo123!"
  * }
+ * 
+ * This controller is used to login a user.
  */
 class login extends Controller
 {
@@ -128,6 +132,9 @@ class login extends Controller
 
 /**
  * @GET{/api/user}
+ * @return Response
+ * 
+ * This controller is used to get the user informatio if he is connected.
  */
 class selfInfo extends MustBeConnected
 {
@@ -158,6 +165,9 @@ class selfInfo extends MustBeConnected
 
 /**
  * @DELETE{/api/user}
+ * @return Response
+ * 
+ * This controller is used to delete the user account if he is connected.
  */
 class selfDelete extends MustBeConnected
 {
@@ -175,6 +185,9 @@ class selfDelete extends MustBeConnected
 
 /**
  * @GET{/api/logout}
+ * @return Response
+ * 
+ * This controller is used to logout the user if he is connected.
  */
 class logout extends MustBeConnected
 {
@@ -195,6 +208,8 @@ class logout extends MustBeConnected
  * @param $userId
  *
  * @return void
+ * 
+ * This controller is used to delete a user on the admin dashboard.
  */
 class deleteUserAdmin extends AccessUserEditor
 {
@@ -222,6 +237,8 @@ class deleteUserAdmin extends AccessUserEditor
 /**
  * @DELETE{/user}
  * @return void
+ * 
+ * This controller is used to delete the user account if he is connected.
  */
 class deleteUser extends MustBeConnected
 {
@@ -234,6 +251,12 @@ class deleteUser extends MustBeConnected
 
 /**
  * @PUT{/api/user/{id}}
+ * @apiName CMStream
+ * @apiGroup User
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to modify a user on the admin dashboard.
  */
 /*
 Entry:
@@ -276,6 +299,13 @@ class modifyUserAdmin extends AccessUserEditor
 
 /**
  * @PUT{/api/user}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Feature UserEditor
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to modify the user account if he is connected.
  */
 class modifyUser extends MustBeConnected
 {
@@ -439,6 +469,13 @@ class MailValidate extends Controller
 
 /**
  * @GET{/api/users}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Feature UserEditor
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to get all users on the admin dashboard.
  */
 class getUsers extends AccessUserEditor
 {
@@ -477,6 +514,13 @@ class getUsers extends AccessUserEditor
 
 /**
  * @GET{/api/users/count}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Feature UserEditor
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to get the number of users on the admin dashboard.
  */
 class getUsersCount extends AccessDashboard
 {
@@ -496,6 +540,13 @@ class getUsersCount extends AccessDashboard
 
 /**
  * @GET{/api/user/{id}}
+ * @apiName CMStream
+ * @apiGroup User
+ * @Feature UserEditor
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to get a user on the admin dashboard.
  */
 class getUserAdmin extends AccessUserEditor
 {

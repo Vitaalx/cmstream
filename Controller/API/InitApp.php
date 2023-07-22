@@ -27,6 +27,12 @@ class getInit extends Controller
     }
 }
 
+/**
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to check if the database is reachable.
+ */
 class tryDB extends Controller
 {
     public function checkers(Request $request): array
@@ -49,6 +55,12 @@ class tryDB extends Controller
     }
 }
 
+/**
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to check if the typeof config is correct.
+ */
 class tryAppConf extends Controller
 {
     public function checkers(Request $request): array
@@ -68,6 +80,13 @@ class tryAppConf extends Controller
     }
 }
 
+/**
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to check if the mail config is correct.
+ * And if the mail server is reachable.
+ */
 class tryEmail extends Controller
 {
     public function checkers(Request $request): array
@@ -98,6 +117,12 @@ class tryEmail extends Controller
     }
 }
 
+/**
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to check if the first account is correct (Admin).
+ */
 class tryFirstAccount extends Controller
 {
     public function checkers(Request $request): array
@@ -142,6 +167,17 @@ class tryFirstAccount extends Controller
     "password": "!mlkit1234"
 }
 */
+/**
+ * @param Request $request
+ * @return Response
+ * 
+ * This controller is used to create the config file.
+ * Re-check if data is correct.
+ * Create the database.
+ * Create the first account and define as admin (with all permissions).
+ * Create the config file.
+ * Init Route (reverse init route file with production route file)
+ */
 class postInit extends Controller
 {
 

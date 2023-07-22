@@ -27,6 +27,8 @@ use Services\Back\VideoManagerService as VideoManager;
  * @param string image
  * @param int category
  * @return Response
+ * 
+ * This controller is used to create a movie.
  */
 /*
 Entry:
@@ -87,6 +89,8 @@ class createMovie extends AccessContentsManager
  * @Description Delete a movie
  * @param int id
  * @return Response
+ * 
+ * This controller is used to delete a movie.
  */
 class deleteMovie extends AccessContentsManager
 {
@@ -114,6 +118,8 @@ class deleteMovie extends AccessContentsManager
  * @Description Get a movie
  * @param int id
  * @return Response
+ * 
+ * This controller is used to get a movie.
  */
 class getMovie extends Controller
 {
@@ -143,6 +149,8 @@ class getMovie extends Controller
  * @Feature ContentManager
  * @Description Get movies
  * @return Response
+ * 
+ * This controller is used to get movies.
  */
 class getMovies extends AccessContentsManager
 {
@@ -177,6 +185,13 @@ class getMovies extends AccessContentsManager
 
 /**
  * @GET{/api/movies/count}
+ * @apiName GetMoviesCount
+ * @apiGroup ContentManager/MovieController
+ * @apiVersion 1.0.0
+ * @Feature ContentManager
+ * @return Response
+ * 
+ * This controller is used to get movies count.
  */
 class getMoviesCount extends AccessDashboard
 {
@@ -208,6 +223,8 @@ class getMoviesCount extends AccessDashboard
  * @param string image
  * @param int category
  * @return Response
+ * 
+ * This controller is used to update a movie.
  */
 /*
 Entry:

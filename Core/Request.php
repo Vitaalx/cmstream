@@ -32,16 +32,26 @@ class Request{
         $this->setRequestParams($regexPath);
     }
 
+    /**
+     * @return string
+     */
     public function getPath(): string
     {
         return $this->requestPath;
     }
 
+    /**
+     * @return string
+     */
     public function getMethod(): string
     {
         return $this->requestMethod;
     }
 
+    /**
+     * @param string $key
+     * @return string|null
+     */
     public function getQuery(string $key): ?string
     {
         return $this->requestQuery[$key] ?? null;
@@ -55,6 +65,10 @@ class Request{
         return $this->requestQuery;
     }
 
+    /**
+     * @param string $key
+     * @return string|null
+     */
     public function getParam(string $key): ?string
     {
         return $this->requestParams[$key] ?? null;
@@ -68,6 +82,10 @@ class Request{
         return $this->requestParams;
     }
 
+    /**
+     * @param string $key
+     * @return string|null
+     */
     public function getCookie(string $key): ?string
     {
         return $this->cookies[$key] ?? null;
@@ -81,6 +99,10 @@ class Request{
         return $this->cookies;
     }
 
+    /**
+     * @param string $key
+     * @return string|null
+     */
     public function getHeader(string $key): ?string
     {
         return $this->headers[$key] ?? null;
@@ -106,18 +128,29 @@ class Request{
     {
         return $this->files[$key] ?? null;
     }
-
+    /**
+     * @return string
+     * If the request is json, return json body, else return raw body
+     */
     public function getBody()
     {
         if(isset($this->requestJsonBody))return $this->requestJsonBody;
         else return $this->requestBody;
     }
 
+    /**
+     * @return string
+     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
+    /**
+     * @return void
+     * If the request is json, set json body, else set raw body
+     * get request on input php global
+     */
     private function setRequestBody()
     {
         if(isset($_SERVER["CONTENT_TYPE"]) && str_contains($_SERVER["CONTENT_TYPE"], "application/json"))
@@ -127,6 +160,11 @@ class Request{
         else $this->requestBody = file_get_contents("php://input");
     }
 
+    /**
+     * @param string $regexPath
+     * @return void
+     * Set request params
+     */
     private function setRequestParams(string $regexPath){
         preg_match_all('/{([^\/]*)}/', Route::getInfo()["path"], $groups1);
         preg_match_all($regexPath, $this->requestPath, $groups2);
