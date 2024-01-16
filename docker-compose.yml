@@ -18,7 +18,7 @@ services:
      - ./:/var/www
 
   database:
-    image: postgres
+    image: postgres:15
     restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -33,11 +33,11 @@ services:
     ports:
       - 8888:8080
 
-  maildev:
-    image: maildev/maildev
-    ports:
-      - 1080:1080
-      - 1025:1025
+  #maildev:
+  #  image: maildev/maildev
+  #  ports:
+  #    - 1080:1080
+  #    - 1025:1025
 
 volumes:
   pgdata:

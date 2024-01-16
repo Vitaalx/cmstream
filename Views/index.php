@@ -7,6 +7,7 @@
     <title><?= $appName ?></title>
     <?= $description ? "<meta name=\"description\" content=\"$description\">" : '' ?>
     <?= $keywords ? "<meta name=\"keywords\" content=\"$keywords\">" : '' ?>
+    <?= $background ? "<meta name=\"image\" content=\"$background\">" : '' ?>
     <link rel="icon" href="/public/img/icons/logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
