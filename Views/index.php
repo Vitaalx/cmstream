@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,10 +8,10 @@
     <title><?= $appName ?></title>
     <?= $description ? "<meta name=\"description\" content=\"$description\">" : '' ?>
     <?= $keywords ? "<meta name=\"keywords\" content=\"$keywords\">" : '' ?>
-    <?= $background ? "<meta name=\"image\" content=\"$background\">" : '' ?>
+    <?= $background ? "<meta property=\"og:image\" content=\"$background\">" : '' ?>
     <link rel="icon" href="/public/img/icons/logo.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/css/materialdesignicons.min.css">
+    <script src="/public/js/libs/tailwind.min.js"></script>
     <style type="text/tailwindcss">
         @layer base {
             :root {
@@ -33,46 +34,45 @@
         }
     </style>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        black: "var(--color-black)",
-                        blackless: "var(--color-blackless)",
-                        darkblue: "var(--color-darkblue)",
-                        midblue: "var(--color-midblue)",
-                        skyblue: "var(--color-skyblue)",
-                        grey: "var(--color-grey)",
-                        darkgrey: "var(--color-darkgrey)",
-                        whitesmoke: "var(--color-whitesmoke)",
-                        whiteless: "var(--color-whiteless)",
-                        white: "var(--color-white)",
-                        adminblack: "var(--color-adminblack)",
-                        adminblacker: "var(--color-adminblacker)",
-                        lightgrey: "var(--color-lightgrey)",
-                        pinkred: "var(--color-pinkred)",
-                        pinkredhover: "var(--color-pinkredhover)",
-                    },
-                }
-            },
-        }
-  </script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" src="https://www.unpkg.com/toanotherback@2.1.5/dist/taob.min.mjs"></script>
-  <script type="module" src="/public/cuteVue/main.js" defer></script>
-  <style>
-        body {
-            background-color: #000;
-            color: #DADADA;
-        }
-  </style>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    black: "var(--color-black)",
+                    blackless: "var(--color-blackless)",
+                    darkblue: "var(--color-darkblue)",
+                    midblue: "var(--color-midblue)",
+                    skyblue: "var(--color-skyblue)",
+                    grey: "var(--color-grey)",
+                    darkgrey: "var(--color-darkgrey)",
+                    whitesmoke: "var(--color-whitesmoke)",
+                    whiteless: "var(--color-whiteless)",
+                    white: "var(--color-white)",
+                    adminblack: "var(--color-adminblack)",
+                    adminblacker: "var(--color-adminblacker)",
+                    lightgrey: "var(--color-lightgrey)",
+                    pinkred: "var(--color-pinkred)",
+                    pinkredhover: "var(--color-pinkredhover)",
+                },
+            }
+        },
+    }
+    </script>
+    <script type="module" src="/public/js/libs/chart.min.js"></script>
+    <script type="module" src="/public/cuteVue/taob.js"></script>
+    <script type="module" src="/public/cuteVue/main.js" defer></script>
+    <style>
+    body {
+        background-color: #000;
+        color: #DADADA;
+    }
+    </style>
 </head>
+
 <body>
-    <div 
-    id="app"
-    class="w-full h-[100vh] flex items-center justify-center text-[50px] text-center"
-    >
+    <div id="app" class="w-full h-[100vh] flex items-center justify-center text-[50px] text-center">
         Chargement de la page en cours...
     </div>
 </body>
+
 </html>
