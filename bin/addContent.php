@@ -21,6 +21,77 @@ function JsonToArray(string $path): array
     return json_decode(file_get_contents($path), true);
 }
 
+/**
+ * Parse un fichier .env et charge les variables dans $_ENV
+ *
+ * @param string $filePath Chemin vers le fichier .env
+ * @return void
+ */
+function parseEnvFile(string $filePath): void
+{
+    if (!file_exists($filePath)) {
+        throw new Exception("Le fichier .env n'existe pas : $filePath");
+    }
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        if (str_starts_with(trim($line), '#')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $line, 2);
+        $key = trim($key);
+
+        $value = trim($value, " \t\n\r\0\x0B\"'");
+
+        $_ENV[$key] = $value;
+    }
+}
+
+function getDetails(string $name, bool $type)
+{
+    if ($type) {
+        $content = json_decode(getHtmlContent("https://api.themoviedb.org/3/search/tv?api_key=". $_ENV["MOVIE_BD_API_KEY"] ."&query=" . $name . "&language=fr-FR"));
+    } else {
+        $content = json_decode(getHtmlContent("https://api.themoviedb.org/3/search/movie?api_key=". $_ENV["MOVIE_BD_API_KEY"] ."&query=" . $name . "&language=fr-FR"));
+    }
+
+    if (!isset($content->results[0])) {
+        return [
+            "description" => "Aucune description disponible",
+            "genre" => Category::findFirst(),
+            "date" => date("Y-m-d H:i:s"),
+            "title" => str_replace("+", " ", $name)
+        ];
+    }
+
+    return [
+        "description" => $content->results[0]->overview ?? "La description sera ajouté prochainement",
+        "genre" => isset($content->results[0]->genre_ids) && count($content->results[0]->genre_ids) > 0
+            ? setGender($content->results[0]->genre_ids[0]) 
+            : Category::findFirst(),
+        "date" => $content->results[0]->first_air_date ?? date("Y-m-d H:i:s"),
+        "title" => $content->results[0]->name ?? str_replace("+", " ", $name)
+    ];
+}
+
+function setGender(string $id): Category
+{
+    $genres=[["id"=>"10759","name"=>"Action & Adventure"],["id"=>"16","name"=>"Animation"],["id"=>"35","name"=>"Comedy"],["id"=>"80","name"=>"Crime"],["id"=>"99","name"=>"Documentary"],["id"=>"18","name"=>"Drama"],["id"=>"10751","name"=>"Family"],["id"=>"10762","name"=>"Kids"],["id"=>"9648","name"=>"Mystery"],["id"=>"10763","name"=>"News"],["id"=>"10764","name"=>"Reality"],["id"=>"10765","name"=>"Sci-Fi & Fantasy"],["id"=>"10766","name"=>"Soap"],["id"=>"10767","name"=>"Talk"],["id"=>"10768","name"=>"War & Politics"],["id"=>"37","name"=>"Western"],["id"=>"28","name"=>"Action"],["id"=>"12","name"=>"Adventure"],["id"=>"14","name"=>"Fantasy"],["id"=>"36","name"=>"History"],["id"=>"27","name"=>"Horror"],["id"=>"10402","name"=>"Music"],["id"=>"10749","name"=>"Romance"],["id"=>"878","name"=>"Science Fiction"],["id"=>"10770","name"=>"TV Movie"],["id"=>"53","name"=>"Thriller"],["id"=>"10752","name"=>"War"]];
+    
+    foreach ($genres as $genre) {
+        if ($genre["id"] == $id) {
+            $g = Category::findFirst(["title" => $genre["name"]]);
+            if ($g != null) return $g;
+            return Category::insertOne(
+                fn (Category $category) => $category
+                    ->setTitle($genre["name"])
+            );
+        }
+    }
+}
+
 function getNameContent(array $data)
 {
     $content = array();
@@ -30,10 +101,10 @@ function getNameContent(array $data)
         if (count($result) > 0) {
             preg_match($pattern, $key, $matches);
             $season = explode("/", $matches[1]);
-            $title = str_replace("-", " ", $season[0]);
+            $details = getDetails(str_replace("-", "+", $season[0]), true);
             $season = intval(str_replace("saison", "", $season[1]));
             array_push($content, [
-                "name" => $title,
+                "name" => $details["title"],
                 "type" => "serie",
                 "season" => $season,
                 "source" => [
@@ -41,22 +112,28 @@ function getNameContent(array $data)
                     $value["source2"],
                     $value["source3"],
                     $value["source4"]
-                ]
+                ],
+                "description" => $details["description"],
+                "date" => $details["date"],
+                "genre" => $details["genre"]
             ]);
         }
         preg_match('/film/', $key, $result);
         if (count($result) > 0) {
             preg_match($pattern, $key, $matches);
-            $title = str_replace("-", " ", explode("/", $matches[1])[0]);
+            $details = getDetails(str_replace("-", "+", explode("/", $matches[1])[0]), false);
             array_push($content, [
-                "name" => $title,
+                "name" => $details["title"],
                 "type" => "film",
                 "source" => [
                     $value["source1"],
                     $value["source2"],
                     $value["source3"],
                     $value["source4"]
-                ]
+                ],
+                "description" => $details["description"],
+                "date" => $details["date"],
+                "genre" => $details["genre"]
             ]);
         }
     }
@@ -89,7 +166,7 @@ function listOAV(array $data)
 
 function getImageFromContent($searchQuery)
 {
-    $url = "https://anime-sama.fr/catalogue/" . str_replace(" ", "-", $searchQuery);
+    $url = "https://anime-sama.fr/catalogue/" . str_replace(" ", "-", strtolower($searchQuery));
 
     $maxRetries = 10;
     $retryCount = 0;
@@ -127,17 +204,17 @@ function getHtmlContent($url)
     return $htmlContent;
 }
 
-function addMovie(string $title, string $image, array $source): void
+function addMovie(string $title, string $image, array $source, string $description, string $date, Category $category): void
 {
     try {
         $video = Video::insertOne([]);
         $movie = Movie::insertOne(
             fn (Movie $movie) => $movie
                 ->setTitle($title)
-                ->setDescription('La description sera ajouté prochainement')
+                ->setDescription($description)
                 ->setVideo($video)
                 ->setImage($image)
-                ->setReleaseDate(date("Y-m-d H:i:s"))
+                ->setReleaseDate($date)
         );
         Content::insertOne(
             fn (Content $content) => $content
@@ -157,7 +234,7 @@ function addMovie(string $title, string $image, array $source): void
     }
 }
 
-function addSerie(string $title, string $image): Serie
+function addSerie(string $title, string $image, string $description, string $date, Category $category): Serie
 {
     try {
         if (Serie::findFirst(["title" => $title, "image" => $image]) !== null) {
@@ -166,14 +243,14 @@ function addSerie(string $title, string $image): Serie
         $serie = Serie::insertOne(
             fn (Serie $serie) => $serie
                 ->setTitle($title)
-                ->setDescription('La description sera ajouté prochainement')
+                ->setDescription($description)
                 ->setImage($image)
-                ->setReleaseDate(date("Y-m-d H:i:s"))
+                ->setReleaseDate($date)
         );
         Content::insertOne(
             fn (Content $content) => $content
                 ->setValue($serie)
-                ->setCategory(Category::findFirst())
+                ->setCategory($category)
         );
 
         return $serie;
@@ -193,7 +270,7 @@ function addEpisodeBySerie(int $season, Serie $serie, array $source, int $ep): v
             "video_id"    => $video->getId(),
             "serie_id"    => $serie->getId(),
             "title"       => 'Episode' . $ep . " - " . $serie->getTitle(),
-            "description" => "La description sera ajouté prochainement"
+            "description" => $serie->getDescription()
         ]);
         foreach ($source as $src) {
             if ($src == null) continue;
@@ -230,6 +307,7 @@ function transformTable(array $inputTable)
 
 function main()
 {
+    parseEnvFile(__DIR__ . "/../.env");
     $content = getNameContent(JsonToArray("/var/www/bin/src/content.json"));
     for ($i = 0; $i < count($content); $i++) {
         print_r("start get Image from content " . $content[$i]["name"] . "\n");
@@ -247,10 +325,10 @@ function main()
     foreach ($content as $key => $value) {
         if ($value["type"] == "film") {
             print_r("start add movie " . $value["name"] . "\n");
-            addMovie($value["name"], $value["image"], $value["source"]);
+            addMovie($value["name"], $value["image"], $value["source"], $value["description"], $value["date"], $value["genre"]);
         } else if ($value["type"] == "serie") {
             print_r("start add serie " . $value["name"] . "\n");
-            $serieEntity = addSerie($value["name"], $value["image"]);
+            $serieEntity = addSerie($value["name"], $value["image"], $value["description"], $value["date"], $value["genre"]);
             addAllEpisodeBySerie($value["season"], $serieEntity, $value["source"]);
         }
     }
