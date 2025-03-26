@@ -1,12 +1,11 @@
-version: '3'
 services:
   php:
     build:
       context: ./.docker/php/
       dockerfile: Dockerfile
     volumes:
-     - ./:/var/www
-     - ./docker/php/local.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/php.ini
 
   nginx:
     build:
@@ -15,23 +14,23 @@ services:
     ports:
       - 3380:80
     volumes:
-     - ./:/var/www
+      - ./:/var/www
 
   database:
-    image: postgres
-    restart: always
+    image: postgres:15
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: esgi
       POSTGRES_USER: esgi
       POSTGRES_PASSWORD: Test1234
-
-  adminer:
-    image: adminer
-    restart: always
     ports:
-      - 8888:8080
+      - 5432:5432
+
+  #adminer:
+  #  restart: always
+  #  ports:
+  #    - 8888:8080
 
   maildev:
     image: maildev/maildev

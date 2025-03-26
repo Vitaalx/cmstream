@@ -1,4 +1,4 @@
-import Toanotherback from "https://www.unpkg.com/toanotherback@2.1.6/dist/taob.min.mjs";
+import Toanotherback from "../js/libs/taob.min.js";
 import { loaderStore } from "./stores/loader.js";
 
 const taob = new Toanotherback({
@@ -7,15 +7,15 @@ const taob = new Toanotherback({
 	parameters: {
 		credentials: "include",
 	},
-	requestInterceptor(request, interParams){
-		if(request.parameters.loader === true){
+	requestInterceptor(request, interParams) {
+		if (request.parameters.loader === true) {
 			delete request.parameters.loader;
 			interParams.closeLoader = loaderStore.push();
 		}
 		return request;
 	},
-	responseInterceptor(response, request, interParams){
-		if(interParams.closeLoader !== undefined){
+	responseInterceptor(response, request, interParams) {
+		if (interParams.closeLoader !== undefined) {
 			interParams.closeLoader();
 		}
 		return response;

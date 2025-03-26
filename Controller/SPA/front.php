@@ -174,6 +174,7 @@ class GetMovie extends IndexHandler{
         }
         if($request->getHeader("Page-Access") === null){
             $this->description = $movie->getDescription();
+            $this->background = $movie->getImage();
             $this->keywords = "streaming, {$movie->getTitle()}, movie";
         }
     }
@@ -192,6 +193,7 @@ class GetSerie extends IndexHandler{
         }
         if($request->getHeader("Page-Access") === null){
             $this->description = $serie->getDescription();
+            $this->background = $serie->getImage();
             $this->keywords = "streaming, {$serie->getTitle()}, serie";
         }
     }
@@ -214,6 +216,7 @@ class GetEpisode extends IndexHandler{
         }
         if($request->getHeader("Page-Access") === null){
             $this->description = $episode->getDescription();
+            $this->background = $episode->getSerie()->getImage();
             $this->keywords = "streaming, {$episode->getTitle()}, s{$episode->getSeason()}, ep{$episode->getEpisode()}, episode";
         }
     }

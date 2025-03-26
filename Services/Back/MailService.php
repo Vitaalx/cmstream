@@ -17,20 +17,25 @@ class MailService
     public static function send(string $to, string $subject, string $message): void
     {
         try {
+
             $mail = new PHPMailer(true);
             $mail->SMTPDebug = 0;
             $mail->isSMTP();
             $mail->Host = CONFIG["MAIL_HOST"];
             $mail->Port = CONFIG["MAIL_PORT"];
+            $mail->SMTPSecure = 'tls';
 
             $mail->setFrom(CONFIG["MAIL_FROM"], CONFIG["APP_NAME"]);
+            $mail->Username = ''; // todo
+            $mail->Password = ''; // todo
             $mail->addAddress($to);
             $mail->isHTML(true);
             $mail->Subject = $subject;
             $mail->Body = $message;
+            $mail->SMTPAuth = true;
             $mail->send();
         } catch (\Exception $e) {
-            throw new Exception("mail.error");
+            throw new Exception($e);
         }
     }
 }
