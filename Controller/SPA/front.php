@@ -229,15 +229,12 @@ class GetSitemap extends LiteController
 {
     public function handler(Request $request, Response $response): void
     {
-        $pages = new File(__DIR__ . "/../../public/cuteVue/pages.json");
-        
-        $vars = [
-            "config" => CONFIG,
-            "pages" => json_decode($pages->read(), true),
-            "movies" => Movie::findIterator([]),
-            "episodes" => Episode::findIterator([]),
-        ];
+        $sitemap = new File(__DIR__ . "/../../public/sitemap.xml");
 
-        $response->code(200)->info("sitemap")->setHeader("Content-Type", "text/xml")->render("sitemap", "none", $vars);
+        $response
+            ->code(200)
+            ->info("sitemap")
+            ->setHeader("Content-Type", "text/xml")
+            ->send($sitemap->read());
     }
 }
