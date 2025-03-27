@@ -3,6 +3,7 @@
 /workspace.xml
 config.php
 public/cuteVue/pages.json
+public/sitemap.xml
 
 # Editor-based HTTP Client requests
 /httpRequests/
