@@ -1,103 +1,68 @@
 <div class="max-w-[1164px] h-[calc(100vh-100px)] pt-[20px] mx-auto px-7 lg:px-14 content">
-    <h1 class="w-full text-[32px] font-bold border-b-[2px] border-inherit mb-[30px] text-center">
+	<h1 class="w-full text-[32px] font-bold border-b-[2px] border-inherit mb-[30px] text-center">
 		Configuration de l'application
-    </h1>
+	</h1>
 
-    <div class="w-full flex gap-[20px] flex-col lg:flex-row">
-        <cv-form 
-		@submit="editConfigApp" 
-		class="basis-[50%] flex flex-col gap-[20px]"
-		>
-			<text-input 
-			type="text" 
-			cv-model="editAppName" 
-			placeholder="Nom d'application"
-			:rules="this.appNameRule"
-			/>
+	<div class="w-full flex gap-[20px] flex-col lg:flex-row">
+		<cv-form @submit="editConfigApp" class="basis-[50%] flex flex-col gap-[20px]">
+			<text-input type="text" cv-model="editAppName" placeholder="Nom d'application" :rules="this.appNameRule" />
 
-			<text-input 
-			:type="!this.lookSecret ? 'password' : 'text'" 
-			cv-model="editSecretKey" 
-			placeholder="Clé secrète"
-			:rules="this.secretKeyRule"
-			>
-				<icon 
-				@click="this.lookSecret = !this.lookSecret"
-				class=" absolute top-2/4 -translate-y-[50%] right-0 cursor-pointer" 
-				name="eye"
-				/>
+			<text-input :type="!this.lookSecret ? 'password' : 'text'" cv-model="editSecretKey"
+				placeholder="Clé secrète" :rules="this.secretKeyRule">
+				<icon @click="this.lookSecret = !this.lookSecret"
+					class=" absolute top-2/4 -translate-y-[50%] right-0 cursor-pointer" name="eye" />
 			</text-input>
 
-			<text-input
-			type="number" 
-			cv-model="editTokenDuration" 
-			placeholder="durée du token"
-			:rules="this.tokenDurationRule"
-			/>
+			<text-input type="number" cv-model="editTokenDuration" placeholder="durée du token"
+				:rules="this.tokenDurationRule" />
 
-			<text-input 
-			type="text" 
-			cv-model="editHost" 
-			placeholder="Nom de domaine"
-			:rules="this.hostRule"
-			/>
-			
-			<btn 
-			type="submit"
-			class="self-center"
-			>
+			<text-input type="text" cv-model="editHost" placeholder="Nom de domaine" :rules="this.hostRule" />
+
+			<btn type="submit" class="self-center">
 				Modifier
 			</btn>
-				
-        </cv-form>
 
-        <div class="basis-[50%] flex flex-col gap-[20px]">
+		</cv-form>
+
+		<div class="basis-[50%] flex flex-col gap-[20px]">
 			<div class="flex grow gap-[5px] h-[204px]">
-				<div class="basis-[50%] flex items-center justify-center border-gray-300 border-2 rounded-md  max-h-full overflow-hidden">
-					<img :src="'/public/img/icons/logo.png' || this.logo"/>
+				<div
+					class="basis-[50%] flex items-center justify-center border-gray-300 border-2 rounded-md  max-h-full overflow-hidden">
+					<img :src="'/public/img/icons/logo.png' || this.logo" />
 				</div>
 
-				<label class="basis-[50%] px-4 transition flex justify-center items-center bg-white border-2 text-grey border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
-					<div
-					cv-if="this.logo === null" 
-					class="text-gray-600 text-center"
-					>
-						<icon 
-						class="text-[40px]" 
-						name="upload"
-						/>
+				<label
+					class="basis-[50%] px-4 transition flex justify-center items-center bg-white border-2 text-grey border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+					<div cv-if="this.logo === null" class="text-gray-600 text-center">
+						<icon class="text-[40px]" name="upload" />
 
 						PNG, JPEG uniquement.
 					</div>
-					
+
 					<div class="flex justify-center items-center max-h-full overflow-hidden">
-						<img 
-						cv-if="this.logo" 
-						:src="URL.createObjectURL(this.logo)"
-						/>
+						<img cv-if="this.logo" :src="URL.createObjectURL(this.logo)" />
 					</div>
-					
-	
-					<input 
-					type="file"
-					@change="this.logo = $event.target.files[0];" 
-					name="file_upload" 
-					class="hidden" 
-					accept="image/png, image/jpeg"
-					/>
+
+
+					<input type="file" @change="this.logo = $event.target.files[0];" name="file_upload" class="hidden"
+						accept="image/png, image/jpeg" />
 				</label>
 			</div>
 
-			<btn 
-			@click="uploadLogo"
-			:disabled="this.logo === null"
-			class="self-center"
-			>
+			<btn @click="uploadLogo" :disabled="this.logo === null" class="self-center">
 				Modifier
 			</btn>
 
-        </div>
-    </div>
+		</div>
+	</div>
+	<h1 class="w-full text-[32px] font-bold border-b-[2px] border-inherit mb-[30px] text-center">
+		Sitemap
+	</h1>
+	<div class="flex justify-center pt-[20px]">
+		<btn @click="generateSitemap" class="self-center">
+			Générer le sitemap
+		</btn>
+	</div>
 </div>
 
 <script>
@@ -116,7 +81,7 @@
 			editTokenDuration: 1000,
 			editHost: "",
 			lookSecret: false,
-			logo: null, 
+			logo: null,
 		},
 		static: {
 			secretKeyRule: [
@@ -139,50 +104,63 @@
 			],
 		},
 		methods: {
-			getConfigApp(){
-				taob.get("/config/app", {loader: true})
-				.s(data => {
-					this.editAppName = data.APP_NAME;
-					this.editHost = data.HOST;
-					this.editSecretKey = data.SECRET_KEY;
-					this.editTokenDuration = data.TOKEN_DURATION;
-				});
+			getConfigApp() {
+				taob.get("/config/app", { loader: true })
+					.s(data => {
+						this.editAppName = data.APP_NAME;
+						this.editHost = data.HOST;
+						this.editSecretKey = data.SECRET_KEY;
+						this.editTokenDuration = data.TOKEN_DURATION;
+					});
 			},
-			uploadLogo(){
+			uploadLogo() {
 				const formData = new FormData();
 				formData.append("logo", this.logo);
 				taob.post(
 					"/config/logo",
 					formData,
-					{loader: true}
+					{ loader: true }
 				)
-				.s(() => {
-					this.logo = null;
-					this.pushToast("successfull", "Le logo à bien été mis à jour.")
-				})
-				.e(() => this.pushToast("error", "Erreur le logo n'a pas été mis à jour."));
+					.s(() => {
+						this.logo = null;
+						this.pushToast("successfull", "Le logo à bien été mis à jour.")
+					})
+					.e(() => this.pushToast("error", "Erreur le logo n'a pas été mis à jour."));
 			},
-			editConfigApp(){
+			editConfigApp() {
 				taob.put(
-					"/config/app", 
+					"/config/app",
 					{
 						APP_NAME: this.editAppName,
 						SECRET_KEY: this.editSecretKey,
 						TOKEN_DURATION: Number(this.editTokenDuration),
 						HOST: this.editHost,
 					},
-					{loader: true}
+					{ loader: true }
 				)
-				.s((res) => {
-					this.pushToast("successfull", "Configuration de l'application mise à jour avec succès.");
-					this.getConfigApp();
-				})
-				.e((error) => {
-					this.pushToast("error", "Erreur lors de la mise à jour de la configuration de l'application.");
-				});
+					.s((res) => {
+						this.pushToast("successfull", "Configuration de l'application mise à jour avec succès.");
+						this.getConfigApp();
+					})
+					.e((error) => {
+						this.pushToast("error", "Erreur lors de la mise à jour de la configuration de l'application.");
+					});
+			},
+			generateSitemap() {
+				taob.post(
+					"/config/sitemap",
+					{},
+					{ loader: true }
+				)
+					.s((res) => {
+						this.pushToast("successfull", "Sitemap généré avec succès.");
+					})
+					.e((error) => {
+						this.pushToast("error", "Erreur lors de la génération du sitemap.");
+					});
 			}
 		},
-		mounted(){
+		mounted() {
 			this.getConfigApp();
 		},
 		stores: [
