@@ -21,12 +21,6 @@ function JsonToArray(string $path): array
     return json_decode(file_get_contents($path), true);
 }
 
-/**
- * Parse un fichier .env et charge les variables dans $_ENV
- *
- * @param string $filePath Chemin vers le fichier .env
- * @return void
- */
 function parseEnvFile(string $filePath): void
 {
     if (!file_exists($filePath)) {

@@ -14,6 +14,7 @@ if(file_exists(__DIR__ . "/../config.php")){
     file_put_contents(INDEX_PATH, $fileContent);
     fclose($file);
     unlink(__DIR__ . "/../config.php");
+    unlink(__DIR__ . "/../public/sitemap.xml");
     echo "Les fichiers ont bien été switché.\n";
 }
 else{

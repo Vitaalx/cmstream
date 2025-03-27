@@ -176,3 +176,31 @@ class getConfigMail extends AccessConfigEditor
         $response->code(200)->send($data);
     }
 }
+
+/**
+ * @POST{/api/config/sitemap}
+ * @apiName GenerateSitemap
+ * @apiGroup ConfigController
+ * @apiVersion 1.0.0
+ * @Feature ConfigEditor
+ * @param CONFIG
+ * @return Response
+ * 
+ * This controller is used to generate the sitemap of the application.
+ */
+class generateSitemap extends AccessConfigEditor
+{
+    public function handler(Request $request, Response $response): void
+    {
+        $output = [];
+        $returnCode = 0;
+
+        exec("php " . __DIR__ . "/../../bin/makeSitemap.php", $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            $response->code(500)->info("sitemap.notGenerated")->send();
+        } else {
+            $response->code(200)->info("sitemap.isGenerated")->send();
+        }
+    }
+}
