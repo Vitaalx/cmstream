@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/var/www
-      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./.docker/php/local.ini:/usr/local/etc/php/conf.d/php.ini
 
   nginx:
     build:
